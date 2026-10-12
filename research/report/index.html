@@ -1,0 +1,646 @@
+<title>Clip Channel Field Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~70ch) with wide tables in their own scrollers; a sticky section index like an edit-bay timeline. */
+:root {
+  --bg: #f4f6f7;          /* cool paper */
+  --panel: #ffffff;
+  --ink: #12181c;
+  --ink-2: #47525a;
+  --ink-3: #6b767e;
+  --rule: #d9dfe3;
+  --accent: #0d6a78;      /* deep teal, the "playhead" */
+  --accent-ink: #ffffff;
+  --caption: #ffd84a;     /* the yellow clip caption, used only as a highlighter */
+  --caption-ink: #12181c;
+  --neg: #c9443f;         /* diverging pole: views lost */
+  --pos: #2a78d6;         /* diverging pole: views gained */
+  --good: #0c8a3a; --warn: #a76b00; --bad: #c9443f;
+  --font-display: "Archivo Narrow", "Arial Narrow", "Roboto Condensed", sans-serif-condensed, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101416; --panel: #171c1f; --ink: #e9eef0; --ink-2: #b5c0c6; --ink-3: #8b979e; --rule: #2a3236;
+    --accent: #4fb3c1; --accent-ink: #0b1214; --caption: #ffd84a; --caption-ink: #12181c;
+    --neg: #e66767; --pos: #5598e7; --good: #3fbf6a; --warn: #e0a83a; --bad: #e66767;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101416; --panel: #171c1f; --ink: #e9eef0; --ink-2: #b5c0c6; --ink-3: #8b979e; --rule: #2a3236;
+  --accent: #4fb3c1; --accent-ink: #0b1214; --caption: #ffd84a; --caption-ink: #12181c;
+  --neg: #e66767; --pos: #5598e7; --good: #3fbf6a; --warn: #e0a83a; --bad: #e66767;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 880px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 80px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.1; text-wrap: balance; margin: 0; letter-spacing: 0.005em; }
+h1 { font-size: clamp(2.4rem, 6vw, 3.6rem); font-weight: 700; text-transform: uppercase; }
+h2 { font-size: clamp(1.7rem, 4vw, 2.2rem); font-weight: 700; text-transform: uppercase; }
+h3 { font-size: 1.35rem; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-size: 0.86em; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.mark { background: var(--caption); color: var(--caption-ink); padding: 0 0.25em; border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.section { display: flex; flex-direction: column; gap: 18px; padding-block: 44px 8px; border-top: 1px solid var(--rule); }
+.section > .head { display: flex; flex-direction: column; gap: 6px; }
+
+/* header */
+header.top { display: flex; flex-direction: column; gap: 14px; padding-block: 8px 28px; }
+.slate { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-2); }
+.slate span b { color: var(--ink); font-weight: 500; }
+.lede { font-size: 1.12rem; color: var(--ink-2); max-width: 64ch; }
+
+/* index */
+nav.index { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--rule); margin-inline: -20px; padding: 8px 20px; overflow-x: auto; white-space: nowrap; scrollbar-width: thin; }
+nav.index a { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-2); text-decoration: none; margin-right: 16px; }
+nav.index a:hover { color: var(--accent); }
+nav.index a .tc { color: var(--ink-3); margin-right: 4px; }
+
+/* bottom line */
+.verdict { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px; }
+.verdict ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 10px; }
+.verdict li { max-width: 70ch; }
+
+/* tables */
+.tbl { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--font-mono); font-weight: 500; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--font-mono); font-size: 0.84rem; white-space: nowrap; }
+.wide table { min-width: 760px; }
+
+/* chips */
+.chip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.chip.good { color: var(--good); } .chip.warn { color: var(--warn); } .chip.bad { color: var(--bad); } .chip.neutral { color: var(--ink-3); }
+
+/* chart */
+.chart { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 16px 10px; position: relative; }
+.chart svg { display: block; width: 100%; height: auto; }
+.chart .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.8rem; color: var(--ink-2); margin-bottom: 8px; }
+.chart .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 0.8rem; padding: 6px 9px; border-radius: 4px; max-width: 260px; line-height: 1.35; }
+.note { font-size: 0.84rem; color: var(--ink-3); max-width: 70ch; }
+
+/* account cards */
+.accounts { display: flex; flex-direction: column; gap: 18px; }
+.acct { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.acct .row1 { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; }
+.acct .row1 h3 { display: flex; gap: 10px; align-items: baseline; }
+.acct .row1 h3 .n { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-3); font-weight: 400; }
+.acct .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.kv { display: grid; grid-template-columns: 9.5em 1fr; gap: 6px 14px; font-size: 0.92rem; }
+.kv dt { font-family: var(--font-mono); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); padding-top: 3px; }
+.kv dd { margin: 0; min-width: 0; color: var(--ink); }
+.take { border-left: 3px solid var(--caption); padding-left: 12px; font-size: 0.95rem; color: var(--ink-2); }
+@media (max-width: 560px) { .kv { grid-template-columns: 1fr; gap: 2px; } .kv dd { margin-bottom: 8px; } }
+
+/* score matrix */
+.score { display: inline-block; min-width: 2.1em; text-align: center; border-radius: 3px; padding: 1px 4px; font-family: var(--font-mono); font-size: 0.8rem; }
+.s1 { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.s2 { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+.s3 { background: color-mix(in srgb, var(--accent) 36%, transparent); }
+.s4 { background: color-mix(in srgb, var(--accent) 58%, transparent); color: var(--accent-ink); }
+.s5 { background: var(--accent); color: var(--accent-ink); }
+
+/* plays */
+.plays { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.play { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.play .rank { font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.play ul { margin: 0; padding-left: 1.1em; font-size: 0.92rem; color: var(--ink-2); display: flex; flex-direction: column; gap: 4px; }
+
+/* spec sheet */
+.spec { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.spec .line { display: grid; grid-template-columns: 7.5em 1fr; gap: 14px; padding: 10px 16px; border-bottom: 1px solid var(--rule); font-size: 0.93rem; }
+.spec .line:last-child { border-bottom: 0; }
+.spec .tc { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); padding-top: 2px; }
+@media (max-width: 560px) { .spec .line { grid-template-columns: 1fr; gap: 2px; } }
+
+ul.plain { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; max-width: 72ch; }
+ol.steps { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 8px; max-width: 72ch; }
+.sources { font-size: 0.86rem; columns: 2 300px; column-gap: 28px; }
+.sources li { break-inside: avoid; margin-bottom: 6px; }
+footer { padding-top: 36px; color: var(--ink-3); font-size: 0.82rem; }
+@media (prefers-reduced-motion: no-preference) { .bar { transition: opacity .15s; } }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <span class="eyebrow">Research dossier · YouTube Shorts clipping</span>
+  <h1>Clip Channel Field Report</h1>
+  <p class="lede">Ten monetized clip channels taken apart, the niches that started moving between Sep 12 and Oct 12, 2026, and where a permission-first clipping channel should start.</p>
+  <div class="slate">
+    <span>Date <b>Oct 12, 2026</b></span>
+    <span>Window <b>Sep 12 – Oct 12</b></span>
+    <span>Channels screened <b>120+</b></span>
+    <span>Daily-view series <b>19 channels × 14 days</b></span>
+  </div>
+</header>
+
+<nav class="index" aria-label="Sections">
+  <a href="#bottom-line"><span class="tc">00:00</span>Bottom line</a>
+  <a href="#oct2"><span class="tc">00:01</span>The Oct 2 change</a>
+  <a href="#money"><span class="tc">00:02</span>How clip pages earn</a>
+  <a href="#ten"><span class="tc">00:03</span>The 10 channels</a>
+  <a href="#patterns"><span class="tc">00:04</span>Format patterns</a>
+  <a href="#niches"><span class="tc">00:05</span>Rising niches</a>
+  <a href="#match"><span class="tc">00:06</span>Niche × format</a>
+  <a href="#plan"><span class="tc">00:07</span>Launch plan</a>
+  <a href="#method"><span class="tc">00:08</span>Method &amp; limits</a>
+</nav>
+
+<!-- 00 -->
+<section class="section" id="bottom-line">
+  <div class="head"><span class="eyebrow">00:00 · Bottom line</span><h2>What to do</h2></div>
+  <div class="verdict">
+    <ol>
+      <li><b>Plain reposting stopped working on Oct 2.</b> YouTube now ranks re-uploaded clips lower when the uploader adds nothing of their own. In our 14-day sample, fan channels that mostly repost lost a median <b>52%</b> of their daily views after Oct 2. Channels that add something or work with permission did better: a gaming clip page that gets permission for every clip lost 20%, a ranking-compilation page lost 2%, and a fan page that adds art and analysis grew.</li>
+      <li><b>Shorts ad revenue alone won't pay you.</b> The Shorts pool pays about <b>$0.03–0.10 per 1,000 views</b>. Creator-funded clipping campaigns pay <b>$0.40–$1.50 per 1,000 views</b>, and memberships plus long-form clip compilations add more. Your permission advantage lets you run a <span class="mark">licensed, paid-by-the-creator clip channel</span>, not an ad-pool farm.</li>
+      <li><b>The deadline that matters is Jan 31, 2027.</b> On Feb 1 the Shorts route into the Partner Program doubles to 1,000 subscribers plus 20M Shorts views in 90 days. Launch now and apply under the current 10M bar.</li>
+      <li><b>Start with the money-advice audit format</b> (Caleb Hammer's <i>Financial Audit</i> and similar shows). It was the #1 podcast on YouTube's US chart in September, added about 100K subscribers in 14 days, and signed a Fox / Red Seat ad deal on Sep 16. Its official clips channel hasn't posted in about 10 months, we found only 12 channels clipping it, and finance pays the highest RPM.</li>
+      <li><b>Add AI and creator-economy talk as the second lane</b> (the two fastest-growing mid-size niches in September, with high RPM, and Lex Clips has gone quiet). <b>Run GTA 6 as a 6-week sprint</b> around the Nov 19 launch (gaming is the fastest-rising YouTube category this week). Keep one breakout Kick streamer as an option if a deal lands: Odablock became the first Kick streamer to 100K active subs on Sep 24, and only about 64 related channels exist on YouTube.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- 01 -->
+<section class="section" id="oct2">
+  <div class="head"><span class="eyebrow">00:01 · Platform shift</span><h2>The Oct 2 change, measured</h2></div>
+  <p>On Oct 1–2, 2026 YouTube said it is updating Shorts recommendations to "further prioritize original content and reduce the reach of content re-uploaded from other creators without adding anything of your own." It also warned that minor technical edits and template-based changes don't count. Monetization rules didn't change: clips, compilations and reactions stay eligible when they add real value. What changed is reach.</p>
+  <p>To see the effect, we compared each channel's average daily views for Sep 29 – Oct 2 with Oct 6 – 12 (Social Blade, Oct 9 dropped because it looks like a collection glitch on most channels).</p>
+  <div class="chart" id="chart-oct2">
+    <div class="legend"><span><i style="background:var(--neg)"></i>Daily views fell</span><span><i style="background:var(--pos)"></i>Daily views rose</span></div>
+    <svg id="oct2svg" role="img" aria-label="Change in average daily views before and after Oct 2, by channel"></svg>
+    <div class="tip" id="oct2tip" hidden></div>
+  </div>
+  <p class="note">Two weeks of daily data is a short, noisy window, and upload pace and individual hits move these numbers too. Read it as a direction, not a precise effect size. The full series is in <span class="mono">research/data/socialblade_daily_views.json</span>.</p>
+  <div class="tbl wide">
+    <table>
+      <thead><tr><th>Group</th><th>Channels</th><th class="num">Median change</th><th>Read</th></tr></thead>
+      <tbody>
+        <tr><td>Fan reposts, light edits</td><td>SpeedKaiClip, Worthy Streamers, Clarity Clips, SpeedUniverse, Kick_Clippers, The Burnt Peanut Shorts</td><td class="num">−52%</td><td><span class="chip bad">▼ hit hardest</span></td></tr>
+        <tr><td>Official creator clip channels</td><td>JRE, Asmongold, Theo Von, Flagrant, Huberman, Lex, Impaulsive, Caedrel</td><td class="num">−21%</td><td><span class="chip warn">◆ mixed</span></td></tr>
+        <tr><td>Permission or added value</td><td>HecticSherlock Gaming, DN Shorts, JOEPEDIA</td><td class="num">−2%</td><td><span class="chip good">▲ held up</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 02 -->
+<section class="section" id="money">
+  <div class="head"><span class="eyebrow">00:02 · Economics</span><h2>How clip pages actually earn</h2></div>
+  <p>"Monetized" means more than one thing. YouTube doesn't publish anyone's Partner Program status, so we counted a channel as monetized when it showed a <b>Join</b> button (memberships) or had received Super Chat or Super Thanks. Both require at least the Partner Program's fan-funding tier. The bigger point is where the money comes from:</p>
+  <div class="tbl wide">
+    <table>
+      <thead><tr><th>Income line</th><th class="num">Rate</th><th class="num">At 10M views</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Shorts ad pool (YPP)</td><td class="num">$0.03–0.10 / 1K</td><td class="num">$300–1,000</td><td>You keep 45% of your pool share. A licensed music track takes about half of that Short's share, so voice-only clips earn twice as much.</td></tr>
+        <tr><td>Creator / brand clipping campaigns</td><td class="num">$0.40–1.50 / 1K</td><td class="num">$4,000–15,000</td><td>Whop Content Rewards averages about $1. Vyro pays $1–1.50. N3on paid $0.40–0.50 and MrBeast $0.50. Expect per-clip caps and approval rules.</td></tr>
+        <tr><td>Direct retainer from a creator</td><td class="num">Negotiated</td><td class="num">—</td><td>The cleanest fit for your permission model: a monthly fee or revenue share to run their clip channel.</td></tr>
+        <tr><td>Long-form compilations (8–20 min)</td><td class="num">~$2–10 / 1K</td><td class="num">—</td><td>Long-form RPM runs 7–30× Shorts RPM. Official clip channels such as JRE Clips live on this.</td></tr>
+        <tr><td>Memberships, Super Thanks, Super Chat</td><td class="num">Small</td><td class="num">—</td><td>Unlocks at 500 subscribers plus 3M Shorts views in 90 days.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Partner Program bar</th><th>Until Jan 31, 2027</th><th>From Feb 1, 2027</th></tr></thead>
+      <tbody>
+        <tr><td>Ad revenue, Shorts route</td><td>1,000 subs + <b>10M</b> Shorts views / 90 days</td><td>1,000 subs + <b>20M</b> Shorts views / 90 days</td></tr>
+        <tr><td>Shorts pool payout floor</td><td>None</td><td>10M Shorts views trailing 90 days (about 111K a day)</td></tr>
+        <tr><td>Fan funding (Join, Thanks)</td><td>500 subs + 3M Shorts views / 90 days</td><td>Unchanged</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 03 -->
+<section class="section" id="ten">
+  <div class="head"><span class="eyebrow">00:03 · Teardowns</span><h2>The 10 monetized clip channels</h2></div>
+  <p>We picked these from a screen of 120+ clip channels (a logged-out Shorts-feed scroll, YouTube channel search, and Playboard and Social Blade listings). Monetization evidence is graded on each card: <b>confirmed</b> means a Join button or Super Chat revenue (5 channels); <b>strong</b> means an official clip channel of a partnered creator that runs no memberships (3 channels); <b>not verified</b> (2 channels) are kept for their format lessons. Seven are independent clippers; three are official, kept as benchmarks. Views/day is the Oct 6–12 average; Change compares it with Sep 29 – Oct 2.</p>
+  <div class="tbl wide">
+    <table>
+      <thead><tr><th>#</th><th>Channel</th><th>Type</th><th>Niche</th><th class="num">Subs</th><th class="num">Views/day</th><th class="num">Change</th><th class="num">Posts/day</th></tr></thead>
+      <tbody id="ten-table"></tbody>
+    </table>
+  </div>
+  <div class="accounts" id="accounts"></div>
+  <p class="note"><b>Screened out:</b> The Burnt Peanut Shorts (241K subs, 1.3M views a day, but no Join button, so we couldn't confirm monetization); SpeedUniverse (4.2M subs but only 1 upload in 14 days); Danny Duncan Shorts and Podcast Clips (dormant); Kick_Clippers (fading to about 60K views a day). <b>MoeJiOne Fun</b> is the warning case: an old 200K-sub basketball channel turned into a multi-streamer campaign clipper posting up to 26 template clips a day. It has only 2.7M lifetime views, and its recent clips get about 1K views each.</p>
+</section>
+
+<!-- 04 -->
+<section class="section" id="patterns">
+  <div class="head"><span class="eyebrow">00:04 · Craft</span><h2>Format patterns across the ten</h2></div>
+  <div class="spec">
+    <div class="line"><span class="tc">00:00–00:01</span><span><b>Hook.</b> Start on the reaction or punchline, not the setup. Streamer pages cut straight to the loudest moment, and podcast pages open on the most extreme sentence.</span></div>
+    <div class="line"><span class="tc">Title</span><span><b>Name + verb + stakes + 1–2 emoji.</b> "Kai Cenat Calls TVU To Make Sure He's The Only One Streaming! 😭💀". The 😭💀 / 😭✌️ / 🥀 set dominates streamer clips; podcast pages use fewer emoji and more numbers.</span></div>
+    <div class="line"><span class="tc">Captions</span><span><b>Bold sans, white or yellow fill with a black outline,</b> placed in the lower-middle third, 1–4 words at a time. Some add a top headline in the same style. Captions are the one constant across all ten.</span></div>
+    <div class="line"><span class="tc">Framing</span><span><b>Vertical 9:16 crop on the speaker,</b> or stacked facecam over gameplay for streamers. Podcast and movie pages use a blurred fill instead of black bars.</span></div>
+    <div class="line"><span class="tc">Audio</span><span><b>Original audio first.</b> Most clips play the source sound with an "original sound" label. Music, when used, is a low bed or a trending sound on edit-style pages, and costs about half the Shorts revenue on that clip.</span></div>
+    <div class="line"><span class="tc">Voiceover</span><span><b>None on the reposting pages.</b> Added voice or written commentary is the main thing separating "added value" pages (JOEPEDIA, DN Shorts rankings) from reposts. After Oct 2 it has become the main lever.</span></div>
+    <div class="line"><span class="tc">Length</span><span><b>20–45 seconds</b> for streamer moments; <b>40–75 seconds</b> for podcast and audit clips that need a setup and a payoff.</span></div>
+    <div class="line"><span class="tc">Cadence</span><span><b>2–6 a day</b> on the active winners (Burnt Peanut: exactly 4 a day; Worthy: 4–6; HecticSherlock: 2–4; Caedrel Clips: 3–9). The 26-a-day template page (MoeJiOne) averages about 1K views a clip.</span></div>
+    <div class="line"><span class="tc">Description</span><span><b>Credit the source and link to them.</b> The pages that held up all state their permission or what they changed ("I get permission from said creators … for EVERY SINGLE CLIP").</span></div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section class="section" id="niches">
+  <div class="head"><span class="eyebrow">00:05 · Momentum</span><h2>Niches that started moving, Sep 12 – Oct 12</h2></div>
+  <div class="tbl wide">
+    <table>
+      <thead><tr><th>Niche</th><th>Evidence from the last 30 days</th><th>Clip supply</th><th>Window</th></tr></thead>
+      <tbody>
+        <tr><td><b>Money-advice audit shows</b></td><td>Financial Audit hit #1 on YouTube's US podcast chart; Fox's Red Seat Ventures signed exclusive ad sales Sep 16; +100K subs and about 11.9M views a day in Oct; Caleb Hammer +3.3% in 28 days (PodMonitor). Education has the top median RPM at $10.22.</td><td>12 channels; official clips idle about 10 months</td><td><span class="chip good">Ongoing</span></td></tr>
+        <tr><td><b>GTA 6 launch</b></td><td>Release Nov 19 (84-day Extended Look premiered Sep 22). Gaming is the #1 rising category (767 rising and 1,147 new clusters in 7 days, YoTrends Oct 9). Trailer 1 set the 24-hour non-music record at 93M views.</td><td>Very high</td><td><span class="chip warn">Peaks Nov–Dec</span></td></tr>
+        <tr><td><b>Breakout Kick streamers</b></td><td>Kick set records in September: 773.8M hours watched and 1.09M average viewers (+21%). Odablock was +630% month over month and the first Kick streamer to 100K active subs (Sep 24). Yolo Aventuras was +232%. Open World category +59%; Minecraft entered the top 10.</td><td>Odablock: 64 channels; Yolo: 11</td><td><span class="chip good">Ongoing</span></td></tr>
+        <tr><td><b>Fast-growing youth podcasts</b></td><td>LOL Podcast was the fastest-growing YouTube podcast (+5.8% in 28 days), followed by Dr Insanity (+4.3%).</td><td>Medium</td><td><span class="chip good">Ongoing</span></td></tr>
+        <tr><td><b>AI and creator-economy talk</b></td><td>Fastest-growing mid-size niches in TubeAI's September study: creator economy +1.50% a month, AI +1.44% a month (median for all niches 0.97%). Lex Clips has stopped uploading.</td><td>377 "AI podcast clips" channels</td><td><span class="chip good">Ongoing</span></td></tr>
+        <tr><td><b>Midterm debates and politics</b></td><td>News and politics clusters are rising (Iran strikes, ICE, Mamdani). Midterms are Nov 3, with debate season in full swing.</td><td>High</td><td><span class="chip bad">Ends Nov 3</span></td></tr>
+        <tr><td><b>Episodic Shorts (format)</b></td><td>Shorts Series launched Sep 23: seasons and episodes, custom thumbnails, sequential playback. Microdramas reached 6.5B views in H1 2026, and TV views of them rose 90% year over year.</td><td>New feature</td><td><span class="chip good">Use now</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Avoid: gambling streams (Kick's fastest-growing category at +93%, but ad-restricted and campaign rules get strict) and looksmaxxing streamer content (Clavicular was charged on Sep 22, so it's brand-unsafe).</p>
+</section>
+
+<!-- 06 -->
+<section class="section" id="match">
+  <div class="head"><span class="eyebrow">00:06 · Fit</span><h2>Niche × format match</h2></div>
+  <p>Each niche is scored 1–5 on five criteria and paired with the account from section 03 whose format fits it best. Weights: momentum 25%, open supply 20%, permission ease 15%, earning power 20%, and how easily you can add original value after the Oct 2 change 20%.</p>
+  <div class="tbl wide">
+    <table>
+      <thead><tr><th>Niche</th><th>Momentum</th><th>Open supply</th><th>Permission</th><th>Earning</th><th>Add value</th><th class="num">Score</th><th>Copy this format</th></tr></thead>
+      <tbody id="match-table"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="section" id="plan">
+  <div class="head"><span class="eyebrow">00:07 · Execution</span><h2>Launch plan</h2></div>
+  <div class="plays">
+    <div class="play"><span class="rank">Lane A · core</span><h3>Money-audit clips with the math</h3>
+      <ul><li>Source: Financial Audit (pitch Hammer Media; Red Seat now sells the ads), plus 2–3 smaller audit and money shows.</li><li>Value you add: an on-screen card of the guest's income, debt and "the fix", plus a one-line take.</li><li>Package as Shorts Series ("Audit #12, parts 1–3").</li><li>Weekly 10–15-minute long-form "worst audits" compilation for RPM.</li></ul></div>
+    <div class="play"><span class="rank">Lane B · evergreen</span><h3>AI and creator-economy talk</h3>
+      <ul><li>Source: mid-size AI, tech and creator-business podcasts that already let clippers work (many run campaigns). They answer pitches faster than the giants.</li><li>Value you add: a "what this means for you" text card, a cut-in screenshot of the tool being discussed, and a numbered takeaway.</li><li>High RPM on long-form compilations ("10 AI predictions from this month's podcasts").</li></ul></div>
+    <div class="play"><span class="rank">Lane C · sprint, Oct 20 – Dec 15</span><h3>GTA 6 streamer reactions</h3>
+      <ul><li>Follow HecticSherlock's model: written permission per creator and a clip-submission inbox.</li><li>Sign 5–10 mid-size streamers before Nov 19.</li><li>Value you add: "what just happened" captions, map or mission context, and rankings ("5 funniest first deaths").</li><li>Option: one breakout Kick streamer (Odablock) run Caedrel-Clips style, 3–6 a day, if he signs.</li></ul></div>
+  </div>
+
+  <h3>House style for every clip</h3>
+  <div class="spec">
+    <div class="line"><span class="tc">00:00</span><span>Open on the payoff line or reaction. Put a 3–6-word top headline in the house colour.</span></div>
+    <div class="line"><span class="tc">00:01–00:40</span><span>Word-by-word captions (2–4 words, white with a yellow keyword, black outline) in the lower-middle third. Punch-in zooms on key lines; no stock transitions.</span></div>
+    <div class="line"><span class="tc">Value layer</span><span>At least one element of your own per clip: a context card, a numbers overlay, a 1–2-sentence voice or text take, or a ranking. This is what the Oct 2 ranking change rewards.</span></div>
+    <div class="line"><span class="tc">Audio</span><span>Source audio, clean levels, no licensed music by default (keeps 100% of your pool share). Use SFX sparingly.</span></div>
+    <div class="line"><span class="tc">End</span><span>Loop the cut back into the first frame. Pin the full-episode link in a comment and the description, credit the creator, and state that the clip is used with permission.</span></div>
+    <div class="line"><span class="tc">Cadence</span><span>3–4 Shorts a day, plus 1 long-form compilation a week. Stay under about 6 a day: across 18,000 channels, posting above a niche's usual rate almost always cost subscribers (AIR Media-Tech).</span></div>
+  </div>
+
+  <h3>Permission checklist</h3>
+  <ol class="steps">
+    <li>Get it in writing (email is fine): which shows or streams, which platforms, how long, whether music in the source is cleared, and the revenue split or fee.</li>
+    <li>Ask the creator's team to add your channel to their Content ID allow list, so automatic claims don't take your revenue or block your uploads.</li>
+    <li>Ask whether they run a paid clipping campaign (Whop Content Rewards, Vyro, their own roster). If so, join it: you get permission and per-view pay together.</li>
+    <li>If any clip is paid, put the disclosure on screen in the first seconds (FTC endorsement rules).</li>
+    <li>Keep a permissions log per creator and link it from your channel's About page. The channels that held up after Oct 2 all say this publicly.</li>
+  </ol>
+
+  <h3>First 30 days</h3>
+  <div class="tbl wide">
+    <table>
+      <thead><tr><th>Week</th><th>Do</th><th>Target</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Send 20 permission pitches (5 audit/money shows, 5 AI/creator podcasts, 8 GTA streamers, 2 Kick streamers). Build caption and lower-third templates. Set up the channel name, About page and permissions note.</td><td>3 signed creators</td></tr>
+        <tr><td>2</td><td>Post 3 Shorts a day for Lane A. Start the first Shorts Series. Join any campaign a signed creator runs.</td><td>21 Shorts; median ≥ 2K views</td></tr>
+        <tr><td>3</td><td>Add Lane B (AI/creator talk, 1–2 a day). First long-form compilation.</td><td>Like rate ≥ 14 per 1K (the Shorts median)</td></tr>
+        <tr><td>4</td><td>Cut what's below median and double down on the best-retaining hook types. Line up GTA 6 creators for Nov 19.</td><td>≥ 1.5M views in 30 days; on pace for 10M in 90</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 08 -->
+<section class="section" id="method">
+  <div class="head"><span class="eyebrow">00:08 · Method</span><h2>Method and limits</h2></div>
+  <ul class="plain">
+    <li><b>Your own Shorts feed:</b> this research ran in a cloud browser that can't sign into your YouTube account, so the "scroll" used a logged-out US Shorts feed plus YouTube channel search, which shows what YouTube serves a new viewer. Your personal feed is tuned to your history and may surface different pages.</li>
+    <li><b>Monetization:</b> YouTube doesn't publish partner status. A Join button (seen in the browser) or Super Chat / Super Thanks revenue (Playboard) proves at least the fan-funding tier; it doesn't prove ad revenue. Each card notes which evidence we have.</li>
+    <li><b>Audio:</b> the browser agent can read the on-screen sound label but can't listen, so voiceover and music calls come from the sound label, the description and on-screen text. Treat them as strong inferences.</li>
+    <li><b>Numbers:</b> subscriber and view counts come from Social Blade and Playboard (fetched Oct 12, 2026). Social Blade's "estimated earnings" use a generic RPM range and aren't used here.</li>
+    <li><b>Rights:</b> this isn't legal advice. Permission from the creator covers their footage, but not necessarily guests' likeness or licensed music inside it. Get that confirmed in the written permission.</li>
+  </ul>
+</section>
+
+<section class="section" id="sources">
+  <div class="head"><span class="eyebrow">Sources</span><h2>Sources</h2></div>
+  <ol class="sources">
+    <li><a href="https://9to5google.com/2026/10/02/youtube-wont-recommend-unoriginal-shorts/">9to5Google: Shorts recommendations won't surface unoriginal content (Oct 2, 2026)</a></li>
+    <li><a href="https://tech.yahoo.com/social-media/articles/youtube-shorts-cracking-down-clipping-165338894.html">Mashable / Yahoo: YouTube Shorts is cracking down on clipping (Oct 2, 2026)</a></li>
+    <li><a href="https://support.google.com/youtube/blog/470890423/prioritizing-original-content-on-shorts?hl=en">YouTube Community: Prioritizing original content on Shorts</a></li>
+    <li><a href="https://air.io/en/monetization/youtube-monetization-policy-changes-2026-a-complete-dated-timeline">AIR Media-Tech: YouTube monetization policy changes 2026 (YPP thresholds from Feb 1, 2027)</a></li>
+    <li><a href="https://air.io/en/audience-growth/whos-growing-fastest-on-youtube-and-which-niches-are-hot-in-2025">AIR Media-Tech: Fastest-growing niches (TubeAI Sep 2026 study, RPM by niche)</a></li>
+    <li><a href="https://www.tubebuddy.com/blog/youtube-shorts-pay-1000000-views/">TubeBuddy: How much Shorts pay per 1M views</a></li>
+    <li><a href="https://viral.app/blog/guides/clipping-campaigns">viral.app: Clipping campaigns, rates and rules (Oct 5, 2026)</a></li>
+    <li><a href="https://findclout.com/blog/highest-paying-clipping-platforms">FindClout: Highest-paying clipping platforms (Sep 2026)</a></li>
+    <li><a href="https://shopiator.com/blog/whop-clipping">Shopiator: Whop clipping explained</a></li>
+    <li><a href="https://www.npr.org/2026/05/12/nx-s1-5794670/influencers-creators-video-clips">NPR: The clipping economy (May 12, 2026)</a></li>
+    <li><a href="https://streamscharts.com/news/kick-viewership-september-2026">Streams Charts: Kick September 2026 record</a></li>
+    <li><a href="https://www.hollywoodreporter.com/business/digital/red-seat-ventures-caleb-hammer-financial-audit-1236700992/">Hollywood Reporter: Red Seat Ventures × Financial Audit (Sep 16, 2026)</a></li>
+    <li><a href="https://www.linkedin.com/posts/kentresting_i-remember-how-often-questions-like-this-activity-7504615514246377472-GYNC">PodMonitor / Kent Heckel: fastest-growing YouTube podcasts (Aug 14 – Sep 11)</a></li>
+    <li><a href="https://blog.youtube/news-and-events/made-on-youtube-creators-shorts-series-tv-features/">YouTube Blog: Shorts Series (Sep 23, 2026)</a></li>
+    <li><a href="https://yotrends.ai/en/whats-trending/">YoTrends: US YouTube trend report (Oct 9, 2026)</a></li>
+    <li><a href="https://shattered.io/gta-6-extended-look-84-days-launch-2026/">Shattered: GTA 6 Extended Look, 84 days to launch</a></li>
+    <li><a href="https://www.npr.org/2026/09/22/nx-s1-5978033/braden-peters-clavicular-looksmaxxing-rape-accusation">NPR: Clavicular charged (Sep 22, 2026)</a></li>
+    <li><a href="https://socialblade.com/">Social Blade daily channel metrics (fetched Oct 12, 2026)</a></li>
+    <li><a href="https://playboard.co/">Playboard channel analytics and search counts (fetched Oct 12, 2026)</a></li>
+  </ol>
+</section>
+
+<footer>Compiled Oct 12, 2026. Data files and notes live in the repository under <span class="mono">research/</span>.</footer>
+</div>
+
+<script>
+window.__ACCOUNTS__ = [
+{
+  name: "HecticSherlock Gaming", handle: "@HecticSG", type: "Independent · permission per clip", niche: "Gaming moments",
+  subs: "1.46M", daily: "4.28M", chg: -20, cadence: "2–4",
+  chips: [["good","▲ Join button"],["good","▲ $2.6K Super Chat"],["good","▲ permission stated"],["neutral","US · gaming"]],
+  nicheLong: "Multi-creator gaming moments: Roblox (Fisch, The Forge, Dress to Impress), GTA V / GTA Online, viral game memes, plus trailers for the owner's own game.",
+  money: "Yes. Join button seen in the browser; $2,623 lifetime Super Chat across 978 chats (Playboard).",
+  top: "“Honestly… Worth! 🍀😏🙂‍↕️” 3.1M · “NEVER Aura Farm early 😭✌️🥀” 1.8M · “First you slap, then you run 👋😈🏃‍♂️” 1.4M",
+  titles: "A short meme phrase plus 2–3 emoji. The creator's name is usually left out, so the moment carries the title.",
+  captions: "Light. Relies on the game's own UI and the meme title; no word-by-word subtitle track was seen on the sample.",
+  framing: "Full-frame vertical gameplay. No facecam stack on the samples.",
+  music: "Original game audio on clips; a stock-style music bed on cinematic posts.",
+  voice: "None.",
+  cadenceLong: "About 20 a week; 2,737 videos; 4.24B lifetime views.",
+  rights: "Description: “I get permission from said creators to repurpose their work for EVERY SINGLE CLIP,” plus a public email for clip submissions.",
+  take: "The closest existing model to your plan. Permission plus a submission inbox kept it above 4M views a day after Oct 2, while the fan-repost group lost about half."
+},
+{
+  name: "DN Shorts", handle: "@DNShorty", type: "Independent · licensed rankings", niche: "Viral moment rankings",
+  subs: "1.61M", daily: "441K", chg: -2, cadence: "bursts",
+  chips: [["good","▲ Join button"],["good","▲ licenses stated"],["neutral","ranking format"]],
+  nicheLong: "“Ranking the best …” compilations of viral TikTok-style moments (couples, dress transitions, satisfying clips, phonk edits).",
+  money: "Yes. Join button seen in the browser.",
+  top: "“Ranking The Funniest Couple's Moments Ever” 211M · “Ranking The Best Dress Transitions Ever” 171M · “Ranking The Best Phonk With Violin” 145M",
+  titles: "“Ranking The Best [X] Ever” plus a hashtag block (#ranking #usa #tiktok).",
+  captions: "“Number 3:” in large bold yellow with a black outline at lower left, with a one-line white description beneath. Each rank appears in full when its clip starts.",
+  framing: "Full-frame clips of 5–8 seconds each, 4–6 stitched into one 50-second Short.",
+  music: "Its own mixed track (“original sound – DN Shorts”). The niche leans on trending phonk and violin audio.",
+  voice: "None. The commentary is written on screen.",
+  cadenceLong: "Only 221 videos. Posts in bursts of 2–4 a day, then pauses.",
+  rights: "Description says every clip is “edited, approved, and posted with proper licenses/permissions,” explains the transformation, and links a clip-submission form.",
+  take: "Few uploads with huge per-video ceilings. The ranking wrapper is exactly the “something of your own” YouTube now asks for, and views stayed flat after Oct 2."
+},
+{
+  name: "Worthy Streamers", handle: "@WorthyStreamers", type: "Independent fan · heavy edit", niche: "Kai Cenat / AMP / Clover Boys",
+  subs: "618K", daily: "588K", chg: -60, cadence: "4–6",
+  chips: [["good","▲ Join button"],["bad","▼ −60% after Oct 2"],["warn","◆ no permission stated"]],
+  nicheLong: "IRL and streaming moments from Kai Cenat, AMP, the Clover Boys, Rakai, Reggie, StableRonaldo and Agent00.",
+  money: "Yes. Join button seen in the browser.",
+  top: "Recent: “Kai Cenat Calls TVU To Make Sure He's The Only One Streaming! 😭💀” 142K · “Rakai Breaks Down What Happened Between Lala & Jay Cinco! 😭💀” 107K",
+  titles: "Always “[Streamer] [does X]! 😭💀”, with the emoji pair swapped for mood (😭✌️, 😳💔, 😂🎃).",
+  captions: "A full-width top headline (“KAI CENAT IS SO MAD! 😡”) in white bold with a black outline; a 3-2-1 countdown card in white on red before the payoff.",
+  framing: "Full-frame streamer camera, static, cropped to 9:16.",
+  music: "Re-mixed audio under “original sound – Worthy Streamers”. The channel says it adds custom SFX and music.",
+  voice: "None.",
+  cadenceLong: "4–6 a day; 2,384 videos; 1.71B lifetime views.",
+  rights: "Says it is “edited in Premiere Pro & After Effects” and transformative. No permission statement.",
+  take: "Polished editing didn't protect it: −60% in a week. Editing polish isn't the same as adding something of your own (context, commentary, permission)."
+},
+{
+  name: "SpeedKaiClip", handle: "@SpeedKaiClip", type: "Independent fan · light edit", niche: "IShowSpeed / Kai Cenat",
+  subs: "1.23M", daily: "390K", chg: -60, cadence: "~1",
+  chips: [["good","▲ Join button"],["bad","▼ −60% after Oct 2"],["warn","◆ no permission stated"]],
+  nicheLong: "Fan clips of IShowSpeed and Kai Cenat: donations, reactions, rizz moments, games (FC 27, Roblox).",
+  money: "Yes. Join button seen in the browser.",
+  top: "“Speed caused his Fan to get kicked out of his Team!😭” 54M · “Speed got Donated $1,000,000 💵🤣” 17M · “Speed bro, Leave NickEh30 Alone😭” 16M",
+  titles: "“Speed Reacts to …😭💔”, “SPEED RIZZES …😏❤️”: the name first, then 1–2 emoji.",
+  captions: "Yellow text with a black outline at the top plus a single centre keyword. Not word-by-word.",
+  framing: "Full-frame clip, no added layout.",
+  music: "No music label on the sample; the original stream audio plays.",
+  voice: "None.",
+  cadenceLong: "About 8 a week until late September, now about 1 a day; 1,178 videos; 1.90B lifetime views.",
+  rights: "Links Speed's and Kai's official channels. No permission statement.",
+  take: "Went from zero (Apr 2024) to 1M subs (Mar 2026) on two mega-streamers, then lost 60% of daily views in a week. That's both the ceiling and the risk of unlicensed reposting."
+},
+{
+  name: "Concludely", handle: "@concludely", type: "Independent · viral clips", niche: "Funny internet moments",
+  subs: "333K", daily: "~200K", chg: null, cadence: "4–12",
+  chips: [["good","▲ Super Chat revenue"],["warn","◆ spiky views"],["neutral","general entertainment"]],
+  nicheLong: "General viral and funny clips: streamer moments, fails and internet reactions, with no single creator focus.",
+  money: "Yes (fan funding). Playboard records Super Chat revenue on the channel, which requires the Partner Program's fan-funding tier or higher.",
+  top: "Its biggest days come from single spikes: 774K views on Oct 3 and 440K on Oct 12, against a baseline of about 30–60K.",
+  titles: "Short hype lines plus emoji; the description pitches “daily bangers”.",
+  captions: "Standard white or yellow outlined captions (from the Playboard listing and samples; not browser-verified).",
+  framing: "Full-frame source clip.",
+  music: "Mostly original audio.",
+  voice: "None.",
+  cadenceLong: "4–12 a day; 2,150 videos; 148M lifetime views.",
+  rights: "No permission statement found.",
+  take: "A generalist feed lives on lottery tickets: most days are flat and one clip a week carries the channel. A niche with a fixed source and a recurring format compounds better."
+},
+{
+  name: "JOEPEDIA (Fan Channel)", handle: "@joepediaunofficial", type: "Independent fan · adds analysis", niche: "Joe Rogan Experience",
+  subs: "190K", daily: "88K", chg: 612, cadence: "1–4",
+  chips: [["warn","◆ monetization not verified"],["good","▲ grew after Oct 2"],["good","▲ adds art + analysis"]],
+  nicheLong: "JRE moments on science, nature, AI, conspiracy and pop culture, with the channel's own images, art and analysis layered in.",
+  money: "Not verified (no Join or Super Chat signal captured). It's included because it's the clearest example of the added-value fan format.",
+  top: "Daily views jumped from about 12K to 88K after Oct 2, with a 158K day on Oct 10.",
+  titles: "Topic-led JRE questions and claims.",
+  captions: "Captions plus inserted images and art that illustrate what's being said (per its description).",
+  framing: "Podcast footage interleaved with illustrative visuals.",
+  music: "Light ambient bed (inferred from format; not verified).",
+  voice: "Commentary and analysis are part of the format (“deep-dive commentary”).",
+  cadenceLong: "1–4 a day; 1,414 videos; 132M lifetime views; started Dec 2023.",
+  rights: "Labels itself an unofficial fan channel “not affiliated with or endorsed by” Rogan and gives an email for copyright concerns.",
+  take: "Small, but the only fan page in our set that grew after Oct 2. It adds visuals and analysis on top of the clip, which is the exact layer YouTube now rewards. This is the format template for Lanes A and B."
+},
+{
+  name: "Clarity Clips", handle: "@clarityclips", type: "Independent · movie/TV edits", niche: "Film and TV scene edits",
+  subs: "2.34M", daily: "206K", chg: -62, cadence: "1–3",
+  chips: [["warn","◆ monetization not verified"],["bad","▼ −62% after Oct 2"],["bad","▼ studio rights"]],
+  nicheLong: "Scene edits from new and classic movies and series, cut for drama and recommendation (“discover new movies and TV shows every day”).",
+  money: "Not verified in the browser. With 2.34M subs and 1.9B lifetime views it is almost certainly in the Partner Program, but we couldn't capture a Join or Super Chat signal.",
+  top: "Lifetime 1.91B views on 771 videos (about 2.5M per video).",
+  titles: "Movie or scene hooks.",
+  captions: "Cinematic edits made in After Effects, enhanced with Topaz AI (per its description).",
+  framing: "Letterboxed film frames reframed to vertical with a blurred fill.",
+  music: "Score and trending audio, which costs about half the Shorts revenue per clip.",
+  voice: "None.",
+  cadenceLong: "1–3 a day.",
+  rights: "No permission statement. Studio footage.",
+  take: "Huge reach, but it fell 62% after Oct 2 and sits on studio-owned footage that Content ID can claim at any time. Avoid this lane even with a creator's permission."
+},
+{
+  name: "Caedrel Clips", handle: "@CaedrelClips", type: "Official · single streamer", niche: "League of Legends co-streams",
+  subs: "194K", daily: "777K", chg: -11, cadence: "3–9",
+  chips: [["warn","◆ ads likely, Join off"],["good","▲ official channel"],["neutral","esports"]],
+  nicheLong: "One streamer (Caedrel) co-streaming LoL esports: reactions to pro plays, banter, and memes about players (Faker, Baus).",
+  money: "Strong but not confirmed: an official channel of a partnered streamer with no Join button. Ads on its 485M lifetime views are very likely, but the logged-out browser can't verify them.",
+  top: "“Baus playing with Caedrel's emotions 💔” 2.8M · “Faker's unbelievable stats” 2.5M · “Caedrel mind gamed by Veigar 🐀” 2M",
+  titles: "Short and insider: player name, what happened, one emoji. Some titles are just a chat meme plus hashtags (“MYCOSTREAMER #caedrel #lolesports”).",
+  captions: "White text with a black outline that pops in a few words at a time at upper-left and mid-left, keeping the game HUD clear.",
+  framing: "Facecam plus gameplay: the co-stream layout cropped to vertical.",
+  music: "Original stream audio.",
+  voice: "None. The streamer's own commentary is the voice.",
+  cadenceLong: "3–9 a day; 6,636 videos.",
+  rights: "Describes itself as “Caedrel's Official Clips & Highlights Channel.”",
+  take: "Proves a single mid-size streamer can carry a clip channel to about 800K views a day on only 194K subs. This is the template for Lane C (one breakout Kick streamer)."
+},
+{
+  name: "Asmongold Clips", handle: "@AsmongoldClips", type: "Official · single streamer", niche: "Reaction and commentary streams",
+  subs: "1.87M", daily: "3.54M", chg: 20, cadence: "1–3",
+  chips: [["warn","◆ ads likely, Join off"],["good","▲ +20% after Oct 2"],["good","▲ official channel"]],
+  nicheLong: "Asmongold's stream highlights: reactions to news, gaming drama and internet stories, with his commentary on top.",
+  money: "Strong but not confirmed: official channel, no Join button. Ads are very likely on 3.76B lifetime views.",
+  top: "“This is the craziest story I've ever heard..” 2.2M · “This instantly backfired..” 1.6M · “It's all crashing down..” 1.6M",
+  titles: "Curiosity-gap fragments ending in “..”, with no names and no emoji.",
+  captions: "Not captured on the sample (it opened a longer upload).",
+  framing: "Facecam plus whatever he's reacting to (a page, video or game).",
+  music: "Original stream audio.",
+  voice: "The streamer's own commentary on top of the source. This is reaction content by design.",
+  cadenceLong: "1–3 a day; 4,782 videos; mixes Shorts and 3–10-minute uploads.",
+  rights: "“The official Asmongold Clips channel for all of his shorter stream content.”",
+  take: "Grew 20% straight through the Oct 2 change. Commentary layered on top of a source is what YouTube's new ranking rewards, which is why your own value layer matters."
+},
+{
+  name: "Theo Von Clips", handle: "@TheovonClips", type: "Official · podcast", niche: "Comedy podcast (This Past Weekend)",
+  subs: "1.46M", daily: "496K", chg: 14, cadence: "0–5",
+  chips: [["warn","◆ ads likely, Join off"],["good","▲ +14% after Oct 2"],["neutral","podcast"]],
+  nicheLong: "Clips from Theo Von's podcast: celebrity and political guests, stories, and riffs.",
+  money: "Strong but not confirmed: the creator's own clips channel, no Join button. Ads are very likely.",
+  top: "“What Trump admires about his sons” 10M · “Theo on French People” 10M · “Theo Meets DJ Khaled at a Gas Station” 10M",
+  titles: "A plain topic line with the guest or subject name. No emoji, no hype.",
+  captions: "Not captured on the sample.",
+  framing: "Podcast two-shot cropped to the speaker.",
+  music: "Original audio.",
+  voice: "None.",
+  cadenceLong: "0–5 a day in bursts; 2,248 videos.",
+  rights: "Each clip credits the source episode (“Excerpt from This Past Weekend #496 | A Carnie”).",
+  take: "Podcast clips win on the guest and the topic, not on effects. Episode-number credit in every description is cheap and makes clips traceable, a habit to copy for Lane A."
+}
+];
+const OCT2 = [
+  // name, group, pre, post, change %
+  ["JOEPEDIA (fan, adds art + analysis)", "value", 12000, 88000, 612],
+  ["Asmongold Clips (official)", "official", 2954000, 3544000, 20],
+  ["Theo Von Clips (official)", "official", 433000, 496000, 14],
+  ["DN Shorts (rankings, licensed)", "value", 452000, 441000, -2],
+  ["Caedrel Clips (official)", "official", 871000, 777000, -11],
+  ["FLAGRANT CLIPS (official)", "official", 158000, 132000, -17],
+  ["HecticSherlock (permission per clip)", "value", 5379000, 4282000, -20],
+  ["IMPAULSIVE Clips (official)", "official", 134000, 101000, -25],
+  ["The Burnt Peanut Shorts (fan)", "fan", 1816000, 1309000, -28],
+  ["Lex Clips (official)", "official", 317000, 214000, -32],
+  ["Kick_Clippers (fan)", "fan", 87000, 59000, -32],
+  ["Huberman Lab Clips (official)", "official", 353000, 215000, -39],
+  ["SpeedUniverse (fan)", "fan", 575000, 330000, -43],
+  ["JRE Clips (official)", "official", 938000, 479000, -49],
+  ["SpeedKaiClip (fan)", "fan", 975000, 390000, -60],
+  ["Worthy Streamers (fan)", "fan", 1475000, 588000, -60],
+  ["Clarity Clips (fan, movie edits)", "fan", 535000, 206000, -62]
+];
+const fmt = n => n >= 1e6 ? (n/1e6).toFixed(2).replace(/\.?0+$/,'') + 'M' : Math.round(n/1e3) + 'K';
+
+function drawOct2() {
+  const svg = document.getElementById('oct2svg');
+  const tip = document.getElementById('oct2tip');
+  const W = 820, rowH = 26, top = 8, labelW = 290, right = 60;
+  const H = top + OCT2.length * rowH + 30;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  // clip display at +100 so one outlier doesn't flatten the rest; real value labelled
+  const min = -80, max = 100;
+  const x0 = labelW, x1 = W - right;
+  const sx = v => x0 + (Math.max(min, Math.min(max, v)) - min) / (max - min) * (x1 - x0);
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (t, a) => { const e = document.createElementNS(ns, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  svg.innerHTML = '';
+  [-80,-60,-40,-20,0,20,40,60,80,100].forEach(v => {
+    svg.appendChild(el('line', {x1: sx(v), x2: sx(v), y1: top, y2: H - 22, stroke: 'var(--rule)', 'stroke-width': v === 0 ? 1.5 : 1}));
+    const t = el('text', {x: sx(v), y: H - 6, 'text-anchor': 'middle', 'font-size': 11, fill: 'var(--ink-3)', 'font-family': 'IBM Plex Mono, monospace'});
+    t.textContent = (v > 0 ? '+' : '') + v + '%'; svg.appendChild(t);
+  });
+  OCT2.forEach((d, i) => {
+    const y = top + i * rowH;
+    const name = el('text', {x: labelW - 10, y: y + rowH/2 + 4, 'text-anchor': 'end', 'font-size': 12.5, fill: 'var(--ink-2)', 'font-family': 'IBM Plex Sans, sans-serif'});
+    name.textContent = d[0]; svg.appendChild(name);
+    const a = sx(0), b = sx(d[4]);
+    const xL = Math.min(a, b), w = Math.max(2, Math.abs(b - a));
+    const bar = el('rect', {x: xL, y: y + 6, width: w, height: rowH - 12, rx: 3, fill: d[4] < 0 ? 'var(--neg)' : 'var(--pos)', class: 'bar'});
+    svg.appendChild(bar);
+    const lab = el('text', {x: d[4] < 0 ? xL - 6 : xL + w + 6, y: y + rowH/2 + 4, 'text-anchor': d[4] < 0 ? 'end' : 'start', 'font-size': 11.5, fill: 'var(--ink)', 'font-family': 'IBM Plex Mono, monospace'});
+    lab.textContent = (d[4] > 0 ? '+' : '') + d[4] + '%' + (d[4] > max ? ' ▸' : '');
+    if (d[4] < 0 && xL - 6 < labelW + 30) { lab.setAttribute('x', xL + w + 6); lab.setAttribute('text-anchor','start'); }
+    svg.appendChild(lab);
+    const hit = el('rect', {x: labelW - 280, y, width: W - (labelW - 280), height: rowH, fill: 'transparent'});
+    hit.addEventListener('mousemove', ev => {
+      tip.hidden = false;
+      tip.innerHTML = `<b>${d[0]}</b><br>Sep 29–Oct 2: ${fmt(d[2])}/day<br>Oct 6–12: ${fmt(d[3])}/day<br>Change: ${d[4] > 0 ? '+' : ''}${d[4]}%`;
+      const r = svg.parentElement.getBoundingClientRect();
+      let left = ev.clientX - r.left + 12; if (left > r.width - 220) left = ev.clientX - r.left - 232;
+      tip.style.left = left + 'px'; tip.style.top = (ev.clientY - r.top + 10) + 'px';
+    });
+    hit.addEventListener('mouseleave', () => tip.hidden = true);
+    svg.appendChild(hit);
+  });
+}
+drawOct2();
+
+/* Niche scores: momentum, open supply, permission, earning, add-value (1-5). Weights .25/.20/.15/.20/.20 */
+const MATCH = [
+  ["Money-advice audit shows", [5,5,3,5,5], "JOEPEDIA value overlays + DN Shorts numbered series"],
+  ["AI & creator-economy talk", [4,3,3,4,5], "JOEPEDIA overlays at Theo Von Clips cadence"],
+  ["Breakout Kick streamer (Odablock)", [4,5,4,2,3], "Caedrel Clips: one creator, 3–9 a day"],
+  ["GTA 6 launch reactions", [5,2,4,2,4], "HecticSherlock: permission per clip + submissions"],
+  ["Fast-growing youth podcasts", [5,3,3,2,3], "Worthy Streamers headline + emoji titles"],
+  ["Midterm debates & politics", [4,2,2,2,4], "JOEPEDIA commentary (ends Nov 3)"],
+  ["Big IRL streamers (Speed / Kai / AMP)", [3,1,4,2,1], "SpeedKaiClip (avoid: −60% after Oct 2)"],
+  ["Movie & TV edits", [3,2,1,2,2], "Clarity Clips (avoid: studio rights)"]
+];
+const W8 = [.25,.20,.15,.20,.20];
+(function renderMatch(){
+  const tb = document.getElementById('match-table');
+  const rows = MATCH.map(m => ({name:m[0], s:m[1], fit:m[2], total: m[1].reduce((a,v,i)=>a+v*W8[i],0)}))
+                    .sort((a,b)=>b.total-a.total);
+  tb.innerHTML = rows.map(r => `<tr><td><b>${r.name}</b></td>${r.s.map(v=>`<td><span class="score s${v}">${v}</span></td>`).join('')}<td class="num"><b>${r.total.toFixed(2)}</b></td><td>${r.fit}</td></tr>`).join('');
+})();
+
+const ACCOUNTS = window.__ACCOUNTS__;
+(function renderAccounts(){
+  const tb = document.getElementById('ten-table');
+  const box = document.getElementById('accounts');
+  const sign = v => (v > 0 ? '+' : '') + v + '%';
+  tb.innerHTML = ACCOUNTS.map((a,i) => `<tr><td class="num">${i+1}</td><td><b>${a.name}</b><br><span class="mono">${a.handle}</span></td><td>${a.type}</td><td>${a.niche}</td><td class="num">${a.subs}</td><td class="num">${a.daily}</td><td class="num">${a.chg === null ? '—' : sign(a.chg)}</td><td class="num">${a.cadence}</td></tr>`).join('');
+  box.innerHTML = ACCOUNTS.map((a,i) => `
+    <article class="acct" id="acct-${i+1}">
+      <div class="row1"><h3><span class="n">${String(i+1).padStart(2,'0')}</span>${a.name}</h3><span class="mono">${a.handle}</span></div>
+      <div class="meta">${a.chips.map(c=>`<span class="chip ${c[0]}">${c[1]}</span>`).join('')}</div>
+      <dl class="kv">
+        <dt>Niche</dt><dd>${a.nicheLong}</dd>
+        <dt>Monetized?</dt><dd>${a.money}</dd>
+        <dt>Top Shorts</dt><dd>${a.top}</dd>
+        <dt>Titles</dt><dd>${a.titles}</dd>
+        <dt>Captions</dt><dd>${a.captions}</dd>
+        <dt>Framing</dt><dd>${a.framing}</dd>
+        <dt>Music</dt><dd>${a.music}</dd>
+        <dt>Voiceover</dt><dd>${a.voice}</dd>
+        <dt>Cadence</dt><dd>${a.cadenceLong}</dd>
+        <dt>Credit / rights</dt><dd>${a.rights}</dd>
+      </dl>
+      <p class="take"><b>Lesson:</b> ${a.take}</p>
+    </article>`).join('');
+})();
+</script>
