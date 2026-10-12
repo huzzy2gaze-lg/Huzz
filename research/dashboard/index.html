@@ -1,0 +1,509 @@
+<title>Clipping Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a control-room dashboard. A KPI strip on top, then panels on a 12-column grid that collapse to one column on phones. */
+:root {
+  --bg: #eef1f3;
+  --panel: #ffffff;
+  --panel-2: #f6f8f9;
+  --ink: #12181c;
+  --ink-2: #46525a;
+  --ink-3: #6c777f;
+  --rule: #d8dee2;
+  --accent: #0d6a78;
+  --accent-ink: #ffffff;
+  --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
+  --caption: #ffd84a;
+  --caption-ink: #12181c;
+  --neg: #c9443f;
+  --pos: #2a78d6;
+  --good: #0c8a3a; --warn: #a76b00; --bad: #c9443f;
+  --font-display: "Archivo Narrow", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1214; --panel: #161b1e; --panel-2: #1b2125; --ink: #e9eef0; --ink-2: #b4bfc5; --ink-3: #87939a; --rule: #283034;
+    --accent: #4fb3c1; --accent-ink: #0b1214; --caption: #ffd84a; --caption-ink: #12181c;
+    --neg: #e66767; --pos: #5598e7; --good: #3fbf6a; --warn: #e0a83a; --bad: #e66767; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1214; --panel: #161b1e; --panel-2: #1b2125; --ink: #e9eef0; --ink-2: #b4bfc5; --ink-3: #87939a; --rule: #283034;
+  --accent: #4fb3c1; --accent-ink: #0b1214; --caption: #ffd84a; --caption-ink: #12181c;
+  --neg: #e66767; --pos: #5598e7; --good: #3fbf6a; --warn: #e0a83a; --bad: #e66767; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 64px; display: flex; flex-direction: column; gap: 16px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.1; text-wrap: balance; }
+h1 { font-size: clamp(1.9rem, 4.5vw, 2.8rem); text-transform: uppercase; font-weight: 700; letter-spacing: .005em; }
+h2 { font-size: 1.25rem; text-transform: uppercase; font-weight: 700; letter-spacing: .02em; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); }
+.eyebrow { font-family: var(--font-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.muted { color: var(--ink-2); }
+.small { font-size: .84rem; }
+.mark { background: var(--caption); color: var(--caption-ink); padding: 0 .25em; border-radius: 2px; }
+
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 24px; }
+header.top .meta { font-family: var(--font-mono); font-size: .78rem; color: var(--ink-2); display: flex; gap: 6px 18px; flex-wrap: wrap; }
+
+.kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.kpi { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.kpi .v { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi .l { font-size: .8rem; color: var(--ink-2); }
+.kpi.hl { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.kpi.hl .l { color: var(--accent-ink); opacity: .9; }
+@media (max-width: 1000px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 520px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+
+.grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panel > .ph { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; }
+.c12 { grid-column: span 12; } .c8 { grid-column: span 8; } .c7 { grid-column: span 7; } .c6 { grid-column: span 6; } .c5 { grid-column: span 5; } .c4 { grid-column: span 4; }
+@media (max-width: 900px) { .c8, .c7, .c6, .c5, .c4 { grid-column: span 12; } }
+
+.verdict { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.verdict .v { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; display: flex; flex-direction: column; gap: 4px; }
+.verdict .v b { font-family: var(--font-display); font-size: 1.05rem; }
+@media (max-width: 760px) { .verdict { grid-template-columns: 1fr; } }
+
+.chip { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: .7rem; padding: 1px 7px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.chip.good { color: var(--good); } .chip.warn { color: var(--warn); } .chip.bad { color: var(--bad); } .chip.neutral { color: var(--ink-3); } .chip.acc { color: var(--accent); }
+
+/* bars */
+.bars { display: flex; flex-direction: column; gap: 7px; }
+.bar-row { display: grid; grid-template-columns: minmax(110px, 34%) 1fr auto; gap: 10px; align-items: center; font-size: .86rem; }
+.bar-row .lbl { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { height: 14px; background: var(--panel-2); border-radius: 3px; position: relative; overflow: hidden; }
+.bar-fill { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--accent); }
+.bar-fill.dim { background: color-mix(in srgb, var(--ink-3) 45%, transparent); }
+.bar-fill.neg { background: var(--neg); } .bar-fill.pos { background: var(--pos); }
+.bar-row .val { font-family: var(--font-mono); font-size: .78rem; font-variant-numeric: tabular-nums; min-width: 4.5em; text-align: right; }
+.diverge .bar-track { background: transparent; }
+.diverge .bar-track::before { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--rule); }
+
+/* table */
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.filters button { font: inherit; font-size: .8rem; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink-2); cursor: pointer; }
+.filters button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.tbl { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: .85rem; min-width: 900px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--font-mono); font-weight: 500; font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); white-space: nowrap; background: var(--panel-2); position: sticky; top: 0; }
+th button { all: unset; cursor: pointer; }
+th button:focus-visible { outline: 2px solid var(--accent); }
+td.num { text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; font-size: .8rem; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--accent-soft); }
+tbody tr.sel { background: var(--accent-soft); }
+.compete { display: inline-block; width: 48px; height: 6px; border-radius: 3px; background: var(--panel-2); position: relative; vertical-align: middle; margin-right: 6px; }
+.compete i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--accent); }
+.detail { background: var(--panel-2); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; font-size: .88rem; }
+.detail dt { font-family: var(--font-mono); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.detail dd { margin: 0 0 6px; }
+@media (max-width: 700px) { .detail { grid-template-columns: 1fr; } }
+
+/* calculator */
+.calc { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 760px) { .calc { grid-template-columns: 1fr; } }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: .8rem; color: var(--ink-2); display: flex; justify-content: space-between; gap: 8px; }
+.field label output { font-family: var(--font-mono); color: var(--ink); }
+select, input[type=range] { width: 100%; }
+select { font: inherit; padding: 6px 8px; border-radius: 4px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); }
+input[type=range] { accent-color: var(--accent); }
+.out { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.out .o { background: var(--panel-2); border-radius: 6px; padding: 10px 12px; }
+.out .o .v { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.out .o .l { font-size: .76rem; color: var(--ink-2); }
+.out .o.big { grid-column: span 2; background: var(--accent); color: var(--accent-ink); }
+.out .o.big .l { color: var(--accent-ink); opacity: .9; }
+.warnline { font-size: .82rem; color: var(--warn); }
+
+/* lists */
+.dd { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .dd { grid-template-columns: 1fr; } }
+.dd ul { margin: 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: .9rem; }
+.dd li { display: grid; grid-template-columns: 1.4em 1fr; gap: 6px; }
+.dd li::before { font-weight: 700; }
+.do li::before { content: "✓"; color: var(--good); }
+.dont li::before { content: "✕"; color: var(--bad); }
+.dd h3 { margin-bottom: 8px; }
+
+.cook { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.recipe { border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; background: var(--panel-2); min-width: 0; }
+.recipe .tc { font-family: var(--font-mono); font-size: .74rem; color: var(--accent); }
+.recipe ul { margin: 0; padding-left: 1.1em; font-size: .86rem; color: var(--ink-2); display: flex; flex-direction: column; gap: 3px; }
+
+.stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.pick { border: 1px solid var(--rule); border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.pick .r { font-family: var(--font-mono); font-size: .7rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
+.pick .m { display: flex; flex-wrap: wrap; gap: 4px 12px; font-family: var(--font-mono); font-size: .76rem; color: var(--ink-2); }
+
+.score { display: inline-block; min-width: 1.9em; text-align: center; border-radius: 3px; padding: 1px 4px; font-family: var(--font-mono); font-size: .76rem; }
+.s1 { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.s2 { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+.s3 { background: color-mix(in srgb, var(--accent) 36%, transparent); }
+.s4 { background: color-mix(in srgb, var(--accent) 60%, transparent); color: var(--accent-ink); }
+.s5 { background: var(--accent); color: var(--accent-ink); }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: .78rem; padding: 6px 9px; border-radius: 4px; max-width: 280px; z-index: 20; line-height: 1.35; }
+footer { color: var(--ink-3); font-size: .8rem; }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div>
+    <span class="eyebrow">Clipping dashboard · YouTube Shorts + Whop Content Rewards</span>
+    <h1>Clipping Command Center</h1>
+  </div>
+  <div class="meta"><span>Data as of <b>Oct 12, 2026</b></span><span>51 live campaigns</span><span>19 channels tracked daily</span></div>
+</header>
+
+<section class="kpis" aria-label="Key numbers">
+  <div class="kpi hl"><span class="v">$207K</span><span class="l">still unpaid on the Content Rewards board</span></div>
+  <div class="kpi"><span class="v">$140K</span><span class="l">in 19 English, brand-safe campaigns with $1K+ left</span></div>
+  <div class="kpi"><span class="v">$1.00</span><span class="l">median rate per 1K views</span></div>
+  <div class="kpi"><span class="v">$0.99</span><span class="l">real payout per 1K after caps (headline $1.93)</span></div>
+  <div class="kpi"><span class="v">−52%</span><span class="l">daily views lost by plain repost pages after Oct 2</span></div>
+  <div class="kpi"><span class="v">Jan 31</span><span class="l">last day to apply for YPP at the 10M-views bar</span></div>
+</section>
+
+<section class="panel c12" aria-labelledby="h-verdict">
+  <div class="ph"><h2 id="h-verdict">The short version</h2><span class="eyebrow">what to do this month</span></div>
+  <div class="verdict">
+    <div class="v"><b>Get paid per view, not by the Shorts pool</b><span class="small muted">Campaigns pay $0.50–3 per 1K views; the Shorts ad pool pays about $0.03–0.10. The same 1M views earn roughly $1,000 versus $30–100.</span></div>
+    <div class="v"><b>Clip money and podcast talk first</b><span class="small muted">Finance has the highest RPM, the strongest niche score, and live campaigns paying for it right now (TJR, Alpha Futures, Antoine Sallis, and podcast campaigns).</span></div>
+    <div class="v"><b>Add your own layer to every clip</b><span class="small muted">Since Oct 2, YouTube pushes down plain reposts. A context card, a numbers overlay, a ranking or a one-line take is what keeps reach.</span></div>
+  </div>
+</section>
+
+<div class="grid">
+  <section class="panel c7" aria-labelledby="h-niches">
+    <div class="ph"><h2 id="h-niches">Which niche works</h2><span class="eyebrow">score out of 5 · hover for detail</span></div>
+    <div class="bars" id="niche-bars"></div>
+    <div class="tbl" style="min-width:0">
+      <table style="min-width:560px"><thead><tr><th>Niche</th><th>Momentum</th><th>Open lane</th><th>Permission</th><th>Earning</th><th>Add value</th><th>Live $ now</th></tr></thead><tbody id="niche-table"></tbody></table>
+    </div>
+    <p class="small muted">Momentum covers the last 30 days. Open lane means few competing clip channels. Permission means how easy it is to get licensed. Add value means how naturally you can layer your own commentary or graphics. Live $ is money left in matching Content Rewards campaigns today.</p>
+  </section>
+
+  <section class="panel c5" aria-labelledby="h-money">
+    <div class="ph"><h2 id="h-money">Where the campaign money is</h2><span class="eyebrow">unpaid budget by type</span></div>
+    <div class="bars" id="cat-bars"></div>
+    <p class="small muted">Grey bars are types to avoid: gambling, adult and token promos can get a YouTube channel restricted. Brand money is mostly Boxabl ($64.9K left at $0.50 per 1K).</p>
+  </section>
+
+  <section class="panel c6" aria-labelledby="h-works">
+    <div class="ph"><h2 id="h-works">What kind of clip page survived Oct 2</h2><span class="eyebrow">daily views, Oct 6–12 vs Sep 29–Oct 2</span></div>
+    <div class="bars diverge" id="oct2-bars"></div>
+    <p class="small muted">Median change: fan reposts −52%, official clip channels −21%, pages with permission or added value −2%. Source: Social Blade daily views. It's a short, noisy window, so read it as a direction.</p>
+  </section>
+
+  <section class="panel c6" aria-labelledby="h-dodont">
+    <div class="ph"><h2 id="h-dodont">Do and don't</h2><span class="eyebrow">from 120+ channels and 51 campaigns</span></div>
+    <div class="dd">
+      <div class="do"><h3>Do</h3><ul>
+        <li>Open on the payoff line or reaction in the first second.</li>
+        <li>Add a context card, numbers overlay, ranking or one-line take to every clip.</li>
+        <li>Word-by-word captions, white or yellow with a black outline, in the lower-middle third.</li>
+        <li>Keep the source audio. Licensed music halves your Shorts pool share.</li>
+        <li>Post 3–4 a day per channel, with one niche and one recurring format.</li>
+        <li>Credit the creator and put the campaign's required caption in the post text itself.</li>
+        <li>Package multi-part stories as a Shorts Series (seasons and episodes).</li>
+      </ul></div>
+      <div class="dont"><h3>Don't</h3><ul>
+        <li>Plain reposts with only cosmetic edits (−60% after Oct 2).</li>
+        <li>Template spam at 10–26 a day (about 1K views a clip).</li>
+        <li>Generalist "viral clips" feeds. One hit a week carries them.</li>
+        <li>Studio movie or TV footage without a campaign license.</li>
+        <li>Gambling, adult or token campaigns on a YouTube channel you want monetized.</li>
+        <li>Slurs and insults left in clips; they get limited ads. Mute or cut them.</li>
+        <li>Bought views. Campaigns ban accounts and claw back pay for botting.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section class="panel c12" aria-labelledby="h-camps">
+    <div class="ph"><h2 id="h-camps">Live Whop Content Rewards campaigns</h2><span class="eyebrow">click a row for the brief · click a header to sort</span></div>
+    <div class="filters" role="group" aria-label="Filter campaigns" id="filters"></div>
+    <div class="tbl"><table id="camp-table"><thead><tr>
+      <th><button data-k="name">Campaign</button></th><th>Fit</th><th>Niche</th>
+      <th><button data-k="rate">$ / 1K</button></th><th><button data-k="floorViews">Pays from</button></th><th><button data-k="capViews">Cap hits at</button></th>
+      <th><button data-k="left">Left</button></th><th><button data-k="creators">Clippers</button></th><th><button data-k="perClipper">$ left / clipper</button></th><th>Lang</th>
+    </tr></thead><tbody></tbody></table></div>
+    <div id="camp-detail" class="detail" hidden></div>
+    <p class="small muted">"Pays from" is the views a clip needs before its minimum payout counts. "Cap hits at" is where it stops earning. "$ left per clipper" estimates competition: the higher, the less crowded. Rates differ by platform, and the exact YouTube rate shows once you're signed in. Clippers also pay a 10% fee on payouts (Content Rewards terms).</p>
+  </section>
+
+  <section class="panel c7" aria-labelledby="h-calc">
+    <div class="ph"><h2 id="h-calc">How much can a campaign pay you?</h2><span class="eyebrow">earnings calculator</span></div>
+    <div class="calc">
+      <div class="stack" style="grid-template-columns:1fr;gap:12px">
+        <div class="field"><label for="c-camp">Campaign</label><select id="c-camp"></select></div>
+        <div class="field"><label for="c-views">Average views per clip <output id="o-views"></output></label><input type="range" id="c-views" min="1000" max="300000" step="1000" value="20000"></div>
+        <div class="field"><label for="c-clips">Clips per day <output id="o-clips"></output></label><input type="range" id="c-clips" min="1" max="10" step="1" value="3"></div>
+        <div class="field"><label for="c-appr">Clips approved <output id="o-appr"></output></label><input type="range" id="c-appr" min="30" max="100" step="5" value="70"></div>
+        <div class="field"><label for="c-share">Your share of the remaining budget, max <output id="o-share"></output></label><input type="range" id="c-share" min="1" max="50" step="1" value="10"></div>
+      </div>
+      <div class="stack" style="grid-template-columns:1fr;gap:10px">
+        <div class="out">
+          <div class="o"><div class="v" id="r-clip">—</div><div class="l">paid per approved clip</div></div>
+          <div class="o"><div class="v" id="r-week">—</div><div class="l">per week, before the budget limit</div></div>
+          <div class="o big"><div class="v" id="r-month">—</div><div class="l">realistic 30 days, after the 10% fee and budget limit</div></div>
+          <div class="o"><div class="v" id="r-pool">—</div><div class="l">same views from the Shorts ad pool</div></div>
+          <div class="o"><div class="v" id="r-views">—</div><div class="l">views in 30 days</div></div>
+        </div>
+        <p class="warnline" id="r-warn"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel c5" aria-labelledby="h-picks">
+    <div class="ph"><h2 id="h-picks">Starter stack for us</h2><span class="eyebrow">English · YouTube allowed · on-niche</span></div>
+    <div class="stack" id="picks" style="grid-template-columns:1fr"></div>
+  </section>
+
+  <section class="panel c12" aria-labelledby="h-cook">
+    <div class="ph"><h2 id="h-cook">Which video segments to cut</h2><span class="eyebrow">segment cookbook per campaign type</span></div>
+    <div class="cook">
+      <div class="recipe"><h3>Trading and money talk</h3><span class="tc">TJR · Alpha Futures · Antoine Sallis</span><ul>
+        <li>Cut: a P&amp;L reveal, a "here's the mistake" rule, a heated opinion, a blow-up story.</li>
+        <li>Hook: the number first ("He lost $40K in 9 minutes").</li>
+        <li>Add: a numbers card (entry, exit, %), plus a one-line lesson at the end.</li>
+        <li>Length: 30–55s. Avoid "buy this" calls; they're not financial advice.</li></ul></div>
+      <div class="recipe"><h3>Podcast interview moments</h3><span class="tc">It's Personal · Curious Mike × N3on · Sartain</span><ul>
+        <li>Cut: the confession, the hot take, a story's payoff line, a guest disagreeing.</li>
+        <li>Hook: open on the most extreme sentence, then 2–3s of setup.</li>
+        <li>Add: a top headline in 3–6 words and speaker-name lower-thirds.</li>
+        <li>Length: 40–75s. Turn a 3-part story into a Shorts Series.</li></ul></div>
+      <div class="recipe"><h3>Brand and product footage</h3><span class="tc">Boxabl · Backyard Breaks · My Mini Capsule</span><ul>
+        <li>Cut: the transformation (folded → unfolded house), the big pull or reveal, the price shock.</li>
+        <li>Hook: before/after in frame one ("This house ships in a box").</li>
+        <li>Add: price and spec stickers, a ranking ("3 craziest pulls this week").</li>
+        <li>Length: 15–35s. Use loopable endings.</li></ul></div>
+      <div class="recipe"><h3>Gaming and publisher footage</h3><span class="tc">Sky (YouTube) · COD MW4 · Coinbase × VALORANT</span><ul>
+        <li>Cut: the clutch play, the funniest death, the cinematic beat the brief asks for.</li>
+        <li>Hook: the outcome first, then a rewind ("watch how").</li>
+        <li>Add: "what just happened" captions and map or mission context.</li>
+        <li>GTA 6 (Nov 19): streamer reactions to the first hour will spike.</li></ul></div>
+      <div class="recipe"><h3>Fights and sports</h3><span class="tc">Up Next Fighting · OKTAGON</span><ul>
+        <li>Cut: trash talk that drops into a knockout, walkouts, rivalries.</li>
+        <li>Rules: post from a fight page, tag @upnextfighting, keep the watermark.</li>
+        <li>Upside: a $250 bonus at 1M views on top of the $500 cap.</li></ul></div>
+      <div class="recipe"><h3>Music sound campaigns</h3><span class="tc">Rave Jesus · Audien · Geezerbomb</span><ul>
+        <li>Use the official sound on your own edits (festival, GTA 6, gym, gaming).</li>
+        <li>Hard-sync the hook to the first 2 seconds.</li>
+        <li>Mostly TikTok and IG only, so treat it as a side stream, not your YouTube channel.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="panel c12" aria-labelledby="h-queue">
+    <div class="ph"><h2 id="h-queue">This week's clip queue</h2><span class="eyebrow">12 timed clips · Alpha Futures campaign · click a time to open the moment</span></div>
+    <div class="tbl"><table id="queue" style="min-width:980px"><thead><tr><th>#</th><th>Source</th><th>Key line at</th><th>Cut window</th><th>Type</th><th>Top headline</th><th>Your added layer</th></tr></thead><tbody></tbody></table></div>
+    <p class="small muted">Timestamps come from YouTube auto-transcripts, so check each cut in your editor. Quotes are trimmed. Before posting, confirm in the Alpha Futures brief that Alpha Group Podcast videos count as approved footage. Add a "Not financial advice" tag on money clips. <b>Already over-clipped, so skip these:</b> <span id="sat"></span></p>
+  </section>
+
+  <section class="panel c6" aria-labelledby="h-format">
+    <div class="ph"><h2 id="h-format">Content that works on Shorts now</h2><span class="eyebrow">from the 10 monetized clip pages</span></div>
+    <div class="tbl" style="min-width:0"><table style="min-width:520px"><thead><tr><th>Element</th><th>What winners do</th></tr></thead><tbody>
+      <tr><td>Title</td><td>Name + verb + stakes + 1–2 emoji ("Kai Cenat Calls TVU…! 😭💀"). Podcast pages use a plain topic with no emoji.</td></tr>
+      <tr><td>Captions</td><td>Bold sans, white or yellow with a black outline, 1–4 words at a time, lower-middle third, plus an optional full-width top headline.</td></tr>
+      <tr><td>Framing</td><td>9:16 crop on the speaker, or facecam over gameplay, with a blurred fill instead of black bars.</td></tr>
+      <tr><td>Audio</td><td>Original sound. Music is a low bed at most. No voiceover on repost pages; commentary is what sets the survivors apart.</td></tr>
+      <tr><td>Length</td><td>20–45s for streamer moments; 40–75s for podcast and money clips.</td></tr>
+      <tr><td>Cadence</td><td>2–6 a day for the winners. 26 a day failed.</td></tr>
+      <tr><td>Proof</td><td>HecticSherlock (permission for every clip): 4.3M views a day. DN Shorts (rankings): flat after Oct 2. JOEPEDIA (added analysis): grew.</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="panel c6" aria-labelledby="h-plan">
+    <div class="ph"><h2 id="h-plan">30-day plan</h2><span class="eyebrow">two channels, one money engine</span></div>
+    <div class="tbl" style="min-width:0"><table style="min-width:520px"><thead><tr><th>Week</th><th>Do</th><th>Target</th></tr></thead><tbody>
+      <tr><td>1</td><td>Sign up on Content Rewards. Join TJR, Alpha Futures, It's Personal and Curious Mike. Read each brief. Make caption and headline templates.</td><td>4 campaigns joined</td></tr>
+      <tr><td>2</td><td>Channel A (money talk): 3 Shorts a day. Submit each post URL in the app the same day.</td><td>21 clips, 70%+ approved</td></tr>
+      <tr><td>3</td><td>Channel B (podcast / brand): add Boxabl and the Sky YouTube campaign. Start one Shorts Series.</td><td>Median clip at least 10K views</td></tr>
+      <tr><td>4</td><td>Drop campaigns under $20 a clip, double down on top hooks, and prepare the GTA 6 sprint for Nov 19.</td><td>$500+ approved; 1.5M views</td></tr>
+    </tbody></table></div>
+    <p class="small muted">Keep the YouTube channels clean of avoid-list campaigns so they stay eligible for the Partner Program before the Jan 31 deadline.</p>
+  </section>
+</div>
+
+<footer>Sources: contentrewards.com/c/discover and campaign pages (public, Oct 12, 2026); Social Blade daily metrics; Playboard; YouTube's Oct 2 Shorts update (9to5Google, Mashable); AIR Media-Tech (YPP 2027, niche growth, RPM); TubeBuddy (Shorts RPM); viral.app (campaign economics and fees). Full research: <span class="mono">research/REPORT.md</span>.</footer>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const DATA = {"_source": "contentrewards.com/c/discover + each campaign page, fetched 2026-10-12 ~07:25 UTC (public, logged out). paid/budget from list; left/creators/rates/min/max from campaign page. rates = per-1K for each platform block shown (platform labels shown only as icons). 'age' = time since launch.", "_platform_stats": {"payouts": 56675.75, "views": 107200000, "headline_cpm": 1.93, "effective_cpm": 0.99, "note": "widget on contentrewards.com/creators; window not stated"}, "campaigns": [{"name": "Michael Sartain's Clipping Army", "org": "Michael Sartain's Clipper Army", "age": "2mo", "paid": 7700, "budget": 10000, "left": 2283, "creators": 23, "rates": [1, 1, 2, 1.5, 2], "min": 10, "max": 100, "maxTop": 200, "cat": "Creator / podcast", "lang": "EN", "niche": "Dating & charisma coach podcast", "source": "Sartain's podcast/coaching videos (guidelines doc)", "notes": "High floor: $10–19 means a clip needs ~10K views before it pays"}, {"name": "Shuffle Streamers - Clipping", "org": "Shuffle Clipping", "age": "3w", "paid": 18000, "budget": 25000, "left": 7011, "creators": 9, "rates": [1.5], "min": 4.5, "max": 300, "cat": "Gambling", "lang": "EN", "niche": "Crypto-casino streamers", "source": "Shuffle-sponsored streamers", "notes": "Must put 'Get a $1,000 deposit match on Shuffle' in caption; min 12s; no reposts; 11.4M views so far", "avoid": "Gambling promo: ad-restricted, age/region rules, FTC disclosure"}, {"name": "FR Yomi Denzel Campagne Principale", "org": "Yomi Denzel Clipping", "age": "10mo", "paid": 285100, "budget": 287100, "left": 2038, "creators": 324, "rates": [1, 1, 1, 0.75], "min": 28, "max": 105, "cat": "Creator / business", "lang": "FR", "niche": "French entrepreneur", "source": "Yomi Denzel videos", "notes": "560.6M approved views for $285K paid = ~$0.51 effective per 1K (cap $105 per clip); platform says clippers average $145"}, {"name": "ForgeGUI Clipping [Roblox]", "org": "BloxClips", "age": "5mo", "paid": 172000, "budget": 189700, "left": 17689, "creators": 3462, "rates": [1, 1, 0.5], "min": 1, "max": 1000, "cat": "Brand / app", "lang": "EN", "niche": "Roblox AI dev tool", "source": "Provided ForgeGUI footage", "notes": "Very crowded (3,462 clippers)"}, {"name": "Boxabl Official Clipping", "org": "Clip Farm", "age": "2mo", "paid": 20100, "budget": 85000, "left": 64868, "creators": 842, "rates": [0.5, 0.5, 0.5, 0.5], "min": 1, "max": 500, "cat": "Brand / product", "lang": "EN", "niche": "Foldable homes (tech / real estate)", "source": "Pre-approved YouTube videos: factory tours, Enes Yilmazer, Orkun Isitmak, Elon Musk, Airrack, FaZe Rug", "notes": "Biggest pot on the board. TikTok, Reels, Shorts, X. UGC allowed"}, {"name": "Backyard Breaks [Clipping Campaign]", "org": "ClipHouse", "age": "3mo", "paid": 52200, "budget": 60200, "left": 7928, "creators": 231, "rates": [2, 2, 2], "min": 2, "max": 250, "cat": "Creator / collectibles", "lang": "EN", "niche": "Trading-card box breaks", "source": "Official Clip Context Tracker sheet", "notes": "Must post on dedicated Backyard Breaks pages; big pulls & reactions"}, {"name": "Daimon X Syndicate", "org": "Syndicate", "age": "3mo", "paid": 45100, "budget": 45300, "left": 217, "creators": 101, "rates": [2, 2], "min": 2, "max": 300, "cat": "UGC / slideshow", "lang": "EN", "niche": "AI slideshows", "source": "Formats provided", "notes": "Nearly exhausted"}, {"name": "ROBTHEBANK CLIPS", "org": "RobTheBank Clips 2.0", "age": "9mo", "paid": 31500, "budget": 32000, "left": 540, "creators": 63, "rates": [1], "min": 10, "max": 150, "cat": "Creator", "lang": "EN", "niche": "Viral creator", "source": "Rob The Bank content", "notes": "Nearly exhausted"}, {"name": "DreamMe [HEALTH]", "org": "Reachify", "age": "6mo", "paid": 26900, "budget": 29500, "left": 2589, "creators": 65, "rates": [1], "min": 1, "max": 400, "cat": "UGC / slideshow", "lang": "EN", "niche": "GLP-1 tracking app", "source": "AI slideshows", "notes": "40% tier-1 audience required", "avoid": "Health/weight-loss claims"}, {"name": "[Mexico] Prime Video - Hazbin Hotel", "org": "Clipping Culture", "age": "1mo", "paid": 24000, "budget": 26100, "left": 2151, "creators": 130, "rates": [2.25, 1.8, 2.25], "min": 1.8, "max": 600, "cat": "TV / studio", "lang": "ES", "niche": "Animated series", "source": "Official content folder", "notes": "Mexico audience"}, {"name": "WatchMeWin Clipping", "org": "WMW CLIPPING", "age": "7mo", "paid": 22700, "budget": 23700, "left": 939, "creators": 102, "rates": [0.8, 0.5], "min": 1, "max": 80, "cat": "Creator", "lang": "LV", "niche": "Latvian creator", "source": "—", "notes": ""}, {"name": "TJR $23,100 Weekly Clipping", "org": "Reach", "age": "1w", "paid": 17600, "budget": 23100, "left": 5501, "creators": 977, "rates": [0.75, 0.75, 0.75], "min": 7.5, "max": 750, "cat": "Creator / finance", "lang": "EN", "niche": "Day-trading streamer", "source": "TJR YouTube (@TJRTrades, @TRichesTrades), Kick, IG, TikTok", "notes": "Weekly budget; highest per-clip cap ($750 = 1M views); crowded"}, {"name": "Call of Duty MW4 (FR)", "org": "French Clipping", "age": "2mo", "paid": 6600, "budget": 23000, "left": 16395, "creators": 26, "rates": [1.5, 1.5], "min": 3, "max": 350, "cat": "Gaming / publisher", "lang": "FR", "niche": "Call of Duty", "source": "Campaign assets", "notes": "French market only; few clippers"}, {"name": "[VIRAL] My Mini Mixed Capsule", "org": "Clip Influence", "age": "2w", "paid": 13000, "budget": 20000, "left": 6963, "creators": 111, "rates": [0.9, 0.9, 0.6], "min": 0.9, "max": 300, "cat": "Brand / product", "lang": "EN", "niche": "Viral toy product", "source": "Provided", "notes": ""}, {"name": "Split-Screen UGC [English]", "org": "Content Rewards", "age": "4mo", "paid": 12900, "budget": 18000, "left": 5118, "creators": 65, "rates": [1.5, 3, 3, 3], "min": 1.5, "max": 500, "cat": "UGC", "lang": "EN", "niche": "Content Rewards itself", "source": "Your own split-screen UGC", "notes": "Tier-1 audience; $3 CPM is the highest non-adult rate on the board"}, {"name": "ARZ Urus Clipping", "org": "Arz Urus Clipping", "age": "1mo", "paid": 11800, "budget": 15000, "left": 3198, "creators": 30, "rates": [0.3, 1.5, 0.3], "min": 6, "max": 150, "cat": "Creator", "lang": "ES", "niche": "Spanish creator", "source": "All of Alejandro's content", "notes": ""}, {"name": "Alpha Futures Clipping", "org": "Click Culture", "age": "4mo", "paid": 10200, "budget": 13000, "left": 2801, "creators": 412, "rates": [2, 2, 2], "min": 2, "max": 500, "cat": "Creator / finance", "lang": "EN", "niche": "Prop-trading firm interviews (TJR, PB Trading, Tori Trades)", "source": "Alpha Futures YouTube videos", "notes": "Funny moments, trading insights, quotes, strong opinions, reactions"}, {"name": "Coinpoker Logo General", "org": "Coin Group Media", "age": "1w", "paid": 9100, "budget": 11500, "left": 2422, "creators": 56, "rates": [0.05], "min": 0.5, "max": 80, "cat": "Gambling", "lang": "EN", "niche": "Logo placement", "source": "Any clip + logo", "notes": "$0.05 CPM", "avoid": "Gambling; near-zero rate"}, {"name": "Clips Hablando (Carlos Esparraga)", "org": "Carlos Esparraga Clipping", "age": "1w", "paid": 9700, "budget": 10000, "left": 283, "creators": 52, "rates": [0.3, 1, 0.1], "min": 2.5, "max": 100, "cat": "Creator", "lang": "ES", "niche": "Spanish creator", "source": "Carlos Esparraga", "notes": "50.3M views for $9.7K = ~$0.19 effective per 1K"}, {"name": "COINBASE x VALORANT", "org": "ClipHaus", "age": "3w", "paid": 8300, "budget": 10000, "left": 1698, "creators": 454, "rates": [1, 1, 1], "min": 1, "max": 150, "cat": "Gaming / brand", "lang": "EN", "niche": "VALORANT tournament (TenZ)", "source": "Tournament footage", "notes": ""}, {"name": "Santa Cruz Medicinals", "org": "VitaClips", "age": "3w", "paid": 7200, "budget": 9900, "left": 2638, "creators": 30, "rates": [1, 1, 1], "min": 5, "max": 200, "cat": "Brand / health", "lang": "EN", "niche": "Wellness brand YouTube", "source": "Brand's new YT content", "notes": "", "avoid": "Health claims"}, {"name": "Elo Cooking Slideshows", "org": "Clip Track", "age": "2mo", "paid": 7800, "budget": 8200, "left": 308, "creators": 32, "rates": [0.6, 1], "min": 1, "max": 200, "cat": "UGC / slideshow", "lang": "EN", "niche": "Cooking app", "source": "Slideshows", "notes": "Nearly exhausted"}, {"name": "OKTAGON MMA", "org": "Clipping Outlaws", "age": "2w", "paid": 7400, "budget": 7500, "left": 113, "creators": 81, "rates": [1, 1, 1], "min": 3, "max": 200, "cat": "Sports", "lang": "EN", "niche": "European MMA", "source": "Event footage", "notes": "Exhausted"}, {"name": "N3ON X MPJ Podcast (Curious Mike)", "org": "ClipUp Official", "age": "2w", "paid": 4400, "budget": 7500, "left": 3106, "creators": 154, "rates": [1, 1, 1], "min": 2, "max": 300, "cat": "Creator / podcast", "lang": "EN", "niche": "NBA player's podcast with N3on", "source": "Curious Mike podcast episode", "notes": "Deep-talk podcast moments"}, {"name": "James O'Keefe Clipping", "org": "Clipbait", "age": "2mo", "paid": 5400, "budget": 7100, "left": 1638, "creators": 29, "rates": [1.5, 1.5, 1, 1.5], "min": 1, "max": 500, "cat": "Creator / politics", "lang": "EN", "niche": "Undercover political journalism", "source": "O'Keefe Media Group videos", "notes": "Platform says clippers average $93", "avoid": "Political, brand-sensitive"}, {"name": "(Deutsch) Call of Duty MW4", "org": "German Clipping", "age": "2mo", "paid": 5400, "budget": 6500, "left": 1140, "creators": 37, "rates": [1, 1, 1], "min": 2, "max": 500, "cat": "Gaming / publisher", "lang": "DE", "niche": "Call of Duty", "source": "Campaign assets", "notes": ""}, {"name": "Please Like Me (TV Show)", "org": "The Clip Ship", "age": "1w", "paid": 3800, "budget": 6000, "left": 2196, "creators": 79, "rates": [1, 1, 1], "min": 3, "max": 300, "cat": "TV / studio", "lang": "EN", "niche": "Comedy-drama series (free on YouTube)", "source": "Approved assets folder", "notes": "Licensed TV footage"}, {"name": "Jackelyne Campaign", "org": "Jackelyne Clips", "age": "2w", "paid": 1200, "budget": 5700, "left": 4439, "creators": 29, "rates": [1.5, 1.5, 1.5, 1.5], "min": 2, "max": 150, "cat": "Creator", "lang": "EN", "niche": "Creator", "source": "Jackelyne content", "notes": "Lots of budget left, few clippers"}, {"name": "Open Road Clipping", "org": "Clipix", "age": "1mo", "paid": 1100, "budget": 5300, "left": 4149, "creators": 34, "rates": [1.5], "min": 1.5, "max": 300, "cat": "UGC / slideshow", "lang": "EN", "niche": "Drive-tracker app", "source": "Slideshow builder", "notes": "TikTok slideshows"}, {"name": "It's Personal Podcast", "org": "Tykoonclips", "age": "2mo", "paid": 3200, "budget": 5000, "left": 1800, "creators": 36, "rates": [2, 2, 2], "min": 1.5, "max": 100, "cat": "Creator / podcast", "lang": "EN", "niche": "Interview podcast", "source": "Long-form interviews", "notes": "Wants strong hooks, bold captions, clean edits"}, {"name": "Pablo Pérez – Bali con 100€", "org": "Pablo Perez Clipping", "age": "1mo", "paid": 1300, "budget": 5000, "left": 3666, "creators": 37, "rates": [1, 1.5, 0.5], "min": 5, "max": 150, "cat": "Creator", "lang": "ES", "niche": "Spanish travel challenge", "source": "Series", "notes": ""}, {"name": "BLINKxLIZ", "org": "CLIP IT UP", "age": "4mo", "paid": 5000, "budget": 5000, "left": 45, "creators": 154, "rates": [1, 1, 1, 1], "min": 2, "max": 150, "cat": "Creator", "lang": "EN", "niche": "K-pop fan creator", "source": "Liz's moments", "notes": "Exhausted"}, {"name": "Clips Hablando de VALOR", "org": "Carlotta Sabina Academy", "age": "1mo", "paid": 1400, "budget": 5000, "left": 3599, "creators": 31, "rates": [0.3, 0.1, 0.5], "min": 2.5, "max": 100, "cat": "Creator", "lang": "ES", "niche": "Spanish coach", "source": "—", "notes": "Low CPM"}, {"name": "UGC Repurposing [International]", "org": "Content Rewards UGC", "age": "4mo", "paid": 1900, "budget": 5000, "left": 3099, "creators": 64, "rates": [0.5, 0.5, 0.5, 0.5], "min": 0.5, "max": 500, "cat": "UGC", "lang": "Any", "niche": "Content Rewards", "source": "Pre-made UGC", "notes": ""}, {"name": "GATTOUZ0 CLIPPING", "org": "Gattouz0 - Clipping", "age": "2w", "paid": 2700, "budget": 5000, "left": 2320, "creators": 27, "rates": [0.2], "min": 20, "max": 20, "cat": "Creator", "lang": "FR", "niche": "French streamer", "source": "Streams, podcasts, vlogs", "notes": "Flat $20 at 100K views"}, {"name": "Mario Vincere", "org": "Afiliados Mario Vincere", "age": "4mo", "paid": 3100, "budget": 4100, "left": 988, "creators": 77, "rates": [1], "min": 20, "max": 200, "cat": "Creator", "lang": "ES", "niche": "Spanish lifestyle", "source": "—", "notes": "Floor $20 = 20K views"}, {"name": "Ali Alhamed", "org": "Arabic Clipping", "age": "1mo", "paid": 2200, "budget": 4000, "left": 1827, "creators": 31, "rates": [0.5, 1], "min": 1, "max": 50, "cat": "Creator / business", "lang": "AR", "niche": "Arabic investor", "source": "—", "notes": ""}, {"name": "Harrison Webb", "org": "Harrison Webb Clips", "age": "8mo", "paid": 3100, "budget": 4000, "left": 857, "creators": 46, "rates": [0.5], "min": 1, "max": 350, "cat": "Creator", "lang": "EN", "niche": "Creator", "source": "—", "notes": ""}, {"name": "Architects 'Machine' Sound", "org": "ClippedIn", "age": "1w", "paid": 3800, "budget": 3900, "left": 5, "creators": 41, "rates": [1], "min": 2, "max": 150, "cat": "Music", "lang": "EN", "niche": "Metal band sound", "source": "Content bank", "notes": "Exhausted"}, {"name": "Post Clips for Sinparty", "org": "Clipr Agency", "age": "2mo", "paid": 788, "budget": 3200, "left": 2371, "creators": 181, "rates": [5], "min": 5, "max": 175, "cat": "Adult", "lang": "EN", "niche": "Adult site", "source": "Banner clips", "notes": "", "avoid": "Adult; would kill a YouTube channel"}, {"name": "Clipback: $CLIP", "org": "ClipBack Limited", "age": "2w", "paid": 1800, "budget": 3500, "left": 1703, "creators": 50, "rates": [1, 1, 1, 1], "min": 1, "max": 250, "cat": "Crypto token", "lang": "EN", "niche": "Memecoin", "source": "—", "notes": "", "avoid": "Token promotion"}, {"name": "Antoine Sallis Clipping", "org": "Rendr Studios", "age": "2mo", "paid": 2500, "budget": 3300, "left": 792, "creators": 145, "rates": [2, 2, 2], "min": 2, "max": 300, "cat": "Creator / finance", "lang": "EN", "niche": "Credit & wealth author", "source": "Antoine's talks/interviews", "notes": "Authoritative, high-energy moments; IG, TikTok, FB, Shorts"}, {"name": "Sky: Children of the Light – YT", "org": "Right Click", "age": "1mo", "paid": 1500, "budget": 3000, "left": 1459, "creators": 59, "rates": [2.8], "min": 2.8, "max": 500, "cat": "Gaming / publisher", "lang": "EN", "niche": "Cozy adventure game", "source": "Official season gameplay footage", "notes": "YouTube campaign; cut & sequence official footage, no custom art"}, {"name": "Ismail Vali Clips", "org": "Cliptic", "age": "2mo", "paid": 3000, "budget": 3000, "left": 9, "creators": 42, "rates": [2, 1.5, 2], "min": 1.5, "max": 300, "cat": "Creator", "lang": "EN", "niche": "Creator", "source": "—", "notes": "Exhausted"}, {"name": "The Up Next Fighting", "org": "Clipper Army", "age": "1mo", "paid": 369, "budget": 3000, "left": 2630, "creators": 180, "rates": [1, 1, 1], "min": 5, "max": 500, "cat": "Sports", "lang": "EN", "niche": "MMA promotion", "source": "UNF footage", "notes": "5K-view minimum; $250 bonus at 1M views; must be an MMA fan page; tag @upnextfighting; keep watermark"}, {"name": "Eneba Campaign", "org": "Eneba", "age": "1mo", "paid": 998, "budget": 3000, "left": 2001, "creators": 85, "rates": [1, 1, 1], "min": 1, "max": 250, "cat": "Gaming / brand", "lang": "EN", "niche": "Game-key marketplace", "source": "—", "notes": ""}, {"name": "Ryan Zofay – Campaign 01", "org": "RYAN ZOFAY", "age": "1mo", "paid": 534, "budget": 3000, "left": 2466, "creators": 36, "rates": [0.75, 0.75], "min": 0.99, "max": 250, "cat": "Creator / self-help", "lang": "EN", "niche": "Business & personal development", "source": "Ryan's talks/podcast", "notes": "TikTok + Instagram only"}, {"name": "DiegoLoveless Clipping", "org": "ClipLaunch", "age": "3mo", "paid": 2400, "budget": 2800, "left": 361, "creators": 54, "rates": [2, 2], "min": 2, "max": 300, "cat": "Creator / gaming", "lang": "EN", "niche": "Marvel Rivals streamer", "source": "Stream moments", "notes": "Nearly exhausted"}, {"name": "Rave Jesus", "org": "Rave Jesus", "age": "3mo", "paid": 1600, "budget": 2500, "left": 896, "creators": 264, "rates": [2, 2], "min": 1, "max": 250, "cat": "Music", "lang": "EN", "niche": "EDM artist", "source": "'Joy Is Coming' sound", "notes": ""}, {"name": "Audien & Luke Alexander '7 Miles High'", "org": "Artist Influence", "age": "4d", "paid": 36, "budget": 1300, "left": 1213, "creators": 4, "rates": [1, 1], "min": 1, "max": 150, "cat": "Music", "lang": "EN", "niche": "EDM single", "source": "Official artist footage (Dropbox)", "notes": "TikTok + IG only"}, {"name": "Geezerbomb – All I Got", "org": "Artist Influence", "age": "1mo", "paid": 231, "budget": 1000, "left": 768, "creators": 33, "rates": [1], "min": 1, "max": 150, "cat": "Music", "lang": "EN", "niche": "Song + GTA6/FIFA/gaming edits", "source": "Song over your edits", "notes": "TikTok only"}]};
+const QUEUE = {"_note": "Key-line timestamps come from YouTube auto-transcripts read by a cloud browser on 2026-10-12. Cut windows are suggestions (about 20-30s before the key line to 15-30s after); confirm in the editor. Check the Alpha Futures campaign brief to confirm Alpha Group Podcast videos are approved source footage before posting.", "clips": [{"src": "Antonio – He Made $15M Trading... With No Mentor, No Course", "vid": "b8yMMTiU1U8", "campaign": "Alpha Futures", "key": "0:31", "cut": "0:31–1:11", "type": "Money reveal", "line": "has made nearly $15 million trading", "headline": "NO MENTOR. NO COURSE. $15M.", "layer": "Numbers card: Army at 17 · zero English · self-taught · ~$15M"}, {"src": "Antonio – He Made $15M Trading...", "vid": "b8yMMTiU1U8", "campaign": "Alpha Futures", "key": "8:32", "cut": "8:05–9:05", "type": "Story payoff", "line": "I'll tell my parents I'm leaving college", "headline": "HE FAKED COLLEGE TO TRADE", "layer": "Story captions + end card: 'Would you have done it?'"}, {"src": "Antonio – He Made $15M Trading...", "vid": "b8yMMTiU1U8", "campaign": "Alpha Futures", "key": "23:35", "cut": "23:05–24:05", "type": "Emotional", "line": "It makes you so angry, you never forget it", "headline": "WHAT HIS DAD SAID STUCK", "layer": "Slow push-in, soft caption, no music bed"}, {"src": "Antonio – He Made $15M Trading...", "vid": "b8yMMTiU1U8", "campaign": "Alpha Futures", "key": "35:46", "cut": "35:20–36:20", "type": "Mistake / lesson", "line": "Hey Robinhood, here's another 23 grand", "headline": "$23,000 GONE… AGAIN", "layer": "Lesson card: 'Risk per trade decides who survives'"}, {"src": "Antonio – He Made $15M Trading...", "vid": "b8yMMTiU1U8", "campaign": "Alpha Futures", "key": "37:39", "cut": "37:20–38:20", "type": "Strong opinion", "line": "not getting a job to trade full-time is just an excuse", "headline": "DON'T QUIT YOUR JOB TO TRADE", "layer": "One-line take + comment prompt: 'Agree?'"}, {"src": "Antonio – He Made $15M Trading...", "vid": "b8yMMTiU1U8", "campaign": "Alpha Futures", "key": "50:15", "cut": "49:50–50:40", "type": "Mindset rule", "line": "Can I fix it? Yes. Let me move on.", "headline": "THE 2-QUESTION RULE", "layer": "On-screen flowchart: Can I fix it? → Yes: fix it / No: let it go"}, {"src": "Sully – From Nigeria to 200K Followers", "vid": "IwQsAe-RSnE", "campaign": "Alpha Futures", "key": "0:00", "cut": "0:00–0:34", "type": "Money reveal", "line": "I made £500 in like 10 seconds because of news", "headline": "£500 IN 10 SECONDS", "layer": "Numbers card + 'Not financial advice' tag"}, {"src": "Sully – From Nigeria to 200K Followers", "vid": "IwQsAe-RSnE", "campaign": "Alpha Futures", "key": "3:40", "cut": "3:20–4:20", "type": "Bet / stakes", "line": "Give me one year exactly… I don't have to do masters", "headline": "HE GAVE HIS MUM A 1-YEAR DEADLINE", "layer": "Countdown graphic: 12 months → first payout"}, {"src": "Sully – From Nigeria to 200K Followers", "vid": "IwQsAe-RSnE", "campaign": "Alpha Futures", "key": "8:40", "cut": "8:30–9:20", "type": "Strong opinion", "line": "we're not taught how to budget, invest, or file taxes", "headline": "WHAT SCHOOL NEVER TAUGHT YOU", "layer": "Checklist overlay ticking: bank account · budget · invest · taxes"}, {"src": "Sully – From Nigeria to 200K Followers", "vid": "IwQsAe-RSnE", "campaign": "Alpha Futures", "key": "18:26", "cut": "18:00–19:00", "type": "Stakes / risk", "line": "if this didn't work out, my degree was useless", "headline": "ALL IN. NO BACKUP PLAN.", "layer": "Split text: 'If it fails…' vs 'If it works…'"}, {"src": "Sully – From Nigeria to 200K Followers", "vid": "IwQsAe-RSnE", "campaign": "Alpha Futures", "key": "21:27", "cut": "21:00–22:00", "type": "Payoff", "line": "first payout… exactly £1.5k in like a week", "headline": "FIRST PAYOUT: £1.5K IN A WEEK", "layer": "Payout counter animation"}, {"src": "Sully – From Nigeria to 200K Followers", "vid": "IwQsAe-RSnE", "campaign": "Alpha Futures", "key": "39:22", "cut": "39:00–39:50", "type": "Emotional", "line": "see someone start from zero, and then they push", "headline": "THE BEST PART ISN'T THE MONEY", "layer": "Soft caption; end on his smile; series tag 'Trader Stories #2'"}], "saturated": {"campaign": "N3ON X MPJ Podcast (Curious Mike)", "already_heavily_clipped": ["Dubai jail story", "'$10M a month' streamer income", "faked his death at 14 / Carmelo highlight", "'$30 in my bank'"], "advice": "Other clippers have already posted these. Find fresher moments from the full episode on @mpj."}};
+const C = DATA.campaigns;
+const $ = s => document.querySelector(s);
+const money = n => n >= 1000 ? '$' + (n/1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/,'') + 'K' : '$' + Math.round(n).toLocaleString();
+const views = n => n >= 1e6 ? (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M' : n >= 1000 ? Math.round(n/1000) + 'K' : String(n);
+const tip = $('#tip');
+function bindTip(el, html) {
+  el.addEventListener('mousemove', e => { tip.hidden = false; tip.innerHTML = html; let x = e.clientX + 14; if (x > innerWidth - 290) x = e.clientX - 290; tip.style.left = x + 'px'; tip.style.top = (e.clientY + 12) + 'px'; });
+  el.addEventListener('mouseleave', () => tip.hidden = true);
+}
+
+/* annotate campaigns */
+const FIT = {
+  "TJR $23,100 Weekly Clipping": ["core", "Money talk. Weekly refill, $750 cap. Crowded, so out-edit the crowd."],
+  "Alpha Futures Clipping": ["core", "Trading personalities, $2 rate. Exactly our money lane."],
+  "Antoine Sallis Clipping": ["core", "Credit and wealth talks at $2. Small budget left; join if it refills."],
+  "It's Personal Podcast": ["core", "Interview podcast at $2 with few clippers. Wants hooks and bold captions."],
+  "N3ON X MPJ Podcast (Curious Mike)": ["good", "Podcast moments at $1. Big streamer name drives views."],
+  "Michael Sartain's Clipping Army": ["good", "Up to $2, but a $10–19 floor needs 5–10K views a clip."],
+  "Boxabl Official Clipping": ["good", "Biggest pot on the board; source is creator videos (Airrack, FaZe Rug). Low $0.50 rate."],
+  "Sky: Children of the Light – YT": ["good", "$2.80 for YouTube, the highest safe rate. Official game footage only."],
+  "Backyard Breaks [Clipping Campaign]": ["good", "$2 rate, but you must post on a dedicated Backyard Breaks page."],
+  "Please Like Me (TV Show)": ["ok", "Licensed TV assets at $1. Fine for a second channel."],
+  "Jackelyne Campaign": ["ok", "$1.50 with $4.4K left and only 29 clippers. Check the content fits first."],
+  "COINBASE x VALORANT": ["ok", "Gaming tournament footage. Crowded (454 clippers)."],
+  "The Up Next Fighting": ["ok", "Only if you run an MMA page. $250 bonus at 1M views."],
+  "Eneba Campaign": ["ok", "Gaming brand, $1. Generic."],
+  "[VIRAL] My Mini Mixed Capsule": ["ok", "Viral product, $0.90. Off-niche."],
+  "ForgeGUI Clipping [Roblox]": ["ok", "3,462 clippers. Very crowded."],
+  "Ryan Zofay – Campaign 01": ["ok", "Self-help talks, but TikTok and IG only."],
+  "Split-Screen UGC [English]": ["ok", "$3 UGC, not clipping; needs a tier-1 audience."]
+};
+C.forEach(c => {
+  c.rate = Math.max(...c.rates); c.rateMin = Math.min(...c.rates);
+  c.floorViews = Math.round(c.min / c.rate * 1000);
+  c.capViews = Math.round(c.max / c.rate * 1000);
+  c.perClipper = c.creators ? c.left / c.creators : c.left;
+  const f = FIT[c.name];
+  c.fit = c.avoid ? 'avoid' : (c.left < 300 ? 'done' : (c.lang !== 'EN' && c.lang !== 'Any') ? 'lang' : f ? f[0] : 'ok');
+  c.why = c.avoid || (f ? f[1] : (c.left < 300 ? 'Budget nearly used up.' : (c.lang !== 'EN' && c.lang !== 'Any') ? 'Non-English audience required.' : 'Generic fit.'));
+});
+const FITCHIP = { core: ['good','★ core'], good: ['acc','✓ good'], ok: ['neutral','○ ok'], lang: ['neutral','language'], done: ['warn','◆ ending'], avoid: ['bad','✕ avoid'] };
+
+/* niche bars + table */
+const NICHES = [
+  { n: "Money & finance talk", s: [5,5,3,5,5], kw: ["finance"], note: "Financial Audit was #1 on YouTube's US podcast chart in Sept; finance has the top RPM; TJR, Alpha Futures and Antoine Sallis campaigns are live." },
+  { n: "AI & creator-economy talk", s: [4,3,3,4,5], kw: [], note: "+1.44% and +1.50% a month in TubeAI's Sept study; high RPM; few campaigns yet." },
+  { n: "Breakout Kick streamer", s: [4,5,4,2,3], kw: [], note: "Kick set a viewership record in Sept; Odablock +630% month over month; only 64 related channels." },
+  { n: "GTA 6 / gaming reactions", s: [5,2,4,2,4], kw: ["Gaming"], note: "GTA 6 launches Nov 19; gaming is the #1 rising category; Sky (YouTube) and COD campaigns are live." },
+  { n: "Podcast interview moments", s: [4,2,4,3,4], kw: ["podcast"], note: "Biggest clip category overall; It's Personal, Curious Mike and Sartain campaigns are live." },
+  { n: "Brand / product footage", s: [3,3,5,2,3], kw: ["Brand"], note: "Permission is built in; Boxabl has $64.9K left but pays only $0.50." },
+  { n: "Midterm politics", s: [4,2,2,2,4], kw: ["politics"], note: "Debate clips peak until Nov 3, then fall; limited ads." },
+  { n: "Big IRL streamers (Speed / Kai)", s: [3,1,4,2,1], kw: [], note: "Plain fan reposts fell about 60% after Oct 2; 905+ channels for Kai alone." },
+  { n: "Movie & TV edits", s: [3,2,1,2,2], kw: ["TV"], note: "Fell 62% after Oct 2; studio Content ID risk unless a campaign licenses it." }
+];
+const W = [.25,.2,.15,.2,.2];
+NICHES.forEach(x => {
+  x.total = x.s.reduce((a,v,i)=>a+v*W[i],0);
+  x.live = C.filter(c => !c.avoid && c.lang === 'EN' && x.kw.some(k => (c.cat + ' ' + c.niche).toLowerCase().includes(k.toLowerCase()))).reduce((a,c)=>a+c.left,0);
+});
+NICHES.sort((a,b)=>b.total-a.total);
+$('#niche-bars').innerHTML = NICHES.map(x => `<div class="bar-row" data-n="${x.n}"><span class="lbl">${x.n}</span><span class="bar-track"><span class="bar-fill ${x.total < 3 ? 'dim' : ''}" style="width:${x.total/5*100}%"></span></span><span class="val">${x.total.toFixed(2)}</span></div>`).join('');
+document.querySelectorAll('#niche-bars .bar-row').forEach(r => { const x = NICHES.find(n => n.n === r.dataset.n); bindTip(r, `<b>${x.n}</b><br>${x.note}`); });
+$('#niche-table').innerHTML = NICHES.map(x => `<tr><td><b>${x.n}</b></td>${x.s.map(v=>`<td><span class="score s${v}">${v}</span></td>`).join('')}<td class="num">${x.live ? money(x.live) : '—'}</td></tr>`).join('');
+
+/* category bars */
+const cats = {};
+C.forEach(c => { const k = c.cat.split(' /')[0]; cats[k] = cats[k] || { left: 0, n: 0, bad: !!c.avoid }; cats[k].left += c.left; cats[k].n++; });
+const catArr = Object.entries(cats).sort((a,b)=>b[1].left-a[1].left);
+const cmax = catArr[0][1].left;
+$('#cat-bars').innerHTML = catArr.map(([k,v]) => `<div class="bar-row"><span class="lbl">${k} <span class="muted">(${v.n})</span></span><span class="bar-track"><span class="bar-fill ${v.bad ? 'dim' : ''}" style="width:${v.left/cmax*100}%"></span></span><span class="val">${money(v.left)}</span></div>`).join('');
+
+/* oct 2 diverging bars */
+const OCT2 = [["JOEPEDIA (adds analysis)",612],["Asmongold Clips (official)",20],["Theo Von Clips (official)",14],["DN Shorts (licensed rankings)",-2],["Caedrel Clips (official)",-11],["HecticSherlock (permission)",-20],["The Burnt Peanut Shorts (fan)",-28],["JRE Clips (official)",-49],["SpeedKaiClip (fan repost)",-60],["Worthy Streamers (fan repost)",-60],["Clarity Clips (movie edits)",-62]];
+$('#oct2-bars').innerHTML = OCT2.map(([n,v]) => { const w = Math.min(Math.abs(v),100)/100*50; const left = v < 0 ? 50 - w : 50; return `<div class="bar-row"><span class="lbl">${n}</span><span class="bar-track"><span class="bar-fill ${v<0?'neg':'pos'}" style="left:${left}%;width:${w}%"></span></span><span class="val">${v>0?'+':''}${v}%${v>100?' ▸':''}</span></div>`; }).join('');
+
+/* campaigns table */
+const FILTERS = [["fits","Fits us"],["all","All"],["core","Core money lane"],["podcast","Podcast & creator"],["brand","Brand & gaming"],["avoid","Avoid"]];
+let filt = 'fits', sortK = 'left', sortDir = -1, selected = null;
+$('#filters').innerHTML = FILTERS.map(([k,l]) => `<button type="button" data-f="${k}" aria-pressed="${k===filt}">${l}</button>`).join('');
+$('#filters').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; filt = b.dataset.f; document.querySelectorAll('#filters button').forEach(x => x.setAttribute('aria-pressed', x.dataset.f === filt)); renderTable(); });
+document.querySelectorAll('#camp-table th button').forEach(b => b.addEventListener('click', () => { const k = b.dataset.k; sortDir = sortK === k ? -sortDir : (k === 'name' ? 1 : -1); sortK = k; renderTable(); }));
+function passes(c) {
+  if (filt === 'all') return true;
+  if (filt === 'fits') return ['core','good'].includes(c.fit);
+  if (filt === 'core') return c.fit === 'core';
+  if (filt === 'podcast') return /Creator/.test(c.cat) && !c.avoid;
+  if (filt === 'brand') return /Brand|Gaming|TV|Sports/.test(c.cat) && !c.avoid;
+  if (filt === 'avoid') return c.fit === 'avoid';
+}
+function renderTable() {
+  const rows = C.filter(passes).sort((a,b) => { const x = a[sortK], y = b[sortK]; return (typeof x === 'string' ? x.localeCompare(y) : x - y) * sortDir; });
+  const maxPC = Math.max(...C.filter(c=>!c.avoid).map(c=>c.perClipper));
+  $('#camp-table tbody').innerHTML = rows.map(c => {
+    const ch = FITCHIP[c.fit];
+    const rate = c.rateMin === c.rate ? '$' + c.rate.toFixed(2) : '$' + c.rateMin.toFixed(2) + '–' + c.rate.toFixed(2);
+    return `<tr data-name="${c.name.replace(/"/g,'&quot;')}" class="${selected===c.name?'sel':''}" tabindex="0">
+      <td><b>${c.name}</b><br><span class="small muted">${c.org} · ${c.age}</span></td>
+      <td><span class="chip ${ch[0]}">${ch[1]}</span></td>
+      <td class="small">${c.niche}</td>
+      <td class="num">${rate}</td>
+      <td class="num">${views(c.floorViews)}</td>
+      <td class="num">${views(c.capViews)}</td>
+      <td class="num">${money(c.left)}<br><span class="muted">of ${money(c.budget)}</span></td>
+      <td class="num">${c.creators.toLocaleString()}</td>
+      <td class="num"><span class="compete"><i style="width:${Math.min(100, c.perClipper/maxPC*100)}%"></i></span>${money(c.perClipper)}</td>
+      <td class="small">${c.lang}</td></tr>`;
+  }).join('') || `<tr><td colspan="10" class="muted">No campaigns in this view.</td></tr>`;
+  document.querySelectorAll('#camp-table tbody tr[data-name]').forEach(tr => {
+    const open = () => { selected = tr.dataset.name; showDetail(C.find(c => c.name === selected)); renderTable(); };
+    tr.addEventListener('click', open); tr.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
+  });
+}
+function showDetail(c) {
+  const d = $('#camp-detail'); d.hidden = false;
+  d.innerHTML = `<dl><dt>Campaign</dt><dd><b>${c.name}</b> by ${c.org}</dd><dt>Our take</dt><dd>${c.why}</dd><dt>Source footage</dt><dd>${c.source}</dd><dt>Notes</dt><dd>${c.notes || '—'}</dd></dl>
+  <dl><dt>Pay</dt><dd>${c.rates.map(r=>'$'+r.toFixed(2)).join(' / ')} per 1K across platforms · min $${c.min} · max $${c.max} per clip</dd><dt>Views to first dollar / to cap</dt><dd>${views(c.floorViews)} / ${views(c.capViews)}</dd><dt>Budget</dt><dd>${money(c.paid)} paid of ${money(c.budget)} · ${money(c.left)} left · ${c.creators} clippers</dd><dt>Try it</dt><dd><button type="button" id="try" style="font:inherit;padding:3px 10px;border-radius:99px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer">Load in calculator</button></dd></dl>`;
+  $('#try').addEventListener('click', () => { $('#c-camp').value = c.name; calc(); $('#h-calc').scrollIntoView({behavior:'smooth', block:'start'}); });
+}
+renderTable();
+
+/* starter stack */
+const PICKS = ["Alpha Futures Clipping","TJR $23,100 Weekly Clipping","It's Personal Podcast","N3ON X MPJ Podcast (Curious Mike)","Sky: Children of the Light – YT","Boxabl Official Clipping"];
+$('#picks').innerHTML = PICKS.map((n,i) => { const c = C.find(x => x.name === n); return `<div class="pick"><span class="r">${i < 3 ? 'Start here' : 'Add in week 3'} · ${c.cat}</span><h3>${c.name}</h3><div class="m"><span>$${c.rate.toFixed(2)}/1K</span><span>cap ${money(c.max)}</span><span>${money(c.left)} left</span><span>${c.creators} clippers</span></div><p class="small muted">${c.why}</p></div>`; }).join('');
+
+/* clip queue */
+const secs = t => t.split(':').reduce((a,v)=>a*60 + (+v), 0);
+$('#queue tbody').innerHTML = QUEUE.clips.map((q,i) => `<tr style="cursor:default">
+  <td class="num">${i+1}</td>
+  <td class="small"><b>${q.src.split(' – ')[0]}</b><br><span class="muted">${q.src.split(' – ')[1] || ''}</span></td>
+  <td class="num"><a href="https://www.youtube.com/watch?v=${q.vid}&t=${secs(q.key)}s" target="_blank" rel="noopener">${q.key}</a></td>
+  <td class="num">${q.cut}</td>
+  <td class="small">${q.type}</td>
+  <td><span class="mark" style="font-family:var(--font-display);font-weight:700;font-size:.85rem">${q.headline}</span><br><span class="small muted">"${q.line}"</span></td>
+  <td class="small">${q.layer}</td></tr>`).join('');
+$('#sat').textContent = QUEUE.saturated.already_heavily_clipped.join(' · ') + ' (Curious Mike × N3on).';
+
+/* calculator */
+const sel = $('#c-camp');
+sel.innerHTML = C.filter(c => !c.avoid && c.left >= 300).sort((a,b)=>b.left-a.left).map(c => `<option value="${c.name.replace(/"/g,'&quot;')}">${c.name} ($${c.rate.toFixed(2)}/1K)</option>`).join('');
+sel.value = "Alpha Futures Clipping";
+function calc() {
+  const c = C.find(x => x.name === sel.value);
+  const v = +$('#c-views').value, n = +$('#c-clips').value, ap = +$('#c-appr').value / 100, share = +$('#c-share').value / 100;
+  $('#o-views').textContent = views(v); $('#o-clips').textContent = n; $('#o-appr').textContent = Math.round(ap*100) + '%'; $('#o-share').textContent = Math.round(share*100) + '%';
+  const raw = v * c.rate / 1000;
+  const perClip = raw < c.min ? 0 : Math.min(raw, c.max);
+  const week = perClip * n * 7 * ap;
+  const monthGross = perClip * n * 30 * ap;
+  const budgetCap = c.left * share;
+  const month = Math.min(monthGross, budgetCap) * 0.9;
+  $('#r-clip').textContent = perClip ? '$' + perClip.toFixed(perClip < 10 ? 2 : 0) : '$0';
+  $('#r-week').textContent = money(week);
+  $('#r-month').textContent = money(month);
+  $('#r-pool').textContent = '$' + (v * n * 30 * 0.05 / 1000).toFixed(0);
+  $('#r-views').textContent = views(v * n * 30);
+  const w = [];
+  if (raw < c.min) w.push(`Below the $${c.min} minimum: a clip needs ${views(c.floorViews)} views before it pays.`);
+  if (raw > c.max) w.push(`Capped: views beyond ${views(c.capViews)} per clip aren't paid.`);
+  if (monthGross > budgetCap) w.push(`Limited by the budget: only ${money(c.left)} is left for ${c.creators} clippers, and campaigns can refill or close.`);
+  $('#r-warn').textContent = w.join(' ');
+}
+['#c-camp','#c-views','#c-clips','#c-appr','#c-share'].forEach(s => $(s).addEventListener('input', calc));
+calc();
+</script>

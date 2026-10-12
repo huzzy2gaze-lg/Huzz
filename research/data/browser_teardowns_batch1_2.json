@@ -1,0 +1,285 @@
+{
+ "_source": "TinyFish cloud browser (logged-out, US proxy), 2026-10-12 06:53-07:01 UTC. Agent-observed; audio not heard. SpeedUniverse sample discarded (agent opened another channel's videos).",
+ "SpeedKaiClip": {
+  "handle": "@SpeedKaiClip",
+  "join_button": "yes",
+  "top_shorts": [
+   [
+    "Speed caused his Fan to get kicked out of his Team!😭",
+    "54M"
+   ],
+   [
+    "Speed got Donated $1,000,000 💵🤣",
+    "17M"
+   ],
+   [
+    "Speed bro, Leave NickEh30 Alone😭",
+    "16M"
+   ]
+  ],
+  "sample": {
+   "title": "DaddySpeed Donated IShowSpeed...!💀 #shorts",
+   "views": "43K",
+   "likes": "1.1K",
+   "length": "~30-45s",
+   "captions": "Yellow text, black outline, not karaoke; text at top and keyword 'YOU' center",
+   "framing": "single full-frame",
+   "sound": "no music label seen"
+  }
+ },
+ "HecticSherlock Gaming": {
+  "handle": "@HecticSG",
+  "join_button": "yes",
+  "super_chat_total": "$2,623 (Playboard)",
+  "top_shorts": [
+   [
+    "Honestly… Worth! 🍀😏🙂‍↕️",
+    "3.1M"
+   ],
+   [
+    "NEVER Aura Farm early 😭✌️🥀",
+    "1.8M"
+   ],
+   [
+    "First you slap, then you run 👋😈🏃‍♂️",
+    "1.4M"
+   ]
+  ],
+  "sample": {
+   "title": "They Are Here 👽🛸",
+   "views": "59K",
+   "length": "~25s",
+   "note": "cinematic from the channel's own upcoming game",
+   "sound": "music bed (stock library likely)"
+  }
+ },
+ "MoeJiOne Fun": {
+  "handle": "@MoeJiOnefun",
+  "join_button": "yes",
+  "top_shorts": [
+   [
+    "the best half time dunk",
+    "621K"
+   ],
+   [
+    "robiee best shorts edit",
+    "383K"
+   ],
+   [
+    "steph curry ful court shorts",
+    "233K"
+   ]
+  ],
+  "sample": {
+   "title": "Anatoly: I Lost to the Mop #Shorts",
+   "views": "1.5K",
+   "captions": "none",
+   "sound": "original streamer audio"
+  },
+  "note": "200K subs but 2.7M lifetime views; old basketball channel repurposed into multi-streamer campaign clips, 6-26 uploads/day"
+ },
+ "Worthy Streamers": {
+  "handle": "@WorthyStreamers",
+  "join_button": "yes",
+  "top_shorts_recent": [
+   [
+    "Kai Cenat Calls TVU To Make Sure He's The Only One Streaming! 😭💀",
+    "142K"
+   ],
+   [
+    "Rakai Breaks Down What Happened Between Lala & Jay Cinco! 😭💀",
+    "107K"
+   ],
+   [
+    "Rakai Thinks Reggie Might Have Gotten Laced! 😳💔",
+    "49K"
+   ]
+  ],
+  "sample": {
+   "title": "Kai Cenat Hits The 'Ouu Sour' Again! 😭💀",
+   "views": "150K",
+   "likes": "~5K",
+   "comments": "200+",
+   "length": "58s",
+   "headline": "'KAI CENAT IS SO MAD! 😡' white bold, black outline, full-width top",
+   "extras": "3-2-1 countdown cards, white on red",
+   "framing": "full-frame speaker, static",
+   "sound": "original sound - Worthy Streamers",
+   "description": "Follow @WorthyStreamers on Instagram & TikTok! Subscribe for daily streamer clips!"
+  }
+ },
+ "The Burnt Peanut Shorts": {
+  "handle": "@TheBurntPeanutShorts",
+  "join_button": "no",
+  "top_shorts": [
+   [
+    "OMGOMGOMGOMGOMGOMGOMGOMGOMG",
+    "9.4M"
+   ],
+   [
+    "The BEST FPS STREAMER of the YEAR Goes To... The Streamer Awards 2025",
+    "7.7M"
+   ],
+   [
+    "Everyone Slowly Started to HATE Peanut Jackson He Hee...",
+    "742K"
+   ]
+  ],
+  "sample": {
+   "title": "Peanut Has Officially Decided He's Fine...",
+   "views": "161K",
+   "likes": "~8K",
+   "comments": "500+",
+   "length": "45s",
+   "headline": "'PEANUT RAGE QUIT AGAIN...' white bold black outline top",
+   "framing": "full-frame ARC Raiders gameplay, no facecam",
+   "sound": "original sound - The Burnt Peanut"
+  }
+ },
+ "DN Shorts": {
+  "handle": "@DNShorty",
+  "join_button": "yes",
+  "top_shorts": [
+   [
+    "Ranking The Funniest Couple's Moments Ever",
+    "211M"
+   ],
+   [
+    "Ranking The Best Dress Transitions Ever",
+    "171M"
+   ],
+   [
+    "Ranking The Best Phonk With Violin",
+    "145M"
+   ]
+  ],
+  "sample": {
+   "title": "Ranking The Best Accuracy Moments Ever",
+   "views": "84K",
+   "likes": "~3K",
+   "length": "52s",
+   "captions": "'Number 3:' large bold yellow, black outline, lower-left + white description line",
+   "headline": "yes",
+   "framing": "full-frame clips 5-8s each",
+   "sound": "original sound - DN Shorts",
+   "description": "Submit your clips: bit.ly/dnshortssubmit"
+  }
+ },
+ "Logged-out Shorts feed scroll": {
+  "shorts_seen": 44,
+  "ads": 4,
+  "clip_or_repost_of_others": 11,
+  "examples": [
+   "@peakzmotivation streamer clip 217K likes",
+   "@MusicMediaCo commentary 140K likes",
+   "@Luffacy anime edit 265K likes",
+   "@asim7x football edit 70K likes",
+   "@Rapvaultco freestyle clip 70K likes",
+   "@Juliet_Ranks ranking compilation"
+  ],
+  "note": "No plain podcast reposts surfaced; bot-check overlay present"
+ },
+ "Batch 3-4 (07:02-07:16 UTC)": {
+  "Caedrel Clips": {
+   "join_button": "no",
+   "official": "Caedrel's Official Clips & Highlights Channel",
+   "top_shorts": [
+    [
+     "Baus playing with Caedrel's emotions 💔",
+     "2.8M"
+    ],
+    [
+     "Faker's unbelievable stats",
+     "2.5M"
+    ],
+    [
+     "Caedrel mind gamed by Veigar 🐀",
+     "2M"
+    ]
+   ],
+   "sample": "facecam+gameplay; white outlined text pops in a few words at a time, upper/mid left"
+  },
+  "Asmongold Clips": {
+   "join_button": "no",
+   "official": "The official Asmongold Clips channel",
+   "top_shorts": [
+    [
+     "This is the craziest story I've ever heard..",
+     "2.2M"
+    ],
+    [
+     "This instantly backfired..",
+     "1.6M"
+    ],
+    [
+     "It's all crashing down..",
+     "1.6M"
+    ]
+   ]
+  },
+  "Theo Von Clips": {
+   "join_button": "no",
+   "top_shorts": [
+    [
+     "What Trump admires about his sons",
+     "10M"
+    ],
+    [
+     "Theo on French People",
+     "10M"
+    ],
+    [
+     "Theo Meets DJ Khaled at a Gas Station",
+     "10M"
+    ]
+   ],
+   "description_credit": "Excerpt from This Past Weekend #496 | A Carnie"
+  },
+  "Kick_Clippers": {
+   "join_button": "no",
+   "note": "multi-streamer fan clips (N3on, Adin Ross, Speed, Kai)"
+  },
+  "JOEPEDIA": {
+   "join_button": "no",
+   "top_shorts": [
+    [
+     "Brian Shaw Makes Huge Bodybuilders Look Tiny",
+     "14M"
+    ],
+    [
+     "Joe Rogan Got In a Fight On Fear Factor",
+     "9.5M"
+    ],
+    [
+     "Joe Rogan Warning To Jake Paul Before His Match With Mike Tyson",
+     "7.5M"
+    ]
+   ]
+  },
+  "Clarity Clips": {
+   "join_button": "no",
+   "top_shorts": [
+    [
+     "The mother didn't settle for any coach",
+     "82M"
+    ],
+    [
+     "Denied her service because of her skin tone",
+     "49M"
+    ],
+    [
+     "They negotiated the price of a watch",
+     "42M"
+    ]
+   ]
+  },
+  "Concludely": {
+   "join_button": "yes",
+   "note": "agent's top-shorts list duplicated JOEPEDIA's; discarded"
+  },
+  "Successful Cenat": {
+   "join_button": "yes",
+   "top_shorts_note": "recent low views (3K-89K)"
+  }
+ }
+}
