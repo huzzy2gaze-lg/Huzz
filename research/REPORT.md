@@ -18,9 +18,9 @@ The published version, with charts and account cards, is the HTML page in `resea
 | 2 | DN Shorts (@DNShorty) | Independent, licensed rankings | Join button | 1.61M | 441K | −2% |
 | 3 | Worthy Streamers | Independent fan, heavy edit | Join button | 618K | 588K | −60% |
 | 4 | SpeedKaiClip | Independent fan, light edit | Join button | 1.23M | 390K | −60% |
-| 5 | Concludely | Independent viral clips | Super Chat revenue | 333K | ~200K (spiky) | n/a |
-| 6 | JOEPEDIA (Fan Channel) | Independent fan, adds analysis | Not verified | 190K | 88K | +612% (small base) |
-| 7 | Clarity Clips | Independent movie/TV edits | Not verified (likely YPP) | 2.34M | 206K | −62% |
+| 5 | Concludely | Independent viral clips | Join button + Super Chat revenue | 333K | ~200K (spiky) | n/a |
+| 6 | JOEPEDIA (Fan Channel) | Independent fan, adds analysis | Not verified (no Join) | 190K | 88K | +612% (small base) |
+| 7 | Clarity Clips | Independent movie/TV edits | Not verified (no Join; likely YPP) | 2.34M | 206K | −62% |
 | 8 | Caedrel Clips | Official, single streamer | Strong (official, no Join) | 194K | 777K | −11% |
 | 9 | Asmongold Clips | Official, single streamer | Strong (official, no Join) | 1.87M | 3.54M | +20% |
 | 10 | Theo Von Clips | Official, podcast | Strong (official, no Join) | 1.46M | 496K | +14% |
