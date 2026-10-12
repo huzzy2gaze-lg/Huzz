@@ -1,0 +1,22 @@
+{
+ "_note": "Key-line timestamps come from YouTube auto-transcripts read by a cloud browser on 2026-10-12. Cut windows are suggestions (about 20-30s before the key line to 15-30s after); confirm in the editor. Check the Alpha Futures campaign brief to confirm Alpha Group Podcast videos are approved source footage before posting.",
+ "clips": [
+  {"src":"Antonio – He Made $15M Trading... With No Mentor, No Course","vid":"b8yMMTiU1U8","campaign":"Alpha Futures","key":"0:31","cut":"0:31–1:11","type":"Money reveal","line":"has made nearly $15 million trading","headline":"NO MENTOR. NO COURSE. $15M.","layer":"Numbers card: Army at 17 · zero English · self-taught · ~$15M"},
+  {"src":"Antonio – He Made $15M Trading...","vid":"b8yMMTiU1U8","campaign":"Alpha Futures","key":"8:32","cut":"8:05–9:05","type":"Story payoff","line":"I'll tell my parents I'm leaving college","headline":"HE FAKED COLLEGE TO TRADE","layer":"Story captions + end card: 'Would you have done it?'"},
+  {"src":"Antonio – He Made $15M Trading...","vid":"b8yMMTiU1U8","campaign":"Alpha Futures","key":"23:35","cut":"23:05–24:05","type":"Emotional","line":"It makes you so angry, you never forget it","headline":"WHAT HIS DAD SAID STUCK","layer":"Slow push-in, soft caption, no music bed"},
+  {"src":"Antonio – He Made $15M Trading...","vid":"b8yMMTiU1U8","campaign":"Alpha Futures","key":"35:46","cut":"35:20–36:20","type":"Mistake / lesson","line":"Hey Robinhood, here's another 23 grand","headline":"$23,000 GONE… AGAIN","layer":"Lesson card: 'Risk per trade decides who survives'"},
+  {"src":"Antonio – He Made $15M Trading...","vid":"b8yMMTiU1U8","campaign":"Alpha Futures","key":"37:39","cut":"37:20–38:20","type":"Strong opinion","line":"not getting a job to trade full-time is just an excuse","headline":"DON'T QUIT YOUR JOB TO TRADE","layer":"One-line take + comment prompt: 'Agree?'"},
+  {"src":"Antonio – He Made $15M Trading...","vid":"b8yMMTiU1U8","campaign":"Alpha Futures","key":"50:15","cut":"49:50–50:40","type":"Mindset rule","line":"Can I fix it? Yes. Let me move on.","headline":"THE 2-QUESTION RULE","layer":"On-screen flowchart: Can I fix it? → Yes: fix it / No: let it go"},
+  {"src":"Sully – From Nigeria to 200K Followers","vid":"IwQsAe-RSnE","campaign":"Alpha Futures","key":"0:00","cut":"0:00–0:34","type":"Money reveal","line":"I made £500 in like 10 seconds because of news","headline":"£500 IN 10 SECONDS","layer":"Numbers card + 'Not financial advice' tag"},
+  {"src":"Sully – From Nigeria to 200K Followers","vid":"IwQsAe-RSnE","campaign":"Alpha Futures","key":"3:40","cut":"3:20–4:20","type":"Bet / stakes","line":"Give me one year exactly… I don't have to do masters","headline":"HE GAVE HIS MUM A 1-YEAR DEADLINE","layer":"Countdown graphic: 12 months → first payout"},
+  {"src":"Sully – From Nigeria to 200K Followers","vid":"IwQsAe-RSnE","campaign":"Alpha Futures","key":"8:40","cut":"8:30–9:20","type":"Strong opinion","line":"we're not taught how to budget, invest, or file taxes","headline":"WHAT SCHOOL NEVER TAUGHT YOU","layer":"Checklist overlay ticking: bank account · budget · invest · taxes"},
+  {"src":"Sully – From Nigeria to 200K Followers","vid":"IwQsAe-RSnE","campaign":"Alpha Futures","key":"18:26","cut":"18:00–19:00","type":"Stakes / risk","line":"if this didn't work out, my degree was useless","headline":"ALL IN. NO BACKUP PLAN.","layer":"Split text: 'If it fails…' vs 'If it works…'"},
+  {"src":"Sully – From Nigeria to 200K Followers","vid":"IwQsAe-RSnE","campaign":"Alpha Futures","key":"21:27","cut":"21:00–22:00","type":"Payoff","line":"first payout… exactly £1.5k in like a week","headline":"FIRST PAYOUT: £1.5K IN A WEEK","layer":"Payout counter animation"},
+  {"src":"Sully – From Nigeria to 200K Followers","vid":"IwQsAe-RSnE","campaign":"Alpha Futures","key":"39:22","cut":"39:00–39:50","type":"Emotional","line":"see someone start from zero, and then they push","headline":"THE BEST PART ISN'T THE MONEY","layer":"Soft caption; end on his smile; series tag 'Trader Stories #2'"}
+ ],
+ "saturated": {
+  "campaign":"N3ON X MPJ Podcast (Curious Mike)",
+  "already_heavily_clipped":["Dubai jail story","'$10M a month' streamer income","faked his death at 14 / Carmelo highlight","'$30 in my bank'"],
+  "advice":"Other clippers have already posted these. Find fresher moments from the full episode on @mpj."
+ }
+}

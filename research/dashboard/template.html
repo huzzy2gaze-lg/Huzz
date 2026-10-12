@@ -305,6 +305,12 @@ footer { color: var(--ink-3); font-size: .8rem; }
     </div>
   </section>
 
+  <section class="panel c12" aria-labelledby="h-queue">
+    <div class="ph"><h2 id="h-queue">This week's clip queue</h2><span class="eyebrow">12 timed clips · Alpha Futures campaign · click a time to open the moment</span></div>
+    <div class="tbl"><table id="queue" style="min-width:980px"><thead><tr><th>#</th><th>Source</th><th>Key line at</th><th>Cut window</th><th>Type</th><th>Top headline</th><th>Your added layer</th></tr></thead><tbody></tbody></table></div>
+    <p class="small muted">Timestamps come from YouTube auto-transcripts, so check each cut in your editor. Quotes are trimmed. Before posting, confirm in the Alpha Futures brief that Alpha Group Podcast videos count as approved footage. Add a "Not financial advice" tag on money clips. <b>Already over-clipped, so skip these:</b> <span id="sat"></span></p>
+  </section>
+
   <section class="panel c6" aria-labelledby="h-format">
     <div class="ph"><h2 id="h-format">Content that works on Shorts now</h2><span class="eyebrow">from the 10 monetized clip pages</span></div>
     <div class="tbl" style="min-width:0"><table style="min-width:520px"><thead><tr><th>Element</th><th>What winners do</th></tr></thead><tbody>
@@ -336,6 +342,7 @@ footer { color: var(--ink-3); font-size: .8rem; }
 
 <script>
 const DATA = /*DATA*/null;
+const QUEUE = /*QUEUE*/null;
 const C = DATA.campaigns;
 const $ = s => document.querySelector(s);
 const money = n => n >= 1000 ? '$' + (n/1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/,'') + 'K' : '$' + Math.round(n).toLocaleString();
@@ -459,6 +466,18 @@ renderTable();
 /* starter stack */
 const PICKS = ["Alpha Futures Clipping","TJR $23,100 Weekly Clipping","It's Personal Podcast","N3ON X MPJ Podcast (Curious Mike)","Sky: Children of the Light – YT","Boxabl Official Clipping"];
 $('#picks').innerHTML = PICKS.map((n,i) => { const c = C.find(x => x.name === n); return `<div class="pick"><span class="r">${i < 3 ? 'Start here' : 'Add in week 3'} · ${c.cat}</span><h3>${c.name}</h3><div class="m"><span>$${c.rate.toFixed(2)}/1K</span><span>cap ${money(c.max)}</span><span>${money(c.left)} left</span><span>${c.creators} clippers</span></div><p class="small muted">${c.why}</p></div>`; }).join('');
+
+/* clip queue */
+const secs = t => t.split(':').reduce((a,v)=>a*60 + (+v), 0);
+$('#queue tbody').innerHTML = QUEUE.clips.map((q,i) => `<tr style="cursor:default">
+  <td class="num">${i+1}</td>
+  <td class="small"><b>${q.src.split(' – ')[0]}</b><br><span class="muted">${q.src.split(' – ')[1] || ''}</span></td>
+  <td class="num"><a href="https://www.youtube.com/watch?v=${q.vid}&t=${secs(q.key)}s" target="_blank" rel="noopener">${q.key}</a></td>
+  <td class="num">${q.cut}</td>
+  <td class="small">${q.type}</td>
+  <td><span class="mark" style="font-family:var(--font-display);font-weight:700;font-size:.85rem">${q.headline}</span><br><span class="small muted">"${q.line}"</span></td>
+  <td class="small">${q.layer}</td></tr>`).join('');
+$('#sat').textContent = QUEUE.saturated.already_heavily_clipped.join(' · ') + ' (Curious Mike × N3on).';
 
 /* calculator */
 const sel = $('#c-camp');
