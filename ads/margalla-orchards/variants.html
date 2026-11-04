@@ -412,6 +412,11 @@ html,body{background:#111}
 .square.en .tk .size{font-size:17px}
 .story.en.C .tk .who{font-size:36px;letter-spacing:.04em;line-height:1.1}
 .story.en.C .tk .size{font-size:28px;margin-top:8px}
+
+/* company name without a subtitle line */
+.head .co.solo{font-size:36px;letter-spacing:.07em}
+.square .head .co.solo{font-size:29px}
+.story .head .co.solo{font-size:40px}
 </style>
 </head>
 <body>
@@ -474,14 +479,14 @@ const t = T[LANG];
 // Company branding. Switch the whole ad set with ?brand=wh|sigma (default below).
 const BRANDS = {
   wh:    { logo: 'wh-emblem.png',    name: 'WH VENTURES',      sub: '(PVT.) LTD. · REAL ESTATE', alt: 'WH Ventures logo' },
-  sigma: { logo: 'sigma-logo.png',   name: 'SIGMA DEVELOPERS', sub: '(PVT.) LTD. · REAL ESTATE', alt: 'Sigma Developers logo' },
+  sigma: { logo: 'sigma-logo.svg',   name: 'SIGMA DEVELOPERS', sub: '', alt: 'Sigma Developers logo' },
 };
-const DEFAULT_BRAND = 'wh';
+const DEFAULT_BRAND = 'sigma';
 const BR = BRANDS[P.get('brand') || DEFAULT_BRAND];
 const header = () => `
   <div class="head">
     <img class="logo" src="${BR.logo}" alt="${BR.alt}">
-    <div class="co">${BR.name}<small>${BR.sub}</small></div>
+    <div class="co${BR.sub ? '' : ' solo'}">${BR.name}${BR.sub ? `<small>${BR.sub}</small>` : ''}</div>
     <div class="dha" id="dha"><img src="dha-logo.png" alt="DHA" onerror="this.parentNode.classList.add('txt');this.remove()"><div class="dt"><small>${t.dhaSmall}</small><b>DHA</b></div></div>
   </div>
   <div class="eyebrow">${t.eyebrow}</div>`;

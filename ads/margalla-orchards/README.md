@@ -1,6 +1,9 @@
-# Margalla Orchards ads — WH Ventures
+# Margalla Orchards ads — Sigma Developers
 
-## ✅ FINAL: Margalla Sunrise — `WH-Margalla-Sunrise-FINAL/` (English/ and Urdu/ subfolders, plus a .zip of both)
+_Rebranded from WH Ventures to **Sigma Developers** (vector logo `sigma-logo.svg`, traced from a photo of the printed logo).
+The brand is one switch in `variants.html` (`DEFAULT_BRAND`, or `?brand=wh|sigma`). WH versions remain in git history._
+
+## ✅ FINAL: Margalla Sunrise — `Sigma-Margalla-Sunrise-FINAL/` (English/ and Urdu/ subfolders, plus a .zip of both)
 | File | Size | Use for |
 |---|---|---|
 | `*_Post-4x5_*` | 1080x1350 | Instagram & Facebook feed posts |
@@ -8,7 +11,7 @@
 | `*_Story-9x16_*` | 1080x1920 | WhatsApp Status, Instagram Stories, Facebook Stories |
 
 English (`EN`) and Urdu (`UR`). Plus the animated English video with voice-over:
-`English/WH-Margalla-Sunrise_EN_Video-9x16_Reels-WhatsApp-Status_Voiceover.mp4` (9:16, ~25s). Re-render with `NODE_PATH=$(npm root -g) node render.js final`.
+`English/Sigma-Margalla-Sunrise_EN_Video-9x16_Reels-WhatsApp-Status_Voiceover.mp4` (9:16, ~25s) and a `-MASTERED` mix. Re-render with `NODE_PATH=$(npm root -g) node render.js final`.
 
 ---
 

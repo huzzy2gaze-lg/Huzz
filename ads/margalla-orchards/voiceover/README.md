@@ -44,3 +44,7 @@ Reproduce: `python3 el3.py 4s5bNOErd0CSLc5WtvkC final Maar-guh-la` then `python3
 280 Hz cut, softer top, de-esser, gentle compression, short stereo room reverb (generated IR), music raised and
 EQ-carved at 2.5 kHz with lighter/slower ducking, bus glue + limiter, -16 LUFS / about -2.5 dBTP.
 Measured vs approved mix: -12.1 → -16.1 LUFS, sibilance −5.6 dB, voice→gap drop 12.9 → 6.5 dB (gaps no longer empty).
+
+## Sigma Developers rebrand
+Lines 1-3 unchanged; line 4 regenerated as "Call Sigma Developers today…" (`el3_sigma.py`, same calm v4 settings).
+Built with `build.py sigma`, mastered with `master.py` (starts 0.6,4.84,8.75,15.27; end 24.63).

@@ -14,7 +14,7 @@ MAP = [(0,0), (S[1],3.75), (S[1]+0.55*L[1],5.4), (S[2],6.9), (S[2]+0.5*L[2],8.0)
 inv = lambda a: next(r0+(r1-r0)*(a-a0)/(a1-a0) for (r0,a0),(r1,a1) in zip(MAP,MAP[1:]) if a0 <= a <= a1)
 print("lines", [round(x,2) for x in L], "starts", [round(x,2) for x in S], "end", END)
 
-name = f"WH-Margalla-Sunrise_EN_Video-9x16_Voiceover-{tag.capitalize()}"
+name = f"Sigma-Margalla-Sunrise_EN_Video-9x16_Voiceover-{tag.capitalize()}"
 silent = f"{ROOT}/video/_silent-{tag}.mp4"
 subprocess.run(["node", f"{ROOT}/render-video.js", "en", "--dur", str(END), "--out", os.path.basename(silent),
     "--map", ",".join(f"{r:.3f}:{a}" for r, a in MAP)], check=True, env={**os.environ})
