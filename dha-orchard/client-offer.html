@@ -174,6 +174,44 @@ section{padding-block:72px}
 .contact .fill{color:var(--gold);border-bottom:1px dashed var(--gold);justify-self:start}
 @media (max-width:760px){.invite{grid-template-columns:1fr}}
 
+/* Value over time */
+:root{--hist:#1F6A50}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hist:#86C6A4}}
+:root[data-theme="dark"]{--hist:#86C6A4}
+.valchart{background:var(--card);border:1px solid var(--mist);border-radius:16px;padding:22px 18px 16px}
+.vscroll{overflow-x:auto}
+.vscroll svg{display:block;width:100%;min-width:660px;height:auto}
+.vc .grid{stroke:var(--mist);stroke-width:1}
+.vc text{font-family:var(--mono);font-size:13px;fill:var(--soft)}
+.vc text.tag{font-family:var(--body);font-size:13px;font-weight:600;fill:var(--ink)}
+.vc text.endv{font-family:var(--body);font-size:14px;font-weight:700}
+.vc .hist{fill:none;stroke:var(--hist);stroke-width:3;stroke-linejoin:round}
+.vc .wh{stroke:var(--hist);stroke-width:2}
+.vc .pt{fill:var(--hist);stroke:var(--card);stroke-width:2}
+.vc .fan{fill:var(--brass);fill-opacity:.16}
+.vc .base{fill:none;stroke:var(--brass);stroke-width:3;stroke-dasharray:7 6}
+.vc .edge{fill:none;stroke:var(--brass);stroke-width:1.5;stroke-opacity:.6}
+.vc .mk{stroke:var(--soft);stroke-width:1;stroke-dasharray:3 4}
+.vc .now{fill:var(--brass)}
+.vc .c-brass{fill:var(--brass)}
+.vlegend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--soft);margin:12px 4px 0}
+.vlegend i{display:inline-block;width:22px;height:3px;vertical-align:4px;margin-right:6px;background:var(--hist)}
+.vlegend i.p{background:repeating-linear-gradient(90deg,var(--brass) 0 7px,transparent 7px 12px)}
+.vlegend i.f{height:10px;vertical-align:0;background:var(--brass);opacity:.25}
+.scen{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.sc{background:var(--card);border:1px solid var(--mist);border-radius:14px;padding:20px;display:grid;gap:8px;align-content:start;min-width:0}
+.sc.base-c{border:2px solid var(--brass)}
+.sc .lk{display:flex;gap:5px;align-items:center;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.sc .lk b{width:9px;height:9px;border-radius:50%;background:var(--mist)}
+.sc .lk b.on{background:var(--brass)}
+.sc h3{font-family:var(--body);font-weight:700;font-size:18px}
+.sc .pct{font:400 38px/1 var(--display);color:var(--ink)}
+.sc .pct small{font:500 14px var(--body);color:var(--soft);margin-left:6px}
+.sc p{font-size:15px;color:var(--soft)}
+.sc .eg{font-size:14px;color:var(--ink);border-top:1px dashed var(--mist);padding-top:10px}
+.basis{font-size:14px;color:var(--soft);margin-top:16px;max-width:90ch}
+@media (max-width:820px){.scen{grid-template-columns:1fr}}
+
 footer{padding-block:28px 56px;font-size:13px;color:var(--soft)}
 footer p{max-width:90ch}
 footer a{color:var(--soft)}
@@ -311,6 +349,61 @@ footer a{color:var(--soft)}
       <div class="axis"><span></span><div class="ticks"><span style="left:0">3.0 Cr</span><span style="left:27.8%">3.5</span><span style="left:55.6%">4.0</span><span style="left:83.3%">4.5</span></div></div>
       <p class="note">Sellers' asking prices on public listings (Jaidad Finder, late October 2026) and dealer price guides from earlier in 2026. They are not sale prices, and past prices do not promise future value.</p>
     </div>
+  </div>
+</section>
+
+<section id="value" style="padding-top:0">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker">Value over time</div>
+      <h2>Where the price has been, and where it may go</h2>
+      <p class="lead">A typical 1 Kanal asked about PKR 1.8 crore in late 2024. Today the middle asking price is about PKR 3.8 crore. Most of that rise came after DHA signed on in September 2025.</p>
+    </div>
+    <div class="valchart">
+      <div class="vscroll">
+        <svg class="vc" viewBox="0 0 820 350" role="img" aria-label="1 Kanal asking price in PKR crore. Late 2024 about 1.8, late 2025 about 3.5, mid 2026 about 3.4, today about 3.8. Scenarios to end of 2028: low 3.9, base 4.6, high 5.3.">
+          <line class="grid" x1="60" y1="300" x2="730" y2="300"/><line class="grid" x1="60" y1="240" x2="730" y2="240"/><line class="grid" x1="60" y1="180" x2="730" y2="180"/><line class="grid" x1="60" y1="120" x2="730" y2="120"/><line class="grid" x1="60" y1="60" x2="730" y2="60"/>
+          <text x="50" y="304" text-anchor="end">1</text><text x="50" y="244" text-anchor="end">2</text><text x="50" y="184" text-anchor="end">3</text><text x="50" y="124" text-anchor="end">4</text><text x="50" y="64" text-anchor="end">5 Cr</text>
+          <line class="mk" x1="196.7" y1="30" x2="196.7" y2="300"/><text class="tag" x="202" y="40">DHA signs on</text><text x="202" y="56">Sep 2025</text>
+          <line class="mk" x1="497.6" y1="30" x2="497.6" y2="300"/><text class="tag" x="503" y="40">Block A possession</text><text x="503" y="56">target Jul 2027</text>
+          <polygon class="fan" points="388.2,132 497.6,106.8 730,43.2 730,124.8 497.6,129.6"/>
+          <polyline class="edge" points="388.2,132 497.6,106.8 730,43.2"/>
+          <polyline class="edge" points="388.2,132 497.6,129.6 730,124.8"/>
+          <polyline class="base" points="388.2,132 497.6,118.8 730,86.4"/>
+          <line class="wh" x1="60" y1="276" x2="60" y2="234"/><line class="wh" x1="224.1" y1="165" x2="224.1" y2="135"/><line class="wh" x1="319.8" y1="174" x2="319.8" y2="135"/><line class="wh" x1="388.2" y1="165" x2="388.2" y2="87"/>
+          <polyline class="hist" points="60,252 224.1,150 319.8,156 388.2,132"/>
+          <circle class="pt" cx="60" cy="252" r="6"/><circle class="pt" cx="224.1" cy="150" r="6"/><circle class="pt" cx="319.8" cy="156" r="6"/><circle class="now" cx="388.2" cy="132" r="8"/>
+          <text class="tag" x="72" y="256">1.8</text><text class="tag" x="232" y="146">3.5</text><text class="tag" x="328" y="170">3.4</text><text class="tag" x="400" y="156">3.8 today</text>
+          <text class="endv c-brass" x="738" y="48">5.3 High</text><text class="endv c-brass" x="738" y="91">4.6 Base</text><text class="endv c-brass" x="738" y="129">3.9 Low</text>
+          <text x="60" y="326">Late 2024</text><text x="224.1" y="326" text-anchor="middle">Late 2025</text><text x="319.8" y="326" text-anchor="middle">Mid 2026</text><text x="388.2" y="342" text-anchor="middle">Nov 2026</text><text x="497.6" y="326" text-anchor="middle">Jul 2027</text><text x="730" y="326" text-anchor="end">Dec 2028</text>
+        </svg>
+      </div>
+      <div class="vlegend"><span><i></i>Asking price, middle of the range (line) and low to high (bars)</span><span><i class="p"></i>Base scenario</span><span><i class="f"></i>Range of scenarios</span></div>
+    </div>
+    <div class="scen">
+      <div class="sc base-c">
+        <div class="lk"><b class="on"></b><b class="on"></b><b class="on"></b>&nbsp;Most likely</div>
+        <h3>Base: steady progress</h3>
+        <div class="pct">+20%<small>by end 2028</small></div>
+        <p>Prices keep rising at about the pace of the last 12 months, around 9% a year, as work continues and Block A is handed over.</p>
+        <div class="eg">A plot bought at PKR 4.0 crore would be worth about <b>PKR 4.8 crore</b>.</div>
+      </div>
+      <div class="sc">
+        <div class="lk"><b class="on"></b><b class="on"></b><b></b>&nbsp;Possible</div>
+        <h3>High: possession on time</h3>
+        <div class="pct">+39%<small>by end 2028</small></div>
+        <p>Block A is handed over in July 2027, and buyers pay more for ready, buildable plots. Growth runs near 17% a year.</p>
+        <div class="eg">A plot bought at PKR 4.0 crore would be worth about <b>PKR 5.55 crore</b>.</div>
+      </div>
+      <div class="sc">
+        <div class="lk"><b class="on"></b><b></b><b></b>&nbsp;Less likely</div>
+        <h3>Low: delays</h3>
+        <div class="pct">+3%<small>by end 2028</small></div>
+        <p>Possession slips or the wider market slows. Prices stay close to today's level, with little gain.</p>
+        <div class="eg">A plot bought at PKR 4.0 crore would be worth about <b>PKR 4.1 crore</b>.</div>
+      </div>
+    </div>
+    <p class="basis"><b>How we made this.</b> Past points are sellers' asking prices for a 1 Kanal plot: one listing and one agency guide for late 2024 (1.4–2.1 crore), a dealer guide for late 2025 (3.25–3.75), Milkiyat for mid 2026 (3.10–3.75), and 22 live listings on Zameen and Jaidad Finder for November 2026 (3.25–4.55). The scenarios are our view, not a forecast or a promise. Blocks B and C will be handed over after Block A, on a date not yet announced. We use December 2028 as a guide, based on FGEHA's three-year work plan. The gains shown are before development charges, transfer costs and taxes.</p>
   </div>
 </section>
 
