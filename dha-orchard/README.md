@@ -2,7 +2,7 @@
 
 A learning and sales kit for DHA Margalla Orchard (FGEHA Phase X, the Park Road Housing Scheme), Islamabad. Researched 4 Nov 2026.
 
-**Start here:** [TRAINING-MANUAL.md](TRAINING-MANUAL.md). It has 11 modules, from project basics to a self-test.
+**Start here:** [TRAINING-MANUAL.md](TRAINING-MANUAL.md). It has 11 modules, from project basics to a self-test. `playbook.html` is the same material as an interactive page with a checklist and a quiz.
 
 ## Dataset (`data/`)
 
