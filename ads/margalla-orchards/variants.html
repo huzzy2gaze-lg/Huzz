@@ -225,6 +225,42 @@ html,body{background:#111}
 .C .cta .ph svg{stroke:var(--c-deep)}
 .C .cta .lbl{color:var(--a-soft);opacity:1}
 .C .cta .by{background:var(--a);color:var(--c-deep);border-radius:14px;padding:16px 24px}
+
+/* =================== STORY / STATUS FORMAT (1080x1920) =================== */
+.ad.story{height:1920px;padding-top:150px}
+.story .cta{padding-bottom:230px}
+.story .head .logo{height:100px}
+.story .dha{height:100px}
+.story.C .lightpanel{height:1010px}
+.story.C .eyebrow{margin-top:34px;font-size:22px}
+.story.C .headline{margin-top:24px}
+.story.C .headline .l1{font-size:86px}
+.story.C .headline .l2{font-size:100px;line-height:1.05;max-width:780px}
+.story.C .tickets{margin-top:90px;grid-template-columns:1fr;gap:26px;justify-items:stretch}
+.story.C .tk{padding:30px 40px 34px;display:grid;grid-template-columns:1fr auto;align-items:center;column-gap:20px}
+.story.C .tk .who{grid-column:1;grid-row:1;align-self:end}
+.story.C .tk .size{grid-column:1;grid-row:2;align-self:start}
+.story.C .tk .price{grid-column:2;grid-row:1 / span 2}
+.story.C .tk .price{margin-top:0}
+.story.C .tk .big{font-size:110px}
+.story.C .tk .unit{font-size:40px}
+.story.C .tk.us{transform:none}
+.story.C .arrow{justify-self:center;margin:-46px 0;position:relative;z-index:3;transform:rotate(90deg)}
+.story.ur.C .arrow{transform:rotate(90deg)}
+.story.ur.C .arrow svg{transform:none}
+.story.C .saveline{margin-top:70px;font-size:56px}
+.story.C .checks{margin-top:56px;gap:44px 34px;padding:48px 30px}
+.story.C .ck b{font-size:27px}
+.story.C .ck small{font-size:19px}
+.story.ur.C .headline{margin-top:64px;line-height:1.85}
+.story.ur.C .headline .l1{font-size:70px}
+.story.ur.C .headline .l2{font-size:84px;line-height:1.85;max-width:none}
+.story.ur.C .tickets{margin-top:60px}
+.story.ur .tk .who{font-size:34px}
+.story.ur.C .saveline{font-size:52px;margin-top:40px}
+.story.ur.C .checks{margin-top:36px;gap:20px 34px;padding:36px 26px}
+.story.ur.C .ck b{font-size:30px}
+.story.ur.C .ck small{font-size:20px}
 </style>
 </head>
 <body>
@@ -340,7 +376,7 @@ const layouts = {
 };
 
 const root = document.getElementById('root');
-root.innerHTML = `<div class="ad ${LAYOUT} t-${THEME} ${LANG}" id="ad" ${LANG==='ur'?'dir="rtl" lang="ur"':''}>${layouts[LAYOUT]()}</div>`;
+root.innerHTML = `<div class="ad ${LAYOUT} t-${THEME} ${LANG} ${P.get('format')==='story'?'story':''}" id="ad" ${LANG==='ur'?'dir="rtl" lang="ur"':''}>${layouts[LAYOUT]()}</div>`;
 </script>
 </body>
 </html>

@@ -13,6 +13,7 @@ const LANGS = ['en', 'ur'];
 const PHONE = '0331-5223726';
 
 (async () => {
+  if (process.argv[2] === 'story') return renderStories();
   const [onlyL, onlyT, onlyLang] = process.argv.slice(2);
   const out = path.join(__dirname, 'variants');
   fs.mkdirSync(out, { recursive: true });
@@ -50,3 +51,24 @@ const PHONE = '0331-5223726';
   }
   await browser.close();
 })();
+
+// Story / WhatsApp Status versions (1080x1920) of the chosen design(s).
+// Usage: node render.js story
+const STORIES = [['C', 'teal']];
+async function renderStories() {
+  const out = path.join(__dirname, 'variants', 'story');
+  fs.mkdirSync(out, { recursive: true });
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
+  for (const lang of LANGS) for (const [L, theme] of STORIES) {
+    const qs = new URLSearchParams({ layout: L, theme, lang, phone: PHONE, format: 'story' });
+    await page.goto('file://' + path.join(__dirname, 'variants.html') + '?' + qs);
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(250);
+    const idx = Object.keys(LAYOUTS).indexOf(L) * 3 + THEMES.indexOf(theme) + 1;
+    const file = `${lang}-${String(idx).padStart(2, '0')}-${LAYOUTS[L]}-${theme}-story.png`;
+    await page.locator('#ad').screenshot({ path: path.join(out, file) });
+    console.log('wrote', file);
+  }
+  await browser.close();
+}
