@@ -112,8 +112,7 @@ const FINAL_FORMATS = [
   ['story', 1080, 1920, 'Story-9x16_WhatsApp-Instagram-Facebook'],
 ];
 async function renderFinal() {
-  const out = path.join(__dirname, 'final');
-  fs.mkdirSync(out, { recursive: true });
+  const base = path.join(__dirname, 'WH-Margalla-Sunrise-FINAL');
   const browser = await chromium.launch();
   for (const lang of LANGS) for (const [format, w, h, label] of FINAL_FORMATS) {
     const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
@@ -121,6 +120,8 @@ async function renderFinal() {
     await page.goto('file://' + path.join(__dirname, 'variants.html') + '?' + qs);
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(250);
+    const out = path.join(base, lang === 'en' ? 'English' : 'Urdu');
+    fs.mkdirSync(out, { recursive: true });
     const file = `WH-Margalla-Sunrise_${lang.toUpperCase()}_${label}.png`;
     await page.locator('#ad').screenshot({ path: path.join(out, file) });
     console.log('wrote', file);

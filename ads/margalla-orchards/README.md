@@ -1,6 +1,6 @@
 # Margalla Orchards ads — WH Ventures
 
-## ✅ FINAL: Margalla Sunrise — `final/`
+## ✅ FINAL: Margalla Sunrise — `WH-Margalla-Sunrise-FINAL/` (English/ and Urdu/ subfolders, plus a .zip of both)
 | File | Size | Use for |
 |---|---|---|
 | `*_Post-4x5_*` | 1080x1350 | Instagram & Facebook feed posts |
