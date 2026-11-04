@@ -14,6 +14,7 @@ const PHONE = '0331-5223726';
 
 (async () => {
   if (process.argv[2] === 'story') return renderStories();
+  if (process.argv[2] === 'mountains') return renderMountains();
   const [onlyL, onlyT, onlyLang] = process.argv.slice(2);
   const out = path.join(__dirname, 'variants');
   fs.mkdirSync(out, { recursive: true });
@@ -71,4 +72,33 @@ async function renderStories() {
     console.log('wrote', file);
   }
   await browser.close();
+}
+
+// Margalla mountain versions of the luxury layout (feed 1080x1350) + overview.
+// Usage: node render.js mountains
+const MOUNTAIN_THEMES = [['mteal', 'margalla-teal'], ['pine', 'margalla-pine'], ['sunrise', 'margalla-sunrise']];
+async function renderMountains() {
+  const out = path.join(__dirname, 'variants', 'margalla');
+  fs.mkdirSync(out, { recursive: true });
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 1 });
+  const files = [];
+  for (const lang of LANGS) for (const [theme, name] of MOUNTAIN_THEMES) {
+    const qs = new URLSearchParams({ layout: 'C', theme, lang, phone: PHONE, scene: 'mtn' });
+    await page.goto('file://' + path.join(__dirname, 'variants.html') + '?' + qs);
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(250);
+    const file = `${lang}-luxury-${name}.png`;
+    await page.locator('#ad').screenshot({ path: path.join(out, file) });
+    files.push(file); console.log('wrote', file);
+  }
+  const imgs = files.map(f => `<figure><img src="file://${path.join(out, f)}"><figcaption>${f.replace('.png', '')}</figcaption></figure>`).join('');
+  const sheet = path.join(out, '_sheet.html');
+  fs.writeFileSync(sheet, `<html><body style="margin:0;background:#1b1b1b;font:600 20px Inter,sans-serif;color:#ddd"><div style="display:grid;grid-template-columns:repeat(3,540px);gap:24px;padding:24px">${imgs}</div><style>figure{margin:0}img{width:540px;display:block;border-radius:10px}figcaption{padding:8px 2px}</style></body></html>`);
+  const p2 = await browser.newPage({ viewport: { width: 1716, height: 800 } });
+  await p2.goto('file://' + sheet); await p2.waitForTimeout(300);
+  await p2.screenshot({ path: path.join(out, '_overview.png'), fullPage: true });
+  fs.unlinkSync(sheet);
+  await browser.close();
+  console.log('wrote _overview.png');
 }

@@ -18,3 +18,11 @@ NODE_PATH=$(npm root -g) node render.js
 - **DHA logo:** save the official logo as `dha-logo.png` (transparent PNG) in this folder and re-render;
   it replaces the "Developed by DHA" text badge top-right on every ad.
 - Copy and prices live in the `T` object in `variants.html`; the phone number is in `render.js`.
+
+## Margalla mountain versions (luxury layout)
+`variants/margalla/` — the luxury layout with a layered Margalla Hills scene (pine-covered ridges)
+in three green palettes: margalla-teal, margalla-pine, margalla-sunrise (gold sun). English + Urdu.
+```
+NODE_PATH=$(npm root -g) node render.js mountains
+```
+Story (9:16) versions of the chosen design: `node render.js story` (edit `STORIES` in render.js).
