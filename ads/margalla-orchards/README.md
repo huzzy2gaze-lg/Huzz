@@ -1,5 +1,16 @@
 # Margalla Orchards ads — WH Ventures
 
+## ✅ FINAL: Margalla Sunrise — `final/`
+| File | Size | Use for |
+|---|---|---|
+| `*_Post-4x5_*` | 1080x1350 | Instagram & Facebook feed posts |
+| `*_Square-1x1_*` | 1080x1080 | Facebook posts/ads, Instagram grid, WhatsApp chats |
+| `*_Story-9x16_*` | 1080x1920 | WhatsApp Status, Instagram Stories, Facebook Stories |
+
+English (`EN`) and Urdu (`UR`). Re-render with `NODE_PATH=$(npm root -g) node render.js final`.
+
+---
+
 18 feed ads (1080x1350): 3 layouts x 3 colour themes x 2 languages, in `variants/`.
 
 | # | Layout | Themes |

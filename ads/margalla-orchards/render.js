@@ -15,6 +15,7 @@ const PHONE = '0331-5223726';
 (async () => {
   if (process.argv[2] === 'story') return renderStories();
   if (process.argv[2] === 'mountains') return renderMountains();
+  if (process.argv[2] === 'final') return renderFinal();
   const [onlyL, onlyT, onlyLang] = process.argv.slice(2);
   const out = path.join(__dirname, 'variants');
   fs.mkdirSync(out, { recursive: true });
@@ -101,4 +102,29 @@ async function renderMountains() {
   fs.unlinkSync(sheet);
   await browser.close();
   console.log('wrote _overview.png');
+}
+
+// FINAL: Margalla Sunrise in every social format, English + Urdu.
+// Usage: node render.js final
+const FINAL_FORMATS = [
+  ['feed', 1080, 1350, 'Post-4x5_Instagram-Facebook'],
+  ['square', 1080, 1080, 'Square-1x1_Facebook-Instagram-WhatsApp'],
+  ['story', 1080, 1920, 'Story-9x16_WhatsApp-Instagram-Facebook'],
+];
+async function renderFinal() {
+  const out = path.join(__dirname, 'final');
+  fs.mkdirSync(out, { recursive: true });
+  const browser = await chromium.launch();
+  for (const lang of LANGS) for (const [format, w, h, label] of FINAL_FORMATS) {
+    const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1 });
+    const qs = new URLSearchParams({ layout: 'C', theme: 'sunrise', lang, phone: PHONE, scene: 'mtn', format });
+    await page.goto('file://' + path.join(__dirname, 'variants.html') + '?' + qs);
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(250);
+    const file = `WH-Margalla-Sunrise_${lang.toUpperCase()}_${label}.png`;
+    await page.locator('#ad').screenshot({ path: path.join(out, file) });
+    console.log('wrote', file);
+    await page.close();
+  }
+  await browser.close();
 }

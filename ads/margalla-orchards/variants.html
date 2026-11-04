@@ -268,7 +268,7 @@ html,body{background:#111}
 
 /* =================== MARGALLA MOUNTAIN SCENE (layout C, scene=mtn) =================== */
 .mtn{background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 45%,var(--sky2) 100%)}
-.mtn .scene{position:absolute !important;left:0;top:var(--sceneY,0px);width:1080px;height:1500px;z-index:0 !important;pointer-events:none}
+.mtn .scene{position:absolute !important;left:0;top:var(--sceneY,0px);width:1080px;height:2400px;z-index:0 !important;pointer-events:none}
 .mtn.ur{--sceneY:44px}
 .mtn.C .tickets{margin-top:180px}
 .mtn.C .saveline{margin-top:40px}
@@ -282,6 +282,81 @@ html,body{background:#111}
 .mtn.ur.C .ck small{display:none}
 .mtn.ur.C .ck i{margin-top:10px}
 .mtn .tk.them{border-color:color-mix(in srgb,var(--n) 25%,transparent)}
+
+/* =================== FINAL: mountain scene in story + square formats =================== */
+.story.mtn{--sceneY:290px}
+.story.mtn.C .headline .l2{font-size:96px}
+.story.mtn.C .tickets{margin-top:200px}
+.story.mtn.C .saveline{margin-top:50px}
+.story.mtn.C .checks{margin-top:40px;gap:30px 34px;padding:34px 30px}
+.story.mtn.ur{--sceneY:300px}
+.story.mtn.ur.C .headline{margin-top:56px}
+.story.mtn.ur.C .tickets{margin-top:226px}
+.story.mtn.ur.C .saveline{margin-top:14px}
+.story.mtn.ur.C .headline .l2{font-size:76px}
+.story.mtn.ur.C .checks{margin-top:22px;gap:6px 34px;padding:18px 26px}
+
+.ad.square{height:1080px;padding:40px 52px 0}
+.square .head{gap:14px;padding-bottom:14px}
+.square .head .logo{height:66px}
+.square .head .co{font-size:26px}
+.square .head .co small{font-size:11.5px;margin-top:4px}
+.square .dha{height:66px;min-width:120px}
+.square .dha.txt{padding:4px 16px}
+.square .dha .dt small{font-size:10px}
+.square .dha .dt b{font-size:30px;margin-top:4px}
+.square .eyebrow{margin-top:18px;font-size:16px}
+.square.C .headline{margin-top:6px}
+.square.C .headline .l1{font-size:60px}
+.square.C .headline .l2{font-size:70px}
+.square.mtn{--sceneY:-75px}
+.square.mtn.C .tickets{margin-top:150px;grid-template-columns:1fr 52px 1.12fr;gap:12px}
+.square .tk{padding:20px 24px 22px;border-radius:20px}
+.square .tk .who{font-size:17px}
+.square .tk .size{font-size:13px}
+.square .tk .price{margin-top:8px}
+.square .tk .pkr{font-size:15px}
+.square .tk .big{font-size:76px}
+.square .tk .unit{font-size:28px}
+.square.C .arrow{width:52px;height:52px}
+.square.C .arrow svg{width:24px;height:24px}
+.square.mtn.C .saveline{margin-top:34px;font-size:40px}
+.square.mtn.C .checks{margin-top:24px;grid-template-columns:repeat(3,1fr);gap:22px 16px;padding:24px 4px}
+.square.C .ck{gap:10px;align-items:flex-start}
+.square.C .ck i{width:24px;height:24px;margin-top:1px}
+.square.C .ck i svg{width:14px;height:14px}
+.square.C .ck b{font-size:18px}
+.square.C .ck small{font-size:13.5px;margin-top:2px}
+.square.ur.C .ck small{display:none}
+.square .cta{margin-inline:-52px;padding:16px 52px 22px}
+.square .cta .bar{padding:10px 10px 10px 18px;gap:16px}
+.square .cta .ph{width:52px;height:52px}
+.square .cta .ph svg{width:26px;height:26px}
+.square .cta .lbl{font-size:13px}
+.square .cta .num{font-size:42px}
+.square .cta .by{font-size:18px;padding:12px 18px}
+.square .cta .by small{font-size:11px}
+.square .disc{font-size:11px;margin-top:8px}
+.square.ur .cta .bar{padding:10px 18px 10px 10px}
+.square.mtn.ur{--sceneY:-70px}
+.square.mtn.ur.C .headline{margin-top:10px;line-height:1.7}
+.square.mtn.ur.C .headline .l1{font-size:40px}
+.square.mtn.ur.C .headline .l2{font-size:48px}
+.square.mtn.ur.C .tickets{margin-top:168px}
+.square.ur .tk .who{font-size:21px}
+.square.ur .tk .size{font-size:14px}
+.square.ur .tk .pkr{font-size:15px}
+.square.ur .tk .unit{font-size:22px}
+.square.mtn.ur.C .saveline{margin-top:14px;font-size:34px}
+.square.mtn.ur.C .saveline .lat{font-size:36px}
+.square.mtn.ur.C .checks{margin-top:12px;gap:8px 16px;padding:14px 4px}
+.square.ur.C .ck b{font-size:22px}
+.square.ur .eyebrow{font-size:20px;margin-top:6px}
+.square.ur .dha .dt small{font-size:13px}
+.square.ur .cta .lbl{font-size:16px}
+.square.ur .cta .by{font-size:22px}
+.square.ur .cta .by small{font-size:14px}
+.square.ur .disc{font-size:12px}
 </style>
 </head>
 <body>
@@ -368,13 +443,13 @@ const SUN = THEME === 'sunrise';
 const BACK  = 'M0 470 C90 430 170 420 250 440 C330 460 380 498 450 508 C500 515 580 515 630 505 C700 490 740 440 800 430 C880 418 960 444 1080 432';
 const MID   = 'M0 540 C100 500 190 492 280 518 C360 540 430 560 540 566 C650 572 720 546 800 524 C880 504 980 498 1080 520';
 const FRONT = 'M0 622 C120 590 220 600 320 620 C420 640 480 602 560 598 C660 594 740 640 840 630 C940 620 1010 590 1080 600';
-const close = d => d + ' L1080 1500 L0 1500 Z';
+const close = d => d + ' L1080 2400 L0 2400 Z';
 const mountainScene = () => `
-<svg class="scene" viewBox="0 0 1080 1500" aria-hidden="true">
+<svg class="scene" viewBox="0 0 1080 2400" aria-hidden="true">
   <defs>
-    <linearGradient id="gBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--m1)"/><stop offset=".18" stop-color="color-mix(in srgb,var(--m1) 55%,var(--sky2))"/></linearGradient>
-    <linearGradient id="gMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--m2)"/><stop offset=".25" stop-color="color-mix(in srgb,var(--m2) 70%,var(--c-dark))"/></linearGradient>
-    <linearGradient id="gFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c-light)"/><stop offset=".12" stop-color="var(--c)"/><stop offset=".55" stop-color="var(--c-dark)"/><stop offset="1" stop-color="var(--c-deep)"/></linearGradient>
+    <linearGradient id="gBack" gradientUnits="userSpaceOnUse" x1="0" y1="420" x2="0" y2="1500"><stop offset="0" stop-color="var(--m1)"/><stop offset=".18" stop-color="color-mix(in srgb,var(--m1) 55%,var(--sky2))"/></linearGradient>
+    <linearGradient id="gMid" gradientUnits="userSpaceOnUse" x1="0" y1="492" x2="0" y2="1500"><stop offset="0" stop-color="var(--m2)"/><stop offset=".25" stop-color="color-mix(in srgb,var(--m2) 70%,var(--c-dark))"/></linearGradient>
+    <linearGradient id="gFront" gradientUnits="userSpaceOnUse" x1="0" y1="590" x2="0" y2="1500"><stop offset="0" stop-color="var(--c-light)"/><stop offset=".12" stop-color="var(--c)"/><stop offset=".55" stop-color="var(--c-dark)"/><stop offset="1" stop-color="var(--c-deep)"/></linearGradient>
     <radialGradient id="gSun"><stop offset="0" stop-color="var(--a-soft)"/><stop offset=".7" stop-color="var(--a)"/><stop offset="1" stop-color="var(--a-deep)"/></radialGradient>
     <radialGradient id="gGlow"><stop offset="0" stop-color="var(--a-soft)" stop-opacity=".55"/><stop offset="1" stop-color="var(--a-soft)" stop-opacity="0"/></radialGradient>
   </defs>
@@ -438,7 +513,7 @@ const layouts = {
 };
 
 const root = document.getElementById('root');
-root.innerHTML = `<div class="ad ${LAYOUT} t-${THEME} ${LANG} ${P.get('format')==='story'?'story':''} ${P.get('scene')==='mtn'?'mtn':''}" id="ad" ${LANG==='ur'?'dir="rtl" lang="ur"':''}>${layouts[LAYOUT]()}</div>`;
+root.innerHTML = `<div class="ad ${LAYOUT} t-${THEME} ${LANG} ${P.get('format')||''} ${P.get('scene')==='mtn'?'mtn':''}" id="ad" ${LANG==='ur'?'dir="rtl" lang="ur"':''}>${layouts[LAYOUT]()}</div>`;
 if (P.get('scene')==='mtn') plantTrees();
 </script>
 </body>
