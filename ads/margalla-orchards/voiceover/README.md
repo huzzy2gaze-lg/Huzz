@@ -21,3 +21,7 @@ Ready-made voices used: George `JBFqnCBsd6RMkjVDRZzb` (British, warm), Brian `nP
 
 Cloned voice: ElevenLabs voice "WH Ventures Voice" (`MdMKZ0jV3Hwa0yVEQW21`), settings stability 0.5 / similarity 0.9 / style 0.25.
 The source recording is not stored in the repo.
+
+**Final voice: the owner's own recording.** The four ad lines were cut from Part 1 of the recording
+(located with ElevenLabs speech-to-text word timestamps) and placed with build.py (tag `real`, ~29s).
+The cloned-voice version was dropped (sounded robotic).
