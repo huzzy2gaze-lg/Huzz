@@ -18,3 +18,6 @@ python build.py <tag> <dir-with-wavs>    # renders video/WH-Margalla-Sunrise_EN_
 ```
 Ready-made voices used: George `JBFqnCBsd6RMkjVDRZzb` (British, warm), Brian `nPczCjzI2devNBz1zQrb` (deep, American).
 `vo.py`/`mix.py` are the earlier Kokoro (local) attempt; mix.py also generates the music bed (music.wav).
+
+Cloned voice: ElevenLabs voice "WH Ventures Voice" (`MdMKZ0jV3Hwa0yVEQW21`), settings stability 0.5 / similarity 0.9 / style 0.25.
+The source recording is not stored in the repo.
