@@ -1,6 +1,6 @@
 # Margalla Orchards ads — Sigma Developers
 
-_Rebranded from WH Ventures to **Sigma Developers** (vector logo `sigma-logo.svg`, traced from a photo of the printed logo).
+_Rebranded from WH Ventures to **Sigma Developers** (vector logo traced from a photo of the printed logo: `sigma-logo-green.svg` = recoloured to the ad palette and used in the ads; `sigma-logo-blue.svg` = original colours).
 The brand is one switch in `variants.html` (`DEFAULT_BRAND`, or `?brand=wh|sigma`). WH versions remain in git history._
 
 ## ✅ FINAL: Margalla Sunrise — `Sigma-Margalla-Sunrise-FINAL/` (English/ and Urdu/ subfolders, plus a .zip of both)
