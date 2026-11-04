@@ -1,0 +1,433 @@
+<title>Margalla Orchard Offer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a property brochure in one scroll. A Margalla-ridge hero, then the offer, the price chart, the path to possession, and a closing invitation. */
+:root{
+  --paper:#F2F5F0; --card:#FFFFFF; --ink:#13221B; --soft:#55695D; --mist:#DCE5DC;
+  --sage:#7E9B89; --brass:#A87A22; --brass-soft:#F3E7CC;
+  --forest:#0E3A2C; --forest-2:#15523E; --forest-3:#1F6A50; --on-forest:#EEF3EE; --on-forest-soft:#A9C2B3; --gold:#E2B456;
+  --display:"Gloock","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --body:"Albert Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0C1511; --card:#132019; --ink:#E4ECE6; --soft:#9CB2A5; --mist:#24352C;
+  --sage:#7E9B89; --brass:#DDAA4C; --brass-soft:#33280F; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0C1511; --card:#132019; --ink:#E4ECE6; --soft:#9CB2A5; --mist:#24352C;
+  --sage:#7E9B89; --brass:#DDAA4C; --brass-soft:#33280F; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:17px/1.6 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--forest)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance;margin:0}
+h2{font-size:clamp(30px,5vw,46px);line-height:1.05;letter-spacing:-.01em}
+h3{font-size:24px;line-height:1.15}
+p{margin:0;max-width:62ch}
+.kicker{font:500 12px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+.lead{font-size:19px;color:var(--soft);max-width:56ch}
+section{padding-block:72px}
+.head{display:grid;gap:14px;margin-bottom:36px}
+
+/* Hero */
+.hero{background:var(--forest);color:var(--on-forest);position:relative;overflow:hidden}
+.hero .wrap{position:relative;z-index:2;padding-block:56px 0}
+.hero .kicker{color:var(--gold)}
+.hero h1{font-size:clamp(42px,8.4vw,92px);line-height:.98;letter-spacing:-.015em;margin:18px 0 22px;max-width:12ch}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero .sub{font-size:19px;line-height:1.55;color:var(--on-forest-soft);max-width:52ch}
+.hero .sub b{color:var(--on-forest);font-weight:600}
+.ridges{display:block;width:100%;height:auto;margin-top:-8px;position:relative;z-index:1}
+.ridges .r1{fill:var(--forest-2)} .ridges .r2{fill:var(--forest-3)} .ridges .r3{fill:var(--paper)}
+@media (prefers-reduced-motion:no-preference){
+  .ridges .r1{animation:rise 1.6s ease-out both}
+  .ridges .r2{animation:rise 1.2s ease-out both}
+  @keyframes rise{from{transform:translateY(14px)}to{transform:none}}
+}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:44px;border-top:1px solid rgba(238,243,238,.18)}
+.stats div{padding:18px 18px 4px 0;min-width:0}
+.stats div + div{padding-left:18px;border-left:1px solid rgba(238,243,238,.18)}
+.stats b{display:block;font:400 clamp(28px,4vw,40px)/1 var(--display);color:var(--on-forest)}
+.stats span{display:block;font-size:14px;color:var(--on-forest-soft);margin-top:8px}
+@media (max-width:720px){.stats{grid-template-columns:1fr 1fr}.stats div:nth-child(3){padding-left:0;border-left:0}.stats div:nth-child(n+3){border-top:1px solid rgba(238,243,238,.18)}}
+
+/* Reasons */
+.reasons{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--mist);border:1px solid var(--mist)}
+.reason{background:var(--paper);padding:28px 26px;display:grid;gap:10px;align-content:start;min-width:0}
+.reason .big{font:400 44px/1 var(--display);color:var(--brass)}
+.reason .big small{font:500 14px var(--body);color:var(--soft);margin-left:6px}
+.reason p{color:var(--soft)}
+@media (max-width:720px){.reasons{grid-template-columns:1fr}}
+
+/* Offer */
+.offer{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start}
+.blocks{display:grid;gap:14px}
+.blockcard{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;background:var(--card);border:1px solid var(--mist);border-radius:14px;padding:20px 22px}
+.blockcard.lead-card{border:2px solid var(--brass)}
+.letter{font:400 64px/0.9 var(--display);color:var(--ink);width:56px;text-align:center}
+.blockcard h3{font-size:20px;font-family:var(--body);font-weight:700}
+.blockcard p{font-size:15px;color:var(--soft)}
+.pill{font:500 12px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:7px 10px;border-radius:999px;white-space:nowrap;background:var(--brass-soft);color:var(--brass)}
+.pill.later{background:var(--mist);color:var(--soft)}
+.plotfig{background:var(--card);border:1px solid var(--mist);border-radius:14px;padding:22px}
+.plotfig svg{width:100%;height:auto;display:block;max-width:300px;margin:0 auto}
+.plotfig .lot{fill:var(--brass-soft);stroke:var(--brass);stroke-width:2}
+.plotfig .road{fill:var(--mist)}
+.plotfig .dim{stroke:var(--soft);stroke-width:1}
+.plotfig text{font-family:var(--mono);font-size:12px;fill:var(--soft)}
+.plotfig text.area{font-family:var(--display);font-size:30px;fill:var(--ink)}
+.plotfig text.roadlbl{font-size:10px;letter-spacing:.12em}
+.plotfig .cap{font-size:14px;color:var(--soft);text-align:center;margin:12px auto 0}
+@media (max-width:820px){.offer{grid-template-columns:1fr}}
+
+/* Price chart */
+.chart{background:var(--card);border:1px solid var(--mist);border-radius:16px;padding:26px 24px 18px}
+.crow{display:grid;grid-template-columns:118px 1fr;gap:14px;align-items:center;padding-block:12px}
+.crow + .crow{border-top:1px dashed var(--mist)}
+.crow .name{font-weight:700;line-height:1.2}
+.crow .name small{display:block;font-weight:400;font-size:13px;color:var(--soft)}
+.track{position:relative;height:34px}
+.grid-x{position:absolute;inset:0;pointer-events:none}
+.grid-x i{position:absolute;top:0;bottom:0;width:1px;background:var(--mist)}
+.band{position:absolute;top:9px;height:16px;border-radius:8px;background:var(--sage)}
+.band.ours{background:var(--brass)}
+.band.ghost{background:transparent;border:1.5px dashed var(--sage)}
+.dot{position:absolute;top:8px;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:var(--sage)}
+.val{position:absolute;top:-6px;font:500 12px var(--mono);color:var(--soft);white-space:nowrap;transform:translateX(-50%)}
+.val.l{transform:none} .val.r{transform:translateX(-100%)}
+.axis{display:grid;grid-template-columns:118px 1fr;gap:14px;margin-top:6px}
+.axis .ticks{position:relative;height:18px;font:500 12px var(--mono);color:var(--soft)}
+.axis .ticks span{position:absolute;transform:translateX(-50%)}
+.axis .ticks span:first-child{transform:none}
+.chart .note{font-size:14px;color:var(--soft);margin-top:14px}
+@media (max-width:520px){.crow,.axis{grid-template-columns:84px 1fr;gap:10px}.crow .name small{font-size:12px}}
+
+/* Timeline */
+.timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:0;position:relative;margin-top:8px}
+.timeline::before{content:"";position:absolute;left:0;right:0;top:11px;height:2px;background:var(--mist)}
+.ms{position:relative;padding:34px 14px 0 0;min-width:0}
+.ms::before{content:"";position:absolute;top:4px;left:0;width:16px;height:16px;border-radius:50%;background:var(--forest-3);border:3px solid var(--paper)}
+.ms.future::before{background:var(--paper);border:2px solid var(--brass)}
+.ms.now::before{background:var(--brass)}
+.ms .when{font:500 12px/1.2 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--soft)}
+.ms .what{font-weight:600;margin-top:6px;line-height:1.35}
+.ms.goal .what{font-family:var(--display);font-weight:400;font-size:22px;line-height:1.1;color:var(--brass)}
+@media (max-width:820px){
+  .timeline{grid-template-columns:1fr;gap:18px;padding-left:26px}
+  .timeline::before{left:7px;right:auto;top:6px;bottom:6px;width:2px;height:auto}
+  .ms{padding:0}.ms::before{left:-26px;top:2px}
+}
+
+/* Location */
+.loc{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:start}
+.drive{display:grid;gap:10px}
+.drow{display:grid;grid-template-columns:150px 1fr 64px;gap:12px;align-items:center;font-size:15px}
+.drow .bar{height:10px;border-radius:5px;background:var(--mist);overflow:hidden}
+.drow .bar i{display:block;height:100%;background:var(--forest-3);border-radius:5px}
+.drow .min{font:500 13px var(--mono);text-align:right;color:var(--soft);font-variant-numeric:tabular-nums}
+.drow.first{font-weight:700}.drow.first .min{color:var(--brass)}
+@media (max-width:820px){.loc{grid-template-columns:1fr}}
+@media (max-width:480px){.drow{grid-template-columns:118px 1fr 52px;font-size:14px}}
+
+/* Cost */
+.cost{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ci{background:var(--card);border:1px solid var(--mist);border-radius:14px;padding:22px;display:grid;gap:8px;align-content:start;min-width:0}
+.ci .op{font:400 30px/1 var(--display);color:var(--brass)}
+.ci h3{font-family:var(--body);font-weight:700;font-size:18px}
+.ci p{font-size:15px;color:var(--soft)}
+.ci .fig{font:400 26px/1.1 var(--display);color:var(--ink)}
+.cashline{margin-top:16px;font-size:15px;color:var(--soft)}
+@media (max-width:820px){.cost{grid-template-columns:1fr}}
+
+/* Steps */
+.steps{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+.steps li{counter-increment:s;display:grid;gap:8px;align-content:start;padding-top:18px;border-top:2px solid var(--ink);min-width:0}
+.steps li::before{content:"Step " counter(s);font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--brass)}
+.steps b{font-size:18px;line-height:1.3}
+.steps span{font-size:15px;color:var(--soft)}
+@media (max-width:820px){.steps{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.steps{grid-template-columns:1fr}}
+
+/* Trust */
+.trust{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.trust ul{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px}
+.trust li{display:grid;grid-template-columns:22px 1fr;gap:10px;font-size:16px}
+.trust li::before{content:"";width:12px;height:12px;margin-top:7px;border-radius:3px;background:var(--forest-3)}
+.trust .know li::before{border-radius:50%;background:transparent;border:2px solid var(--brass)}
+.trust li span{color:var(--soft)}
+@media (max-width:720px){.trust{grid-template-columns:1fr}}
+
+/* Invite */
+.invite{background:var(--forest);color:var(--on-forest);border-radius:22px;padding:44px clamp(22px,5vw,56px);display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center;position:relative;overflow:hidden}
+.invite h2{color:var(--on-forest)}
+.invite p{color:var(--on-forest-soft);margin-top:14px}
+.contact{display:grid;gap:12px;background:rgba(238,243,238,.07);border:1px solid rgba(238,243,238,.16);border-radius:14px;padding:20px}
+.contact div{display:grid;gap:2px}
+.contact small{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--on-forest-soft)}
+.contact b{font-weight:600;font-size:18px;color:var(--on-forest);user-select:all}
+.contact .fill{color:var(--gold);border-bottom:1px dashed var(--gold);justify-self:start}
+@media (max-width:760px){.invite{grid-template-columns:1fr}}
+
+footer{padding-block:28px 56px;font-size:13px;color:var(--soft)}
+footer p{max-width:90ch}
+footer a{color:var(--soft)}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Investment opportunity · Margalla Orchard · Park Road, Islamabad</div>
+    <h1>1 Kanal on Park Road, <em>opposite COMSATS.</em></h1>
+    <p class="sub">Numbered plots in <b>Blocks B and C</b> of Margalla Orchard. The scheme is owned by <b>FGEHA</b> and built by <b>DHA</b>. It has an approved layout, and work is 50% done. Possession of the first block is planned for <b>July 2027</b>.</p>
+    <div class="stats">
+      <div><b>500 sq yd</b><span>1 Kanal plot, 50 × 90 ft</span></div>
+      <div><b>50%</b><span>Built, Sep 2026 (FGEHA)</span></div>
+      <div><b>Jul 2027</b><span>Block A possession target</span></div>
+      <div><b>~60</b><span>Numbered plots we offer</span></div>
+    </div>
+  </div>
+  <svg class="ridges" viewBox="0 0 1440 220" preserveAspectRatio="none" aria-hidden="true">
+    <path class="r1" d="M0 120 L120 82 L210 104 L330 46 L450 96 L560 64 L690 110 L820 52 L940 88 L1060 40 L1190 92 L1310 66 L1440 98 L1440 220 L0 220 Z"/>
+    <path class="r2" d="M0 160 L140 128 L260 150 L380 112 L520 146 L660 118 L800 152 L930 120 L1080 150 L1220 116 L1340 140 L1440 126 L1440 220 L0 220 Z"/>
+    <path class="r3" d="M0 196 L240 182 L520 194 L780 178 L1060 192 L1300 180 L1440 188 L1440 220 L0 220 Z"/>
+  </svg>
+</header>
+
+<main>
+<section id="why">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker">Why this plot, why now</div>
+      <h2>Four reasons buyers choose Margalla Orchard</h2>
+    </div>
+    <div class="reasons">
+      <div class="reason">
+        <div class="big">10<small>min to Faizabad</small></div>
+        <h3>Inside Islamabad, on Park Road</h3>
+        <p>The scheme faces COMSATS University on Main Park Road, in CDA Zone 4. Most new schemes are 25 to 45 minutes from the city centre. This one is in it.</p>
+      </div>
+      <div class="reason">
+        <div class="big">3<small>government partners</small></div>
+        <h3>Government-backed from day one</h3>
+        <p>FGEHA owns the scheme. The Supreme Court Bar Association is a partner. DHA Islamabad has done the development work since September 2025. The layout plan was approved in August 2022.</p>
+      </div>
+      <div class="reason">
+        <div class="big">4,781<small>plots, fixed</small></div>
+        <h3>A fixed number of plots</h3>
+        <p>The scheme has a set number of residential plots. Two out of three are 1 Kanal. Buyers in this part of Islamabad have few other plots to choose from.</p>
+      </div>
+      <div class="reason">
+        <div class="big">50%<small>built</small></div>
+        <h3>Moving toward possession</h3>
+        <p>A new payment schedule for all blocks started on 1 November 2026. FGEHA plans to give possession of Block A in July 2027. The other blocks follow.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="offer" style="padding-top:0">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker">The offer</div>
+      <h2>Numbered plots, ready to transfer</h2>
+      <p class="lead">Every plot we offer has a block and a plot number. After the transfer, you get an allotment letter in your name.</p>
+    </div>
+    <div class="offer">
+      <div class="blocks">
+        <div class="blockcard lead-card">
+          <div class="letter">B</div>
+          <div><h3>Block B · about 30 plots</h3><p>Land-sharing plots with plot numbers. Market asks for 1 Kanal: PKR 3.75–4.55 crore.</p></div>
+          <span class="pill">Available</span>
+        </div>
+        <div class="blockcard lead-card">
+          <div class="letter">C</div>
+          <div><h3>Block C · about 30 plots</h3><p>A premium 1 Kanal block with wide roads and firm natural ground. Market asks: PKR 3.85–4.50 crore.</p></div>
+          <span class="pill">Available</span>
+        </div>
+        <div class="blockcard">
+          <div class="letter">A</div>
+          <div><h3>Block A · coming soon</h3><p>The first block for possession, next to the Margalla Orchards Walk commercial area. Ask us to hold a plot for you.</p></div>
+          <span class="pill later">Soon</span>
+        </div>
+      </div>
+      <figure class="plotfig" style="margin:0">
+        <svg viewBox="0 0 260 330" role="img" aria-label="A 1 Kanal plot, 50 feet wide and 90 feet deep, 500 square yards, facing the road">
+          <rect class="road" x="20" y="296" width="220" height="26" rx="3"/>
+          <text class="roadlbl" x="130" y="313" text-anchor="middle">ROAD</text>
+          <rect class="lot" x="70" y="36" width="120" height="252" rx="2"/>
+          <text class="area" x="130" y="158" text-anchor="middle">500</text>
+          <text x="130" y="180" text-anchor="middle">sq yd</text>
+          <line class="dim" x1="70" y1="20" x2="190" y2="20"/>
+          <line class="dim" x1="70" y1="14" x2="70" y2="26"/><line class="dim" x1="190" y1="14" x2="190" y2="26"/>
+          <text x="130" y="14" text-anchor="middle">50 ft</text>
+          <line class="dim" x1="206" y1="36" x2="206" y2="288"/>
+          <line class="dim" x1="200" y1="36" x2="212" y2="36"/><line class="dim" x1="200" y1="288" x2="212" y2="288"/>
+          <text x="222" y="166" text-anchor="start">90 ft</text>
+        </svg>
+        <p class="cap">1 Kanal · 50 × 90 ft · 4,500 sq ft. Also available on request: 14 Marla, 40 × 80 ft.</p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="prices" style="padding-top:0">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker">Market prices</div>
+      <h2>What sellers ask for 1 Kanal today</h2>
+      <p class="lead">Asking prices in late October 2026 run from PKR 3.3 to 4.55 crore. Blocks B and C sit at the top of the range.</p>
+    </div>
+    <div class="chart" role="img" aria-label="Asking price ranges in PKR crore. Earlier 2026 guide 3.10 to 3.75. Block B 3.75 to 4.55. Block C 3.85 to 4.50. Block A 3.65 to 4.00. Block G 3.30.">
+      <div class="crow">
+        <div class="name">Block B<small>We offer</small></div>
+        <div class="track"><div class="grid-x"><i style="left:0"></i><i style="left:27.8%"></i><i style="left:55.6%"></i><i style="left:83.3%"></i></div>
+          <div class="band ours" style="left:41.7%;width:44.4%"></div><span class="val" style="left:41.7%">3.75</span><span class="val" style="left:86.1%">4.55</span></div>
+      </div>
+      <div class="crow">
+        <div class="name">Block C<small>We offer</small></div>
+        <div class="track"><div class="grid-x"><i style="left:0"></i><i style="left:27.8%"></i><i style="left:55.6%"></i><i style="left:83.3%"></i></div>
+          <div class="band ours" style="left:47.2%;width:36.1%"></div><span class="val" style="left:47.2%">3.85</span><span class="val" style="left:83.3%">4.50</span></div>
+      </div>
+      <div class="crow">
+        <div class="name">Block A<small>Coming soon</small></div>
+        <div class="track"><div class="grid-x"><i style="left:0"></i><i style="left:27.8%"></i><i style="left:55.6%"></i><i style="left:83.3%"></i></div>
+          <div class="band" style="left:36.1%;width:19.5%"></div><span class="val" style="left:36.1%">3.65</span><span class="val" style="left:55.6%">4.00</span></div>
+      </div>
+      <div class="crow">
+        <div class="name">Block G<small>For comparison</small></div>
+        <div class="track"><div class="grid-x"><i style="left:0"></i><i style="left:27.8%"></i><i style="left:55.6%"></i><i style="left:83.3%"></i></div>
+          <div class="dot" style="left:16.7%"></div><span class="val" style="left:16.7%">3.30</span></div>
+      </div>
+      <div class="crow">
+        <div class="name">Earlier 2026<small>Dealer guide, all blocks</small></div>
+        <div class="track"><div class="grid-x"><i style="left:0"></i><i style="left:27.8%"></i><i style="left:55.6%"></i><i style="left:83.3%"></i></div>
+          <div class="band ghost" style="left:5.6%;width:36.1%"></div><span class="val l" style="left:5.6%">3.10</span><span class="val" style="left:41.7%">3.75</span></div>
+      </div>
+      <div class="axis"><span></span><div class="ticks"><span style="left:0">3.0 Cr</span><span style="left:27.8%">3.5</span><span style="left:55.6%">4.0</span><span style="left:83.3%">4.5</span></div></div>
+      <p class="note">Sellers' asking prices on public listings (Jaidad Finder, late October 2026) and dealer price guides from earlier in 2026. They are not sale prices, and past prices do not promise future value.</p>
+    </div>
+  </div>
+</section>
+
+<section id="timeline" style="padding-top:0">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker">The road to possession</div>
+      <h2>From approved layout to keys</h2>
+    </div>
+    <div class="timeline">
+      <div class="ms"><div class="when">Aug 2022</div><div class="what">Layout plan approved</div></div>
+      <div class="ms"><div class="when">Sep 2022</div><div class="what">Plots balloted and allotted</div></div>
+      <div class="ms"><div class="when">Sep 2025</div><div class="what">DHA signs on as developer</div></div>
+      <div class="ms"><div class="when">Sep 2026</div><div class="what">50% of the work done</div></div>
+      <div class="ms now"><div class="when">Nov 2026 · Now</div><div class="what">New payment schedule starts</div></div>
+      <div class="ms future goal"><div class="when">Jul 2027 · Target</div><div class="what">Block A possession</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="location" style="padding-top:0">
+  <div class="wrap loc">
+    <div class="head" style="margin:0">
+      <div class="kicker">Location</div>
+      <h2>Central, connected, green</h2>
+      <p class="lead">Main Park Road, Chak Shahzad, at the foot of the Margalla Hills. The Islamabad Expressway, Kashmir Highway and Murree Road are all close by.</p>
+    </div>
+    <div class="drive" role="img" aria-label="Approximate drive times in minutes">
+      <div class="drow first"><span>COMSATS University</span><span class="bar"><i style="width:2%"></i></span><span class="min">opposite</span></div>
+      <div class="drow"><span>Park Enclave</span><span class="bar"><i style="width:10%"></i></span><span class="min">3 min</span></div>
+      <div class="drow"><span>Chak Shahzad</span><span class="bar"><i style="width:16.7%"></i></span><span class="min">5 min</span></div>
+      <div class="drow"><span>Faizabad Interchange</span><span class="bar"><i style="width:33.3%"></i></span><span class="min">10 min</span></div>
+      <div class="drow"><span>Bahria Enclave</span><span class="bar"><i style="width:40%"></i></span><span class="min">12 min</span></div>
+      <div class="drow"><span>Serena Hotel</span><span class="bar"><i style="width:43.3%"></i></span><span class="min">13 min</span></div>
+      <div class="drow"><span>Faisal Mosque</span><span class="bar"><i style="width:73.3%"></i></span><span class="min">22 min</span></div>
+      <div class="drow"><span>Islamabad Airport</span><span class="bar"><i style="width:100%"></i></span><span class="min">30 min</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="cost" style="padding-top:0">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker">What you pay</div>
+      <h2>One clear total, before you commit</h2>
+      <p class="lead">We send you a written total for your exact plot. It has three parts.</p>
+    </div>
+    <div class="cost">
+      <div class="ci"><div class="op">1</div><h3>Plot price</h3><p>Plots in the same block share the same base price. We confirm your plot's price on the day.</p></div>
+      <div class="ci"><div class="op">+</div><h3>Development charges due</h3><p>The only cost that differs between plot types. We tell you the exact amount for your plot.</p></div>
+      <div class="ci"><div class="op">+</div><h3>Transfer cost</h3><div class="fig">≈ PKR 352,000</div><p>Paid by the buyer at the FGEHA office, G-10/4.</p></div>
+    </div>
+    <p class="cashline">Residential plots are sold for full cash payment. FBR tax under section 236K also applies to the buyer; the amount depends on your filer status.</p>
+  </div>
+</section>
+
+<section id="buy" style="padding-top:0">
+  <div class="wrap">
+    <div class="head">
+      <div class="kicker">How you buy</div>
+      <h2>Four steps to your allotment letter</h2>
+    </div>
+    <ol class="steps">
+      <li><b>Choose your plot</b><span>Pick a block and plot number from our current list. Visit the site with us if you like.</span></li>
+      <li><b>We check the papers</b><span>We verify the file, the plot number, the dues and the development charges.</span></li>
+      <li><b>Transfer at FGEHA</b><span>We file the transfer at the FGEHA Facilitation Centre, G-10/4. You and the seller attend the online check.</span></li>
+      <li><b>Allotment letter</b><span>You get the allotment letter in your name. Buyers abroad can buy with a NICOP.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section id="trust" style="padding-top:0">
+  <div class="wrap trust">
+    <div>
+      <div class="kicker">What we check for you</div>
+      <h3 style="margin-top:10px">Before you pay anything</h3>
+      <ul>
+        <li><div>Block and plot number <span>match the current layout plan</span></div></li>
+        <li><div>Land handover statement and online check <span>are complete</span></div></li>
+        <li><div>Dues <span>are clear on the FGEHA portal</span></div></li>
+        <li><div>Development charges <span>are known, in writing</span></div></li>
+        <li><div>No court case <span>is open on the plot</span></div></li>
+      </ul>
+    </div>
+    <div class="know">
+      <div class="kicker">Good to know</div>
+      <h3 style="margin-top:10px">So there are no surprises</h3>
+      <ul>
+        <li><div>Possession <span>is planned, not yet given. Block A first, in July 2027.</span></div></li>
+        <li><div>Building rules <span>are not yet published. You can start your house design now.</span></div></li>
+        <li><div>The layout <span>may be revised. We confirm your plot against the latest plan.</span></div></li>
+        <li><div>Official papers only <span>We deal only in documents issued by FGEHA.</span></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="contact" style="padding-top:0">
+  <div class="wrap">
+    <div class="invite">
+      <div>
+        <div class="kicker" style="color:var(--gold)">Next step</div>
+        <h2 style="margin-top:12px">Ask for today's plot list</h2>
+        <p>Tell us the block and size you want. We send you the available plot numbers with the full cost, the same day.</p>
+      </div>
+      <div class="contact">
+        <div><small>Your adviser</small><b class="fill">Your name</b></div>
+        <div><small>Phone / WhatsApp</small><b class="fill">+92 3XX XXXXXXX</b></div>
+        <div><small>Office</small><b class="fill">Office address</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Facts from FGEHA's <a href="https://www.fgeha.gov.pk/phase-x-park-road-housing-scheme/" target="_blank" rel="noopener">Park Road scheme page</a> and <a href="https://www.fgeha.gov.pk/margalla-orchards-housing-schema-park-road-development-update/" target="_blank" rel="noopener">October 2026 development update</a>. Asking prices from <a href="https://jaidadfinder.com/society/dha-margalla-orchards" target="_blank" rel="noopener">Jaidad Finder</a>. Drive times are approximate. Prices and availability change; we confirm both on the day you buy. This is an offer from an independent property adviser, not a document of FGEHA, DHA or the Supreme Court Bar Association.</p>
+  </div>
+</footer>

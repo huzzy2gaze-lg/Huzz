@@ -26,3 +26,6 @@ All CSVs open in Excel or Google Sheets.
 - Official FGEHA layout plan (PDF): https://www.fgeha.gov.pk/wp-content/uploads/2022/09/LOP-PR.pdf
 - emap.pk: https://emap.pk/margalla-orchard-islamabad-map
 - Jaidad Finder (every plot by block and number): https://jaidadfinder.com/society/dha-margalla-orchards/map
+
+## Client offer
+`client-offer.html` is the visual investment proposal to send to buyers. Fill in your name, number and office before sending.
