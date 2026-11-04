@@ -357,6 +357,23 @@ html,body{background:#111}
 .square.ur .cta .by{font-size:22px}
 .square.ur .cta .by small{font-size:14px}
 .square.ur .disc{font-size:12px}
+
+/* =================== URDU SPACING FIXES =================== */
+/* extra air between the two Nastaliq headline lines so ascenders don't touch */
+.ur.C .headline .l2{padding-top:.62em}
+.mtn.ur.C:not(.story):not(.square) .headline .l2{padding-top:.8em}
+.ur.A .headline .l2{padding-top:.3em}
+/* keep the long swash of ک (کروڑ / کنال) clear of neighbouring numbers */
+.ur .tk .unit,.ur .card .unit{margin-inline-start:26px}
+.ur .tk .pkr,.ur .card .pkr{margin-inline-end:10px}
+.ur .saveline .lat{margin-inline:16px}
+.ur.A .save .n{margin-inline-end:14px}
+.ur.B .amt small{margin-inline-start:30px}
+.ur.B .row .val .u{margin-inline-start:12px}
+.square.ur .tk .unit{margin-inline-start:20px}
+/* rebalance vertical space after the bigger line gap */
+.story.mtn.ur.C .tickets{margin-top:178px}
+.mtn.ur.C .tickets{margin-top:134px}
 </style>
 </head>
 <body>
@@ -411,7 +428,7 @@ const T = {
     bKick:'بچت', bAmt:`3.8<small>کروڑ+</small>`, bSub:'مارگلہ انکلیو کے مقابلے میں — <b>1 کنال پلاٹ</b> پر',
     barThem:'مارگلہ انکلیو', barUs:'مارگلہ آرچرڈز', valThem:`${n('7.3')} <span class="u">کروڑ+</span>`, valUs:`${n('3.5')} <span class="u">کروڑ</span>`, pct:'52% کم',
     c1:'وہی پرائم لوکیشن', c2:'نصف سے بھی کم قیمت!',
-    cSave:`1 کنال پر <span class="lat">3.8</span> کروڑ+ کی بچت`,
+    cSave:`<span class="lat">1</span> کنال پر <span class="lat">3.8</span> کروڑ+ کی بچت`,
   }
 };
 const t = T[LANG];
