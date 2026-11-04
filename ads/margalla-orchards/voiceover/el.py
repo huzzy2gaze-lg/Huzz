@@ -2,10 +2,10 @@
 import sys, json, subprocess, urllib.request
 vid, tag = sys.argv[1], sys.argv[2]; speed = float(sys.argv[3]) if len(sys.argv) > 3 else 1.0
 LINES = [
- "D.H.A. Margalla Orchards, Park Road, Islamabad.",
- "Not seven point three karor. Just three point five!",
- "Save over three point eight karor, on one kanaal.",
- "Call W.H. Ventures: zero three three one, five two two, three seven two six.",
+ "D.H.A. Margalla Orchards. Park Road, Islamabad.",
+ "Not seven point three karor... Just three point five!",
+ "Save over three point eight karor on one kanaal. Right opposite COMSATS, just ten minutes from Faizabad.",
+ "Call W.H. Ventures today: zero three three one, five two two, three seven two six. Limited plots!",
 ]
 for i, t in enumerate(LINES):
     body = {"text": t, "model_id": "eleven_multilingual_v2",
