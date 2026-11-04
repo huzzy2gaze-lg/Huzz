@@ -5,7 +5,7 @@ LINES = [
  f"[calm, confident] D.H.A. {M} Orchards. Park Road, Islamabad.",
  "[warm] Not seven point three karor... just three point five.",
  "[friendly] Save over three point eight karor on one kanaal. Right opposite COMSATS, just ten minutes from Faizabad.",
- "[confident] Call Sigma Developers today: zero three three one... five two two... three seven two six. Limited plots.",
+ "[confident] Call Sigma Developers today: zero three three one... five two two... three seven two six. Limited plots available.",
 ]
 for i, text in [(3, LINES[3])]:
     body = {"text": text, "model_id": "eleven_v4",
