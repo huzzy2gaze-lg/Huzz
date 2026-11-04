@@ -1,26 +1,52 @@
-// Renders ad.html to PNG for each social format.
-// Usage: node render.js [phone-number]
+// Renders every ad variant from variants.html to PNG (1080x1350 feed format),
+// plus one contact sheet per language.
+// Usage: node render.js            -> all 18 variants
+//        node render.js A teal en  -> a single variant (for checking)
+// To use the official DHA logo, save it as dha-logo.png (transparent PNG) in this folder.
 const { chromium } = require('playwright');
 const path = require('path');
+const fs = require('fs');
 
-const formats = [
-  { name: 'feed-1080x1350', format: 'feed', w: 1080, h: 1350 },
-  { name: 'story-1080x1920', format: 'story', w: 1080, h: 1920 },
-];
+const LAYOUTS = { A: 'comparison', B: 'savings', C: 'luxury' };
+const THEMES = ['teal', 'navy', 'emerald'];
+const LANGS = ['en', 'ur'];
+const PHONE = '0331-5223726';
 
 (async () => {
-  const phone = process.argv[2];
+  const [onlyL, onlyT, onlyLang] = process.argv.slice(2);
+  const out = path.join(__dirname, 'variants');
+  fs.mkdirSync(out, { recursive: true });
   const browser = await chromium.launch();
-  for (const f of formats) {
-    const page = await browser.newPage({ viewport: { width: f.w, height: f.h }, deviceScaleFactor: 1 });
-    const qs = new URLSearchParams({ format: f.format, ...(phone ? { phone } : {}) });
-    await page.goto('file://' + path.join(__dirname, 'ad.html') + '?' + qs);
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 1 });
+  const made = { en: [], ur: [] };
+  for (const lang of LANGS) for (const L of Object.keys(LAYOUTS)) for (const theme of THEMES) {
+    if (onlyL && (L !== onlyL || theme !== onlyT || lang !== onlyLang)) continue;
+    const qs = new URLSearchParams({ layout: L, theme, lang, phone: PHONE });
+    await page.goto('file://' + path.join(__dirname, 'variants.html') + '?' + qs);
     await page.evaluate(() => document.fonts.ready);
-    await page.waitForTimeout(300);
-    const out = path.join(__dirname, `margalla-orchards-${f.name}.png`);
-    await page.locator('#ad').screenshot({ path: out });
-    console.log('wrote', out);
-    await page.close();
+    await page.waitForTimeout(250);
+    const idx = Object.keys(LAYOUTS).indexOf(L) * 3 + THEMES.indexOf(theme) + 1;
+    const file = `${lang}-${String(idx).padStart(2, '0')}-${LAYOUTS[L]}-${theme}.png`;
+    await page.locator('#ad').screenshot({ path: path.join(out, file) });
+    made[lang].push(file);
+    console.log('wrote', file);
+  }
+  // contact sheets
+  for (const lang of LANGS) {
+    if (made[lang].length !== 9) continue;
+    const imgs = made[lang].map(f => `<figure><img src="file://${path.join(out, f)}"><figcaption>${f.replace('.png', '')}</figcaption></figure>`).join('');
+    const html = `<html><body style="margin:0;background:#1b1b1b;font:600 20px Inter,sans-serif;color:#ddd">
+      <div style="display:grid;grid-template-columns:repeat(3,540px);gap:24px;padding:24px">${imgs}</div>
+      <style>figure{margin:0}img{width:540px;display:block;border-radius:10px}figcaption{padding:8px 2px}</style></body></html>`;
+    const sheet = path.join(out, `_sheet-${lang}.html`);
+    fs.writeFileSync(sheet, html);
+    const p2 = await browser.newPage({ viewport: { width: 1716, height: 800 }, deviceScaleFactor: 1 });
+    await p2.goto('file://' + sheet);
+    await p2.waitForTimeout(300);
+    await p2.screenshot({ path: path.join(out, `_overview-${lang}.png`), fullPage: true });
+    fs.unlinkSync(sheet);
+    await p2.close();
+    console.log('wrote', `_overview-${lang}.png`);
   }
   await browser.close();
 })();
