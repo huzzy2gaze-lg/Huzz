@@ -471,10 +471,17 @@ const T = {
 };
 const t = T[LANG];
 
+// Company branding. Switch the whole ad set with ?brand=wh|sigma (default below).
+const BRANDS = {
+  wh:    { logo: 'wh-emblem.png',    name: 'WH VENTURES',      sub: '(PVT.) LTD. · REAL ESTATE', alt: 'WH Ventures logo' },
+  sigma: { logo: 'sigma-logo.png',   name: 'SIGMA DEVELOPERS', sub: '(PVT.) LTD. · REAL ESTATE', alt: 'Sigma Developers logo' },
+};
+const DEFAULT_BRAND = 'wh';
+const BR = BRANDS[P.get('brand') || DEFAULT_BRAND];
 const header = () => `
   <div class="head">
-    <img class="logo" src="wh-emblem.png" alt="WH Ventures logo">
-    <div class="co">WH VENTURES<small>(PVT.) LTD. · REAL ESTATE</small></div>
+    <img class="logo" src="${BR.logo}" alt="${BR.alt}">
+    <div class="co">${BR.name}<small>${BR.sub}</small></div>
     <div class="dha" id="dha"><img src="dha-logo.png" alt="DHA" onerror="this.parentNode.classList.add('txt');this.remove()"><div class="dt"><small>${t.dhaSmall}</small><b>DHA</b></div></div>
   </div>
   <div class="eyebrow">${t.eyebrow}</div>`;
