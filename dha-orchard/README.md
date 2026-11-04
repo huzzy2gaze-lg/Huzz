@@ -29,3 +29,7 @@ All CSVs open in Excel or Google Sheets.
 
 ## Client offer
 `client-offer.html` is the visual investment proposal to send to buyers. Fill in your name, number and office before sending.
+
+## Personal copies for the team
+- `Margalla-Orchard-Offer-fillable.pdf`: open it, type your name, number and office into the contact card at the bottom, save, and send.
+- `Margalla-Orchard-Offer-editable.html`: open in Chrome, click the contact card, type your details, then Ctrl+P (Cmd+P) and Save as PDF.
