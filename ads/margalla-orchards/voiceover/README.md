@@ -25,3 +25,10 @@ The source recording is not stored in the repo.
 **Final voice: the owner's own recording.** The four ad lines were cut from Part 1 of the recording
 (located with ElevenLabs speech-to-text word timestamps) and placed with build.py (tag `real`, ~29s).
 The cloned-voice version was dropped (sounded robotic).
+
+## Improved clone (v2)
+ElevenLabs voice "WH Ventures Voice v2" (`4s5bNOErd0CSLc5WtvkC`), trained on ~2m10s of curated clean English takes
+(stumbles and Roman Urdu removed).
+- Clone-A: `eleven_v4` with emotion tags (`el2.py <voice> eleven_v4 v4 0.5`)
+- Clone-B: `eleven_v3` with emotion tags
+- Clone-C: speech-to-speech (`eleven_english_sts_v2`) of the owner's real recorded lines through the clone
