@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Margalla Orchards Ad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green-900:#06291c;
+    --green-800:#0a3a28;
+    --green-700:#0f5138;
+    --green-500:#1f8a5b;
+    --gold:#e8b84a;
+    --gold-light:#f6d77f;
+    --cream:#fbf6e9;
+    --red:#e2554b;
+    --muted:#a9c2b5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--green-900)}
+  body{font-family:Inter,system-ui,sans-serif;color:var(--cream)}
+
+  .ad{
+    position:relative;overflow:hidden;
+    width:1080px;height:1350px;
+    padding:64px 64px 0;
+    display:flex;flex-direction:column;
+    background:
+      radial-gradient(900px 600px at 85% -10%, rgba(232,184,74,.22), transparent 60%),
+      radial-gradient(700px 500px at -10% 40%, rgba(31,138,91,.35), transparent 60%),
+      linear-gradient(180deg,var(--green-800) 0%, var(--green-900) 70%);
+  }
+  .ad.story{width:1080px;height:1920px;padding:150px 72px 0}
+
+  /* decorative hills */
+  .hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:520px;z-index:0;pointer-events:none}
+  .story .hills{height:700px}
+  .ad > *:not(.hills){position:relative;z-index:1}
+
+  /* top bar */
+  .brand{display:flex;align-items:center;gap:18px}
+  .brand .mark{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--gold),#c98f1f);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .brand .name{font-family:Montserrat;font-weight:800;font-size:26px;letter-spacing:.14em;line-height:1.15}
+  .brand .name small{display:block;font-family:Inter;font-weight:600;font-size:17px;letter-spacing:.22em;color:var(--gold-light)}
+  .brand .tag{margin-left:auto;border:2px solid rgba(246,215,127,.55);color:var(--gold-light);font-weight:700;font-size:17px;letter-spacing:.18em;padding:10px 18px;border-radius:999px}
+
+  /* headline */
+  .headline{margin-top:44px;font-family:Montserrat;font-weight:900;line-height:.98;letter-spacing:-.01em;text-transform:uppercase}
+  .headline .l1{font-size:104px;color:var(--gold)}
+  .headline .l2{font-size:76px}
+  .headline .l2 em{font-style:normal;color:var(--gold-light);position:relative}
+  .sub{margin-top:18px;font-size:30px;font-weight:500;color:var(--muted)}
+  .story .headline{margin-top:44px}
+  .story .headline .l1{font-size:128px}
+  .story .headline .l2{font-size:92px}
+  .story .sub{font-size:36px;margin-top:24px}
+
+  /* comparison */
+  .compare{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:28px;position:relative}
+  .story .compare{margin-top:48px;grid-template-columns:1fr;gap:26px}
+  .card{border-radius:28px;padding:30px 32px 34px;min-height:250px;display:flex;flex-direction:column}
+  .card .who{font-family:Montserrat;font-weight:800;font-size:22px;letter-spacing:.12em;text-transform:uppercase}
+  .card .left{display:flex;flex-direction:column;align-items:flex-start}
+  .card .size{margin-top:6px;font-size:19px;font-weight:600;opacity:.8}
+  .card .price{margin-top:auto;padding-top:14px;font-family:Montserrat;font-weight:900;line-height:1}
+  .card .price .pkr{font-size:28px;font-weight:800;display:block;margin-bottom:6px;letter-spacing:.06em}
+  .card .price .num{font-size:96px}
+  .card .price .unit{font-size:40px;font-weight:800;margin-left:6px}
+  .card .note{margin-top:10px;font-size:17px;font-weight:500;opacity:.75}
+
+  .card.them{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.14);color:#d9e5de}
+  .card.them .who{color:#cfd9d3}
+  .card.them .num{position:relative;color:#c9d4ce}
+  .card.them .num::after{content:"";position:absolute;left:-6px;right:-6px;top:52%;height:8px;background:var(--red);border-radius:6px;transform:rotate(-8deg);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+  .card.them .badge{align-self:flex-start;margin-top:14px;background:rgba(226,85,75,.18);color:#ffb3ad;border:1.5px solid rgba(226,85,75,.6);font-weight:700;font-size:16px;letter-spacing:.12em;padding:6px 12px;border-radius:999px}
+
+  .card.us{background:linear-gradient(160deg,var(--cream),#f3e6c3);color:var(--green-900);border:4px solid var(--gold);box-shadow:0 24px 60px rgba(0,0,0,.4), 0 0 0 8px rgba(232,184,74,.18)}
+  .card.us .who{color:var(--green-700)}
+  .card.us .num{color:var(--green-800)}
+  .card.us .badge{align-self:flex-start;margin-top:14px;background:var(--green-700);color:var(--gold-light);font-weight:800;font-size:16px;letter-spacing:.12em;padding:7px 14px;border-radius:999px}
+
+  .story .card{min-height:0;flex-direction:row;align-items:center;gap:24px;padding:28px 40px}
+  .story .card .left{display:flex;flex-direction:column}
+  .story .card .price{margin-top:0;padding-top:0;margin-left:auto;text-align:right}
+  .story .card .price .num{font-size:120px}
+
+  .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:var(--green-900);border:3px solid var(--gold);display:grid;place-items:center;font-family:Montserrat;font-weight:900;font-size:24px;color:var(--gold);z-index:2;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+
+  /* savings ribbon */
+  .save{margin:-22px auto 0;position:relative;z-index:3;display:flex;align-items:center;gap:16px;background:linear-gradient(90deg,#c98f1f,var(--gold),#f3cd6a);color:var(--green-900);padding:16px 36px;border-radius:999px;font-family:Montserrat;font-weight:900;font-size:34px;letter-spacing:.02em;box-shadow:0 14px 40px rgba(0,0,0,.45)}
+  .save span{font-weight:700;font-size:22px;letter-spacing:.14em}
+  .story .save{margin-top:-10px;font-size:44px;padding:22px 48px}
+  .story .save span{font-size:26px}
+
+  /* features */
+  .features{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:22px 34px}
+  .story .features{margin-top:52px;gap:26px 28px}
+  .f{display:flex;align-items:center;gap:18px}
+  .f .ic{flex:none;width:58px;height:58px;border-radius:16px;background:rgba(232,184,74,.14);border:1.5px solid rgba(232,184,74,.45);display:grid;place-items:center}
+  .f .ic svg{width:30px;height:30px;stroke:var(--gold-light);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .f b{display:block;font-family:Montserrat;font-weight:800;font-size:24px;line-height:1.15}
+  .f small{display:block;font-size:18px;color:var(--muted);margin-top:3px;font-weight:500}
+  .story .f .ic{width:64px;height:64px}
+  .story .f .ic svg{width:36px;height:36px}
+  .story .f b{font-size:25px}
+  .story .f small{font-size:19px}
+
+  /* cta */
+  .cta{margin-top:auto;margin-left:-64px;margin-right:-64px;padding:26px 64px 22px;background:linear-gradient(180deg,rgba(6,41,28,0),rgba(6,41,28,.85) 30%)}
+  .story .cta{margin-left:-72px;margin-right:-72px;padding:30px 72px 230px}
+  .cta .bar{display:flex;align-items:center;gap:22px;background:var(--gold);color:var(--green-900);border-radius:22px;padding:18px 28px}
+  .cta .bar .phone{width:62px;height:62px;border-radius:50%;background:var(--green-800);display:grid;place-items:center;flex:none}
+  .cta .bar .phone svg{width:30px;height:30px;stroke:var(--gold-light);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .cta .bar .lbl{font-weight:800;font-size:18px;letter-spacing:.16em;text-transform:uppercase;opacity:.8}
+  .cta .bar .num{font-family:Montserrat;font-weight:900;font-size:44px;line-height:1.05}
+  .cta .bar .go{margin-left:auto;font-family:Montserrat;font-weight:900;font-size:22px;letter-spacing:.06em;text-align:right;line-height:1.15}
+  .story .cta .bar{padding:24px 32px}
+  .story .cta .bar .num{font-size:52px}
+  .cta .disc{margin-top:12px;font-size:14px;color:rgba(251,246,233,.55);text-align:center}
+  .story .cta .disc{font-size:17px}
+</style>
+</head>
+<body>
+<div class="ad" id="ad">
+  <!-- Margalla hills + orchard silhouette -->
+  <svg class="hills" viewBox="0 0 1080 520" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 250 C120 170 210 120 320 175 C420 225 470 110 590 95 C700 82 760 190 860 165 C960 140 1010 90 1080 120 L1080 520 L0 520Z" fill="#0d4430" opacity=".55"/>
+    <path d="M0 330 C140 260 250 300 360 255 C480 205 560 270 680 240 C800 210 900 280 1080 230 L1080 520 L0 520Z" fill="#0a3726" opacity=".8"/>
+    <g fill="#082e20" opacity=".9">
+      <g id="tree"><rect x="-4" y="-6" width="8" height="26" rx="2"/><circle cx="0" cy="-22" r="22"/></g>
+      <use href="#tree" x="80" y="345"/><use href="#tree" x="150" y="330"/><use href="#tree" x="230" y="340"/>
+      <use href="#tree" x="840" y="320"/><use href="#tree" x="910" y="335"/><use href="#tree" x="990" y="315"/><use href="#tree" x="1050" y="330"/>
+    </g>
+  </svg>
+
+  <div class="brand">
+    <div class="mark">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#06291c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7"/><path d="M12 15c-4 0-7-2.5-7-6.5S8.5 2 12 2s7 2.5 7 6.5-3 6.5-7 6.5z"/><path d="M9 9l3 3 3-3"/></svg>
+    </div>
+    <div class="name">MARGALLA ORCHARDS<small>DHA · ISLAMABAD</small></div>
+    <div class="tag">PARK ROAD</div>
+  </div>
+
+  <h1 class="headline">
+    <div class="l1">1 Kanal.</div>
+    <div class="l2"><em>Less than half</em><br>the price.</div>
+  </h1>
+  <p class="sub">Same prime Islamabad location. A much smarter price.</p>
+
+  <div class="compare">
+    <div class="card them">
+      <div class="left">
+        <div class="who">Margalla Enclave</div>
+        <div class="size">1 Kanal plot</div>
+        <div class="badge">YOU PAY MORE</div>
+      </div>
+      <div class="price"><span class="pkr">PKR</span><span class="num">7.3</span><span class="unit">Cr+</span></div>
+    </div>
+    <div class="vs">VS</div>
+    <div class="card us">
+      <div class="left">
+        <div class="who">Margalla Orchards</div>
+        <div class="size">1 Kanal plot</div>
+        <div class="badge">SMART CHOICE</div>
+      </div>
+      <div class="price"><span class="pkr">PKR</span><span class="num">3.5</span><span class="unit">Cr</span></div>
+    </div>
+  </div>
+
+  <div class="save">SAVE 3.8 CRORE+ <span>ON 1 KANAL</span></div>
+
+  <div class="features">
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg></div><div><b>DHA Developed</b><small>JV: DHA · FGEHA · SCBA</small></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg></div><div><b>Opposite COMSATS</b><small>Main Park Road, Zone 4</small></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 17h14"/><path d="M6 17l1.5-6h9L18 17"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/><path d="M7.5 11L9 7h6l1.5 4"/></svg></div><div><b>10 min to Faizabad</b><small>Via Islamabad Expressway</small></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V10h14v11"/><path d="M12 3l8 7H4l8-7z"/><path d="M9 14v4M12 14v4M15 14v4"/></svg></div><div><b>10–15 min to Serena</b><small>&amp; the Secretariat</small></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M6 21V5l12-2v4"/><path d="M6 9h12"/><path d="M15 9v5l2 2"/></svg></div><div><b>Development Underway</b><small>Work in full swing</small></div></div>
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div><div><b>Strong Growth Potential</b><small>Early-stage pricing</small></div></div>
+  </div>
+
+  <div class="cta">
+    <div class="bar">
+      <div class="phone"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></div>
+      <div><div class="lbl">Call / WhatsApp</div><div class="num" id="phone">03XX-XXXXXXX</div></div>
+      <div class="go">BOOK<br>NOW</div>
+    </div>
+    <p class="disc">Prices indicative &amp; subject to change. Future appreciation is not guaranteed. Enclave price: 3rd-ballot lump sum, 2026.</p>
+  </div>
+</div>
+<script>
+  const p = new URLSearchParams(location.search);
+  if (p.get('format') === 'story') document.getElementById('ad').classList.add('story');
+  if (p.get('phone')) document.getElementById('phone').textContent = p.get('phone');
+</script>
+</body>
+</html>
