@@ -1,19 +1,20 @@
 # Voice-over (English, 15s video)
 
-Voice: Kokoro TTS (open source, runs locally). Model files from
-https://github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0 (kokoro-v1.0.onnx, voices-v1.0.bin).
+**Engine: ElevenLabs** (`eleven_multilingual_v2`). API key is injected by the session's network proxy
+(saved as a network secret for api.elevenlabs.io), so scripts send `xi-api-key: proxy-injected`.
 
-Script (cue in seconds):
+Script — words spelled phonetically so they're said the Pakistani way (karor = crore, kanaal = kanal):
 | Cue | Line |
 |---|---|
-| 0.45 | "DHA Margalla Orchards. Park Road, Islamabad." |
-| 3.85 | "Not seven point three crore. Just three point five!" |
-| 6.95 | "Save over three point eight crore, on one kanal." |
-| 9.35 | "Call WH Ventures: 0331-5223726." |
+| 0.40s | "DHA Margalla Orchards, Park Road, Islamabad." |
+| 3.70s | "Not seven point three karor. Just three point five!" |
+| 6.85s | "Save over three point eight karor, on one kanaal." |
+| 9.80s | "Call WH Ventures: 0331-5223726." |
 
 ```
-pip install kokoro-onnx soundfile
-python vo.py am_fenrir 1.12      # male   (af_heart = female)
-python mix.py am_fenrir          # places lines on cues + builds the music bed
+python el.py <voice_id> <tag> 1.15      # writes <tag>_0..3.mp3
+# trim silences to <tag>_N.wav (ffmpeg silenceremove), then:
+./mixel.sh <tag> out.mp4                # places lines on cues, ducked music bed, -14 LUFS
 ```
-Then mix onto the video with ffmpeg (voice compressed, music side-chain ducked, loudnorm -14 LUFS).
+Ready-made voices used: George `JBFqnCBsd6RMkjVDRZzb` (British, warm), Brian `nPczCjzI2devNBz1zQrb` (deep, American).
+`vo.py`/`mix.py` are the earlier Kokoro (local) attempt; mix.py also generates the music bed (music.wav).
