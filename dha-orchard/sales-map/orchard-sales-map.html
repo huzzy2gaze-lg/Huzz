@@ -1,0 +1,658 @@
+<title>Orchard Sales Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a sales desk around a live map. Whole-scheme view (filters | map | summary), then a block view (block list | close-up | plot file). */
+:root{
+  --bg:#EEF2EC; --surface:#FFFFFF; --card:#F7F9F5; --ink:#13221B; --soft:#5B6E62; --line:#D7E0D7;
+  --forest:#0E3A2C; --on-forest:#EEF3EE; --on-forest-soft:#A9C2B3; --brass:#A87A22; --brass-soft:#F3E7CC;
+  --avail:#2F9E62; --book:#E0A11B; --sold:#B4473A;
+  --plot:#FFFFFF; --plot-line:#B9C6BC; --plot-dim:#E1E7DF; --ground:#E3E9E1; --road:#FAFBF8; --blockcard:#F6F8F4;
+  --display:"Gloock","Iowan Old Style",Georgia,serif;
+  --body:"Albert Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C1511; --surface:#142019; --card:#17241D; --ink:#E4ECE6; --soft:#9CB2A5; --line:#26372E;
+  --forest:#0A2A20; --brass:#DDAA4C; --brass-soft:#33280F;
+  --avail:#3DBB78; --book:#E8AE33; --sold:#D2665A;
+  --plot:#1C2B23; --plot-line:#3A4F42; --plot-dim:#16221C; --ground:#101B16; --road:#1E2D25; --blockcard:#14211A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0C1511; --surface:#142019; --card:#17241D; --ink:#E4ECE6; --soft:#9CB2A5; --line:#26372E;
+  --forest:#0A2A20; --brass:#DDAA4C; --brass-soft:#33280F;
+  --avail:#3DBB78; --book:#E8AE33; --sold:#D2665A;
+  --plot:#1C2B23; --plot-line:#3A4F42; --plot-dim:#16221C; --ground:#101B16; --road:#1E2D25; --blockcard:#14211A; color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);display:flex;flex-direction:column;overflow:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--forest)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.k{font:500 11px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+
+/* Header */
+.bar{background:var(--forest);color:var(--on-forest);display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-block:10px;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));flex:none}
+.bar .t{font:400 21px/1.1 var(--display);white-space:nowrap}
+.crumbs{display:flex;align-items:center;gap:6px;font:500 12px var(--mono);color:var(--on-forest-soft);min-width:0;flex-wrap:wrap}
+.crumbs button{background:none;border:0;padding:2px 4px;color:var(--on-forest-soft);font:inherit;border-radius:4px}
+.crumbs button:hover{color:#fff}
+.crumbs b{color:#fff;font-weight:500}
+.chips{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:7px;font:500 12px var(--mono);padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.09);white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.sync{font:500 11px var(--mono);color:var(--on-forest-soft)}
+
+.notice{background:var(--brass-soft);color:var(--ink);font-size:13px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-block:8px;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));flex:none}
+.notice button{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-weight:600;font-size:12px}
+
+#app{flex:1;min-height:0}
+.layout{display:grid;height:100%;min-height:0}
+.layout.all{grid-template-columns:220px minmax(0,1fr) 340px}
+.layout.block{grid-template-columns:260px minmax(0,1fr) 370px}
+.scroll{overflow:auto;min-height:0}
+
+/* Rail */
+.rail > *,.side > *,.panel > *{flex:none}
+.blist{display:grid;gap:6px}
+.rail{background:var(--surface);border-right:1px solid var(--line);padding:18px 16px;display:flex;flex-direction:column;gap:18px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pill{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 10px;font-weight:600;font-size:12.5px}
+.pill.on{background:var(--forest);color:#fff;border-color:var(--forest)}
+.pill:disabled{opacity:.45;cursor:default}
+.legend{display:grid;gap:7px;margin-top:8px;font-size:13px}
+.legend span{display:flex;gap:8px;align-items:center}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block;flex:none;border:1px solid var(--plot-line)}
+.search{display:flex;gap:6px;margin-top:8px}
+.search input{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px}
+.search button{border:0;background:var(--forest);color:#fff;border-radius:8px;padding:0 12px;font-weight:600}
+.hint{font-size:12px;color:var(--soft)}
+
+/* Map */
+.mapwrap{position:relative;min-height:0;overflow:hidden;background:var(--ground);touch-action:none}
+.mapwrap svg{width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none}
+.zoom{position:absolute;left:12px;top:12px;display:grid;gap:4px;z-index:2}
+.zoom button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font:600 17px var(--body)}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;box-shadow:0 8px 22px rgba(0,0,0,.14);font-size:12.5px;z-index:3;min-width:150px}
+.tip b{font:400 18px var(--display);display:block}
+.maphint{position:absolute;right:12px;bottom:12px;font:500 11px var(--mono);color:var(--soft);background:var(--surface);border:1px solid var(--line);padding:5px 8px;border-radius:6px}
+svg .road{stroke:var(--road);fill:none}
+svg .bcard{fill:var(--blockcard);stroke:var(--plot-line);stroke-width:1}
+svg .bcard.grey{fill:var(--plot-dim)}
+svg .bcard.hit{cursor:pointer}
+svg .bcard.hi{stroke:var(--brass);stroke-width:3}
+svg .blabel{font-family:var(--display);fill:var(--soft);opacity:.45;pointer-events:none}
+svg .p{fill:var(--plot);stroke:var(--plot-line);stroke-width:.5;cursor:pointer}
+svg .p.grey{fill:var(--plot-dim);cursor:default}
+svg .p.available{fill:var(--avail);stroke:none}
+svg .p.prebooked{fill:var(--book);stroke:none}
+svg .p.sold{fill:var(--sold);stroke:none}
+svg .p.fade{opacity:.22}
+svg .p.sel{stroke:var(--ink);stroke-width:2.2}
+svg .p:hover:not(.grey){stroke:var(--ink);stroke-width:1.2}
+svg .pn{font-family:var(--mono);fill:var(--soft);pointer-events:none}
+svg .pn.on{fill:#fff}
+svg .comm{fill:url(#hatch);stroke:var(--plot-line)}
+svg .commt{font-family:var(--mono);font-size:7px;fill:var(--soft);letter-spacing:.06em}
+
+/* Panels */
+.panel{background:var(--surface);border-left:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:14px}
+.panel h2{margin:0;font:400 30px/1.05 var(--display)}
+.panel h3{margin:0;font:400 20px/1.15 var(--display)}
+.bstat{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--card);text-align:left;width:100%}
+.bstat .L{font:400 32px/1 var(--display);width:34px;text-align:center}
+.bstat .nums{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;font-variant-numeric:tabular-nums}
+.bstat .nums b{font-weight:700}
+.stack{display:flex;height:6px;border-radius:3px;overflow:hidden;background:var(--line);margin-top:6px}
+.stack i{display:block;height:100%}
+.go{font:600 12px var(--body);color:var(--brass);white-space:nowrap}
+.act{display:grid;gap:8px}
+.actrow{display:grid;grid-template-columns:8px 1fr;gap:10px;font-size:13px;align-items:start}
+.actrow i{width:8px;height:8px;border-radius:50%;margin-top:6px}
+.actrow small{display:block;color:var(--soft);font-size:12px}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:14px;color:var(--soft);font-size:13px}
+
+/* Block side (dark) */
+.side{background:var(--forest);color:var(--on-forest);padding:16px;display:flex;flex-direction:column;gap:12px}
+.side .k{color:var(--on-forest-soft)}
+.mini{border-radius:10px;overflow:hidden;background:var(--ground);aspect-ratio:1000/760;max-width:100%}
+.mini svg{width:100%;height:100%;display:block}
+.brow{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.06);border:0;color:inherit;text-align:left;width:100%}
+.brow.on{background:var(--on-forest);color:#13221B}
+.brow .L{font:400 24px/1 var(--display)}
+.brow small{display:block;font-size:12px;opacity:.85;font-variant-numeric:tabular-nums}
+.brow .mb{display:flex;height:6px;width:62px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.18)}
+.brow.on .mb{background:#D7E0D7}
+.back{background:rgba(255,255,255,.1);border:0;color:var(--on-forest);border-radius:10px;padding:9px 10px;font-weight:600;text-align:left}
+
+/* Plot file */
+.drawing{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.drawing svg{display:block;width:100%;height:auto}
+.price{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--card)}
+.price .v{font:400 28px/1 var(--display);font-variant-numeric:tabular-nums}
+.price small{color:var(--soft)}
+.price input{width:110px;border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--surface);font:400 22px var(--display)}
+.linkbtn{margin-left:auto;background:none;border:0;color:var(--brass);font-weight:700;font-size:13px;padding:4px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;padding:10px 0;font-weight:600;font-size:13px}
+.seg button + button{border-left:1px solid var(--line)}
+.seg button.on.available{background:var(--avail);color:#fff}
+.seg button.on.prebooked{background:var(--book);color:#1A1405}
+.seg button.on.sold{background:var(--sold);color:#fff}
+.seg button:disabled{cursor:default}
+.meta{font-size:12px;color:var(--soft)}
+.facts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.facts div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.facts b{display:block;font:400 18px/1.15 var(--display);font-variant-numeric:tabular-nums}
+.facts span{font-size:11.5px;color:var(--soft)}
+.cl{border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:8px;background:var(--surface)}
+.cl .top{display:flex;gap:10px;align-items:center}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;color:#fff;flex:none}
+.cl .n{font-weight:700}
+.cl .s{font-size:12px;color:var(--soft)}
+.cl .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.stage{font:600 11px var(--mono);padding:4px 8px;border-radius:6px;white-space:nowrap}
+.stage.interested{background:var(--brass-soft);color:var(--brass)}
+.stage.prebooked{background:var(--book);color:#1A1405}
+.stage.bought{background:var(--avail);color:#fff}
+.stage.dropped{background:var(--line);color:var(--soft)}
+.sbtn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 9px;font-size:12px;font-weight:600}
+.sbtn.primary{background:var(--brass);border-color:var(--brass);color:#fff}
+.sbtn.danger{color:var(--sold)}
+form.add{display:grid;gap:8px;border:1px dashed var(--line);border-radius:12px;padding:12px}
+form.add input,form.add textarea{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px;width:100%}
+form.add textarea{min-height:56px;resize:vertical}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px;font-weight:700}
+.btn.primary{background:var(--brass);border-color:var(--brass);color:#fff}
+.btn.forest{background:var(--forest);border-color:var(--forest);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.confirm{border:1px solid var(--sold);border-radius:12px;padding:12px;display:grid;gap:8px;background:var(--card)}
+.ourlist{display:grid;gap:6px}
+.ourrow{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--card);text-align:left;width:100%}
+.ourrow .num{font:500 13px var(--mono)}
+.ourrow .pr{font:400 17px var(--display);font-variant-numeric:tabular-nums}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.filterrow{display:flex;gap:6px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;font-weight:600;z-index:20;max-width:90vw}
+
+@media (max-width:980px){
+  body{overflow:auto;display:block}
+  #app{height:auto}
+  .layout.all,.layout.block{display:flex;flex-direction:column;height:auto}
+  .rail,.side{border:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .rail{flex-direction:row;flex-wrap:wrap;gap:14px}
+  .rail > div{min-width:0}
+  .rail .legend{grid-template-columns:repeat(2,auto);column-gap:14px}
+  .mapwrap{height:62vh;min-height:360px}
+  .panel{border-left:0;border-top:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .side .mini{display:none}
+  .mapwrap{order:1}.panel{order:2}.rail,.side{order:3}
+  .side .blist{display:flex;gap:6px;overflow-x:auto}
+  .side .blist .brow{min-width:150px}
+  .scroll{overflow:visible}
+}
+@media (prefers-reduced-motion:no-preference){svg .p{transition:fill .25s}}
+</style>
+
+<header class="bar">
+  <div class="t">Orchard Sales Map</div>
+  <nav class="crumbs" id="crumbs" aria-label="Where you are"></nav>
+  <div class="chips" id="chips"></div>
+  <span class="sync" id="sync">Connecting…</span>
+</header>
+<div class="notice" id="notice" hidden></div>
+<main id="app"></main>
+<div id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- Geometry (sample layout; replaced by the traced official plan) ---------- */
+const FT=0.22, GAP=1.2, STREET=12;
+const SIZES={
+  "1K":{label:"1 Kanal",dims:"50 × 90 ft",sqyd:500,w:50,h:90},
+  "14M":{label:"14 Marla",dims:"40 × 80 ft",sqyd:356,w:40,h:80},
+  "10M":{label:"10 Marla",dims:"32 × 70 ft",sqyd:249,w:32,h:70}
+};
+const BLOCKDEF={
+  A:{x:70,y:60,rot:-8,start:201,strips:[[9,"1K"],[11,"1K"],[12,"1K"],[12,"1K"],[13,"14M"],[10,"14M"]]},
+  B:{x:395,y:55,rot:6,start:120,strips:[[7,"1K"],[9,"1K"],[9,"1K"],[11,"14M"],[10,"14M"]]},
+  C:{x:650,y:95,rot:-12,start:10,strips:[[6,"1K"],[8,"1K"],[9,"1K"],[10,"1K"],[9,"1K"],[7,"1K"]]},
+  G:{x:70,y:420,rot:4,start:301,strips:[[10,"1K"],[10,"1K"],[9,"1K"],[7,"1K"]]},
+  E:{x:385,y:400,rot:-3,start:401,strips:[[13,"10M"],[15,"10M"],[15,"10M"],[14,"10M"],[12,"10M"],[10,"10M"]]},
+  D:{x:740,y:470,rot:8,start:1,grey:true,strips:[[7,"1K"],[8,"1K"],[8,"1K"],[6,"1K"]]},
+  F:{x:110,y:650,rot:0,start:1,grey:true,strips:[[8,"1K"],[7,"1K"]]},
+  H:{x:615,y:665,rot:-4,start:1,grey:true,strips:[[6,"1K"],[6,"1K"]]}
+};
+const ACTIVE=["A","B","C","E","G"];
+function rotPt(x,y,cx,cy,deg){const r=deg*Math.PI/180,c=Math.cos(r),s=Math.sin(r);const dx=x-cx,dy=y-cy;return [cx+dx*c-dy*s,cy+dx*s+dy*c]}
+function buildGeo(){
+  const blocks={},plots={};
+  for(const id in BLOCKDEF){
+    const d=BLOCKDEF[id];
+    const stripW=d.strips.map(([n,sz])=>n*(SIZES[sz].w*FT+GAP)-GAP);
+    const W=Math.max(...stripW);
+    const H=d.strips.reduce((a,[n,sz])=>a+2*SIZES[sz].h*FT+GAP,0)+STREET*(d.strips.length-1);
+    const cx=d.x+W/2,cy=d.y+H/2;
+    const list=[];let num=d.start,y=0;
+    d.strips.forEach(([n,sz],si)=>{
+      const pw=SIZES[sz].w*FT,ph=SIZES[sz].h*FT;const off=(W-stripW[si])/2;
+      for(let side=0;side<2;side++){
+        for(let i=0;i<n;i++){
+          const lx=d.x+off+i*(pw+GAP),ly=d.y+y+side*(ph+GAP);
+          const pts=[[lx,ly],[lx+pw,ly],[lx+pw,ly+ph],[lx,ly+ph]].map(p=>rotPt(p[0],p[1],cx,cy,d.rot));
+          const c=rotPt(lx+pw/2,ly+ph/2,cx,cy,d.rot);
+          const p={id:id+"-"+num,block:id,num,size:sz,pts,cx:c[0],cy:c[1],grey:!!d.grey,ph};
+          list.push(p);if(!d.grey)plots[p.id]=p;num++;
+        }
+      }
+      y+=2*ph+GAP+STREET;
+    });
+    const pad=8;
+    const outline=[[d.x-pad,d.y-pad],[d.x+W+pad,d.y-pad],[d.x+W+pad,d.y+H+pad],[d.x-pad,d.y+H+pad]].map(p=>rotPt(p[0],p[1],cx,cy,d.rot));
+    const xs=outline.map(p=>p[0]),ys=outline.map(p=>p[1]);
+    const sizes=[...new Set(d.strips.map(s=>s[1]))];
+    blocks[id]={id,rot:d.rot,cx,cy,grey:!!d.grey,plots:list,outline,sizes,bbox:[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)],
+      first:d.start,last:num-1};
+  }
+  return {blocks,plots};
+}
+const GEO=buildGeo();
+const WORLD=[0,0,1000,760];
+
+/* ---------- State ---------- */
+const S={view:"all",block:null,plot:null,size:"all",show:"all",q:"",
+  plots:{},clients:[],ready:false,timedOut:false,dbOK:null,canWrite:null,me:null,
+  names:{},vb:{},editPrice:false,confirmRemove:false,draft:{},addOpen:false,statusFilter:"all"};
+let db=null,user=null;
+const STATUS={available:{label:"Available",cls:"available"},prebooked:{label:"Pre-booked",cls:"prebooked"},sold:{label:"Sold",cls:"sold"}};
+const STAGES={interested:"Interested",prebooked:"Pre-booked",bought:"Bought",dropped:"Dropped"};
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function fmtPrice(v){return (typeof v==="number"&&isFinite(v))?v.toFixed(2):"—"}
+function ago(iso){if(!iso)return"";const d=(Date.now()-new Date(iso).getTime())/1000;if(d<60)return"just now";if(d<3600)return Math.floor(d/60)+" min ago";if(d<86400)return Math.floor(d/3600)+" h ago";return Math.floor(d/86400)+" d ago"}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2600)}
+function nameOf(id){if(!id)return"Someone";const n=S.names[id];return (n&&n.name)||"Someone"}
+function colorOf(id){const n=S.names[id];return (n&&n.color)||"#6E8B7B"}
+function initials(s){return String(s||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase()||"?"}
+function ptsStr(pts){return pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")}
+function statusOf(id){const d=S.plots[id];return d?d.status:null}
+function clientsFor(id){return S.clients.filter(c=>c.plotId===id)}
+function blockStats(b){
+  const r={available:0,prebooked:0,sold:0,ours:0,clients:0};
+  for(const id in S.plots){const d=S.plots[id];if(d.block!==b)continue;r.ours++;if(r[d.status]!=null)r[d.status]++}
+  S.clients.forEach(c=>{if(c.plotId&&c.plotId.split("-")[0]===b&&c.stage!=="dropped")r.clients++});
+  return r;
+}
+function totals(){const r={available:0,prebooked:0,sold:0,ours:0,clients:0};ACTIVE.forEach(b=>{const s=blockStats(b);for(const k in r)r[k]+=s[k]});return r}
+function stackHTML(s){const t=s.ours||1;return `<i style="width:${s.available/t*100}%;background:var(--avail)"></i><i style="width:${s.prebooked/t*100}%;background:var(--book)"></i><i style="width:${s.sold/t*100}%;background:var(--sold)"></i>`}
+function nowIso(){return new Date().toISOString()}
+
+/* ---------- Navigation ---------- */
+function go(view,block,plot,{push=true}={}){
+  S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;
+  const h=plot?"plot-"+plot:block?"block-"+block:"";
+  if(push&&location.hash.slice(1)!==h){S._hashLock=true;if(h)location.hash=h;else history.replaceState(null,"",location.pathname+location.search);}
+  render();
+}
+function fromHash(){
+  const h=decodeURIComponent(location.hash.slice(1));
+  let m;
+  if((m=h.match(/^plot-([A-Z])-(\d+)$/))&&GEO.plots[m[1]+"-"+m[2]])return go("block",m[1],m[1]+"-"+m[2],{push:false});
+  if((m=h.match(/^block-([A-Z])$/))&&ACTIVE.includes(m[1]))return go("block",m[1],null,{push:false});
+  go("all",null,null,{push:false});
+}
+window.addEventListener("hashchange",()=>{if(S._hashLock){S._hashLock=false;return}fromHash()});
+
+/* ---------- Header ---------- */
+function renderHeader(){
+  const c=$("#crumbs");
+  let h=`<button data-nav="all">All blocks</button>`;
+  if(S.block)h+=` › ${S.plot?`<button data-nav="block" data-b="${S.block}">Block ${S.block}</button>`:`<b>Block ${S.block}</b>`}`;
+  if(S.plot)h+=` › <b>Plot ${esc(S.plot)}</b>`;
+  c.innerHTML=h;
+  const t=totals();
+  $("#chips").innerHTML=`<span class="chip"><i style="background:var(--avail)"></i>Available ${t.available}</span><span class="chip"><i style="background:var(--book)"></i>Pre-booked ${t.prebooked}</span><span class="chip"><i style="background:var(--sold)"></i>Sold ${t.sold}</span><span class="chip">Clients ${t.clients}</span>`;
+  const sync=$("#sync");
+  sync.textContent=S.dbOK===false?"Not saving":S.ready?(S.canWrite===false?"View only · live":"Live"):S.timedOut?"Can't reach data yet":"Connecting…";
+  const n=$("#notice");
+  const samples=Object.values(S.plots).some(d=>d.sample)||S.clients.some(c=>c.sample);
+  if(S.dbOK===false){n.hidden=false;n.innerHTML=`<span>Shared data isn't available in this view, so changes won't be saved. Open the map from claude.ai while signed in.</span>`}
+  else if(samples){n.hidden=false;n.innerHTML=`<span><b>Sample data.</b> The coloured plots and clients are examples to try the map. Clear them before your team starts.</span>${S.canWrite!==false?`<button id="clearSamples">Clear sample data</button>`:""}`}
+  else n.hidden=true;
+}
+
+/* ---------- Map SVG ---------- */
+function mapSVG(mode){
+  const blk=S.block;
+  let s=`<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" style="fill:var(--plot-dim)"/><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--plot-line)" stroke-width="1.4"/></pattern></defs>`;
+  s+=`<rect x="-500" y="-500" width="2000" height="1760" style="fill:var(--ground)"/>`;
+  s+=`<path class="road" stroke-width="26" d="M-60 392 C 250 372, 560 420, 1060 380"/><path class="road" stroke-width="22" d="M585 -60 C 560 220, 640 500, 600 820"/><path class="road" stroke-width="14" d="M-60 640 C 300 625, 700 650, 1060 635"/>`;
+  s+=`<g opacity="${mode==="block"?0.35:1}"><polygon class="comm" points="${ptsStr([[240,70],[372,82],[362,190],[230,178]])}"/><text class="commt" x="250" y="135">COMMERCIAL · WALK</text></g>`;
+  for(const id in GEO.blocks){
+    const b=GEO.blocks[id];
+    const fadeBlock=mode==="block"&&id!==blk;
+    s+=`<g data-block="${id}" opacity="${fadeBlock?0.35:1}">`;
+    s+=`<polygon class="bcard${b.grey?" grey":" hit"}${mode==="all"&&S.hover===id?" hi":""}${mode!=="all"&&id===blk?" hi":""}" data-b="${b.grey?"":id}" points="${ptsStr(b.outline)}"/>`;
+    for(const p of b.plots){
+      let cls="p";
+      if(p.grey)cls+=" grey";
+      else{
+        const st=statusOf(p.id);if(st)cls+=" "+st;
+        let fade=false;
+        if(S.size!=="all"&&p.size!==S.size)fade=true;
+        if(S.show==="ours"&&!st)fade=true;
+        if(mode==="block"&&S.statusFilter!=="all"&&st!==S.statusFilter)fade=true;
+        if(fade)cls+=" fade";
+        if(S.plot===p.id)cls+=" sel";
+      }
+      s+=`<polygon class="${cls}" ${p.grey?"":`data-p="${p.id}"`} points="${ptsStr(p.pts)}"/>`;
+      if(mode==="block"&&id===blk){
+        const st=statusOf(p.id);
+        s+=`<text class="pn${st?" on":""}" x="${p.cx.toFixed(1)}" y="${(p.cy+1.2).toFixed(1)}" font-size="${p.size==="10M"?2.6:3.1}" text-anchor="middle" transform="rotate(${b.rot} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)})">${p.num}</text>`;
+      }
+    }
+    const fs=b.grey?34:44;
+    s+=`<text class="blabel" x="${b.cx}" y="${b.cy+fs*0.35}" text-anchor="middle" font-size="${mode==="block"&&id===blk?0:fs}">${id}</text>`;
+    s+=`</g>`;
+  }
+  return s;
+}
+function fitBox(bb,pad){return [bb[0]-pad,bb[1]-pad,bb[2]-bb[0]+pad*2,bb[3]-bb[1]+pad*2]}
+function vbKey(){return S.view==="block"?"block-"+S.block:"all"}
+function defaultVB(){return S.view==="block"?fitBox(GEO.blocks[S.block].bbox,14):WORLD.slice()}
+function attachMap(wrap){
+  const svg=wrap.querySelector("svg");
+  const key=vbKey();
+  let vb=S.vb[key]||defaultVB();
+  const apply=()=>{svg.setAttribute("viewBox",vb.map(n=>n.toFixed(2)).join(" "));S.vb[key]=vb};
+  apply();
+  const toWorld=(cx,cy)=>{const r=svg.getBoundingClientRect();const s=Math.max(vb[2]/r.width,vb[3]/r.height);const ox=(r.width*s-vb[2])/2,oy=(r.height*s-vb[3])/2;return [vb[0]-ox+(cx-r.left)*s,vb[1]-oy+(cy-r.top)*s,s]};
+  const zoomAt=(f,cx,cy)=>{const [wx,wy]=toWorld(cx,cy);const nw=Math.min(Math.max(vb[2]*f,40),1600),k=nw/vb[2];vb=[wx-(wx-vb[0])*k,wy-(wy-vb[1])*k,nw,vb[3]*k];apply()};
+  wrap.querySelector("[data-z='in']").onclick=()=>{const r=svg.getBoundingClientRect();zoomAt(0.75,r.left+r.width/2,r.top+r.height/2)};
+  wrap.querySelector("[data-z='out']").onclick=()=>{const r=svg.getBoundingClientRect();zoomAt(1.33,r.left+r.width/2,r.top+r.height/2)};
+  wrap.querySelector("[data-z='fit']").onclick=()=>{vb=defaultVB();apply()};
+  svg.addEventListener("wheel",e=>{e.preventDefault();zoomAt(e.deltaY>0?1.12:0.89,e.clientX,e.clientY)},{passive:false});
+  const ptrs=new Map();let drag=null,pinch=null,moved=false;
+  svg.addEventListener("pointerdown",e=>{ptrs.set(e.pointerId,[e.clientX,e.clientY]);svg.setPointerCapture(e.pointerId);moved=false;
+    if(ptrs.size===1)drag={x:e.clientX,y:e.clientY,vb:vb.slice()};
+    else if(ptrs.size===2){const a=[...ptrs.values()];pinch={d:Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),vb:vb.slice(),mx:(a[0][0]+a[1][0])/2,my:(a[0][1]+a[1][1])/2};drag=null}});
+  svg.addEventListener("pointermove",e=>{
+    if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+    if(pinch&&ptrs.size===2){const a=[...ptrs.values()];const d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);vb=pinch.vb.slice();zoomAt(pinch.d/d,pinch.mx,pinch.my);moved=true;return}
+    if(drag){const r=svg.getBoundingClientRect();const s=Math.max(drag.vb[2]/r.width,drag.vb[3]/r.height);const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;if(moved){vb=[drag.vb[0]-dx*s,drag.vb[1]-dy*s,drag.vb[2],drag.vb[3]];apply()}}
+    else if(S.view==="all"&&e.pointerType==="mouse")hoverAt(e,wrap);
+  });
+  const end=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(ptrs.size===0){
+      if(!moved&&e.type==="pointerup"){const el=document.elementFromPoint(e.clientX,e.clientY);if(el)clickMap(el)}
+      drag=null}};
+  svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
+  svg.addEventListener("pointerleave",()=>{if(S.view==="all"){const t=wrap.querySelector(".tip");if(t)t.hidden=true}});
+}
+function hoverAt(e,wrap){
+  const el=document.elementFromPoint(e.clientX,e.clientY);const tip=wrap.querySelector(".tip");if(!tip)return;
+  let b=null,p=null;
+  if(el&&el.dataset){if(el.dataset.p){p=el.dataset.p;b=p.split("-")[0]}else if(el.dataset.b)b=el.dataset.b}
+  if(!b){tip.hidden=true;return}
+  const s=blockStats(b);const r=wrap.getBoundingClientRect();
+  let html;
+  if(p){const d=S.plots[p];html=`<span class="k">Plot ${p} · ${SIZES[GEO.plots[p].size].label}</span><b>${d?STATUS[d.status].label+" · "+fmtPrice(d.price)+" Cr":"Not ours"}</b><span class="meta">${clientsFor(p).length} client(s) · tap to open</span>`}
+  else html=`<span class="k">Block ${b}</span><b>${s.available} available</b><span class="meta">${s.prebooked} pre-booked · ${s.sold} sold · ${s.clients} clients<br>Tap to open the block</span>`;
+  tip.innerHTML=html;tip.hidden=false;
+  tip.style.left=Math.min(e.clientX-r.left+14,r.width-200)+"px";tip.style.top=Math.min(e.clientY-r.top+14,r.height-90)+"px";
+}
+function clickMap(el){
+  const d=el.dataset||{};
+  if(d.p){go("block",d.p.split("-")[0],d.p);return}
+  if(d.b){go("block",d.b,null);return}
+}
+
+/* ---------- Views ---------- */
+function render(){
+  renderHeader();
+  const app=$("#app");
+  // remember focus + caret
+  const ae=document.activeElement;const focusId=ae&&ae.id&&app.contains(ae)?ae.id:null;const caret=focusId&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
+  app.innerHTML=S.view==="block"?blockView():allView();
+  const wrap=app.querySelector(".mapwrap");if(wrap)attachMap(wrap);
+  const mini=app.querySelector(".mini svg");if(mini)mini.setAttribute("viewBox",WORLD.join(" "));
+  for(const id in S.draft){const el=document.getElementById(id);if(el&&el.value!==S.draft[id])el.value=S.draft[id]}
+  if(focusId){const el=document.getElementById(focusId);if(el){el.focus();if(caret&&el.setSelectionRange)try{el.setSelectionRange(caret[0],caret[1])}catch(e){}}}
+  resolveNames();
+}
+function allView(){
+  const blocksHTML=ACTIVE.map(b=>{const s=blockStats(b);return `<button class="bstat" data-open="${b}"><span class="L">${b}</span><span><span class="nums"><span><b style="color:var(--avail)">${s.available}</b> avail.</span><span><b style="color:var(--book)">${s.prebooked}</b> pre-bk</span><span><b style="color:var(--sold)">${s.sold}</b> sold</span><span><b>${s.clients}</b> clients</span></span><span class="stack">${stackHTML(s)}</span></span><span class="go">Open ›</span></button>`}).join("");
+  return `<div class="layout all">
+  <aside class="rail scroll">
+    <div><div class="k">Open a block</div><div class="pills">${ACTIVE.map(b=>`<button class="pill" data-open="${b}">${b}</button>`).join("")}</div></div>
+    <div><div class="k">Size</div><div class="pills">${[["all","All"],["1K","1 Kanal"],["14M","14 M"],["10M","10 M"]].map(([v,l])=>`<button class="pill${S.size===v?" on":""}" data-size="${v}">${l}</button>`).join("")}</div></div>
+    <div><div class="k">Show</div><div class="pills"><button class="pill${S.show==="all"?" on":""}" data-show="all">All plots</button><button class="pill${S.show==="ours"?" on":""}" data-show="ours">Our plots</button></div></div>
+    <div><div class="k">Legend</div><div class="legend"><span><i class="sw" style="background:var(--avail);border:0"></i>Ours, available</span><span><i class="sw" style="background:var(--book);border:0"></i>Pre-booked</span><span><i class="sw" style="background:var(--sold);border:0"></i>Sold</span><span><i class="sw" style="background:var(--plot)"></i>Not ours</span></div></div>
+    <div><div class="k">Find a plot</div><form class="search" id="searchForm"><input id="q" placeholder="e.g. B-142" autocomplete="off" aria-label="Plot number"><button>Go</button></form><div class="hint" style="margin-top:6px">Block letter, dash, number.</div></div>
+  </aside>
+  <section class="mapwrap" aria-label="Map of all blocks">
+    <svg role="img" aria-label="Margalla Orchard blocks and plots">${mapSVG("all")}</svg>
+    <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit to screen" style="font-size:12px">Fit</button></div>
+    <div class="tip" hidden></div>
+    <div class="maphint">Tap a block or plot · drag to move · pinch or scroll to zoom</div>
+  </section>
+  <aside class="panel scroll">
+    <div><div class="k">Our stock by block</div></div>
+    <div class="act" style="gap:8px">${blocksHTML}</div>
+    <div class="k" style="margin-top:6px">Latest changes</div>
+    ${activityHTML()}
+  </aside></div>`;
+}
+function activityHTML(){
+  const items=[];
+  for(const id in S.plots){const d=S.plots[id];if(d.updatedAt)items.push({t:d.updatedAt,col:`var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})`,txt:`Plot ${id} marked ${STATUS[d.status]?STATUS[d.status].label.toLowerCase():d.status}`,by:d.updatedBy,plot:id})}
+  S.clients.forEach(c=>{if(c.createdAt)items.push({t:c.createdAt,col:"var(--brass)",txt:`New client on ${c.plotId}`,by:c.addedBy,plot:c.plotId})});
+  items.sort((a,b)=>a.t<b.t?1:-1);
+  if(!items.length)return `<div class="empty">${S.ready?"Nothing yet. Open a block, tap a plot and add it to our plots to get started.":"Loading…"}</div>`;
+  return `<div class="act">${items.slice(0,7).map(i=>`<button class="actrow" data-plot="${esc(i.plot)}" style="background:none;border:0;text-align:left;padding:0"><i style="background:${i.col}"></i><span>${esc(i.txt)}<small>${esc(nameOf(i.by))} · ${ago(i.t)}</small></span></button>`).join("")}</div>`;
+}
+function blockView(){
+  const b=S.block;
+  const list=ACTIVE.map(x=>{const s=blockStats(x);return `<button class="brow${x===b?" on":""}" data-open="${x}"><span class="L">${x}</span><span>${s.available} available<small>${s.prebooked} pre-booked · ${s.sold} sold · ${s.clients} clients</small></span><span class="mb">${stackHTML(s)}</span></button>`}).join("");
+  return `<div class="layout block">
+  <aside class="side scroll">
+    <button class="back" data-nav="all">‹ All blocks</button>
+    <div class="k">Whole scheme</div>
+    <div class="mini"><svg aria-hidden="true">${mapSVG("mini")}</svg></div>
+    <div class="k">Blocks</div>
+    <div class="blist">${list}</div>
+  </aside>
+  <section class="mapwrap" aria-label="Block ${b} close-up">
+    <svg role="img" aria-label="Block ${b} plots">${mapSVG("block")}</svg>
+    <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit block" style="font-size:12px">Fit</button></div>
+    <div class="maphint">Tap a plot to open its file</div>
+  </section>
+  <aside class="panel scroll">${S.plot?plotFile(S.plot):blockFile(b)}</aside></div>`;
+}
+function blockFile(b){
+  const s=blockStats(b);const geo=GEO.blocks[b];
+  const ours=Object.values(S.plots).filter(d=>d.block===b).sort((x,y)=>x.num-y.num);
+  const filt=ours.filter(d=>S.statusFilter==="all"||d.status===S.statusFilter);
+  return `<div><div class="k">Block ${b} · ${geo.sizes.map(z=>SIZES[z].label).join(", ")}</div><h2 style="margin-top:6px">Block ${b}</h2></div>
+  <div class="facts"><div><b style="color:var(--avail)">${s.available}</b><span>Available</span></div><div><b style="color:var(--book)">${s.prebooked}</b><span>Pre-booked</span></div><div><b style="color:var(--sold)">${s.sold}</b><span>Sold</span></div></div>
+  <div class="facts" style="grid-template-columns:1fr 1fr"><div><b>${s.ours}</b><span>Our plots here</span></div><div><b>${s.clients}</b><span>Clients interested</span></div></div>
+  <div class="k">Our plots in Block ${b}</div>
+  <div class="filterrow">${[["all","All"],["available","Available"],["prebooked","Pre-booked"],["sold","Sold"]].map(([v,l])=>`<button class="pill${S.statusFilter===v?" on":""}" data-sf="${v}">${l}</button>`).join("")}</div>
+  ${filt.length?`<div class="ourlist">${filt.map(d=>{const n=clientsFor(d.id).filter(c=>c.stage!=="dropped").length;return `<button class="ourrow" data-plot="${d.id}"><span class="dot" style="background:var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})"></span><span class="num">${d.id} <span class="meta">· ${SIZES[d.size]?SIZES[d.size].label:""}</span></span><span class="meta">${n} client${n===1?"":"s"}</span><span class="pr">${fmtPrice(d.price)}</span></button>`}).join("")}</div>`
+   :`<div class="empty">${ours.length?"No plots with this status.":"None of our plots are marked in this block yet. Tap any plot on the map and choose \"Add to our plots\"."}</div>`}`;
+}
+function neighbourSVG(id){
+  const p=GEO.plots[id];const b=GEO.blocks[p.block];
+  const near=b.plots.filter(q=>Math.hypot(q.cx-p.cx,q.cy-p.cy)<p.ph*1.9);
+  const xs=[],ys=[];near.forEach(q=>q.pts.forEach(t=>{xs.push(t[0]);ys.push(t[1])}));
+  const pad=4;const vb=[Math.min(...xs)-pad,Math.min(...ys)-pad,Math.max(...xs)-Math.min(...xs)+pad*2,Math.max(...ys)-Math.min(...ys)+pad*2];
+  let s=`<svg viewBox="${vb.map(n=>n.toFixed(1)).join(" ")}" style="aspect-ratio:${(vb[2]/vb[3]).toFixed(3)};max-height:220px" role="img" aria-label="Plot ${id} with its neighbours"><rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" style="fill:var(--card)"/>`;
+  near.forEach(q=>{const st=statusOf(q.id);const me=q.id===id;
+    s+=`<polygon class="p${st?" "+st:""}${me?" sel":""}" data-p="${q.id}" points="${ptsStr(q.pts)}" ${me?'style="stroke-width:.9"':""}/>`;
+    s+=`<text class="pn${st?" on":""}" x="${q.cx.toFixed(1)}" y="${(q.cy+(me?1.6:1)).toFixed(1)}" font-size="${me?3.8:2.8}" font-weight="${me?700:400}" text-anchor="middle" transform="rotate(${b.rot} ${q.cx.toFixed(1)} ${q.cy.toFixed(1)})">${q.num}</text>`});
+  return s+`</svg>`;
+}
+function plotFile(id){
+  const p=GEO.plots[id];const d=S.plots[id];const sz=SIZES[p.size];
+  const cls=clientsFor(id);const active=cls.filter(c=>c.stage!=="dropped");
+  const w=S.canWrite!==false&&S.dbOK!==false;
+  let h=`<div><div class="k">Block ${p.block} · ${sz.label} · ${sz.dims}</div><h2 style="margin-top:6px">Plot ${id}</h2></div>
+  <div class="drawing">${neighbourSVG(id)}</div>`;
+  if(!d){
+    h+=`<div class="empty">This plot isn't in our inventory.${w?" Add it to colour it on the map for the team.":""}</div>`;
+    if(w)h+=`<form class="add" id="addPlotForm"><div class="k">Add to our plots</div>
+      <label class="meta" for="np">Asking price (crore PKR)</label><input id="np" inputmode="decimal" placeholder="e.g. 4.10" autocomplete="off">
+      <button class="btn forest" type="submit">Add to our plots</button></form>`;
+    return h;
+  }
+  h+=`<div class="facts"><div><b>${sz.sqyd}</b><span>sq yd</span></div><div><b>${active.length}</b><span>Clients</span></div><div><b style="color:var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})">${STATUS[d.status]?STATUS[d.status].label:"—"}</b><span>Status</span></div></div>
+  <div class="k">Our asking price</div>`;
+  if(S.editPrice&&w)h+=`<form class="price" id="priceForm"><input id="pp" inputmode="decimal" value="${typeof d.price==="number"?d.price:""}" aria-label="Asking price in crore" autocomplete="off"><small>crore PKR</small><button class="linkbtn" type="submit">Save</button></form>`;
+  else h+=`<div class="price"><span class="v">${fmtPrice(d.price)}</span><small>crore PKR</small>${w?`<button class="linkbtn" data-act="editPrice">Edit</button>`:""}</div>`;
+  h+=`<div class="k">Status</div><div class="seg" role="group" aria-label="Plot status">${Object.keys(STATUS).map(k=>`<button class="${k}${d.status===k?" on":""}" data-status="${k}" ${w?"":"disabled"}>${STATUS[k].label}</button>`).join("")}</div>
+  <div class="meta">Updated by ${esc(nameOf(d.updatedBy))} · ${ago(d.updatedAt)}</div>
+  <div class="k" style="margin-top:4px">Clients looking at this plot (${active.length})</div>`;
+  if(cls.length){h+=cls.map(c=>{const nm=c.name||"Client";return `<div class="cl"><div class="top"><span class="av" style="background:${colorOf(c.addedBy)}">${esc(initials(nm))}</span><div style="min-width:0;flex:1"><div class="n">${esc(nm)}</div><div class="s">${esc(c.phone||"No number")} · added by ${esc(nameOf(c.addedBy))} · ${ago(c.createdAt)}</div></div><span class="stage ${esc(c.stage)}">${STAGES[c.stage]||esc(c.stage)}</span></div>
+    ${c.note?`<div class="s">${esc(c.note)}</div>`:""}
+    ${w?`<div class="row">${c.stage!=="prebooked"?`<button class="sbtn primary" data-cpre="${c._id}">Pre-book for them</button>`:""}${c.stage!=="bought"?`<button class="sbtn" data-cbuy="${c._id}">Mark bought</button>`:""}${c.stage!=="dropped"?`<button class="sbtn" data-cdrop="${c._id}">Not interested</button>`:`<button class="sbtn" data-cback="${c._id}">Interested again</button>`}<button class="sbtn danger" data-cdel="${c._id}">Delete</button></div>`:""}</div>`}).join("")}
+  else h+=`<div class="empty">No clients on this plot yet.</div>`;
+  if(w){
+    if(S.addOpen)h+=`<form class="add" id="addClientForm"><div class="k">New client</div>
+      <input id="cn" placeholder="Client name" autocomplete="off" aria-label="Client name" required>
+      <input id="cp" placeholder="Phone / WhatsApp" inputmode="tel" autocomplete="off" aria-label="Phone">
+      <textarea id="cnote" placeholder="Note, e.g. site visit Saturday, budget 4.0" aria-label="Note"></textarea>
+      <div class="btns"><button type="button" class="btn" data-act="cancelAdd">Cancel</button><button type="submit" class="btn primary">Save client</button></div></form>`;
+    else h+=`<div class="btns"><button class="btn" data-act="openAdd">+ Add client</button><button class="btn primary" data-status="prebooked" ${d.status==="prebooked"?"disabled":""}>Pre-book plot</button></div>`;
+    h+=S.confirmRemove?`<div class="confirm"><b>Remove ${id} from our plots?</b><span class="meta">Its price, status and ${cls.length} client record(s) are deleted for everyone.</span><div class="btns"><button class="btn" data-act="cancelRemove">Keep it</button><button class="btn" style="background:var(--sold);color:#fff;border-color:var(--sold)" data-act="doRemove">Remove</button></div></div>`
+      :`<button class="sbtn danger" style="justify-self:start" data-act="askRemove">Remove from our plots</button>`;
+  }
+  return h;
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,[data-p],[data-b]");if(!t)return;
+  const d=t.dataset;
+  if(d.nav==="all")return go("all");
+  if(d.nav==="block")return go("block",d.b);
+  if(d.open)return go("block",d.open);
+  if(d.plot)return go("block",d.plot.split("-")[0],d.plot);
+  if((d.p||d.b)&&t.closest(".mini,.drawing")){const b=d.p?d.p.split("-")[0]:d.b;return go("block",b,d.p||null)}
+  if(d.p||d.b)return;
+  if(d.size){S.size=d.size;return render()}
+  if(d.show){S.show=d.show;return render()}
+  if(d.sf){S.statusFilter=d.sf;return render()}
+  if(d.status)return setStatus(S.plot,d.status);
+  if(d.cpre)return clientStage(d.cpre,"prebooked");
+  if(d.cbuy)return clientStage(d.cbuy,"bought");
+  if(d.cdrop)return clientStage(d.cdrop,"dropped");
+  if(d.cback)return clientStage(d.cback,"interested");
+  if(d.cdel)return deleteClient(d.cdel);
+  if(t.id==="clearSamples")return clearSamples();
+  switch(d.act){
+    case"editPrice":S.editPrice=true;render();setTimeout(()=>{const i=$("#pp");if(i){i.focus();i.select()}});break;
+    case"openAdd":S.addOpen=true;render();setTimeout(()=>{const i=$("#cn");if(i)i.focus()});break;
+    case"cancelAdd":S.addOpen=false;["cn","cp","cnote"].forEach(k=>delete S.draft[k]);render();break;
+    case"askRemove":S.confirmRemove=true;render();break;
+    case"cancelRemove":S.confirmRemove=false;render();break;
+    case"doRemove":removePlot(S.plot);break;
+  }
+});
+document.addEventListener("input",e=>{if(e.target.id)S.draft[e.target.id]=e.target.value});
+document.addEventListener("submit",e=>{
+  e.preventDefault();const f=e.target;
+  if(f.id==="searchForm"){const v=($("#q").value||"").trim().toUpperCase().replace(/\s+/g,"").replace(/^([A-Z])(\d)/,"$1-$2");
+    if(GEO.plots[v]){delete S.draft.q;go("block",v[0],v)}else if(ACTIVE.includes(v))go("block",v);else toast("No plot "+(v||"")+" on the map. Try a format like B-142.")}
+  if(f.id==="priceForm")savePrice(S.plot,$("#pp").value);
+  if(f.id==="addPlotForm")addPlot(S.plot,$("#np").value);
+  if(f.id==="addClientForm")addClient(S.plot);
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(S.plot)go("block",S.block);else if(S.view==="block")go("all")}});
+
+/* ---------- Writes ---------- */
+function parsePrice(v){const n=parseFloat(String(v).replace(/[^0-9.]/g,""));return isFinite(n)&&n>0&&n<100?Math.round(n*100)/100:null}
+async function guard(fn,okMsg){
+  if(!db){toast("Changes can't be saved in this view.");return}
+  try{await fn();if(okMsg)toast(okMsg)}catch(err){
+    if(err&&err.code==="invalid_argument"){S.canWrite=false;render();toast("You can view this map but not change it.")}
+    else if(err&&err.code==="quota_exceeded")toast("The map's storage is full. Remove old clients to add more.");
+    else toast("That didn't save. Check your connection and try again.");
+  }
+}
+function stamp(){return {updatedBy:S.me,updatedAt:nowIso()}}
+function addPlot(id,raw){const price=parsePrice(raw);if(price==null){toast("Enter a price in crore, e.g. 4.10");return}
+  const p=GEO.plots[id];delete S.draft.np;
+  guard(()=>db.collection("plots").doc(id).set(Object.assign({block:p.block,num:p.num,size:p.size,status:"available",price},stamp())),"Added "+id+" to our plots");}
+function savePrice(id,raw){const price=parsePrice(raw);if(price==null){toast("Enter a price in crore, e.g. 4.10");return}
+  S.editPrice=false;delete S.draft.pp;
+  if(S.plots[id]&&S.plots[id].price===price){render();return}
+  guard(()=>db.collection("plots").doc(id).update(Object.assign({price},stamp())),"Price saved");}
+function setStatus(id,st){if(!S.plots[id]||S.plots[id].status===st)return;
+  guard(()=>db.collection("plots").doc(id).update(Object.assign({status:st},stamp())),id+" marked "+STATUS[st].label.toLowerCase());}
+async function addClient(id){
+  const name=($("#cn").value||"").trim();if(!name){toast("Add the client's name");return}
+  const phone=($("#cp").value||"").trim().slice(0,40),note=($("#cnote").value||"").trim().slice(0,400);
+  S.addOpen=false;["cn","cp","cnote"].forEach(k=>delete S.draft[k]);
+  await guard(()=>db.collection("clients").add({plotId:id,name:name.slice(0,80),phone,note,stage:"interested",addedBy:S.me,createdAt:nowIso()}),"Client added");
+}
+async function clientStage(cid,stage){
+  const c=S.clients.find(x=>x._id===cid);if(!c)return;
+  await guard(async()=>{
+    await db.collection("clients").doc(cid).update({stage});
+    const p=S.plots[c.plotId];
+    if(p&&stage==="prebooked"&&p.status!=="prebooked")await db.collection("plots").doc(c.plotId).update(Object.assign({status:"prebooked"},stamp()));
+    if(p&&stage==="bought"&&p.status!=="sold")await db.collection("plots").doc(c.plotId).update(Object.assign({status:"sold"},stamp()));
+  },stage==="prebooked"?"Pre-booked for "+(c.name||"client"):stage==="bought"?"Marked bought · plot sold":"Updated");
+}
+function deleteClient(cid){guard(()=>db.collection("clients").doc(cid).delete(),"Client deleted")}
+async function removePlot(id){
+  S.confirmRemove=false;
+  await guard(async()=>{for(const c of clientsFor(id))await db.collection("clients").doc(c._id).delete();await db.collection("plots").doc(id).delete()},id+" removed from our plots");
+}
+async function clearSamples(){
+  await guard(async()=>{
+    for(const c of S.clients.filter(c=>c.sample))await db.collection("clients").doc(c._id).delete();
+    for(const id in S.plots)if(S.plots[id].sample)await db.collection("plots").doc(id).delete();
+  },"Sample data cleared");
+}
+
+/* ---------- Names ---------- */
+let resolving=false;
+async function resolveNames(){
+  if(!user||resolving)return;
+  const ids=new Set();for(const id in S.plots)if(S.plots[id].updatedBy)ids.add(S.plots[id].updatedBy);S.clients.forEach(c=>{if(c.addedBy)ids.add(c.addedBy)});
+  const missing=[...ids].filter(i=>!S.names[i]);if(!missing.length)return;
+  resolving=true;
+  try{const ps=await user.profiles([...ids]);let changed=false;for(const k in ps){const o=S.names[k],n=ps[k];if(!o||o.name!==n.name){changed=true}S.names[k]={name:n.name,color:n.color}}resolving=false;if(changed)render()}catch(e){resolving=false}
+}
+
+/* ---------- Boot ---------- */
+fromHash();
+(async function boot(){
+  const C=window.claude;
+  if(!C||!C.use){S.dbOK=false;render();return}
+  const timer=setTimeout(()=>{if(!S.ready){S.timedOut=true;renderHeader()}},10000);
+  user=await C.use("user");
+  if(user){try{S.me=await user.id();const cw=await user.can("data.write");S.canWrite=cw}catch(e){}}
+  db=await C.use("db");
+  if(!db){S.dbOK=false;clearTimeout(timer);render();return}
+  S.dbOK=true;
+  let gotP=false,gotC=false;
+  const done=()=>{if(gotP&&gotC&&!S.ready){S.ready=true;clearTimeout(timer)}};
+  db.collection("plots").onSnapshot(snap=>{
+    const m={};snap.docs.forEach(d=>{const v=d.data();if(v&&GEO.plots[d.id]&&STATUS[v.status])m[d.id]=Object.assign({},v,{id:d.id})});
+    S.plots=m;if(!snap.metadata.fromCache)gotP=true;done();render();
+  },err=>{clearTimeout(timer);S.timedOut=true;render()});
+  db.collection("clients").onSnapshot(snap=>{
+    S.clients=snap.docs.map(d=>Object.assign({},d.data(),{_id:d.id})).filter(c=>c.plotId);
+    if(!snap.metadata.fromCache)gotC=true;done();render();
+  },err=>{clearTimeout(timer);S.timedOut=true;render()});
+})();
+})();
+</script>
