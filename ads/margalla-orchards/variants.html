@@ -200,7 +200,7 @@ html,body{background:#111}
 .ur .tk .price{margin-top:4px}
 .tk.them{background:var(--c-deep);color:var(--n-dim);border:2px solid var(--n-faint);box-shadow:0 16px 40px rgba(0,0,0,.35)}
 .tk.them .big{position:relative;color:color-mix(in srgb,var(--n) 55%,transparent)}
-.tk.them .big::after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:6px;background:var(--a);border-radius:6px;transform:rotate(-9deg)}
+.tk.them .big::after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:6px;background:var(--a);border-radius:6px;transform:rotate(-9deg) scaleX(var(--strike,1));transform-origin:left center}
 .tk.us{background:linear-gradient(135deg,var(--a-deep),var(--a) 50%,var(--a-soft));color:var(--c-deep);box-shadow:0 20px 50px rgba(0,0,0,.45);transform:scale(1.04)}
 .tk.us::after{content:"";position:absolute;inset:8px;border:1.5px dashed color-mix(in srgb,var(--c-deep) 35%,transparent);border-radius:16px;pointer-events:none}
 .C .arrow{width:64px;height:64px;border-radius:50%;background:var(--n);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35)}
@@ -500,13 +500,13 @@ const mountainScene = () => `
     <radialGradient id="gSun"><stop offset="0" stop-color="var(--a-soft)"/><stop offset=".7" stop-color="var(--a)"/><stop offset="1" stop-color="var(--a-deep)"/></radialGradient>
     <radialGradient id="gGlow"><stop offset="0" stop-color="var(--a-soft)" stop-opacity=".55"/><stop offset="1" stop-color="var(--a-soft)" stop-opacity="0"/></radialGradient>
   </defs>
-  ${SUN ? '<circle cx="540" cy="500" r="190" fill="url(#gGlow)"/><circle cx="540" cy="505" r="72" fill="url(#gSun)"/>' : ''}
-  <path d="${close(BACK)}" fill="url(#gBack)"/>
-  <g id="treesBack" fill="color-mix(in srgb,var(--m1) 70%,var(--m2))" opacity=".9"></g>
-  <path d="${close(MID)}" fill="url(#gMid)"/>
-  <g id="treesMid" fill="color-mix(in srgb,var(--m2) 60%,var(--c-dark))"></g>
-  <path d="${close(FRONT)}" fill="url(#gFront)"/>
-  <g id="treesFront" fill="var(--c-dark)"></g>
+  ${SUN ? '<g class="sun"><circle class="sun-glow" cx="540" cy="500" r="190" fill="url(#gGlow)"/><circle cx="540" cy="505" r="72" fill="url(#gSun)"/></g>' : ''}
+  <g class="lyr-back"><path d="${close(BACK)}" fill="url(#gBack)"/>
+  <g id="treesBack" fill="color-mix(in srgb,var(--m1) 70%,var(--m2))" opacity=".9"></g></g>
+  <g class="lyr-mid"><path d="${close(MID)}" fill="url(#gMid)"/>
+  <g id="treesMid" fill="color-mix(in srgb,var(--m2) 60%,var(--c-dark))"></g></g>
+  <g class="lyr-front"><path d="${close(FRONT)}" fill="url(#gFront)"/>
+  <g id="treesFront" fill="var(--c-dark)"></g></g>
   <path id="lBack" d="${BACK}" fill="none"/><path id="lMid" d="${MID}" fill="none"/><path id="lFront" d="${FRONT}" fill="none"/>
 </svg>`;
 function plantTrees(){
@@ -563,5 +563,6 @@ const root = document.getElementById('root');
 root.innerHTML = `<div class="ad ${LAYOUT} t-${THEME} ${LANG} ${P.get('format')||''} ${P.get('scene')==='mtn'?'mtn':''}" id="ad" ${LANG==='ur'?'dir="rtl" lang="ur"':''}>${layouts[LAYOUT]()}</div>`;
 if (P.get('scene')==='mtn') plantTrees();
 </script>
+<script src="anim.js"></script>
 </body>
 </html>
