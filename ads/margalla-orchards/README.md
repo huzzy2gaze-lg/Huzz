@@ -7,7 +7,8 @@
 | `*_Square-1x1_*` | 1080x1080 | Facebook posts/ads, Instagram grid, WhatsApp chats |
 | `*_Story-9x16_*` | 1080x1920 | WhatsApp Status, Instagram Stories, Facebook Stories |
 
-English (`EN`) and Urdu (`UR`). Re-render with `NODE_PATH=$(npm root -g) node render.js final`.
+English (`EN`) and Urdu (`UR`). Plus the animated English video with voice-over:
+`English/WH-Margalla-Sunrise_EN_Video-9x16_Reels-WhatsApp-Status_Voiceover.mp4` (9:16, ~25s). Re-render with `NODE_PATH=$(npm root -g) node render.js final`.
 
 ---
 
