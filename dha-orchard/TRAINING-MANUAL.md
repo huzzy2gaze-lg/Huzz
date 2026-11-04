@@ -108,6 +108,8 @@ Sources: The News, 13 Jul 2021 (FGEHA 13th board minutes); Dawn, 22 Mar 2025 and
 
 **The land provider.** M/s **Extol Estate and Builders (Pvt) Ltd.** SCBA engaged it for its share, and FGEHA approved it for Tamma. Files are issued to the land provider **only after the landowners record a *Tark-i-Qabza* statement** (surrender of possession) on the acquaintance roll before witnesses, and complete **online verification**.
 
+**Our plots (Mr. Nadeem, 4 Nov 2026):** about 30 in **B** and 30 in **C**, mostly from the **FGEHA (Housing)** side, not mainly from Tamma. All have plot numbers. More in **A** are coming against land. After transfer the buyer receives an **allotment letter**. See Module 10.
+
 **What this means when you sell a land-sharing plot**
 1. The title chain is **landowner → (land provider) → buyer**, not "balloted allottee → buyer". Know every link.
 2. Ask which deal the file comes from (SCBA/Mohriyan or FGEHA/Tamma). That decides the size, the block, and **who owes development charges**.
@@ -135,6 +137,7 @@ Takeaways:
 - 1 Kanal asks now run **3.3–4.55 Cr**, above the older ranges. **B and C carry the highest asks. G has the lowest 1 Kanal ask.**
 - Residential sales are **full cash only**; there are no instalments. Commercial (the Walk) had 1–3 year plans.
 - Expect premiums for corner, park-facing and boulevard plots.
+- **Price rule (Mr. Nadeem):** land-sharing, FGEHA and SCBA files in the same block sell at the same base price. The only difference is the development charges still owed.
 - **Keep updating `data/listings_sample_oct2026.csv`** with every deal you see. That record becomes your price book.
 
 ---
@@ -151,7 +154,9 @@ Takeaways:
 | Urgent fee | 42,000 | 35,000 | 30,000 |
 | Gift transfer | 4,500 | 4,500 | 4,500 |
 
-Dealer quotes are higher, for example a "grand total" of 584,000 / 413,500 / 316,000 that includes purchaser tax and urgent fee. FBR withholding taxes under **236C (seller)** and **236K (buyer)** apply on top, and filer status changes the amount.
+**Field quote (Mr. Nadeem, Nov 2026):** the total runs about **PKR 300,000–400,000**, and the **purchaser pays about PKR 352,000**. Use this figure with buyers.
+
+Dealer quotes vary, for example a "grand total" of 584,000 / 413,500 / 316,000 that includes purchaser tax and urgent fee. FBR withholding taxes under **236C (seller)** and **236K (buyer)** apply on top, and filer status changes the amount.
 
 **Standard FGEHA transfer rules:**
 - The buyer must check that all dues are paid.
@@ -171,7 +176,7 @@ Dealer quotes are higher, for example a "grand total" of 584,000 / 413,500 / 316
 - [ ] Original letter seen (POL or land-sharing file); seller CNIC matches
 - [ ] Land sharing: Tark-i-Qabza recorded, online verification done, ratio known
 - [ ] Dues checked on efms.fgeha.online / billing.fgeha.online (only pay against portal or official letters)
-- [ ] Who owes development charges, and how much
+- [ ] Development charges still owed: amount, and who pays (this is the only price difference between categories)
 - [ ] Payment schedule of 1 Nov 2026 understood (Block A is on its own schedule)
 - [ ] No litigation; not based on the disowned affidavit
 - [ ] Transfer fee confirmed at G-10/4 for Park Road
@@ -182,7 +187,7 @@ Dealer quotes are higher, for example a "grand total" of 584,000 / 413,500 / 316
 
 ## Module 8: Talking to buyers
 
-**The 30-second pitch.** "Margalla Orchard is FGEHA's Park Road scheme, now developed by DHA, opposite COMSATS on Park Road. It has three government-linked partners and an approved layout from 2022. It is 50% built, and Block A is due for possession by July 2027. Nearly two-thirds of the plots are 1 Kanal. We specialise in land-sharing 1 Kanal plots in A, B and C."
+**The 30-second pitch.** "Margalla Orchard is FGEHA's Park Road scheme, now developed by DHA, opposite COMSATS on Park Road. It has three government-linked partners and an approved layout from 2022. It is 50% built, and Block A is due for possession by July 2027. Nearly two-thirds of the plots are 1 Kanal. We have numbered land-sharing plots in Blocks B and C, with more coming in A. You receive an allotment letter on transfer."
 
 **Common questions**
 - *Is it DHA?* DHA is the developer under a September 2025 agreement. FGEHA and SCBA own the scheme and its allotments. DHA's own bylaws are not yet confirmed for it.
@@ -220,16 +225,26 @@ Mentioning these builds trust.
 
 ---
 
-## Module 10: Questions for Mr. Nadeem (fill in the answers)
+## Module 10: Answers from Mr. Nadeem (4 Nov 2026)
 
-1. Our land-sharing plots in **A, B and C**: which deal are they from, SCBA-Mohriyan or FGEHA-Tamma? What ratio applied?
-2. What document does the buyer receive, and which office records the transfer?
-3. Who pays **development charges** on our land-sharing plots, and how much per size?
-4. Do our files have plot numbers yet? If not, when will numbers be assigned?
-5. How many plots do we hold, by block and size? (Fill in `data/inventory_template.csv`.)
-6. What is the actual transfer fee at G-10/4 for Park Road?
-7. Is there any price difference between land-sharing, FGEHA and SCBA files in the same block?
-8. Are Blocks B, C, D and H really "development charges paid"? Where is that written?
+These are also logged in `data/field_notes_nadeem.csv`. Our stock is in `data/our_holdings.csv`.
+
+| # | Question | Mr. Nadeem's answer | Still to confirm |
+|---|---|---|---|
+| 1 | Which deal are our land-sharing plots from? | **Mostly from Housing (FGEHA)**, not mainly from Tamma | Public records only describe FGEHA land sharing in Tamma. Which mauza did ours come from, and which ratio applied? |
+| 2 | What does the buyer receive? | **An allotment letter** | Get a sample to show buyers |
+| 3 | Who pays development charges, and how much? | Development charges apply | **Amount per size, and whether the buyer or the seller pays** |
+| 4 | Do our files have plot numbers? | **Yes, already assigned** | — |
+| 5 | How many plots do we hold? | **About 60: about 30 in B and 30 in C, already selling.** Block A plots are also coming, against land | The size split in B and C; the count and date for A |
+| 6 | Transfer fee at G-10/4 for Park Road? | **About PKR 300,000–400,000.** The purchaser pays about **PKR 352,000**. About 400,000 was also quoted; the seller handles their own side | Which plot size the figure is for |
+| 7 | Do categories sell at different prices in the same block? | **Yes, but only because of development charges.** Otherwise the price is the same | — |
+| 8 | Are B, C, D and H "development charges paid"? | Not confirmed. Development charges are still due on SCBA and land-sharing plots | Ask for the written source |
+
+**What this changes for selling**
+- **Our stock:** about 60 numbered land-sharing plots (B and C), from the FGEHA side. Block A stock is coming.
+- **The price rule:** a land-sharing plot is priced like any other plot in its block, minus the development charges still owed on it. Know that amount before you quote.
+- **Ignore dealer claims** that B and C are "development charges paid". For our land-sharing plots, development charges are still due unless shown otherwise in writing.
+- **Tell the buyer:** after transfer you receive an allotment letter, and on the purchaser side the transfer costs about PKR 352,000.
 
 ---
 

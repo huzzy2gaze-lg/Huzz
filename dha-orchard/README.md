@@ -16,7 +16,9 @@ A learning and sales kit for DHA Margalla Orchard (FGEHA Phase X, the Park Road 
 | `transfer_costs.csv` | FGEHA fee table and dealer quotes |
 | `timeline.csv` | 2015 to 2027 key events |
 | `sources.csv` | Every source with a trust rating |
-| `inventory_template.csv` | Blank sheet for tracking our own files |
+| `our_holdings.csv` | Our stock by block (about 30 in B, 30 in C, A coming) |
+| `field_notes_nadeem.csv` | Mr. Nadeem's answers (4 Nov 2026) and what is still to confirm |
+| `inventory_template.csv` | Blank sheet for tracking our own files plot by plot |
 
 All CSVs open in Excel or Google Sheets.
 
