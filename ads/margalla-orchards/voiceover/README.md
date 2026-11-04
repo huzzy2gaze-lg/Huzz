@@ -38,3 +38,9 @@ Clone v2 on `eleven_v4`, calmer delivery (~60% energy: stability 0.65, style 0.1
 no exclamation marks). "Margalla" is spelled **"Maar-guh-la"** for the voice (owner's pronunciation, chosen by ear).
 Output: `WH-Margalla-Sunrise-FINAL/English/WH-Margalla-Sunrise_EN_Video-9x16_Reels-WhatsApp-Status_Voiceover.mp4` (~24.6s).
 Reproduce: `python3 el3.py 4s5bNOErd0CSLc5WtvkC final Maar-guh-la` then `python3 build.py final <dir>`.
+
+## Mastered alternative (for comparison)
+`master.py` → `video/WH-Margalla-Sunrise_EN_Video-9x16_Voiceover-MASTERED.mp4`: per-line noise reduction (afftdn),
+280 Hz cut, softer top, de-esser, gentle compression, short stereo room reverb (generated IR), music raised and
+EQ-carved at 2.5 kHz with lighter/slower ducking, bus glue + limiter, -16 LUFS / about -2.5 dBTP.
+Measured vs approved mix: -12.1 → -16.1 LUFS, sibilance −5.6 dB, voice→gap drop 12.9 → 6.5 dB (gaps no longer empty).
