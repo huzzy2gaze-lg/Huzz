@@ -81,6 +81,8 @@ button{cursor:pointer}
 .maphint{position:absolute;right:12px;bottom:12px;font:500 11px var(--mono);color:var(--soft);background:var(--surface);border:1px solid var(--line);padding:5px 8px;border-radius:6px}
 svg .plan{opacity:.92;filter:var(--plan-filter)}
 svg .plan.dim{opacity:.38}
+/* block borders from the plan, drawn 15% wider than on the plan (dash 3.0 -> 3.45) */
+svg .borders polygon{fill:#FF1A1A;stroke:#FF1A1A;stroke-width:.45;stroke-linejoin:round;pointer-events:none}
 svg .veil{fill:var(--ground);opacity:.78}
 svg .p.unread{stroke:var(--brass);stroke-width:.35;stroke-dasharray:1 1}
 svg .bcard{fill:transparent;stroke:none}
@@ -243,6 +245,8 @@ function buildGeo(data,fixes){
   }
   return {blocks,plots,byKey};
 }
+let _borders=null;
+function BORDERS(){if(_borders)return _borders;_borders=RAW.borders.map(f=>{let t="";for(let j=0;j<f.length;j+=2)t+=(j?" ":"")+f[j]+","+f[j+1];return `<polygon points="${t}"/>`}).join("");return _borders}
 function plotLabel(p){return p.num!=null?p.id:"Block "+p.block+" · number unread"}
 
 /* ---------- State ---------- *//* ---------- State ---------- */
@@ -315,6 +319,7 @@ function mapSVG(mode){
   const blk=S.block,W=WORLD[2],H=WORLD[3];
   let s=`<rect x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" style="fill:var(--ground)"/>`;
   s+=`<image href="plan.webp" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" class="plan${S.show==="ours"&&mode==="all"?" dim":""}"/>`;
+  if(RAW&&RAW.borders&&mode!=="mini")s+=`<g class="borders">${BORDERS()}</g>`;
   if(mode!=="all"&&blk){
     const hp=GEO.blocks[blk].hull.map(h=>`<polygon points="${ptsStr(h)}" fill="black"/>`).join("");
     s+=`<defs><mask id="mk-${mode}"><rect x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" fill="white"/>${hp}</mask></defs><rect class="veil" x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" mask="url(#mk-${mode})"/>`;
