@@ -4,7 +4,8 @@ Live team map: https://claude.ai/artifact/ACotWwamH6xub2WeVvVpKx
 
 ## What it is
 - The map uses the official FGEHA layout plan (LOP, approved 4 Aug 2022) as its background.
-- 4,738 plots are traced from the plan lines as exact shapes. Positions are not changed.
+- 4,761 plots are traced from the plan lines as exact shapes. Positions are not changed.
+  - 23 of these are curved or corner plots (for example A-538), traced later with `tools/corners_find.py` and `tools/corners_ocr.py`. Each one is kept only if its number reads clearly, is new in its block and fits the numbers of the plots next to it.
 - 4,593 plot numbers are read from the plan text. No number is guessed: a number is kept only when OCR reads it from the plan.
 - 145 plots show "number not read". A team member types the number from the plan.
 - Plot blocks come from the plan's block labels and plot numbering. 10 plots near borders were checked by eye against the plan.
@@ -16,8 +17,10 @@ Live team map: https://claude.ai/artifact/ACotWwamH6xub2WeVvVpKx
   - Scripts: `tools/regions_purple.py`, `tools/regions_split.py`, `tools/hull_purple.py`.
 - A small gap and a light red rim (15% opacity) separate the blocks. The red outline shows only on the block under the mouse.
 - 97 corner or irregular plots show "Corner or irregular plot", not a standard size.
-- 43 plots of the official 4,781 are not traced, because their lines do not form a closed box.
+- About 20 plots of the official 4,781 are not traced, because their lines do not form a closed area or their number does not read clearly.
 - Our plots show in colour: green = available, amber = pre-booked, red = sold.
+- Plot size: choose 1 Kanal, 14 Marla, 10 Marla or Corner when you add a plot. Use Edit to change it later. A size change is saved for the whole team (collection `fixes`, field `size`).
+- Notes bar on each of our plots: tags (Corner, Extra land, Park facing, Main road facing, Near commercial) and a free-text note. The tags also show when you hover over the plot.
 
 ## Files
 - `orchard-sales-map.html` - the map page.
@@ -30,11 +33,11 @@ Live team map: https://claude.ai/artifact/ACotWwamH6xub2WeVvVpKx
 ## Plots per block (traced / number read)
 | Block | Plots | Numbers read |
 |---|---:|---:|
-| A | 1,037 | 994 |
+| A | 1,039 | 996 |
 | B | 763 | 753 |
 | C | 466 | 466 |
 | D | 420 | 403 |
-| E | 869 | 835 |
-| F | 465 | 457 |
-| G | 550 | 533 |
-| H | 168 | 152 |
+| E | 870 | 836 |
+| F | 473 | 465 |
+| G | 561 | 544 |
+| H | 169 | 153 |

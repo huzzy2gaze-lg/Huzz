@@ -178,6 +178,16 @@ svg .commt{font-family:var(--mono);font-size:7px;fill:var(--soft);letter-spacing
 .sbtn.primary{background:var(--brass);border-color:var(--brass);color:#fff}
 .sbtn.danger{color:var(--sold)}
 form.add{display:grid;gap:8px;border:1px dashed var(--line);border-radius:12px;padding:12px}
+.seg.sizes{grid-template-columns:repeat(4,1fr)}
+.seg.sizes button{font-size:12px;padding:9px 2px}
+.seg.sizes button.on{background:var(--forest);color:var(--on-forest)}
+.notebar{display:grid;gap:8px;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:12px;padding:10px 12px;background:var(--card)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{border:1px solid var(--line);background:var(--surface);color:var(--soft);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:500}
+.tag.on{background:var(--brass-soft);border-color:var(--brass);color:var(--ink);font-weight:600}
+.notetext{font-size:13px;line-height:1.45;white-space:pre-wrap}
+.noteform{display:grid;gap:8px}
+.tiptags{color:var(--brass);font-weight:600}
 form.add input,form.add textarea{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px;width:100%}
 form.add textarea{min-height:56px;resize:vertical}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -235,6 +245,8 @@ const SIZES={
 };
 const SIZE_ORDER=["1K","14M","10M","X"];
 const ACTIVE=["A","B","C","D","E","F","G","H"];
+/* tags for the notes bar on our plots */
+const TAGS=["Corner","Extra land","Park facing","Main road facing","Near commercial"];
 let GEO=null,RAW=null,WORLD=[0,0,1000,800];
 function buildGeo(data,fixes){
   const blocks={},plots={},byKey={};
@@ -243,8 +255,9 @@ function buildGeo(data,fixes){
   const ox=data.ox||0,oy=data.oy||0;
   data.plots.forEach((r,i)=>{const [b,n0,size,flat,cx,cy,L]=r;const key=b+"-p"+Math.round((cx+ox)*10)+"_"+Math.round((cy+oy)*10);const fx=fixes[key];
     const pts=[];for(let j=0;j<flat.length;j+=2)pts.push([flat[j],flat[j+1]]);
-    const p={key,block:b,num:(fx&&fx.n)?fx.n:n0,read:n0,size,pts,cx,cy,ph:L,grey:blocks[b].grey,fixed:!!fx};
-    blocks[b].plots.push(p);blocks[b].sizes.add(size);byKey[key]=p;});
+    const sz=(fx&&fx.size&&SIZES[fx.size])?fx.size:size;
+    const p={key,block:b,num:(fx&&fx.n)?fx.n:n0,read:n0,size:sz,planSize:size,pts,cx,cy,ph:L,grey:blocks[b].grey,fixed:!!(fx&&fx.n)};
+    blocks[b].plots.push(p);blocks[b].sizes.add(sz);byKey[key]=p;});
   for(const b in blocks){
     const used=new Set();
     for(const p of blocks[b].plots){if(p.num!=null){const id=b+"-"+p.num;if(used.has(id))p.num=null;else{used.add(id);p.id=id}}}
@@ -294,7 +307,7 @@ function go(view,block,plot,{push=true}={}){
     if(view==="block")delete S.vb[toKey];   // a block always opens fitted to the screen
     S._anim={from:fromVB.slice()};
   }
-  S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;S.fixOpen=false;
+  S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;S.fixOpen=false;S.addSize=null;S.editSize=false;S.editNote=false;
   const h=plot?"plot-"+plot:block?"block-"+block:"";
   if(push&&location.hash.slice(1)!==h){S._hashLock=true;if(h)location.hash=h;else history.replaceState(null,"",location.pathname+location.search);}
   render();
@@ -424,7 +437,7 @@ function hoverAt(e,wrap){
   if(!b){tip.hidden=true;return}
   const s=blockStats(b);const r=wrap.getBoundingClientRect();
   let html;
-  if(p){const d=S.plots[p];html=`<span class="k">Plot ${p} · ${SIZES[GEO.plots[p].size].label}</span><b>${d?STATUS[d.status].label+" · "+fmtPrice(d.price)+" Cr":"Not ours"}</b><span class="meta">${clientsFor(p).length} client(s) · tap to open</span>`}
+  if(p){const d=S.plots[p];html=`<span class="k">Plot ${p} · ${SIZES[GEO.plots[p].size].label}</span><b>${d?STATUS[d.status].label+" · "+fmtPrice(d.price)+" Cr":"Not ours"}</b>${(S.plots[p]&&Array.isArray(S.plots[p].tags)&&S.plots[p].tags.length)?`<span class="tiptags">${esc(S.plots[p].tags.join(" · "))}</span>`:""}<span class="meta">${clientsFor(p).length} client(s) · tap to open</span>`}
   else html=`<span class="k">Block ${b}</span><b>${s.available} available</b><span class="meta">${s.prebooked} pre-booked · ${s.sold} sold · ${s.clients} clients · tap to open the block</span>`;
   tip.innerHTML=html;tip.hidden=false;
 }
@@ -546,6 +559,16 @@ function neighbourSVG(id){
     if(st||me)s+=`<text class="pn${st?" on":""}" x="${q.cx.toFixed(1)}" y="${(q.cy+q.ph*(me?0.09:0.07)).toFixed(1)}" font-size="${(q.ph*(me?0.27:0.2)).toFixed(2)}" font-weight="${me?700:400}" text-anchor="middle">${q.num!=null?q.num:"?"}</text>`});
   return s+`</svg>`;
 }
+function sizeChoice(cur,attr){return `<div class="seg sizes" role="group" aria-label="Plot size">${SIZE_ORDER.map(k=>`<button type="button" class="${cur===k?"on":""}" data-${attr}="${k}">${k==="X"?"Corner":SIZES[k].label}</button>`).join("")}</div>`}
+function notesBar(id,d,w){
+  const tags=Array.isArray(d.tags)?d.tags:[];
+  let h=`<div class="notebar"><div class="k">Notes on this plot</div><div class="tags">`;
+  h+=(w?TAGS.concat(tags.filter(t=>!TAGS.includes(t))):tags).map(t=>w?`<button type="button" class="tag${tags.includes(t)?" on":""}" data-tag="${esc(t)}" aria-pressed="${tags.includes(t)}">${esc(t)}</button>`:`<span class="tag on">${esc(t)}</span>`).join("");
+  h+=`</div>`;
+  if(S.editNote&&w)h+=`<form id="noteForm" class="noteform"><textarea id="pnote" placeholder="e.g. Corner plot with extra land on the park side" aria-label="Note on this plot">${esc(d.note||"")}</textarea><div class="btns"><button type="button" class="btn" data-act="cancelNote">Cancel</button><button type="submit" class="btn forest">Save note</button></div></form>`;
+  else h+=`<div class="notetext">${d.note?esc(d.note):`<span class="meta">No note yet.</span>`}${w?` <button class="linkbtn" data-act="editNote">${d.note?"Edit":"Add note"}</button>`:""}</div>`;
+  return h+`</div>`;
+}
 function plotFile(id){
   const p=GEO.plots[id];const d=S.plots[id];const sz=SIZES[p.size];
   const cls=clientsFor(id);const active=cls.filter(c=>c.stage!=="dropped");
@@ -561,6 +584,7 @@ function plotFile(id){
     h+=`<div class="empty">This plot isn't in our inventory.${w?" Add it to colour it on the map for the team.":""}</div>`;
     if(w)h+=`<form class="add" id="addPlotForm"><div class="k">Add to our plots</div>
       <label class="meta" for="np">Asking price (crore PKR)</label><input id="np" inputmode="decimal" placeholder="e.g. 4.10" autocomplete="off">
+      <span class="meta">Plot size</span>${sizeChoice(S.addSize||p.size,"asize")}
       <button class="btn forest" type="submit">Add to our plots</button></form>`;
     return h;
   }
@@ -568,6 +592,10 @@ function plotFile(id){
   <div class="k">Our asking price</div>`;
   if(S.editPrice&&w)h+=`<form class="price" id="priceForm"><input id="pp" inputmode="decimal" value="${typeof d.price==="number"?d.price:""}" aria-label="Asking price in crore" autocomplete="off"><small>crore PKR</small><button class="linkbtn" type="submit">Save</button></form>`;
   else h+=`<div class="price"><span class="v">${fmtPrice(d.price)}</span><small>crore PKR</small>${w?`<button class="linkbtn" data-act="editPrice">Edit</button>`:""}</div>`;
+  h+=`<div class="k">Plot size</div>`;
+  if(S.editSize&&w)h+=`${sizeChoice(p.size,"esize")}<button class="linkbtn" style="justify-self:start" data-act="cancelSize">Cancel</button>`;
+  else h+=`<div class="price"><span class="v" style="font-size:18px">${esc(sz.label)}</span><small>${esc(sz.dims)}</small>${w?`<button class="linkbtn" data-act="editSize">Edit</button>`:""}</div>`;
+  h+=notesBar(id,d,w);
   h+=`<div class="k">Status</div><div class="seg" role="group" aria-label="Plot status">${Object.keys(STATUS).map(k=>`<button class="${k}${d.status===k?" on":""}" data-status="${k}" ${w?"":"disabled"}>${STATUS[k].label}</button>`).join("")}</div>
   <div class="meta">Updated by ${esc(nameOf(d.updatedBy))} · ${ago(d.updatedAt)}</div>
   <div class="k" style="margin-top:4px">Clients looking at this plot (${active.length})</div>`;
@@ -602,6 +630,9 @@ document.addEventListener("click",e=>{
   if(d.show){S.show=d.show;return render()}
   if(d.sf){S.statusFilter=d.sf;return render()}
   if(d.status)return setStatus(S.plot,d.status);
+  if(d.asize){S.addSize=d.asize;return render()}
+  if(d.esize)return saveSize(S.plot,d.esize);
+  if(d.tag)return toggleTag(S.plot,d.tag);
   if(d.cpre)return clientStage(d.cpre,"prebooked");
   if(d.cbuy)return clientStage(d.cbuy,"bought");
   if(d.cdrop)return clientStage(d.cdrop,"dropped");
@@ -614,6 +645,10 @@ document.addEventListener("click",e=>{
     case"cancelAdd":S.addOpen=false;["cn","cp","cnote"].forEach(k=>delete S.draft[k]);render();break;
     case"openFix":S.fixOpen=true;render();setTimeout(()=>{const i=$("#fx");if(i)i.focus()});break;
     case"cancelFix":S.fixOpen=false;delete S.draft.fx;render();break;
+    case"editSize":S.editSize=true;render();break;
+    case"cancelSize":S.editSize=false;render();break;
+    case"editNote":S.editNote=true;render();setTimeout(()=>{const i=$("#pnote");if(i)i.focus()});break;
+    case"cancelNote":S.editNote=false;delete S.draft.pnote;render();break;
     case"askRemove":S.confirmRemove=true;render();break;
     case"cancelRemove":S.confirmRemove=false;render();break;
     case"doRemove":removePlot(S.plot);break;
@@ -628,6 +663,7 @@ document.addEventListener("submit",e=>{
   if(f.id==="addPlotForm")addPlot(S.plot,$("#np").value);
   if(f.id==="addClientForm")addClient(S.plot);
   if(f.id==="fixForm")saveFix(S.plot,$("#fx").value);
+  if(f.id==="noteForm")saveNote(S.plot,$("#pnote").value);
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(S.plot)go("block",S.block);else if(S.view==="block")go("all")}});
 
@@ -644,11 +680,23 @@ async function guard(fn,okMsg){
 function stamp(){return {updatedBy:S.me,updatedAt:nowIso()}}
 function addPlot(id,raw){const price=parsePrice(raw);if(price==null){toast("Enter a price in crore, e.g. 4.10");return}
   const p=GEO.plots[id];delete S.draft.np;
-  guard(()=>db.collection("plots").doc(id).set(Object.assign({block:p.block,num:p.num,size:p.size,status:"available",price},stamp())),"Added "+id+" to our plots");}
+  const size=S.addSize&&SIZES[S.addSize]?S.addSize:p.size;S.addSize=null;
+  guard(async()=>{await db.collection("plots").doc(id).set(Object.assign({block:p.block,num:p.num,size,status:"available",price,tags:size==="X"?["Corner"]:[],note:""},stamp()));
+    if(size!==p.size){const fx=Object.assign({},S.fixes[p.key]||{});fx.size=size;fx.updatedBy=S.me;fx.updatedAt=nowIso();await db.collection("fixes").doc(p.key).set(fx)}},"Added "+id+" to our plots");}
 function savePrice(id,raw){const price=parsePrice(raw);if(price==null){toast("Enter a price in crore, e.g. 4.10");return}
   S.editPrice=false;delete S.draft.pp;
   if(S.plots[id]&&S.plots[id].price===price){render();return}
   guard(()=>db.collection("plots").doc(id).update(Object.assign({price},stamp())),"Price saved");}
+function saveSize(id,size){const p=GEO.plots[id];if(!p||!SIZES[size])return;
+  S.editSize=false;
+  const fx=Object.assign({},S.fixes[p.key]||{});delete fx._id;fx.size=size;fx.updatedBy=S.me;fx.updatedAt=nowIso();
+  guard(async()=>{await db.collection("fixes").doc(p.key).set(fx);
+    if(S.plots[id])await db.collection("plots").doc(id).update(Object.assign({size},stamp()));},"Size saved: "+id+" is "+SIZES[size].label);}
+function toggleTag(id,t){const d=S.plots[id];if(!d)return;const cur=Array.isArray(d.tags)?d.tags:[];
+  const tags=cur.includes(t)?cur.filter(x=>x!==t):cur.concat([t]);
+  guard(()=>db.collection("plots").doc(id).update(Object.assign({tags},stamp())));}
+function saveNote(id,raw){const note=String(raw||"").trim().slice(0,400);S.editNote=false;delete S.draft.pnote;
+  guard(()=>db.collection("plots").doc(id).update(Object.assign({note},stamp())),"Note saved");}
 function setStatus(id,st){if(!S.plots[id]||S.plots[id].status===st)return;
   guard(()=>db.collection("plots").doc(id).update(Object.assign({status:st},stamp())),id+" marked "+STATUS[st].label.toLowerCase());}
 async function addClient(id){
@@ -676,7 +724,8 @@ function saveFix(id,raw){
   const p=GEO.plots[id];if(!p)return;const nid=p.block+"-"+n;
   if(GEO.plots[nid]&&GEO.plots[nid]!==p){toast(nid+" is already another plot on the map. Correct that one first.");return}
   S.fixOpen=false;delete S.draft.fx;S._goAfterFix=nid;
-  guard(()=>db.collection("fixes").doc(p.key).set({n,updatedBy:S.me,updatedAt:nowIso()}),"Plot number saved: "+nid);
+  const keep=S.fixes[p.key]&&S.fixes[p.key].size?{size:S.fixes[p.key].size}:{};
+  guard(()=>db.collection("fixes").doc(p.key).set(Object.assign(keep,{n,updatedBy:S.me,updatedAt:nowIso()})),"Plot number saved: "+nid);
 }
 async function clearSamples(){
   await guard(async()=>{
@@ -715,7 +764,7 @@ async function resolveNames(){
     S.plots=m;if(!snap.metadata.fromCache)gotP=true;done();render();
   },err=>{clearTimeout(timer);S.timedOut=true;render()});
   db.collection("fixes").onSnapshot(snap=>{
-    const f={};snap.docs.forEach(d=>{const v=d.data();if(v&&v.n)f[d.id]=v});S.fixes=f;
+    const f={};snap.docs.forEach(d=>{const v=d.data();if(v&&(v.n||v.size))f[d.id]=v});S.fixes=f;
     const curKey=S.plot&&GEO.plots[S.plot]?GEO.plots[S.plot].key:null;
     GEO=buildGeo(RAW,f);
     if(curKey&&GEO.byKey[curKey]){const nid=GEO.byKey[curKey].id;if(nid!==S.plot){go("block",S.block,nid);return}}

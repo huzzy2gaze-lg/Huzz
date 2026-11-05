@@ -532,6 +532,7 @@ A,534,A-534,1 Kanal,read from plan,366.4,925.2
 A,535,A-535,1 Kanal,read from plan,361.4,916.6
 A,536,A-536,1 Kanal,read from plan,356.3,907.9
 A,537,A-537,1 Kanal,read from plan,351.2,899.3
+A,538,A-538,Corner or irregular,read from plan (curved/corner plot),346.7,887.3
 A,539,A-539,14 Marla,read from plan,362.2,1066.1
 A,540,A-540,14 Marla,read from plan,355.3,1070.2
 A,541,A-541,14 Marla,read from plan,348.4,1074.3
@@ -909,6 +910,7 @@ A,919,A-919,1 Kanal,read from plan,635.1,1530.3
 A,920,A-920,1 Kanal,read from plan,642.0,1537.8
 A,921,A-921,1 Kanal,read from plan,621.7,1557.1
 A,922,A-922,1 Kanal,read from plan,614.9,1549.6
+A,923,A-923,Corner or irregular,read from plan (curved/corner plot),608.3,1542.3
 A,924,A-924,1 Kanal,read from plan,563.6,1488.4
 A,925,A-925,1 Kanal,read from plan,557.5,1480.6
 A,926,A-926,1 Kanal,read from plan,551.4,1472.6
@@ -3478,6 +3480,7 @@ E,825,E-825,10 Marla,read from plan,1505.4,1281.1
 E,826,E-826,10 Marla,read from plan,1498.9,1281.1
 E,827,E-827,10 Marla,read from plan,1492.5,1281.1
 E,828,E-828,10 Marla,read from plan,1486.2,1281.0
+E,829,E-829,Corner or irregular,read from plan (curved/corner plot),1479.2,1282.0
 E,830,E-830,1 Kanal,read from plan,1474.2,1306.7
 E,831,E-831,1 Kanal,read from plan,1484.9,1307.0
 E,832,E-832,1 Kanal,read from plan,1494.9,1307.1
@@ -3587,6 +3590,7 @@ F,30,F-30,14 Marla,read from plan,1988.2,1694.2
 F,31,F-31,14 Marla,read from plan,1982.8,1688.3
 F,32,F-32,14 Marla,read from plan,1977.5,1682.3
 F,33,F-33,14 Marla,read from plan,1971.2,1675.6
+F,34,F-34,Corner or irregular,read from plan (curved/corner plot),1982.1,1663.3
 F,35,F-35,14 Marla,read from plan,1989.2,1671.5
 F,36,F-36,14 Marla,read from plan,1994.8,1677.6
 F,37,F-37,14 Marla,read from plan,2000.1,1683.8
@@ -3615,6 +3619,8 @@ F,59,F-59,14 Marla,read from plan,2017.7,1667.3
 F,60,F-60,14 Marla,read from plan,2012.4,1661.4
 F,61,F-61,14 Marla,read from plan,2006.9,1655.5
 F,62,F-62,14 Marla,read from plan,2001.5,1649.6
+F,63,F-63,Corner or irregular,read from plan (curved/corner plot),1994.5,1641.6
+F,64,F-64,Corner or irregular,read from plan (curved/corner plot),2001.1,1625.4
 F,65,F-65,14 Marla,read from plan,2007.6,1632.7
 F,66,F-66,14 Marla,read from plan,2013.2,1638.7
 F,67,F-67,14 Marla,read from plan,2018.8,1644.7
@@ -3649,6 +3655,8 @@ F,95,F-95,14 Marla,read from plan,2036.5,1628.5
 F,96,F-96,14 Marla,read from plan,2031.1,1622.7
 F,97,F-97,14 Marla,read from plan,2025.7,1616.9
 F,98,F-98,14 Marla,read from plan,2020.1,1611.2
+F,99,F-99,Corner or irregular,read from plan (curved/corner plot),2012.5,1602.9
+F,100,F-100,Corner or irregular,read from plan (curved/corner plot),2018.1,1586.2
 F,101,F-101,14 Marla,read from plan,2025.5,1594.1
 F,102,F-102,14 Marla,read from plan,2031.4,1600.0
 F,103,F-103,14 Marla,read from plan,2037.1,1605.8
@@ -3668,6 +3676,7 @@ F,116,F-116,14 Marla,read from plan,2104.5,1688.3
 F,117,F-117,14 Marla,read from plan,2109.0,1695.1
 F,118,F-118,14 Marla,read from plan,2113.5,1702.0
 F,119,F-119,14 Marla,read from plan,2118.2,1709.2
+F,120,F-120,Corner or irregular,read from plan (curved/corner plot),2121.6,1671.7
 F,121,F-121,14 Marla,read from plan,2117.1,1664.5
 F,122,F-122,14 Marla,read from plan,2112.4,1658.0
 F,123,F-123,14 Marla,read from plan,2107.7,1651.5
@@ -3680,6 +3689,7 @@ F,129,F-129,14 Marla,read from plan,2072.2,1608.2
 F,130,F-130,14 Marla,read from plan,2066.8,1602.4
 F,131,F-131,14 Marla,read from plan,2061.3,1596.5
 F,132,F-132,14 Marla,read from plan,2055.9,1590.7
+F,133,F-133,Corner or irregular,read from plan (curved/corner plot),2049.9,1585.3
 F,140,F-140,14 Marla,read from plan,2073.0,1585.6
 F,141,F-141,14 Marla,read from plan,2078.6,1591.5
 F,142,F-142,14 Marla,read from plan,2084.1,1597.6
@@ -4007,6 +4017,7 @@ F,472,F-472,1 Kanal,read from plan,1950.6,1312.1
 F,473,F-473,1 Kanal,read from plan,1959.8,1316.8
 F,474,F-474,1 Kanal,read from plan,1968.9,1321.8
 F,475,F-475,1 Kanal,read from plan,1978.5,1327.6
+F,476,F-476,Corner or irregular,read from plan (curved/corner plot),1989.5,1336.8
 F,845,F-845,1 Kanal,read from plan,1739.3,1562.2
 F,846,F-846,1 Kanal,read from plan,1729.2,1559.2
 F,847,F-847,1 Kanal,read from plan,1719.4,1556.4
@@ -4047,6 +4058,7 @@ G,25,G-25,1 Kanal,read from plan,756.2,1819.5
 G,26,G-26,1 Kanal,read from plan,747.8,1813.6
 G,27,G-27,1 Kanal,read from plan,739.6,1807.7
 G,28,G-28,1 Kanal,read from plan,731.4,1801.8
+G,29,G-29,Corner or irregular,read from plan (curved/corner plot),722.7,1794.5
 G,30,G-30,14 Marla,read from plan,709.8,1819.4
 G,31,G-31,14 Marla,read from plan,717.3,1824.9
 G,32,G-32,14 Marla,read from plan,723.8,1829.5
@@ -4109,6 +4121,7 @@ G,92,G-92,14 Marla,read from plan,711.8,1891.9
 G,93,G-93,14 Marla,read from plan,705.2,1887.3
 G,94,G-94,14 Marla,read from plan,698.6,1882.7
 G,95,G-95,1 Kanal,read from plan,689.9,1876.5
+G,96,G-96,Corner or irregular,read from plan (curved/corner plot),685.3,1904.3
 G,97,G-97,14 Marla,read from plan,691.5,1909.5
 G,98,G-98,14 Marla,read from plan,698.0,1914.0
 G,99,G-99,14 Marla,read from plan,704.6,1918.6
@@ -4120,6 +4133,7 @@ G,104,G-104,14 Marla,read from plan,738.0,1940.5
 G,105,G-105,14 Marla,read from plan,744.8,1944.7
 G,106,G-106,14 Marla,read from plan,751.7,1949.0
 G,107,G-107,1 Kanal,read from plan,759.6,1954.0
+G,108,G-108,Corner or irregular,read from plan (curved/corner plot),751.9,1966.0
 G,109,G-109,14 Marla,read from plan,743.3,1962.6
 G,110,G-110,14 Marla,read from plan,736.3,1958.3
 G,111,G-111,14 Marla,read from plan,729.5,1954.0
@@ -4225,6 +4239,7 @@ G,217,G-217,14 Marla,read from plan,880.1,1925.8
 G,218,G-218,14 Marla,read from plan,873.1,1922.1
 G,219,G-219,14 Marla,read from plan,866.1,1918.3
 G,220,G-220,14 Marla,read from plan,859.0,1914.5
+G,221,G-221,Corner or irregular,read from plan (curved/corner plot),875.6,1893.2
 G,222,G-222,1 Kanal,read from plan,887.3,1899.0
 G,223,G-223,1 Kanal,read from plan,896.3,1903.8
 G,224,G-224,1 Kanal,read from plan,905.2,1908.4
@@ -4267,6 +4282,7 @@ G,260,G-260,1 Kanal,read from plan,922.2,1896.8
 G,261,G-261,1 Kanal,read from plan,913.3,1892.4
 G,262,G-262,1 Kanal,read from plan,904.6,1887.8
 G,263,G-263,1 Kanal,read from plan,895.7,1883.2
+G,264,G-264,Corner or irregular,read from plan (curved/corner plot),884.2,1877.4
 G,265,G-265,Corner or irregular plot,read from plan,989.1,1897.3
 G,266,G-266,1 Kanal,read from plan,1000.9,1902.5
 G,267,G-267,1 Kanal,read from plan,1010.1,1906.4
@@ -4444,6 +4460,7 @@ G,444,G-444,14 Marla,read from plan,1219.9,1994.7
 G,445,G-445,14 Marla,read from plan,1217.4,2002.3
 G,446,G-446,14 Marla,read from plan,1215.0,2009.9
 G,447,G-447,14 Marla,read from plan,1212.4,2017.5
+G,449,G-449,Corner or irregular,read from plan (curved/corner plot),1228.2,2017.1
 G,450,G-450,14 Marla,read from plan,1232.6,2007.3
 G,451,G-451,14 Marla,read from plan,1235.1,1999.6
 G,452,G-452,14 Marla,read from plan,1237.6,1992.0
@@ -4480,6 +4497,8 @@ G,483,G-483,14 Marla,read from plan,1267.1,1979.3
 G,484,G-484,14 Marla,read from plan,1264.6,1986.9
 G,485,G-485,14 Marla,read from plan,1262.1,1994.5
 G,486,G-486,14 Marla,read from plan,1259.6,2002.1
+G,487,G-487,Corner or irregular,read from plan (curved/corner plot),1255.9,2011.4
+G,488,G-488,Corner or irregular,read from plan (curved/corner plot),1273.4,2008.7
 G,489,G-489,14 Marla,read from plan,1277.3,1999.5
 G,490,G-490,14 Marla,read from plan,1279.8,1991.9
 G,491,G-491,14 Marla,read from plan,1282.3,1984.2
@@ -4514,6 +4533,7 @@ G,519,G-519,14 Marla,read from plan,1309.5,1978.4
 G,520,G-520,14 Marla,read from plan,1307.0,1985.9
 G,521,G-521,14 Marla,read from plan,1304.5,1993.5
 G,522,G-522,14 Marla,read from plan,1302.0,2001.1
+G,524,G-524,Corner or irregular,read from plan (curved/corner plot),1317.9,2001.4
 G,525,G-525,14 Marla,read from plan,1322.3,1990.9
 G,526,G-526,14 Marla,read from plan,1324.8,1983.3
 G,527,G-527,14 Marla,read from plan,1327.3,1975.8
@@ -4543,6 +4563,7 @@ G,550,G-550,14 Marla,read from plan,1357.4,1960.4
 G,551,G-551,14 Marla,read from plan,1354.9,1968.1
 G,552,G-552,14 Marla,read from plan,1352.5,1975.6
 G,553,G-553,14 Marla,read from plan,1350.0,1983.2
+G,555,G-555,Corner or irregular,read from plan (curved/corner plot),1369.2,1971.7
 G,556,G-556,14 Marla,read from plan,1375.1,1957.8
 G,557,G-557,14 Marla,read from plan,1377.6,1950.2
 G,558,G-558,14 Marla,read from plan,1380.1,1942.6
@@ -4552,6 +4573,7 @@ G,561,G-561,14 Marla,read from plan,1387.5,1919.8
 G,562,G-562,14 Marla,read from plan,1390.0,1912.2
 G,563,G-563,14 Marla,read from plan,1392.5,1904.5
 G,564,G-564,14 Marla,read from plan,1395.0,1897.0
+G,565,G-565,Corner or irregular,read from plan (curved/corner plot),1398.3,1888.6
 G,,,1 Kanal,not read - check plan,1180.2,1849.6
 G,,,1 Kanal,not read - check plan,1189.9,1852.4
 G,,,1 Kanal,not read - check plan,1136.4,1855.2
@@ -4709,6 +4731,7 @@ H,154,H-154,1 Kanal,read from plan,1659.8,1710.5
 H,155,H-155,1 Kanal,read from plan,1670.1,1712.9
 H,156,H-156,1 Kanal,read from plan,1680.3,1715.5
 H,157,H-157,1 Kanal,read from plan,1690.3,1718.5
+H,158,H-158,Corner or irregular,read from plan (curved/corner plot),1704.5,1722.0
 H,159,H-159,1 Kanal,read from plan,1695.8,1739.4
 H,160,H-160,1 Kanal,read from plan,1684.8,1735.7
 H,161,H-161,1 Kanal,read from plan,1675.3,1732.8
