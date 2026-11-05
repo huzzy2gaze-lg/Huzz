@@ -110,6 +110,7 @@ svg .p.sel{stroke:var(--ink);stroke-width:1.6;fill:rgba(168,122,34,.35)}
 svg .p.sel.available{fill:var(--avail)}svg .p.sel.prebooked{fill:var(--book)}svg .p.sel.sold{fill:var(--sold)}
 svg .p:hover{stroke:var(--ink);stroke-width:.9}
 svg .pn{font-family:var(--mono);font-weight:700;fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--ground);stroke-width:.35}
+svg.far .labels{display:none}
 svg .pn.on{fill:#fff;stroke:rgba(0,0,0,.35);stroke-width:.25}
 svg .p.msel{stroke:var(--brass);stroke-width:1.1;fill:rgba(221,170,76,.45)}
 svg .p.msel.available,svg .p.msel.prebooked,svg .p.msel.sold{stroke:var(--brass);stroke-width:1.6}
@@ -396,8 +397,9 @@ function renderHeader(){
 
 /* ---------- Map SVG ---------- */
 // plot number drawn on top of a coloured plot (the colour hides the number on the plan)
-function pnText(p,on,big){const fs=Math.max(1.4,Math.min(p.sh*(big?0.7:0.58),p.ph*0.3));
-  return `<text class="pn${on?" on":""}" x="${p.cx.toFixed(1)}" y="${p.cy.toFixed(1)}" font-size="${fs.toFixed(2)}" dominant-baseline="central" text-anchor="middle" transform="rotate(${p.ang.toFixed(1)} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)})">${p.num!=null?p.num:"?"}</text>`}
+// numbers are always drawn level and upright, whatever the angle of the plot on the plan
+function pnText(p,on,big){const fs=Math.max(1.4,Math.min(p.sh*(big?0.62:0.5),p.ph*0.3));
+  return `<text class="pn${on?" on":""}" x="${p.cx.toFixed(1)}" y="${p.cy.toFixed(1)}" font-size="${fs.toFixed(2)}" dominant-baseline="central" text-anchor="middle">${p.num!=null?p.num:"?"}</text>`}
 function mapSVG(mode){
   const blk=S.block,W=WORLD[2],H=WORLD[3];
   let s=`<rect x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" style="fill:var(--ground)"/>`;
@@ -413,9 +415,11 @@ function mapSVG(mode){
   }
   for(const id in GEO.blocks){const b=GEO.blocks[id];
     for(const h of b.hull)s+=`<polygon class="bcard${b.grey?" grey":" hit"}${(mode!=="all"&&id===blk)?" hi":""}" ${b.grey?"":`data-b="${id}"`} points="${ptsStr(h)}"/>`;}
+  let lab="",labOn="";
   for(const id in GEO.blocks){const b=GEO.blocks[id];if(b.grey)continue;
     for(const p of b.plots){
       const st=statusOf(p.id);
+      if(mode!=="mini"&&p.num!=null&&!(st||S.plot===p.id||S.sel.has(p.id)))lab+=pnText(p,false,false);
       if(mode==="mini"&&!st)continue;
       let cls="p";if(st)cls+=" "+st;
       let fade=false;
@@ -427,10 +431,11 @@ function mapSVG(mode){
       if(p.num==null)cls+=" unread";
       s+=`<polygon class="${cls}" ${mode==="mini"?"":`data-p="${p.id}"`} points="${ptsStr(p.pts)}"/>`;
       if(mode!=="mini"&&(st||S.plot===p.id||S.sel.has(p.id))){
-        s+=pnText(p,!!st,S.plot===p.id);
+        labOn+=pnText(p,!!st,S.plot===p.id);
       }
     }
   }
+  if(mode!=="mini")s+=`<g class="labels">${lab}</g><g class="labels-on">${labOn}</g>`;
   if(mode==="mini")for(const id in GEO.blocks){const b=GEO.blocks[id];s+=`<text class="blabel" x="${b.label[0]}" y="${b.label[1]+30}" text-anchor="middle" font-size="90">${id}</text>`}
   return s;
 }
@@ -443,7 +448,9 @@ function attachMap(wrap){
   const key=vbKey();
   let vb=S.vb[key]||defaultVB();
   let animId=0;
-  const apply=()=>{svg.setAttribute("viewBox",vb.map(n=>n.toFixed(2)).join(" "));S.vb[key]=vb};
+  const setVB=v=>{svg.setAttribute("viewBox",v.map(n=>n.toFixed(2)).join(" "));const r=svg.getBoundingClientRect();
+    const sc=Math.min(r.width/v[2],r.height/v[3]);svg.classList.toggle("far",!(sc>=0.85))};
+  const apply=()=>{setVB(vb);S.vb[key]=vb};
   const stopAnim=()=>{if(animId){cancelAnimationFrame(animId);animId=0}if(ZA&&ZA.key===key){S.vb[key]=vb;ZA=null}};
   // a new zoom starts on go(); a re-render during the zoom (live data) carries it on
   if(S._anim&&!matchMedia("(prefers-reduced-motion: reduce)").matches)ZA={key,fr:S._anim.from,to:vb.slice(),t0:performance.now()};
@@ -460,7 +467,7 @@ function attachMap(wrap){
       const w=Math.exp(lw[0]+(lw[1]-lw[0])*e),h=Math.exp(lh[0]+(lh[1]-lh[0])*e);
       const cx=fc[0]+(tc[0]-fc[0])*e,cy=fc[1]+(tc[1]-fc[1])*e;
       vb=t<1?[cx-w/2,cy-h/2,w,h]:to;
-      svg.setAttribute("viewBox",vb.map(n=>n.toFixed(2)).join(" "));
+      setVB(vb);
       if(t<1)animId=requestAnimationFrame(step);else{animId=0;ZA=null;S.vb[key]=to}
     };
     S.vb[key]=to;step(performance.now());
@@ -637,7 +644,7 @@ function neighbourSVG(id){
   let s=`<svg viewBox="${vb.map(n=>n.toFixed(1)).join(" ")}" style="aspect-ratio:${(vb[2]/vb[3]).toFixed(3)};max-height:230px" role="img" aria-label="Plot ${esc(plotLabel(p))} with its neighbours"><rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" style="fill:var(--card)"/><image href="plan.webp" x="0" y="0" width="${WORLD[2]}" height="${WORLD[3]}" preserveAspectRatio="none" class="plan" opacity=".55"/>`;
   near.forEach(q=>{const st=statusOf(q.id);const me=q.id===id;
     s+=`<polygon class="p${st?" "+st:""}${me?" sel":""}" data-p="${q.id}" points="${ptsStr(q.pts)}" style="stroke-width:${me?.8:.25};stroke:var(--ink)"/>`;
-    if(st||me)s+=`<text class="pn${st?" on":""}" x="${q.cx.toFixed(1)}" y="${(q.cy+q.ph*(me?0.09:0.07)).toFixed(1)}" font-size="${(q.ph*(me?0.27:0.2)).toFixed(2)}" font-weight="${me?700:400}" text-anchor="middle">${q.num!=null?q.num:"?"}</text>`});
+    if(q.num!=null||me)s+=pnText(q,!!st,me)});
   return s+`</svg>`;
 }
 function findForm(){const cur=S.findBlock||S.block||"A";
