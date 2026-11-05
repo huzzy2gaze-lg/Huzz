@@ -20,6 +20,10 @@ Live team map: https://claude.ai/artifact/ACotWwamH6xub2WeVvVpKx
 - About 20 plots of the official 4,781 are not traced, because their lines do not form a closed area or their number does not read clearly.
 - Our plots show in colour: green = available, amber = pre-booked, red = sold.
 - Plot size: choose 1 Kanal, 14 Marla, 10 Marla or Corner when you add a plot. Use Edit to change it later. A size change is saved for the whole team (collection `fixes`, field `size`).
+- Our coloured plots show their number on top, written along the plot, so the number stays readable when you zoom in.
+- Find a plot: choose the block, type the number, press Go. The block stays chosen and the box clears, so you can search the next plot in the same block.
+- Several plots at once: in a block, press "Select several plots" (or Ctrl/Shift-tap plots). Then set price, status, size or tags for all of them, or remove them from our plots.
+- Change notices: every change by anyone (plot added or removed, status, price, size, notes, clients) shows at the top of the screen for 7 seconds. Tap a notice to open that plot.
 - Notes bar on each of our plots: tags (Corner, Extra land, Park facing, Main road facing, Near commercial) and a free-text note. The tags also show when you hover over the plot.
 
 ## Files

@@ -67,6 +67,7 @@ button{cursor:pointer}
 .legend span{display:flex;gap:8px;align-items:center}
 .sw{width:14px;height:14px;border-radius:3px;display:inline-block;flex:none;border:1px solid var(--plot-line)}
 .search{display:flex;gap:6px;margin-top:8px}
+.search select{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 6px;font-weight:600}
 .search input{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px}
 .search button{border:0;background:var(--forest);color:#fff;border-radius:8px;padding:0 12px;font-weight:600}
 .hint{font-size:12px;color:var(--soft)}
@@ -108,8 +109,11 @@ svg .p.fade{opacity:.22}
 svg .p.sel{stroke:var(--ink);stroke-width:1.6;fill:rgba(168,122,34,.35)}
 svg .p.sel.available{fill:var(--avail)}svg .p.sel.prebooked{fill:var(--book)}svg .p.sel.sold{fill:var(--sold)}
 svg .p:hover{stroke:var(--ink);stroke-width:.9}
-svg .pn{font-family:var(--mono);fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--ground);stroke-width:.35}
-svg .pn.on{fill:#fff;stroke:none}
+svg .pn{font-family:var(--mono);font-weight:700;fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--ground);stroke-width:.35}
+svg .pn.on{fill:#fff;stroke:rgba(0,0,0,.35);stroke-width:.25}
+svg .p.msel{stroke:var(--brass);stroke-width:1.1;fill:rgba(221,170,76,.45)}
+svg .p.msel.available,svg .p.msel.prebooked,svg .p.msel.sold{stroke:var(--brass);stroke-width:1.6}
+svg .p.msel.available{fill:var(--avail)}svg .p.msel.prebooked{fill:var(--book)}svg .p.msel.sold{fill:var(--sold)}
 svg .comm{fill:url(#hatch);stroke:var(--plot-line)}
 svg .commt{font-family:var(--mono);font-size:7px;fill:var(--soft);letter-spacing:.06em}
 
@@ -181,6 +185,9 @@ form.add{display:grid;gap:8px;border:1px dashed var(--line);border-radius:12px;p
 .seg.sizes{grid-template-columns:repeat(4,1fr)}
 .seg.sizes button{font-size:12px;padding:9px 2px}
 .seg.sizes button.on{background:var(--forest);color:var(--on-forest)}
+.selbtn{position:absolute;right:12px;top:12px;z-index:2;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 12px;font-weight:600;font-size:12.5px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.selbtn.on{background:var(--brass);border-color:var(--brass);color:#fff}
+.selchips{display:flex;flex-wrap:wrap;gap:6px;max-height:140px;overflow:auto}
 .notebar{display:grid;gap:8px;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:12px;padding:10px 12px;background:var(--card)}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag{border:1px solid var(--line);background:var(--surface);color:var(--soft);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:500}
@@ -202,6 +209,13 @@ form.add textarea{min-height:56px;resize:vertical}
 .ourrow .pr{font:400 17px var(--display);font-variant-numeric:tabular-nums}
 .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
 .filterrow{display:flex;gap:6px;flex-wrap:wrap}
+#notes{position:fixed;top:58px;left:50%;transform:translateX(-50%);z-index:21;display:grid;gap:6px;width:min(460px,calc(100vw - 32px));pointer-events:none}
+.note{pointer-events:auto;display:flex;gap:10px;align-items:center;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:10px;padding:9px 12px;box-shadow:0 8px 24px rgba(0,0,0,.16);font-size:13px;cursor:pointer;animation:notein .25s ease-out}
+.note.sold{border-left-color:var(--sold)}.note.available{border-left-color:var(--avail)}.note.prebooked{border-left-color:var(--book)}
+.note .x{margin-left:auto;border:0;background:none;color:var(--soft);font-size:16px;line-height:1;padding:0 2px}
+.note.out{opacity:0;transform:translateY(-6px);transition:all .3s}
+@keyframes notein{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.note{animation:none}}
 #toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;font-weight:600;z-index:20;max-width:90vw}
 
 @media (max-width:980px){
@@ -232,6 +246,7 @@ form.add textarea{min-height:56px;resize:vertical}
 <div class="notice" id="notice" hidden></div>
 <main id="app"></main>
 <div id="toast" role="status" hidden></div>
+<div id="notes" aria-live="polite"></div>
 
 <script>
 (function(){
@@ -256,7 +271,10 @@ function buildGeo(data,fixes){
   data.plots.forEach((r,i)=>{const [b,n0,size,flat,cx,cy,L]=r;const key=b+"-p"+Math.round((cx+ox)*10)+"_"+Math.round((cy+oy)*10);const fx=fixes[key];
     const pts=[];for(let j=0;j<flat.length;j+=2)pts.push([flat[j],flat[j+1]]);
     const sz=(fx&&fx.size&&SIZES[fx.size])?fx.size:size;
-    const p={key,block:b,num:(fx&&fx.n)?fx.n:n0,read:n0,size:sz,planSize:size,pts,cx,cy,ph:L,grey:blocks[b].grey,fixed:!!(fx&&fx.n)};
+    // text along the plot's long side, kept upright
+    let best=0,ang=0,area=0;for(let j=0;j<pts.length;j++){const a=pts[j],c=pts[(j+1)%pts.length];const dx=c[0]-a[0],dy=c[1]-a[1],l=Math.hypot(dx,dy);area+=a[0]*c[1]-c[0]*a[1];if(l>best){best=l;ang=Math.atan2(dy,dx)*180/Math.PI}}
+    if(ang>90)ang-=180;if(ang<=-90)ang+=180;const sh=Math.abs(area)/2/Math.max(best,1);
+    const p={key,block:b,num:(fx&&fx.n)?fx.n:n0,read:n0,size:sz,planSize:size,pts,cx,cy,ph:L,ang,sh,grey:blocks[b].grey,fixed:!!(fx&&fx.n)};
     blocks[b].plots.push(p);blocks[b].sizes.add(sz);byKey[key]=p;});
   for(const b in blocks){
     const used=new Set();
@@ -271,7 +289,7 @@ function plotLabel(p){return p.num!=null?p.id:"Block "+p.block+" · number unrea
 /* ---------- State ---------- *//* ---------- State ---------- */
 const S={view:"all",block:null,plot:null,size:"all",show:"all",q:"",
   plots:{},clients:[],ready:false,timedOut:false,dbOK:null,canWrite:null,me:null,
-  names:{},fixes:{},fixOpen:false,vb:{},editPrice:false,confirmRemove:false,draft:{},addOpen:false,statusFilter:"all"};
+  names:{},fixes:{},fixOpen:false,vb:{},editPrice:false,confirmRemove:false,draft:{},addOpen:false,statusFilter:"all",sel:new Set(),multi:false,findBlock:null,bulkConfirm:false};
 let db=null,user=null;
 const STATUS={available:{label:"Available",cls:"available"},prebooked:{label:"Pre-booked",cls:"prebooked"},sold:{label:"Sold",cls:"sold"}};
 const STAGES={interested:"Interested",prebooked:"Pre-booked",bought:"Bought",dropped:"Dropped"};
@@ -281,6 +299,37 @@ const $=s=>document.querySelector(s);
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fmtPrice(v){return (typeof v==="number"&&isFinite(v))?v.toFixed(2):"—"}
 function ago(iso){if(!iso)return"";const d=(Date.now()-new Date(iso).getTime())/1000;if(d<60)return"just now";if(d<3600)return Math.floor(d/60)+" min ago";if(d<86400)return Math.floor(d/3600)+" h ago";return Math.floor(d/86400)+" d ago"}
+/* change notices: every change to our plots or clients, by anyone, shows at the top */
+function notice(text,kind,plot){const box=$("#notes");if(!box)return;
+  const el=document.createElement("div");el.className="note"+(kind?" "+kind:"");el.setAttribute("role","status");
+  el.innerHTML=`<span>${text}</span><button class="x" aria-label="Close">×</button>`;
+  el.onclick=e=>{if(e.target.closest(".x")){el.remove();return}if(plot&&GEO.plots[plot]){el.remove();go("block",plot.split("-")[0],plot)}};
+  box.prepend(el);while(box.children.length>4)box.lastChild.remove();
+  setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),320)},7000);}
+function byWho(uid){const n=uid&&S.names[uid]&&S.names[uid].name;return n?` · by ${esc(n)}`:""}
+function plotChanges(prev,next){
+  if(!prev)return;const out=[];
+  for(const id in next){const a=prev[id],b=next[id];
+    if(!a){out.push({k:"added",id,t:`<b>${id}</b> added to our plots · ${fmtPrice(b.price)} Cr`,cls:b.status,who:b.updatedBy});continue}
+    if(a.status!==b.status)out.push({k:"st-"+b.status,id,t:`<b>${id}</b> marked ${STATUS[b.status].label.toLowerCase()}`,cls:b.status,who:b.updatedBy});
+    if(a.price!==b.price)out.push({k:"price",id,t:`<b>${id}</b> price ${fmtPrice(a.price)} → ${fmtPrice(b.price)} Cr`,who:b.updatedBy});
+    if(a.size!==b.size&&SIZES[b.size])out.push({k:"size",id,t:`<b>${id}</b> size set to ${SIZES[b.size].label}`,who:b.updatedBy});
+    if(JSON.stringify(a.tags||[])!==JSON.stringify(b.tags||[])||(a.note||"")!==(b.note||""))out.push({k:"notes",id,t:`<b>${id}</b> notes updated`,who:b.updatedBy});}
+  for(const id in prev)if(!next[id])out.push({k:"removed",id,t:`<b>${id}</b> removed from our plots`});
+  showChanges(out);}
+function clientChanges(prev,next){
+  if(!prev)return;const pm=new Map(prev.map(c=>[c._id,c])),nm=new Map(next.map(c=>[c._id,c]));const out=[];
+  for(const [id,c] of nm){const a=pm.get(id);
+    if(!a)out.push({k:"client",id:c.plotId,t:`New client on <b>${esc(c.plotId)}</b>: ${esc(c.name||"Client")}`,who:c.addedBy});
+    else if(a.stage!==c.stage)out.push({k:"stage",id:c.plotId,t:`${esc(c.name||"Client")} on <b>${esc(c.plotId)}</b>: ${STAGES[c.stage]||esc(c.stage)}`});}
+  for(const [id,c] of pm)if(!nm.has(id))out.push({k:"cdel",id:c.plotId,t:`Client ${esc(c.name||"")} removed from <b>${esc(c.plotId)}</b>`});
+  showChanges(out);}
+function showChanges(out){
+  const groups={};out.forEach(o=>(groups[o.k]=groups[o.k]||[]).push(o));
+  const label={added:"added to our plots",removed:"removed from our plots",price:"got a new price",size:"got a new size",notes:"got new notes",client:"got new clients",stage:"had client updates",cdel:"had clients removed","st-available":"marked available","st-prebooked":"marked pre-booked","st-sold":"marked sold"};
+  for(const k in groups){const g=groups[k];
+    if(g.length<=3)g.forEach(o=>notice(o.t+byWho(o.who),o.cls,o.id));
+    else{const ids=[...new Set(g.map(o=>o.id))];notice(`<b>${ids.length} plots</b> ${label[k]||"changed"}: ${ids.slice(0,6).map(esc).join(", ")}${ids.length>6?"…":""}${byWho(g[0].who)}`,g[0].cls,null)}}}
 function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2600)}
 function nameOf(id){if(!id)return"Someone";const n=S.names[id];return (n&&n.name)||"Someone"}
 function colorOf(id){const n=S.names[id];return (n&&n.color)||"#6E8B7B"}
@@ -308,6 +357,7 @@ function go(view,block,plot,{push=true}={}){
     S._anim={from:fromVB.slice()};
   }
   S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;S.fixOpen=false;S.addSize=null;S.editSize=false;S.editNote=false;
+  if(view!=="block"||block!==S._selBlock){S.sel=new Set();S.multi=false;S.bulkConfirm=false}S._selBlock=block;
   const h=plot?"plot-"+plot:block?"block-"+block:"";
   if(push&&location.hash.slice(1)!==h){S._hashLock=true;if(h)location.hash=h;else history.replaceState(null,"",location.pathname+location.search);}
   render();
@@ -341,6 +391,9 @@ function renderHeader(){
 }
 
 /* ---------- Map SVG ---------- */
+// plot number drawn on top of a coloured plot (the colour hides the number on the plan)
+function pnText(p,on,big){const fs=Math.max(1.4,Math.min(p.sh*(big?0.7:0.58),p.ph*0.3));
+  return `<text class="pn${on?" on":""}" x="${p.cx.toFixed(1)}" y="${p.cy.toFixed(1)}" font-size="${fs.toFixed(2)}" dominant-baseline="central" text-anchor="middle" transform="rotate(${p.ang.toFixed(1)} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)})">${p.num!=null?p.num:"?"}</text>`}
 function mapSVG(mode){
   const blk=S.block,W=WORLD[2],H=WORLD[3];
   let s=`<rect x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" style="fill:var(--ground)"/>`;
@@ -366,10 +419,11 @@ function mapSVG(mode){
       if(mode==="block"&&S.statusFilter!=="all"&&st!==S.statusFilter)fade=true;
       if(fade&&st)cls+=" fade";
       if(S.plot===p.id)cls+=" sel";
+      if(S.sel.has(p.id))cls+=" msel";
       if(p.num==null)cls+=" unread";
       s+=`<polygon class="${cls}" ${mode==="mini"?"":`data-p="${p.id}"`} points="${ptsStr(p.pts)}"/>`;
-      if(mode==="block"&&id===blk&&(st||S.plot===p.id)){
-        s+=`<text class="pn${st?" on":""}" x="${p.cx.toFixed(1)}" y="${(p.cy+p.ph*0.07).toFixed(1)}" font-size="${(p.ph*0.2).toFixed(2)}" text-anchor="middle">${p.num!=null?p.num:"?"}</text>`;
+      if(mode!=="mini"&&(st||S.plot===p.id||S.sel.has(p.id))){
+        s+=pnText(p,!!st,S.plot===p.id);
       }
     }
   }
@@ -424,7 +478,7 @@ function attachMap(wrap){
     else if(S.view==="all"&&e.pointerType==="mouse")hoverAt(e,wrap);
   });
   const end=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(ptrs.size===0){
-      if(!moved&&e.type==="pointerup"){const el=document.elementFromPoint(e.clientX,e.clientY);if(el)clickMap(el)}
+      if(!moved&&e.type==="pointerup"){const el=document.elementFromPoint(e.clientX,e.clientY);if(el)clickMap(el,e)}
       drag=null}};
   svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
   svg.addEventListener("pointerleave",()=>{if(S.view==="all"){const t=wrap.querySelector(".tip");if(t)t.hidden=true;setLift(wrap,null)}});
@@ -457,13 +511,16 @@ function setLift(wrap,b){
   s+=`<image href="plan.webp" x="0" y="0" width="${WORLD[2]}" height="${WORLD[3]}" preserveAspectRatio="none" class="plan" clip-path="url(#liftclip)"/>`;
   s+=hull.map(h=>`<polygon class="lifthit" data-b="${b}" points="${h}"/>`).join("");
   for(const p of blk.plots){const st=statusOf(p.id);let c="p";if(st)c+=" "+st;if(S.size!=="all"&&p.size!==S.size&&st)c+=" fade";if(p.num==null)c+=" unread";
-    s+=`<polygon class="${c}" data-p="${p.id}" points="${ptsStr(p.pts)}"/>`}
+    s+=`<polygon class="${c}" data-p="${p.id}" points="${ptsStr(p.pts)}"/>`;if(st)s+=pnText(p,true,false)}
   s+=hull.map(h=>`<polygon class="liftline" points="${h}"/>`).join("")+`</g>`;
   svg.insertAdjacentHTML("beforeend",s);
   L=svg.querySelector("#lift");requestAnimationFrame(()=>requestAnimationFrame(()=>{if(L.isConnected)L.classList.add("up")}));
 }
-function clickMap(el){
+function clickMap(el,ev){
   const d=el.dataset||{};
+  if(S.view==="block"&&d.p&&d.p.split("-")[0]===S.block&&(S.multi||(ev&&(ev.shiftKey||ev.ctrlKey||ev.metaKey)))){
+    if(!S.multi){S.multi=true;if(S.plot&&GEO.plots[S.plot])S.sel.add(S.plot)}
+    if(S.sel.has(d.p))S.sel.delete(d.p);else S.sel.add(d.p);S.bulkConfirm=false;render();return}
   const b=d.p?d.p.split("-")[0]:d.b||null;
   // in a block, a click outside that block closes it and the map zooms back out
   if(S.view==="block"&&b!==S.block){go("all");return}
@@ -485,6 +542,7 @@ function render(){
   for(const id in S.draft){const el=document.getElementById(id);if(el&&el.value!==S.draft[id])el.value=S.draft[id]}
   if(focusId){const el=document.getElementById(focusId);if(el){el.focus();if(caret&&el.setSelectionRange)try{el.setSelectionRange(caret[0],caret[1])}catch(e){}}}
   resolveNames();
+  if(S._focusFind){S._focusFind=false;const q=$("#q");if(q)q.focus()}
 }
 function allView(){
   const blocksHTML=ACTIVE.map(b=>{const s=blockStats(b);return `<button class="bstat" data-open="${b}"><span class="L">${b}</span><span><span class="nums"><span><b style="color:var(--avail)">${s.available}</b> avail.</span><span><b style="color:var(--book)">${s.prebooked}</b> pre-bk</span><span><b style="color:var(--sold)">${s.sold}</b> sold</span><span><b>${s.clients}</b> clients</span></span><span class="stack">${stackHTML(s)}</span></span><span class="go">Open ›</span></button>`}).join("");
@@ -494,7 +552,7 @@ function allView(){
     <div><div class="k">Size</div><div class="pills">${[["all","All"],["1K","1 Kanal"],["14M","14 M"],["10M","10 M"],["X","Corner"]].map(([v,l])=>`<button class="pill${S.size===v?" on":""}" data-size="${v}">${l}</button>`).join("")}</div></div>
     <div><div class="k">Show</div><div class="pills"><button class="pill${S.show==="all"?" on":""}" data-show="all">All plots</button><button class="pill${S.show==="ours"?" on":""}" data-show="ours">Our plots</button></div></div>
     <div><div class="k">Legend</div><div class="legend"><span><i class="sw" style="background:var(--avail);border:0"></i>Ours, available</span><span><i class="sw" style="background:var(--book);border:0"></i>Pre-booked</span><span><i class="sw" style="background:var(--sold);border:0"></i>Sold</span><span><i class="sw" style="background:var(--plot)"></i>Not ours</span></div></div>
-    <div><div class="k">Find a plot</div><form class="search" id="searchForm"><input id="q" placeholder="e.g. B-142" autocomplete="off" aria-label="Plot number"><button>Go</button></form><div class="hint" style="margin-top:6px">Block letter, dash, number.</div></div>
+    <div><div class="k">Find a plot</div>${findForm()}<div class="hint" style="margin-top:6px">Choose the block, then type the plot number.</div></div>
   </aside>
   <section class="mapwrap" aria-label="Map of all blocks">
     <svg role="img" aria-label="Margalla Orchard blocks and plots">${mapSVG("all")}</svg>
@@ -524,6 +582,7 @@ function blockView(){
   return `<div class="layout block">
   <aside class="side scroll">
     <button class="back" data-nav="all">‹ All blocks</button>
+    <div><div class="k">Find a plot</div>${findForm()}</div>
     <div class="k">Whole scheme</div>
     <div class="mini"><svg aria-hidden="true" preserveAspectRatio="xMidYMid meet">${mapSVG("mini")}</svg></div>
     <div class="k">Blocks</div>
@@ -532,9 +591,10 @@ function blockView(){
   <section class="mapwrap" aria-label="Block ${b} close-up">
     <svg role="img" aria-label="Block ${b} plots">${mapSVG("block")}</svg>
     <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit block" style="font-size:12px">Fit</button></div>
-    <div class="maphint">Tap a plot to open its file · tap outside the block to close it</div>
+    <button class="selbtn${S.multi?" on":""}" data-act="toggleMulti">${S.multi?"Done selecting":"Select several plots"}</button>
+    <div class="maphint">${S.multi?"Tap plots to select them · tap again to unselect":"Tap a plot to open its file · Ctrl/Shift-tap to select several · tap outside the block to close it"}</div>
   </section>
-  <aside class="panel scroll">${S.plot?plotFile(S.plot):blockFile(b)}</aside></div>`;
+  <aside class="panel scroll">${S.multi?bulkFile():S.plot?plotFile(S.plot):blockFile(b)}</aside></div>`;
 }
 function blockFile(b){
   const s=blockStats(b);const geo=GEO.blocks[b];
@@ -548,6 +608,23 @@ function blockFile(b){
   ${filt.length?`<div class="ourlist">${filt.map(d=>{const n=clientsFor(d.id).filter(c=>c.stage!=="dropped").length;return `<button class="ourrow" data-plot="${d.id}"><span class="dot" style="background:var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})"></span><span class="num">${d.id} <span class="meta">· ${SIZES[d.size]?SIZES[d.size].label:""}</span></span><span class="meta">${n} client${n===1?"":"s"}</span><span class="pr">${fmtPrice(d.price)}</span></button>`}).join("")}</div>`
    :`<div class="empty">${ours.length?"No plots with this status.":"None of our plots are marked in this block yet. Tap any plot on the map and choose \"Add to our plots\"."}</div>`}`;
 }
+function bulkFile(){
+  const ids=[...S.sel].filter(id=>GEO.plots[id]);const ours=ids.filter(id=>S.plots[id]);const w=S.canWrite!==false&&S.dbOK!==false;
+  let h=`<div><div class="k">Block ${S.block} · several plots</div><h2 style="margin-top:6px">${ids.length} plot${ids.length===1?"":"s"} selected</h2></div>`;
+  if(!ids.length)return h+`<div class="empty">Tap plots on the map to select them. Then set their price, status, size or tags together.</div>`;
+  h+=`<div class="selchips">${ids.slice(0,40).map(id=>`<button class="tag on" data-unsel="${id}" title="Unselect">${id} ×</button>`).join("")}${ids.length>40?`<span class="meta">+${ids.length-40} more</span>`:""}</div>
+  <div class="meta">${ours.length} of ${ids.length} are our plots.</div><button class="linkbtn" style="justify-self:start" data-act="clearSel">Clear selection</button>`;
+  if(!w)return h;
+  h+=`<form class="add" id="bulkPriceForm"><div class="k">Price for all selected</div><span class="meta">Plots that are not ours yet are added as available.</span>
+    <input id="bp" inputmode="decimal" placeholder="e.g. 3.80" autocomplete="off" aria-label="Price in crore"><button class="btn forest" type="submit">Set price · ${ids.length} plot${ids.length===1?"":"s"}</button></form>`;
+  h+=`<div class="k">Status${ours.length<ids.length?` <span class="meta">(our plots only)</span>`:""}</div><div class="seg" role="group" aria-label="Status for all selected">${Object.keys(STATUS).map(k=>`<button class="${k}" data-bstatus="${k}" ${ours.length?"":"disabled"}>${STATUS[k].label}</button>`).join("")}</div>`;
+  h+=`<div class="k">Size for all selected</div>${sizeChoice(null,"bsize")}`;
+  const allHave=t=>ours.length&&ours.every(id=>Array.isArray(S.plots[id].tags)&&S.plots[id].tags.includes(t));
+  h+=`<div class="k">Tags${ours.length<ids.length?` <span class="meta">(our plots only)</span>`:""}</div><div class="tags">${TAGS.map(t=>`<button type="button" class="tag${allHave(t)?" on":""}" data-btag="${esc(t)}" ${ours.length?"":"disabled"}>${esc(t)}</button>`).join("")}</div>`;
+  if(ours.length)h+=S.bulkConfirm?`<div class="confirm"><b>Remove ${ours.length} plot${ours.length===1?"":"s"} from our plots?</b><span class="meta">Their prices, status and client records are deleted for everyone.</span><div class="btns"><button class="btn" data-act="bulkKeep">Keep them</button><button class="btn" style="background:var(--sold);color:#fff;border-color:var(--sold)" data-act="bulkRemove">Remove</button></div></div>`
+    :`<button class="sbtn danger" style="justify-self:start" data-act="bulkAsk">Remove selected from our plots</button>`;
+  return h;
+}
 function neighbourSVG(id){
   const p=GEO.plots[id];const b=GEO.blocks[p.block];
   const near=b.plots.filter(q=>Math.hypot(q.cx-p.cx,q.cy-p.cy)<p.ph*1.7);
@@ -559,6 +636,8 @@ function neighbourSVG(id){
     if(st||me)s+=`<text class="pn${st?" on":""}" x="${q.cx.toFixed(1)}" y="${(q.cy+q.ph*(me?0.09:0.07)).toFixed(1)}" font-size="${(q.ph*(me?0.27:0.2)).toFixed(2)}" font-weight="${me?700:400}" text-anchor="middle">${q.num!=null?q.num:"?"}</text>`});
   return s+`</svg>`;
 }
+function findForm(){const cur=S.findBlock||S.block||"A";
+  return `<form class="search" id="searchForm"><select id="qb" aria-label="Block">${ACTIVE.map(b=>`<option value="${b}"${b===cur?" selected":""}>Block ${b}</option>`).join("")}</select><input id="q" inputmode="numeric" placeholder="Plot no." autocomplete="off" aria-label="Plot number"><button>Go</button></form>`}
 function sizeChoice(cur,attr){return `<div class="seg sizes" role="group" aria-label="Plot size">${SIZE_ORDER.map(k=>`<button type="button" class="${cur===k?"on":""}" data-${attr}="${k}">${k==="X"?"Corner":SIZES[k].label}</button>`).join("")}</div>`}
 function notesBar(id,d,w){
   const tags=Array.isArray(d.tags)?d.tags:[];
@@ -632,6 +711,10 @@ document.addEventListener("click",e=>{
   if(d.status)return setStatus(S.plot,d.status);
   if(d.asize){S.addSize=d.asize;return render()}
   if(d.esize)return saveSize(S.plot,d.esize);
+  if(d.unsel){S.sel.delete(d.unsel);return render()}
+  if(d.bstatus)return bulkStatus(d.bstatus);
+  if(d.bsize)return bulkSize(d.bsize);
+  if(d.btag)return bulkTag(d.btag);
   if(d.tag)return toggleTag(S.plot,d.tag);
   if(d.cpre)return clientStage(d.cpre,"prebooked");
   if(d.cbuy)return clientStage(d.cbuy,"bought");
@@ -645,6 +728,11 @@ document.addEventListener("click",e=>{
     case"cancelAdd":S.addOpen=false;["cn","cp","cnote"].forEach(k=>delete S.draft[k]);render();break;
     case"openFix":S.fixOpen=true;render();setTimeout(()=>{const i=$("#fx");if(i)i.focus()});break;
     case"cancelFix":S.fixOpen=false;delete S.draft.fx;render();break;
+    case"toggleMulti":S.multi=!S.multi;if(S.multi&&S.plot&&GEO.plots[S.plot])S.sel.add(S.plot);if(!S.multi){S.sel=new Set();S.bulkConfirm=false}render();break;
+    case"clearSel":S.sel=new Set();S.bulkConfirm=false;render();break;
+    case"bulkAsk":S.bulkConfirm=true;render();break;
+    case"bulkKeep":S.bulkConfirm=false;render();break;
+    case"bulkRemove":bulkRemove();break;
     case"editSize":S.editSize=true;render();break;
     case"cancelSize":S.editSize=false;render();break;
     case"editNote":S.editNote=true;render();setTimeout(()=>{const i=$("#pnote");if(i)i.focus()});break;
@@ -657,12 +745,19 @@ document.addEventListener("click",e=>{
 document.addEventListener("input",e=>{if(e.target.id)S.draft[e.target.id]=e.target.value});
 document.addEventListener("submit",e=>{
   e.preventDefault();const f=e.target;
-  if(f.id==="searchForm"){const v=($("#q").value||"").trim().toUpperCase().replace(/\s+/g,"").replace(/^([A-Z])(\d)/,"$1-$2");
-    if(GEO.plots[v]){delete S.draft.q;go("block",v[0],v)}else if(ACTIVE.includes(v))go("block",v);else toast("No plot "+(v||"")+" on the map. Try a format like B-142.")}
+  if(f.id==="searchForm"){const b=$("#qb").value;const n=($("#q").value||"").replace(/[^0-9]/g,"");S.findBlock=b;
+    if(!n){toast("Type a plot number");return}
+    const v=b+"-"+parseInt(n,10);
+    if(GEO.plots[v]){delete S.draft.q;S._focusFind=true;
+      // the block opens fitted to the screen, ready for the next search in the same block
+      if(S.view==="block"&&S.block===b){const k="block-"+b;S._anim={from:(S.vb[k]||defaultVB()).slice()};delete S.vb[k]}
+      go("block",b,v)}
+    else toast("No plot "+v+" on the map. Check the number.")}
   if(f.id==="priceForm")savePrice(S.plot,$("#pp").value);
   if(f.id==="addPlotForm")addPlot(S.plot,$("#np").value);
   if(f.id==="addClientForm")addClient(S.plot);
   if(f.id==="fixForm")saveFix(S.plot,$("#fx").value);
+  if(f.id==="bulkPriceForm")bulkPrice($("#bp").value);
   if(f.id==="noteForm")saveNote(S.plot,$("#pnote").value);
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(S.plot)go("block",S.block);else if(S.view==="block")go("all")}});
@@ -682,11 +777,11 @@ function addPlot(id,raw){const price=parsePrice(raw);if(price==null){toast("Ente
   const p=GEO.plots[id];delete S.draft.np;
   const size=S.addSize&&SIZES[S.addSize]?S.addSize:p.size;S.addSize=null;
   guard(async()=>{await db.collection("plots").doc(id).set(Object.assign({block:p.block,num:p.num,size,status:"available",price,tags:size==="X"?["Corner"]:[],note:""},stamp()));
-    if(size!==p.size){const fx=Object.assign({},S.fixes[p.key]||{});fx.size=size;fx.updatedBy=S.me;fx.updatedAt=nowIso();await db.collection("fixes").doc(p.key).set(fx)}},"Added "+id+" to our plots");}
+    if(size!==p.size){const fx=Object.assign({},S.fixes[p.key]||{});fx.size=size;fx.updatedBy=S.me;fx.updatedAt=nowIso();await db.collection("fixes").doc(p.key).set(fx)}},null);}
 function savePrice(id,raw){const price=parsePrice(raw);if(price==null){toast("Enter a price in crore, e.g. 4.10");return}
   S.editPrice=false;delete S.draft.pp;
   if(S.plots[id]&&S.plots[id].price===price){render();return}
-  guard(()=>db.collection("plots").doc(id).update(Object.assign({price},stamp())),"Price saved");}
+  guard(()=>db.collection("plots").doc(id).update(Object.assign({price},stamp())),null);}
 function saveSize(id,size){const p=GEO.plots[id];if(!p||!SIZES[size])return;
   S.editSize=false;
   const fx=Object.assign({},S.fixes[p.key]||{});delete fx._id;fx.size=size;fx.updatedBy=S.me;fx.updatedAt=nowIso();
@@ -696,14 +791,31 @@ function toggleTag(id,t){const d=S.plots[id];if(!d)return;const cur=Array.isArra
   const tags=cur.includes(t)?cur.filter(x=>x!==t):cur.concat([t]);
   guard(()=>db.collection("plots").doc(id).update(Object.assign({tags},stamp())));}
 function saveNote(id,raw){const note=String(raw||"").trim().slice(0,400);S.editNote=false;delete S.draft.pnote;
-  guard(()=>db.collection("plots").doc(id).update(Object.assign({note},stamp())),"Note saved");}
+  guard(()=>db.collection("plots").doc(id).update(Object.assign({note},stamp())),null);}
+function selIds(){return [...S.sel].filter(id=>GEO.plots[id]&&GEO.plots[id].num!=null)}
+function bulkPrice(raw){const price=parsePrice(raw);if(price==null){toast("Enter a price in crore, e.g. 3.80");return}
+  const ids=selIds();delete S.draft.bp;
+  guard(()=>Promise.all(ids.map(id=>{const p=GEO.plots[id];
+    return S.plots[id]?db.collection("plots").doc(id).update(Object.assign({price},stamp()))
+      :db.collection("plots").doc(id).set(Object.assign({block:p.block,num:p.num,size:p.size,status:"available",price,tags:p.size==="X"?["Corner"]:[],note:""},stamp()))})));}
+function bulkStatus(st){const ids=selIds().filter(id=>S.plots[id]&&S.plots[id].status!==st);
+  guard(()=>Promise.all(ids.map(id=>db.collection("plots").doc(id).update(Object.assign({status:st},stamp())))));}
+function bulkSize(size){const ids=selIds();
+  guard(()=>Promise.all(ids.map(async id=>{const p=GEO.plots[id];const fx=Object.assign({},S.fixes[p.key]||{});fx.size=size;fx.updatedBy=S.me;fx.updatedAt=nowIso();
+    await db.collection("fixes").doc(p.key).set(fx);if(S.plots[id])await db.collection("plots").doc(id).update(Object.assign({size},stamp()))})),ids.length+" plot(s) set to "+SIZES[size].label);}
+function bulkTag(t){const ids=selIds().filter(id=>S.plots[id]);
+  const all=ids.every(id=>Array.isArray(S.plots[id].tags)&&S.plots[id].tags.includes(t));
+  guard(()=>Promise.all(ids.map(id=>{const cur=Array.isArray(S.plots[id].tags)?S.plots[id].tags:[];
+    const tags=all?cur.filter(x=>x!==t):(cur.includes(t)?cur:cur.concat([t]));return db.collection("plots").doc(id).update(Object.assign({tags},stamp()))})));}
+async function bulkRemove(){const ids=selIds().filter(id=>S.plots[id]);S.bulkConfirm=false;
+  await guard(async()=>{for(const id of ids){for(const c of clientsFor(id))await db.collection("clients").doc(c._id).delete();await db.collection("plots").doc(id).delete()}});}
 function setStatus(id,st){if(!S.plots[id]||S.plots[id].status===st)return;
-  guard(()=>db.collection("plots").doc(id).update(Object.assign({status:st},stamp())),id+" marked "+STATUS[st].label.toLowerCase());}
+  guard(()=>db.collection("plots").doc(id).update(Object.assign({status:st},stamp())),null);}
 async function addClient(id){
   const name=($("#cn").value||"").trim();if(!name){toast("Add the client's name");return}
   const phone=($("#cp").value||"").trim().slice(0,40),note=($("#cnote").value||"").trim().slice(0,400);
   S.addOpen=false;["cn","cp","cnote"].forEach(k=>delete S.draft[k]);
-  await guard(()=>db.collection("clients").add({plotId:id,name:name.slice(0,80),phone,note,stage:"interested",addedBy:S.me,createdAt:nowIso()}),"Client added");
+  await guard(()=>db.collection("clients").add({plotId:id,name:name.slice(0,80),phone,note,stage:"interested",addedBy:S.me,createdAt:nowIso()}),null);
 }
 async function clientStage(cid,stage){
   const c=S.clients.find(x=>x._id===cid);if(!c)return;
@@ -717,7 +829,7 @@ async function clientStage(cid,stage){
 function deleteClient(cid){guard(()=>db.collection("clients").doc(cid).delete(),"Client deleted")}
 async function removePlot(id){
   S.confirmRemove=false;
-  await guard(async()=>{for(const c of clientsFor(id))await db.collection("clients").doc(c._id).delete();await db.collection("plots").doc(id).delete()},id+" removed from our plots");
+  await guard(async()=>{for(const c of clientsFor(id))await db.collection("clients").doc(c._id).delete();await db.collection("plots").doc(id).delete()},null);
 }
 function saveFix(id,raw){
   const n=parseInt(String(raw).replace(/[^0-9]/g,""),10);if(!(n>0&&n<10000)){toast("Enter a plot number, e.g. 142");return}
@@ -761,6 +873,7 @@ async function resolveNames(){
   const done=()=>{if(gotP&&gotC&&!S.ready){S.ready=true;clearTimeout(timer)}};
   db.collection("plots").onSnapshot(snap=>{
     const m={};snap.docs.forEach(d=>{const v=d.data();if(v&&GEO.plots[d.id]&&STATUS[v.status])m[d.id]=Object.assign({},v,{id:d.id})});
+    plotChanges(S._prevPlots,m);S._prevPlots=m;
     S.plots=m;if(!snap.metadata.fromCache)gotP=true;done();render();
   },err=>{clearTimeout(timer);S.timedOut=true;render()});
   db.collection("fixes").onSnapshot(snap=>{
@@ -772,6 +885,7 @@ async function resolveNames(){
   },()=>{});
   db.collection("clients").onSnapshot(snap=>{
     S.clients=snap.docs.map(d=>Object.assign({},d.data(),{_id:d.id})).filter(c=>c.plotId);
+    clientChanges(S._prevClients,S.clients);S._prevClients=S.clients;
     if(!snap.metadata.fromCache)gotC=true;done();render();
   },err=>{clearTimeout(timer);S.timedOut=true;render()});
 })();
