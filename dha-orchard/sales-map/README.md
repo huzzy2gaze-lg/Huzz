@@ -14,7 +14,7 @@ Live team map: https://claude.ai/artifact/ACotWwamH6xub2WeVvVpKx
   - On each side of the loop, the area is split between the blocks at the middle of the roads. Parks and other areas go whole to one block, except where the purple line cuts them.
   - The outer edge is the plan's solid blue scheme boundary.
   - Scripts: `tools/regions_purple.py`, `tools/regions_split.py`, `tools/hull_purple.py`.
-- A small gap and a gold rim (15% opacity) separate the blocks. The red outline shows only on the block under the mouse.
+- A small gap and a light red rim (15% opacity) separate the blocks. The red outline shows only on the block under the mouse.
 - 97 corner or irregular plots show "Corner or irregular plot", not a standard size.
 - 43 plots of the official 4,781 are not traced, because their lines do not form a closed box.
 - Our plots show in colour: green = available, amber = pre-booked, red = sold.

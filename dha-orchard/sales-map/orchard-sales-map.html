@@ -7,7 +7,7 @@
 /* Layout: a sales desk around a live map. Whole-scheme view (filters | map | summary), then a block view (block list | close-up | plot file). */
 :root{
   --bg:#EEF2EC; --surface:#FFFFFF; --card:#F7F9F5; --ink:#13221B; --soft:#5B6E62; --line:#D7E0D7;
-  --forest:#0E3A2C; --on-forest:#EEF3EE; --on-forest-soft:#A9C2B3; --brass:#A87A22; --gold:#C9A227; --brass-soft:#F3E7CC;
+  --forest:#0E3A2C; --on-forest:#EEF3EE; --on-forest-soft:#A9C2B3; --brass:#A87A22; --gold:#C9A227; --rim:#E8776B; --brass-soft:#F3E7CC;
   --avail:#2F9E62; --book:#E0A11B; --sold:#B4473A;
   --plot:#FFFFFF; --plot-line:#B9C6BC; --plot-dim:#E1E7DF; --ground:#F4F6F2; --road:#FAFBF8; --blockcard:#F6F8F4; --plan-filter:none;
   --display:"Gloock","Iowan Old Style",Georgia,serif;
@@ -90,7 +90,7 @@ svg .lifthit{fill:transparent;pointer-events:all;cursor:pointer}
 svg .liftline{fill:none;stroke:#E0141B;stroke-width:3px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
 @media (prefers-reduced-motion:reduce){svg .lift{transition:none}}
 /* block edges: each block is the full area on its side of the plan's purple line; a small gap separates the blocks */
-svg .bglow{fill:none;stroke:var(--gold);stroke-opacity:.15;stroke-width:7px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
+svg .bglow{fill:none;stroke:var(--rim);stroke-opacity:.15;stroke-width:7px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
 svg .bgap{fill:none;stroke:var(--ground);stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
 svg .veil{fill:var(--ground);opacity:.63}
 svg .p.unread{stroke:var(--brass);stroke-width:.35;stroke-dasharray:1 1}
