@@ -287,6 +287,13 @@ function nowIso(){return new Date().toISOString()}
 
 /* ---------- Navigation ---------- */
 function go(view,block,plot,{push=true}={}){
+  // smooth zoom when the map moves between all blocks and one block
+  const fromKey=vbKey(),toKey=view==="block"?"block-"+block:"all";
+  if(GEO&&fromKey!==toKey){
+    const fromVB=S.vb[fromKey]||defaultVB();
+    if(view==="block")delete S.vb[toKey];   // a block always opens fitted to the screen
+    S._anim={from:fromVB.slice()};
+  }
   S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;S.fixOpen=false;
   const h=plot?"plot-"+plot:block?"block-"+block:"";
   if(push&&location.hash.slice(1)!==h){S._hashLock=true;if(h)location.hash=h;else history.replaceState(null,"",location.pathname+location.search);}
@@ -359,20 +366,42 @@ function mapSVG(mode){
 function fitBox(bb,pad){return [bb[0]-pad,bb[1]-pad,bb[2]-bb[0]+pad*2,bb[3]-bb[1]+pad*2]}
 function vbKey(){return S.view==="block"?"block-"+S.block:"all"}
 function defaultVB(){if(S.view==="block")return fitBox(GEO.blocks[S.block].bbox,20);const W=WORLD[2],H=WORLD[3];return [-W*0.07,-H*0.07,W*1.14,H*1.14]}
+let ZA=null;   // the zoom that is running: {key,fr,to,t0}
 function attachMap(wrap){
   const svg=wrap.querySelector("svg");
   const key=vbKey();
   let vb=S.vb[key]||defaultVB();
+  let animId=0;
   const apply=()=>{svg.setAttribute("viewBox",vb.map(n=>n.toFixed(2)).join(" "));S.vb[key]=vb};
-  apply();
+  const stopAnim=()=>{if(animId){cancelAnimationFrame(animId);animId=0}if(ZA&&ZA.key===key){S.vb[key]=vb;ZA=null}};
+  // a new zoom starts on go(); a re-render during the zoom (live data) carries it on
+  if(S._anim&&!matchMedia("(prefers-reduced-motion: reduce)").matches)ZA={key,fr:S._anim.from,to:vb.slice(),t0:performance.now()};
+  S._anim=null;
+  if(ZA&&ZA.key===key){
+    const {fr,to,t0}=ZA,DUR=650;
+    const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+    const fc=[fr[0]+fr[2]/2,fr[1]+fr[3]/2],tc=[to[0]+to[2]/2,to[1]+to[3]/2];
+    const lw=[Math.log(fr[2]),Math.log(to[2])],lh=[Math.log(fr[3]),Math.log(to[3])];
+    const step=now=>{
+      if(!svg.isConnected){animId=0;return}
+      const t=Math.min(1,(now-t0)/DUR),e=ease(t);
+      // the centre moves in a straight line; the size changes on a log scale, so the zoom speed feels even
+      const w=Math.exp(lw[0]+(lw[1]-lw[0])*e),h=Math.exp(lh[0]+(lh[1]-lh[0])*e);
+      const cx=fc[0]+(tc[0]-fc[0])*e,cy=fc[1]+(tc[1]-fc[1])*e;
+      vb=t<1?[cx-w/2,cy-h/2,w,h]:to;
+      svg.setAttribute("viewBox",vb.map(n=>n.toFixed(2)).join(" "));
+      if(t<1)animId=requestAnimationFrame(step);else{animId=0;ZA=null;S.vb[key]=to}
+    };
+    S.vb[key]=to;step(performance.now());
+  }else apply();
   const toWorld=(cx,cy)=>{const r=svg.getBoundingClientRect();const s=Math.max(vb[2]/r.width,vb[3]/r.height);const ox=(r.width*s-vb[2])/2,oy=(r.height*s-vb[3])/2;return [vb[0]-ox+(cx-r.left)*s,vb[1]-oy+(cy-r.top)*s,s]};
-  const zoomAt=(f,cx,cy)=>{const [wx,wy]=toWorld(cx,cy);const nw=Math.min(Math.max(vb[2]*f,25),WORLD[2]*1.6),k=nw/vb[2];vb=[wx-(wx-vb[0])*k,wy-(wy-vb[1])*k,nw,vb[3]*k];apply()};
+  const zoomAt=(f,cx,cy)=>{stopAnim();const [wx,wy]=toWorld(cx,cy);const nw=Math.min(Math.max(vb[2]*f,25),WORLD[2]*1.6),k=nw/vb[2];vb=[wx-(wx-vb[0])*k,wy-(wy-vb[1])*k,nw,vb[3]*k];apply()};
   wrap.querySelector("[data-z='in']").onclick=()=>{const r=svg.getBoundingClientRect();zoomAt(0.75,r.left+r.width/2,r.top+r.height/2)};
   wrap.querySelector("[data-z='out']").onclick=()=>{const r=svg.getBoundingClientRect();zoomAt(1.33,r.left+r.width/2,r.top+r.height/2)};
-  wrap.querySelector("[data-z='fit']").onclick=()=>{vb=defaultVB();apply()};
+  wrap.querySelector("[data-z='fit']").onclick=()=>{stopAnim();vb=defaultVB();apply()};
   svg.addEventListener("wheel",e=>{e.preventDefault();zoomAt(e.deltaY>0?1.12:0.89,e.clientX,e.clientY)},{passive:false});
   const ptrs=new Map();let drag=null,pinch=null,moved=false;
-  svg.addEventListener("pointerdown",e=>{ptrs.set(e.pointerId,[e.clientX,e.clientY]);svg.setPointerCapture(e.pointerId);moved=false;
+  svg.addEventListener("pointerdown",e=>{stopAnim();ptrs.set(e.pointerId,[e.clientX,e.clientY]);svg.setPointerCapture(e.pointerId);moved=false;
     if(ptrs.size===1)drag={x:e.clientX,y:e.clientY,vb:vb.slice()};
     else if(ptrs.size===2){const a=[...ptrs.values()];pinch={d:Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),vb:vb.slice(),mx:(a[0][0]+a[1][0])/2,my:(a[0][1]+a[1][1])/2};drag=null}});
   svg.addEventListener("pointermove",e=>{
@@ -422,10 +451,11 @@ function setLift(wrap,b){
 }
 function clickMap(el){
   const d=el.dataset||{};
-  if(d.p){go("block",d.p.split("-")[0],d.p);return}
-  if(d.b){go("block",d.b,null);return}
-  // a click outside every block closes the open block
-  if(S.view==="block")go("all");
+  const b=d.p?d.p.split("-")[0]:d.b||null;
+  // in a block, a click outside that block closes it and the map zooms back out
+  if(S.view==="block"&&b!==S.block){go("all");return}
+  if(d.p){go("block",b,d.p);return}
+  if(d.b&&S.view!=="block"){go("block",b,null);return}
 }
 
 /* ---------- Views ---------- */
