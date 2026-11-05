@@ -303,7 +303,7 @@ function ago(iso){if(!iso)return"";const d=(Date.now()-new Date(iso).getTime())/
 function notice(text,kind,plot){const box=$("#notes");if(!box)return;
   const el=document.createElement("div");el.className="note"+(kind?" "+kind:"");el.setAttribute("role","status");
   el.innerHTML=`<span>${text}</span><button class="x" aria-label="Close">×</button>`;
-  el.onclick=e=>{if(e.target.closest(".x")){el.remove();return}if(plot&&GEO.plots[plot]){el.remove();go("block",plot.split("-")[0],plot)}};
+  el.onclick=e=>{if(e.target.closest(".x")){el.remove();return}if(plot&&GEO.plots[plot]){el.remove();focusPlot(plot)}};
   box.prepend(el);while(box.children.length>4)box.lastChild.remove();
   setTimeout(()=>{el.classList.add("out");setTimeout(()=>el.remove(),320)},7000);}
 function byWho(uid){const n=uid&&S.names[uid]&&S.names[uid].name;return n?` · by ${esc(n)}`:""}
@@ -351,17 +351,21 @@ function nowIso(){return new Date().toISOString()}
 function go(view,block,plot,{push=true}={}){
   // smooth zoom when the map moves between all blocks and one block
   const fromKey=vbKey(),toKey=view==="block"?"block-"+block:"all";
+  const fromVB=GEO?(S.vb[fromKey]||defaultVB()).slice():null;
   if(GEO&&fromKey!==toKey){
-    const fromVB=S.vb[fromKey]||defaultVB();
     if(view==="block")delete S.vb[toKey];   // a block always opens fitted to the screen
-    S._anim={from:fromVB.slice()};
+    S._anim={from:fromVB};
   }
+  if(GEO&&S._focusVB){S.vb[toKey]=S._focusVB;S._focusVB=null;S._anim={from:fromVB}}
   S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;S.fixOpen=false;S.addSize=null;S.editSize=false;S.editNote=false;
   if(view!=="block"||block!==S._selBlock){S.sel=new Set();S.multi=false;S.bulkConfirm=false}S._selBlock=block;
   const h=plot?"plot-"+plot:block?"block-"+block:"";
   if(push&&location.hash.slice(1)!==h){S._hashLock=true;if(h)location.hash=h;else history.replaceState(null,"",location.pathname+location.search);}
   render();
 }
+// open a plot and zoom the big map smoothly to it, with its street around it
+function focusPlot(id){const p=GEO.plots[id];if(!p)return;
+  const z=Math.max(p.ph*9,120);S._focusVB=[p.cx-z/2,p.cy-z/2,z,z];go("block",p.block,id)}
 function fromHash(){
   if(!GEO)return;
   const h=decodeURIComponent(location.hash.slice(1));
@@ -702,7 +706,7 @@ document.addEventListener("click",e=>{
   if(d.nav==="all")return go("all");
   if(d.nav==="block")return go("block",d.b);
   if(d.open)return go("block",d.open);
-  if(d.plot)return go("block",d.plot.split("-")[0],d.plot);
+  if(d.plot)return focusPlot(d.plot);
   if((d.p||d.b)&&t.closest(".mini,.drawing")){const b=d.p?d.p.split("-")[0]:d.b;return go("block",b,d.p||null)}
   if(d.p||d.b)return;
   if(d.size){S.size=d.size;return render()}
