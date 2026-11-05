@@ -7,7 +7,7 @@
 /* Layout: a sales desk around a live map. Whole-scheme view (filters | map | summary), then a block view (block list | close-up | plot file). */
 :root{
   --bg:#EEF2EC; --surface:#FFFFFF; --card:#F7F9F5; --ink:#13221B; --soft:#5B6E62; --line:#D7E0D7;
-  --forest:#0E3A2C; --on-forest:#EEF3EE; --on-forest-soft:#A9C2B3; --brass:#A87A22; --brass-soft:#F3E7CC;
+  --forest:#0E3A2C; --on-forest:#EEF3EE; --on-forest-soft:#A9C2B3; --brass:#A87A22; --gold:#C9A227; --brass-soft:#F3E7CC;
   --avail:#2F9E62; --book:#E0A11B; --sold:#B4473A;
   --plot:#FFFFFF; --plot-line:#B9C6BC; --plot-dim:#E1E7DF; --ground:#F4F6F2; --road:#FAFBF8; --blockcard:#F6F8F4; --plan-filter:none;
   --display:"Gloock","Iowan Old Style",Georgia,serif;
@@ -16,12 +16,12 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0C1511; --surface:#142019; --card:#17241D; --ink:#E4ECE6; --soft:#9CB2A5; --line:#26372E;
-  --forest:#0A2A20; --brass:#DDAA4C; --brass-soft:#33280F;
+  --forest:#0A2A20; --brass:#DDAA4C; --gold:#E2BE55; --brass-soft:#33280F;
   --avail:#3DBB78; --book:#E8AE33; --sold:#D2665A;
   --plot:#1C2B23; --plot-line:#3A4F42; --plot-dim:#16221C; --ground:#101B16; --road:#1E2D25; --blockcard:#14211A; --plan-filter:brightness(.58) contrast(1.1); color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#0C1511; --surface:#142019; --card:#17241D; --ink:#E4ECE6; --soft:#9CB2A5; --line:#26372E;
-  --forest:#0A2A20; --brass:#DDAA4C; --brass-soft:#33280F;
+  --forest:#0A2A20; --brass:#DDAA4C; --gold:#E2BE55; --brass-soft:#33280F;
   --avail:#3DBB78; --book:#E8AE33; --sold:#D2665A;
   --plot:#1C2B23; --plot-line:#3A4F42; --plot-dim:#16221C; --ground:#101B16; --road:#1E2D25; --blockcard:#14211A; --plan-filter:brightness(.58) contrast(1.1); color-scheme:dark }
 
@@ -89,15 +89,15 @@ svg .liftbase{fill:var(--surface)}
 svg .lifthit{fill:transparent;pointer-events:all;cursor:pointer}
 svg .liftline{fill:none;stroke:#E0141B;stroke-width:3px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
 @media (prefers-reduced-motion:reduce){svg .lift{transition:none}}
-/* block borders from the plan, drawn 15% wider than on the plan (dash 3.0 -> 3.45) */
-svg .borders polygon{fill:#FF1A1A;stroke:#FF1A1A;stroke-width:.45;stroke-linejoin:round;pointer-events:none}
+/* block edges: each block is the full area on its side of the plan's purple line; a small gap separates the blocks */
+svg .bglow{fill:none;stroke:var(--gold);stroke-opacity:.15;stroke-width:14px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
+svg .bgap{fill:none;stroke:var(--ground);stroke-width:5px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
 svg .veil{fill:var(--ground);opacity:.63}
 svg .p.unread{stroke:var(--brass);stroke-width:.35;stroke-dasharray:1 1}
 svg .bcard{fill:transparent;stroke:none}
 svg .bcard.grey{fill:transparent;pointer-events:none}
 svg .bcard.hit{cursor:pointer}
-svg .bcard.hi{stroke:var(--brass);stroke-width:2.5;fill:transparent}
-svg .bcard.hit:hover{stroke:var(--brass);stroke-width:2}
+svg .bcard.hi{fill:transparent}
 svg .blabel{font-family:var(--display);fill:var(--soft);opacity:.45;pointer-events:none}
 svg .p{fill:transparent;stroke:none;cursor:pointer;pointer-events:all}
 svg .p.grey{fill:var(--plot-dim);cursor:default}
@@ -253,8 +253,6 @@ function buildGeo(data,fixes){
   }
   return {blocks,plots,byKey};
 }
-let _borders=null;
-function BORDERS(){if(_borders)return _borders;_borders=RAW.borders.map(f=>{let t="";for(let j=0;j<f.length;j+=2)t+=(j?" ":"")+f[j]+","+f[j+1];return `<polygon points="${t}"/>`}).join("");return _borders}
 function plotLabel(p){return p.num!=null?p.id:"Block "+p.block+" · number unread"}
 
 /* ---------- State ---------- *//* ---------- State ---------- */
@@ -326,8 +324,12 @@ function renderHeader(){
 function mapSVG(mode){
   const blk=S.block,W=WORLD[2],H=WORLD[3];
   let s=`<rect x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" style="fill:var(--ground)"/>`;
-  s+=`<image href="plan.webp" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" class="plan${S.show==="ours"&&mode==="all"?" dim":""}"/>`;
-  if(RAW&&RAW.borders&&mode!=="mini")s+=`<g class="borders">${BORDERS()}</g>`;
+  // the plan is shown only inside the blocks, so the gaps between blocks show the ground colour
+  const allHulls=Object.values(GEO.blocks).flatMap(b=>b.hull).map(h=>`<polygon points="${ptsStr(h)}"/>`).join("");
+  s+=`<defs><clipPath id="bclip-${mode}">${allHulls}</clipPath></defs>`;
+  s+=`<image href="plan.webp" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" clip-path="url(#bclip-${mode})" class="plan${S.show==="ours"&&mode==="all"?" dim":""}"/>`;
+  if(mode!=="mini"){const hs=Object.values(GEO.blocks).flatMap(b=>b.hull).map(h=>ptsStr(h));
+    s+=`<g>${hs.map(h=>`<polygon class="bglow" points="${h}"/>`).join("")}${hs.map(h=>`<polygon class="bgap" points="${h}"/>`).join("")}</g>`;}
   if(mode!=="all"&&blk){
     const hp=GEO.blocks[blk].hull.map(h=>`<polygon points="${ptsStr(h)}" fill="black"/>`).join("");
     s+=`<defs><mask id="mk-${mode}"><rect x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" fill="white"/>${hp}</mask></defs><rect class="veil" x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" mask="url(#mk-${mode})"/>`;
