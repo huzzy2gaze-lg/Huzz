@@ -81,9 +81,15 @@ button{cursor:pointer}
 .maphint{position:absolute;right:12px;bottom:12px;font:500 11px var(--mono);color:var(--soft);background:var(--surface);border:1px solid var(--line);padding:5px 8px;border-radius:6px}
 svg .plan{opacity:.92;filter:var(--plan-filter)}
 svg .plan.dim{opacity:.38}
+svg .lift{transform:scale(1);transition:transform .18s ease-out}
+svg .lift.up{transform:scale(1.07)}
+svg .liftbase{fill:var(--surface)}
+svg .lifthit{fill:transparent;pointer-events:all;cursor:pointer}
+svg .liftline{fill:none;stroke:#E0141B;stroke-width:3px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none}
+@media (prefers-reduced-motion:reduce){svg .lift{transition:none}}
 /* block borders from the plan, drawn 15% wider than on the plan (dash 3.0 -> 3.45) */
 svg .borders polygon{fill:#FF1A1A;stroke:#FF1A1A;stroke-width:.45;stroke-linejoin:round;pointer-events:none}
-svg .veil{fill:var(--ground);opacity:.78}
+svg .veil{fill:var(--ground);opacity:.63}
 svg .p.unread{stroke:var(--brass);stroke-width:.35;stroke-dasharray:1 1}
 svg .bcard{fill:transparent;stroke:none}
 svg .bcard.grey{fill:transparent;pointer-events:none}
@@ -375,12 +381,13 @@ function attachMap(wrap){
       if(!moved&&e.type==="pointerup"){const el=document.elementFromPoint(e.clientX,e.clientY);if(el)clickMap(el)}
       drag=null}};
   svg.addEventListener("pointerup",end);svg.addEventListener("pointercancel",end);
-  svg.addEventListener("pointerleave",()=>{if(S.view==="all"){const t=wrap.querySelector(".tip");if(t)t.hidden=true}});
+  svg.addEventListener("pointerleave",()=>{if(S.view==="all"){const t=wrap.querySelector(".tip");if(t)t.hidden=true;setLift(wrap,null)}});
 }
 function hoverAt(e,wrap){
   const el=document.elementFromPoint(e.clientX,e.clientY);const tip=wrap.querySelector(".tip");if(!tip)return;
   let b=null,p=null;
   if(el&&el.dataset){if(el.dataset.p){p=el.dataset.p;b=p.split("-")[0]}else if(el.dataset.b)b=el.dataset.b}
+  setLift(wrap,b&&GEO.blocks[b]&&!GEO.blocks[b].grey?b:null);
   if(!b){tip.hidden=true;return}
   const s=blockStats(b);const r=wrap.getBoundingClientRect();
   let html;
@@ -388,6 +395,27 @@ function hoverAt(e,wrap){
   else html=`<span class="k">Block ${b}</span><b>${s.available} available</b><span class="meta">${s.prebooked} pre-booked · ${s.sold} sold · ${s.clients} clients<br>Tap to open the block</span>`;
   tip.innerHTML=html;tip.hidden=false;
   tip.style.left=Math.min(e.clientX-r.left+14,r.width-200)+"px";tip.style.top=Math.min(e.clientY-r.top+14,r.height-90)+"px";
+}
+/* Hover lift: the block under the mouse rises 7% with a red outline; it stays clickable. */
+let LIFT=null;
+function setLift(wrap,b){
+  const svg=wrap.querySelector("svg");if(!svg)return;
+  let L=svg.querySelector("#lift");
+  if(LIFT===b&&(L||!b))return;
+  LIFT=b;if(L)L.remove();
+  if(!b)return;
+  const blk=GEO.blocks[b];const cx=(blk.bbox[0]+blk.bbox[2])/2,cy=(blk.bbox[1]+blk.bbox[3])/2;
+  const hull=blk.hull.map(h=>ptsStr(h));
+  let s=`<g id="lift" class="lift" style="transform-origin:${cx.toFixed(1)}px ${cy.toFixed(1)}px">`;
+  s+=`<defs><clipPath id="liftclip">${hull.map(h=>`<polygon points="${h}"/>`).join("")}</clipPath><filter id="liftshadow" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-opacity=".38"/></filter></defs>`;
+  s+=`<g filter="url(#liftshadow)">${hull.map(h=>`<polygon class="liftbase" points="${h}"/>`).join("")}</g>`;
+  s+=`<image href="plan.webp" x="0" y="0" width="${WORLD[2]}" height="${WORLD[3]}" preserveAspectRatio="none" class="plan" clip-path="url(#liftclip)"/>`;
+  s+=hull.map(h=>`<polygon class="lifthit" data-b="${b}" points="${h}"/>`).join("");
+  for(const p of blk.plots){const st=statusOf(p.id);let c="p";if(st)c+=" "+st;if(S.size!=="all"&&p.size!==S.size&&st)c+=" fade";if(p.num==null)c+=" unread";
+    s+=`<polygon class="${c}" data-p="${p.id}" points="${ptsStr(p.pts)}"/>`}
+  s+=hull.map(h=>`<polygon class="liftline" points="${h}"/>`).join("")+`</g>`;
+  svg.insertAdjacentHTML("beforeend",s);
+  L=svg.querySelector("#lift");requestAnimationFrame(()=>requestAnimationFrame(()=>{if(L.isConnected)L.classList.add("up")}));
 }
 function clickMap(el){
   const d=el.dataset||{};
@@ -404,6 +432,7 @@ function render(){
   const app=$("#app");
   // remember focus + caret
   const ae=document.activeElement;const focusId=ae&&ae.id&&app.contains(ae)?ae.id:null;const caret=focusId&&ae.selectionStart!=null?[ae.selectionStart,ae.selectionEnd]:null;
+  LIFT=null;
   app.innerHTML=S.view==="block"?blockView():allView();
   const wrap=app.querySelector(".mapwrap");if(wrap)attachMap(wrap);
   const mini=app.querySelector(".mini svg");if(mini)mini.setAttribute("viewBox",WORLD.join(" "));
