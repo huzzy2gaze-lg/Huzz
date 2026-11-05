@@ -2,7 +2,7 @@ import sys,json,numpy as np,pymupdf,cv2
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 src,T,OUT=sys.argv[1],sys.argv[2],sys.argv[3]
-P=json.load(open(T+'/plots_final2.json'))
+P=json.load(open(T+'/plots_final6.json'))
 xs=[x for p in P for x,_ in p['poly']];ys=[y for p in P for _,y in p['poly']]
 X0,Y0,X1,Y1=min(xs)-60,min(ys)-60,max(xs)+60,max(ys)+60
 LABELS={'E':(1233,1200),'C':(870,1160),'A':(572,918),'B':(1012,1594),'F':(1931,1495),'D':(1533,1415),'G':(854,1931),'H':(1775,1675)}
@@ -22,7 +22,7 @@ for i,p in enumerate(P):
     q=np.array(p['poly']);e=[np.linalg.norm(q[(j+1)%len(q)]-q[j]) for j in range(len(q))]
     plots.append([p['b'],p['n'],p['size'],pts,r(p['cx']-X0),r(p['cy']-Y0),r(max(e))])
 W,H=X1-X0,Y1-Y0
-data={'w':r(W),'h':r(H),'blocks':blocks,'plots':plots}
+data={'w':r(W),'h':r(H),'ox':r(X0),'oy':r(Y0),'blocks':blocks,'plots':plots}
 s=json.dumps(data,separators=(',',':'))
 open(OUT+'/plotdata.json','w').write(s)
 print('json bytes',len(s),'world',r(W),r(H))

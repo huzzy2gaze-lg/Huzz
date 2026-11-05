@@ -220,23 +220,25 @@ form.add textarea{min-height:56px;resize:vertical}
 const SIZES={
   "1K":{label:"1 Kanal",dims:"50 × 90 ft",sqyd:500},
   "14M":{label:"14 Marla",dims:"40 × 80 ft",sqyd:356},
-  "10M":{label:"10 Marla",dims:"32 × 70 ft",sqyd:249}
+  "10M":{label:"10 Marla",dims:"32 × 70 ft",sqyd:249},
+  "X":{label:"Corner or irregular plot",dims:"size as on the plan",sqyd:null}
 };
-const SIZE_ORDER=["1K","14M","10M"];
+const SIZE_ORDER=["1K","14M","10M","X"];
 const ACTIVE=["A","B","C","D","E","G"];
 let GEO=null,RAW=null,WORLD=[0,0,1000,800];
 function buildGeo(data,fixes){
   const blocks={},plots={},byKey={};
   for(const id in data.blocks){const b=data.blocks[id];const all=b.hull.flat();const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]);
     blocks[id]={id,hull:b.hull,label:b.label,grey:!ACTIVE.includes(id),bbox:[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)],plots:[],sizes:new Set()}}
-  data.plots.forEach((r,i)=>{const [b,n0,size,flat,cx,cy,L]=r;const key=b+"-k"+i;const fx=fixes[key];
+  const ox=data.ox||0,oy=data.oy||0;
+  data.plots.forEach((r,i)=>{const [b,n0,size,flat,cx,cy,L]=r;const key=b+"-p"+Math.round((cx+ox)*10)+"_"+Math.round((cy+oy)*10);const fx=fixes[key];
     const pts=[];for(let j=0;j<flat.length;j+=2)pts.push([flat[j],flat[j+1]]);
     const p={key,block:b,num:(fx&&fx.n)?fx.n:n0,read:n0,size,pts,cx,cy,ph:L,grey:blocks[b].grey,fixed:!!fx};
     blocks[b].plots.push(p);blocks[b].sizes.add(size);byKey[key]=p;});
   for(const b in blocks){
     const used=new Set();
     for(const p of blocks[b].plots){if(p.num!=null){const id=b+"-"+p.num;if(used.has(id))p.num=null;else{used.add(id);p.id=id}}}
-    for(const p of blocks[b].plots){if(p.num==null)p.id=b+"-x"+p.key.split("-k")[1];if(!p.grey)plots[p.id]=p}
+    for(const p of blocks[b].plots){if(p.num==null)p.id=b+"-x"+p.key.split("-p")[1];if(!p.grey)plots[p.id]=p}
     blocks[b].sizes=SIZE_ORDER.filter(z=>blocks[b].sizes.has(z));
   }
   return {blocks,plots,byKey};
@@ -284,7 +286,7 @@ function fromHash(){
   if(!GEO)return;
   const h=decodeURIComponent(location.hash.slice(1));
   let m;
-  if((m=h.match(/^plot-([A-Z])-(x?\d+)$/))&&GEO.plots[m[1]+"-"+m[2]])return go("block",m[1],m[1]+"-"+m[2],{push:false});
+  if((m=h.match(/^plot-([A-Z])-(x?[0-9_]+)$/))&&GEO.plots[m[1]+"-"+m[2]])return go("block",m[1],m[1]+"-"+m[2],{push:false});
   if((m=h.match(/^block-([A-Z])$/))&&ACTIVE.includes(m[1]))return go("block",m[1],null,{push:false});
   go("all",null,null,{push:false});
 }
@@ -386,6 +388,8 @@ function clickMap(el){
   const d=el.dataset||{};
   if(d.p){go("block",d.p.split("-")[0],d.p);return}
   if(d.b){go("block",d.b,null);return}
+  // a click outside every block closes the open block
+  if(S.view==="block")go("all");
 }
 
 /* ---------- Views ---------- */
@@ -407,7 +411,7 @@ function allView(){
   return `<div class="layout all">
   <aside class="rail scroll">
     <div><div class="k">Open a block</div><div class="pills">${ACTIVE.map(b=>`<button class="pill" data-open="${b}">${b}</button>`).join("")}</div></div>
-    <div><div class="k">Size</div><div class="pills">${[["all","All"],["1K","1 Kanal"],["14M","14 M"],["10M","10 M"]].map(([v,l])=>`<button class="pill${S.size===v?" on":""}" data-size="${v}">${l}</button>`).join("")}</div></div>
+    <div><div class="k">Size</div><div class="pills">${[["all","All"],["1K","1 Kanal"],["14M","14 M"],["10M","10 M"],["X","Corner"]].map(([v,l])=>`<button class="pill${S.size===v?" on":""}" data-size="${v}">${l}</button>`).join("")}</div></div>
     <div><div class="k">Show</div><div class="pills"><button class="pill${S.show==="all"?" on":""}" data-show="all">All plots</button><button class="pill${S.show==="ours"?" on":""}" data-show="ours">Our plots</button></div></div>
     <div><div class="k">Legend</div><div class="legend"><span><i class="sw" style="background:var(--avail);border:0"></i>Ours, available</span><span><i class="sw" style="background:var(--book);border:0"></i>Pre-booked</span><span><i class="sw" style="background:var(--sold);border:0"></i>Sold</span><span><i class="sw" style="background:var(--plot)"></i>Not ours</span></div></div>
     <div><div class="k">Find a plot</div><form class="search" id="searchForm"><input id="q" placeholder="e.g. B-142" autocomplete="off" aria-label="Plot number"><button>Go</button></form><div class="hint" style="margin-top:6px">Block letter, dash, number.</div></div>
@@ -448,7 +452,7 @@ function blockView(){
   <section class="mapwrap" aria-label="Block ${b} close-up">
     <svg role="img" aria-label="Block ${b} plots">${mapSVG("block")}</svg>
     <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit block" style="font-size:12px">Fit</button></div>
-    <div class="maphint">Tap a plot to open its file</div>
+    <div class="maphint">Tap a plot to open its file · tap outside the block to close it</div>
   </section>
   <aside class="panel scroll">${S.plot?plotFile(S.plot):blockFile(b)}</aside></div>`;
 }
@@ -493,7 +497,7 @@ function plotFile(id){
       <button class="btn forest" type="submit">Add to our plots</button></form>`;
     return h;
   }
-  h+=`<div class="facts"><div><b>${sz.sqyd}</b><span>sq yd</span></div><div><b>${active.length}</b><span>Clients</span></div><div><b style="font-size:15px;color:var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})">${STATUS[d.status]?STATUS[d.status].label:"—"}</b><span>Status</span></div></div>
+  h+=`<div class="facts"><div><b>${sz.sqyd||"—"}</b><span>sq yd</span></div><div><b>${active.length}</b><span>Clients</span></div><div><b style="font-size:15px;color:var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})">${STATUS[d.status]?STATUS[d.status].label:"—"}</b><span>Status</span></div></div>
   <div class="k">Our asking price</div>`;
   if(S.editPrice&&w)h+=`<form class="price" id="priceForm"><input id="pp" inputmode="decimal" value="${typeof d.price==="number"?d.price:""}" aria-label="Asking price in crore" autocomplete="off"><small>crore PKR</small><button class="linkbtn" type="submit">Save</button></form>`;
   else h+=`<div class="price"><span class="v">${fmtPrice(d.price)}</span><small>crore PKR</small>${w?`<button class="linkbtn" data-act="editPrice">Edit</button>`:""}</div>`;

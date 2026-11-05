@@ -4,8 +4,12 @@ Live team map: https://claude.ai/artifact/ACotWwamH6xub2WeVvVpKx
 
 ## What it is
 - The map uses the official FGEHA layout plan (LOP, approved 4 Aug 2022) as its background.
-- 4,711 plots are traced from the plan as exact shapes. 4,377 have their number read from the plan.
-- 334 plots have no number yet. Team members can type the number on the map.
+- 4,738 plots are traced from the plan lines as exact shapes. Positions are not changed.
+- 4,593 plot numbers are read from the plan text. No number is guessed: a number is kept only when OCR reads it from the plan.
+- 145 plots show "number not read". A team member types the number from the plan.
+- Blocks follow the red dashed block borders on the plan. 10 plots near borders were checked by eye against the plan.
+- 97 corner or irregular plots show "Corner or irregular plot", not a standard size.
+- 43 plots of the official 4,781 are not traced, because their lines do not form a closed box.
 - Our plots show in colour: green = available, amber = pre-booked, red = sold.
 
 ## Files
@@ -16,16 +20,14 @@ Live team map: https://claude.ai/artifact/ACotWwamH6xub2WeVvVpKx
 - `../data/plots_from_layout_plan.csv` - every plot as a spreadsheet row.
 - `concept-c1..c7.png` - design options shown before building.
 
-## Plots per block (traced)
-| Block | Plots | Sizes |
-|---|---:|---|
-| A | 1,030 | 1 Kanal, 14 Marla |
-| B | 763 | 1 Kanal |
-| C | 466 | 1 Kanal |
-| D | 433 | 1 Kanal |
-| E | 865 | mostly 10 Marla |
-| F | 453 | 1 Kanal, 14 Marla |
-| G | 544 | 14 Marla, 1 Kanal |
-| H | 157 | 1 Kanal |
-
-Official total: 4,781 plots. 70 plots were not traced (small irregular plots and plots under large labels).
+## Plots per block (traced / number read)
+| Block | Plots | Numbers read |
+|---|---:|---:|
+| A | 1,037 | 994 |
+| B | 763 | 753 |
+| C | 466 | 466 |
+| D | 420 | 403 |
+| E | 869 | 835 |
+| F | 465 | 457 |
+| G | 550 | 533 |
+| H | 168 | 152 |
