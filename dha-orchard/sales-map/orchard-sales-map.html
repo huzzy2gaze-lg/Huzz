@@ -9,7 +9,7 @@
   --bg:#EEF2EC; --surface:#FFFFFF; --card:#F7F9F5; --ink:#13221B; --soft:#5B6E62; --line:#D7E0D7;
   --forest:#0E3A2C; --on-forest:#EEF3EE; --on-forest-soft:#A9C2B3; --brass:#A87A22; --brass-soft:#F3E7CC;
   --avail:#2F9E62; --book:#E0A11B; --sold:#B4473A;
-  --plot:#FFFFFF; --plot-line:#B9C6BC; --plot-dim:#E1E7DF; --ground:#E3E9E1; --road:#FAFBF8; --blockcard:#F6F8F4;
+  --plot:#FFFFFF; --plot-line:#B9C6BC; --plot-dim:#E1E7DF; --ground:#F4F6F2; --road:#FAFBF8; --blockcard:#F6F8F4; --plan-filter:none;
   --display:"Gloock","Iowan Old Style",Georgia,serif;
   --body:"Albert Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -18,12 +18,12 @@
   --bg:#0C1511; --surface:#142019; --card:#17241D; --ink:#E4ECE6; --soft:#9CB2A5; --line:#26372E;
   --forest:#0A2A20; --brass:#DDAA4C; --brass-soft:#33280F;
   --avail:#3DBB78; --book:#E8AE33; --sold:#D2665A;
-  --plot:#1C2B23; --plot-line:#3A4F42; --plot-dim:#16221C; --ground:#101B16; --road:#1E2D25; --blockcard:#14211A; color-scheme:dark }}
+  --plot:#1C2B23; --plot-line:#3A4F42; --plot-dim:#16221C; --ground:#101B16; --road:#1E2D25; --blockcard:#14211A; --plan-filter:brightness(.58) contrast(1.1); color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#0C1511; --surface:#142019; --card:#17241D; --ink:#E4ECE6; --soft:#9CB2A5; --line:#26372E;
   --forest:#0A2A20; --brass:#DDAA4C; --brass-soft:#33280F;
   --avail:#3DBB78; --book:#E8AE33; --sold:#D2665A;
-  --plot:#1C2B23; --plot-line:#3A4F42; --plot-dim:#16221C; --ground:#101B16; --road:#1E2D25; --blockcard:#14211A; color-scheme:dark }
+  --plot:#1C2B23; --plot-line:#3A4F42; --plot-dim:#16221C; --ground:#101B16; --road:#1E2D25; --blockcard:#14211A; --plan-filter:brightness(.58) contrast(1.1); color-scheme:dark }
 
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -79,22 +79,27 @@ button{cursor:pointer}
 .tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;box-shadow:0 8px 22px rgba(0,0,0,.14);font-size:12.5px;z-index:3;min-width:150px}
 .tip b{font:400 18px var(--display);display:block}
 .maphint{position:absolute;right:12px;bottom:12px;font:500 11px var(--mono);color:var(--soft);background:var(--surface);border:1px solid var(--line);padding:5px 8px;border-radius:6px}
-svg .road{stroke:var(--road);fill:none}
-svg .bcard{fill:var(--blockcard);stroke:var(--plot-line);stroke-width:1}
-svg .bcard.grey{fill:var(--plot-dim)}
+svg .plan{opacity:.92;filter:var(--plan-filter)}
+svg .plan.dim{opacity:.38}
+svg .veil{fill:var(--ground);opacity:.78}
+svg .p.unread{stroke:var(--brass);stroke-width:.35;stroke-dasharray:1 1}
+svg .bcard{fill:transparent;stroke:none}
+svg .bcard.grey{fill:transparent;pointer-events:none}
 svg .bcard.hit{cursor:pointer}
-svg .bcard.hi{stroke:var(--brass);stroke-width:3}
+svg .bcard.hi{stroke:var(--brass);stroke-width:2.5;fill:transparent}
+svg .bcard.hit:hover{stroke:var(--brass);stroke-width:2}
 svg .blabel{font-family:var(--display);fill:var(--soft);opacity:.45;pointer-events:none}
-svg .p{fill:var(--plot);stroke:var(--plot-line);stroke-width:.5;cursor:pointer}
+svg .p{fill:transparent;stroke:none;cursor:pointer;pointer-events:all}
 svg .p.grey{fill:var(--plot-dim);cursor:default}
-svg .p.available{fill:var(--avail);stroke:none}
-svg .p.prebooked{fill:var(--book);stroke:none}
-svg .p.sold{fill:var(--sold);stroke:none}
+svg .p.available{fill:var(--avail);stroke:#fff;stroke-width:.3}
+svg .p.prebooked{fill:var(--book);stroke:#fff;stroke-width:.3}
+svg .p.sold{fill:var(--sold);stroke:#fff;stroke-width:.3}
 svg .p.fade{opacity:.22}
-svg .p.sel{stroke:var(--ink);stroke-width:2.2}
-svg .p:hover:not(.grey){stroke:var(--ink);stroke-width:1.2}
-svg .pn{font-family:var(--mono);fill:var(--soft);pointer-events:none}
-svg .pn.on{fill:#fff}
+svg .p.sel{stroke:var(--ink);stroke-width:1.6;fill:rgba(168,122,34,.35)}
+svg .p.sel.available{fill:var(--avail)}svg .p.sel.prebooked{fill:var(--book)}svg .p.sel.sold{fill:var(--sold)}
+svg .p:hover{stroke:var(--ink);stroke-width:.9}
+svg .pn{font-family:var(--mono);fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--ground);stroke-width:.35}
+svg .pn.on{fill:#fff;stroke:none}
 svg .comm{fill:url(#hatch);stroke:var(--plot-line)}
 svg .commt{font-family:var(--mono);font-size:7px;fill:var(--soft);letter-spacing:.06em}
 
@@ -118,7 +123,7 @@ svg .commt{font-family:var(--mono);font-size:7px;fill:var(--soft);letter-spacing
 /* Block side (dark) */
 .side{background:var(--forest);color:var(--on-forest);padding:16px;display:flex;flex-direction:column;gap:12px}
 .side .k{color:var(--on-forest-soft)}
-.mini{border-radius:10px;overflow:hidden;background:var(--ground);aspect-ratio:1000/760;max-width:100%}
+.mini{border-radius:10px;overflow:hidden;background:var(--ground);aspect-ratio:2086/1652;max-width:100%}
 .mini svg{width:100%;height:100%;display:block}
 .brow{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.06);border:0;color:inherit;text-align:left;width:100%}
 .brow.on{background:var(--on-forest);color:#13221B}
@@ -211,63 +216,37 @@ form.add textarea{min-height:56px;resize:vertical}
 <script>
 (function(){
 "use strict";
-/* ---------- Geometry (sample layout; replaced by the traced official plan) ---------- */
-const FT=0.22, GAP=1.2, STREET=12;
+/* ---------- Geometry: traced from the official FGEHA layout plan (plotdata.json) ---------- */
 const SIZES={
-  "1K":{label:"1 Kanal",dims:"50 × 90 ft",sqyd:500,w:50,h:90},
-  "14M":{label:"14 Marla",dims:"40 × 80 ft",sqyd:356,w:40,h:80},
-  "10M":{label:"10 Marla",dims:"32 × 70 ft",sqyd:249,w:32,h:70}
+  "1K":{label:"1 Kanal",dims:"50 × 90 ft",sqyd:500},
+  "14M":{label:"14 Marla",dims:"40 × 80 ft",sqyd:356},
+  "10M":{label:"10 Marla",dims:"32 × 70 ft",sqyd:249}
 };
-const BLOCKDEF={
-  A:{x:70,y:60,rot:-8,start:201,strips:[[9,"1K"],[11,"1K"],[12,"1K"],[12,"1K"],[13,"14M"],[10,"14M"]]},
-  B:{x:395,y:55,rot:6,start:120,strips:[[7,"1K"],[9,"1K"],[9,"1K"],[11,"14M"],[10,"14M"]]},
-  C:{x:650,y:95,rot:-12,start:10,strips:[[6,"1K"],[8,"1K"],[9,"1K"],[10,"1K"],[9,"1K"],[7,"1K"]]},
-  G:{x:70,y:420,rot:4,start:301,strips:[[10,"1K"],[10,"1K"],[9,"1K"],[7,"1K"]]},
-  E:{x:385,y:400,rot:-3,start:401,strips:[[13,"10M"],[15,"10M"],[15,"10M"],[14,"10M"],[12,"10M"],[10,"10M"]]},
-  D:{x:740,y:470,rot:8,start:1,grey:true,strips:[[7,"1K"],[8,"1K"],[8,"1K"],[6,"1K"]]},
-  F:{x:110,y:650,rot:0,start:1,grey:true,strips:[[8,"1K"],[7,"1K"]]},
-  H:{x:615,y:665,rot:-4,start:1,grey:true,strips:[[6,"1K"],[6,"1K"]]}
-};
-const ACTIVE=["A","B","C","E","G"];
-function rotPt(x,y,cx,cy,deg){const r=deg*Math.PI/180,c=Math.cos(r),s=Math.sin(r);const dx=x-cx,dy=y-cy;return [cx+dx*c-dy*s,cy+dx*s+dy*c]}
-function buildGeo(){
-  const blocks={},plots={};
-  for(const id in BLOCKDEF){
-    const d=BLOCKDEF[id];
-    const stripW=d.strips.map(([n,sz])=>n*(SIZES[sz].w*FT+GAP)-GAP);
-    const W=Math.max(...stripW);
-    const H=d.strips.reduce((a,[n,sz])=>a+2*SIZES[sz].h*FT+GAP,0)+STREET*(d.strips.length-1);
-    const cx=d.x+W/2,cy=d.y+H/2;
-    const list=[];let num=d.start,y=0;
-    d.strips.forEach(([n,sz],si)=>{
-      const pw=SIZES[sz].w*FT,ph=SIZES[sz].h*FT;const off=(W-stripW[si])/2;
-      for(let side=0;side<2;side++){
-        for(let i=0;i<n;i++){
-          const lx=d.x+off+i*(pw+GAP),ly=d.y+y+side*(ph+GAP);
-          const pts=[[lx,ly],[lx+pw,ly],[lx+pw,ly+ph],[lx,ly+ph]].map(p=>rotPt(p[0],p[1],cx,cy,d.rot));
-          const c=rotPt(lx+pw/2,ly+ph/2,cx,cy,d.rot);
-          const p={id:id+"-"+num,block:id,num,size:sz,pts,cx:c[0],cy:c[1],grey:!!d.grey,ph};
-          list.push(p);if(!d.grey)plots[p.id]=p;num++;
-        }
-      }
-      y+=2*ph+GAP+STREET;
-    });
-    const pad=8;
-    const outline=[[d.x-pad,d.y-pad],[d.x+W+pad,d.y-pad],[d.x+W+pad,d.y+H+pad],[d.x-pad,d.y+H+pad]].map(p=>rotPt(p[0],p[1],cx,cy,d.rot));
-    const xs=outline.map(p=>p[0]),ys=outline.map(p=>p[1]);
-    const sizes=[...new Set(d.strips.map(s=>s[1]))];
-    blocks[id]={id,rot:d.rot,cx,cy,grey:!!d.grey,plots:list,outline,sizes,bbox:[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)],
-      first:d.start,last:num-1};
+const SIZE_ORDER=["1K","14M","10M"];
+const ACTIVE=["A","B","C","D","E","G"];
+let GEO=null,RAW=null,WORLD=[0,0,1000,800];
+function buildGeo(data,fixes){
+  const blocks={},plots={},byKey={};
+  for(const id in data.blocks){const b=data.blocks[id];const all=b.hull.flat();const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]);
+    blocks[id]={id,hull:b.hull,label:b.label,grey:!ACTIVE.includes(id),bbox:[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)],plots:[],sizes:new Set()}}
+  data.plots.forEach((r,i)=>{const [b,n0,size,flat,cx,cy,L]=r;const key=b+"-k"+i;const fx=fixes[key];
+    const pts=[];for(let j=0;j<flat.length;j+=2)pts.push([flat[j],flat[j+1]]);
+    const p={key,block:b,num:(fx&&fx.n)?fx.n:n0,read:n0,size,pts,cx,cy,ph:L,grey:blocks[b].grey,fixed:!!fx};
+    blocks[b].plots.push(p);blocks[b].sizes.add(size);byKey[key]=p;});
+  for(const b in blocks){
+    const used=new Set();
+    for(const p of blocks[b].plots){if(p.num!=null){const id=b+"-"+p.num;if(used.has(id))p.num=null;else{used.add(id);p.id=id}}}
+    for(const p of blocks[b].plots){if(p.num==null)p.id=b+"-x"+p.key.split("-k")[1];if(!p.grey)plots[p.id]=p}
+    blocks[b].sizes=SIZE_ORDER.filter(z=>blocks[b].sizes.has(z));
   }
-  return {blocks,plots};
+  return {blocks,plots,byKey};
 }
-const GEO=buildGeo();
-const WORLD=[0,0,1000,760];
+function plotLabel(p){return p.num!=null?p.id:"Block "+p.block+" · number unread"}
 
-/* ---------- State ---------- */
+/* ---------- State ---------- *//* ---------- State ---------- */
 const S={view:"all",block:null,plot:null,size:"all",show:"all",q:"",
   plots:{},clients:[],ready:false,timedOut:false,dbOK:null,canWrite:null,me:null,
-  names:{},vb:{},editPrice:false,confirmRemove:false,draft:{},addOpen:false,statusFilter:"all"};
+  names:{},fixes:{},fixOpen:false,vb:{},editPrice:false,confirmRemove:false,draft:{},addOpen:false,statusFilter:"all"};
 let db=null,user=null;
 const STATUS={available:{label:"Available",cls:"available"},prebooked:{label:"Pre-booked",cls:"prebooked"},sold:{label:"Sold",cls:"sold"}};
 const STAGES={interested:"Interested",prebooked:"Pre-booked",bought:"Bought",dropped:"Dropped"};
@@ -296,15 +275,16 @@ function nowIso(){return new Date().toISOString()}
 
 /* ---------- Navigation ---------- */
 function go(view,block,plot,{push=true}={}){
-  S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;
+  S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;S.fixOpen=false;
   const h=plot?"plot-"+plot:block?"block-"+block:"";
   if(push&&location.hash.slice(1)!==h){S._hashLock=true;if(h)location.hash=h;else history.replaceState(null,"",location.pathname+location.search);}
   render();
 }
 function fromHash(){
+  if(!GEO)return;
   const h=decodeURIComponent(location.hash.slice(1));
   let m;
-  if((m=h.match(/^plot-([A-Z])-(\d+)$/))&&GEO.plots[m[1]+"-"+m[2]])return go("block",m[1],m[1]+"-"+m[2],{push:false});
+  if((m=h.match(/^plot-([A-Z])-(x?\d+)$/))&&GEO.plots[m[1]+"-"+m[2]])return go("block",m[1],m[1]+"-"+m[2],{push:false});
   if((m=h.match(/^block-([A-Z])$/))&&ACTIVE.includes(m[1]))return go("block",m[1],null,{push:false});
   go("all",null,null,{push:false});
 }
@@ -330,43 +310,38 @@ function renderHeader(){
 
 /* ---------- Map SVG ---------- */
 function mapSVG(mode){
-  const blk=S.block;
-  let s=`<defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" style="fill:var(--plot-dim)"/><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--plot-line)" stroke-width="1.4"/></pattern></defs>`;
-  s+=`<rect x="-500" y="-500" width="2000" height="1760" style="fill:var(--ground)"/>`;
-  s+=`<path class="road" stroke-width="26" d="M-60 392 C 250 372, 560 420, 1060 380"/><path class="road" stroke-width="22" d="M585 -60 C 560 220, 640 500, 600 820"/><path class="road" stroke-width="14" d="M-60 640 C 300 625, 700 650, 1060 635"/>`;
-  s+=`<g opacity="${mode==="block"?0.35:1}"><polygon class="comm" points="${ptsStr([[240,70],[372,82],[362,190],[230,178]])}"/><text class="commt" x="250" y="135">COMMERCIAL · WALK</text></g>`;
-  for(const id in GEO.blocks){
-    const b=GEO.blocks[id];
-    const fadeBlock=mode==="block"&&id!==blk;
-    s+=`<g data-block="${id}" opacity="${fadeBlock?0.35:1}">`;
-    s+=`<polygon class="bcard${b.grey?" grey":" hit"}${mode==="all"&&S.hover===id?" hi":""}${mode!=="all"&&id===blk?" hi":""}" data-b="${b.grey?"":id}" points="${ptsStr(b.outline)}"/>`;
+  const blk=S.block,W=WORLD[2],H=WORLD[3];
+  let s=`<rect x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" style="fill:var(--ground)"/>`;
+  s+=`<image href="plan.webp" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" class="plan${S.show==="ours"&&mode==="all"?" dim":""}"/>`;
+  if(mode!=="all"&&blk){
+    const hp=GEO.blocks[blk].hull.map(h=>`<polygon points="${ptsStr(h)}" fill="black"/>`).join("");
+    s+=`<defs><mask id="mk-${mode}"><rect x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" fill="white"/>${hp}</mask></defs><rect class="veil" x="${-W}" y="${-H}" width="${W*3}" height="${H*3}" mask="url(#mk-${mode})"/>`;
+  }
+  for(const id in GEO.blocks){const b=GEO.blocks[id];
+    for(const h of b.hull)s+=`<polygon class="bcard${b.grey?" grey":" hit"}${(mode!=="all"&&id===blk)?" hi":""}" ${b.grey?"":`data-b="${id}"`} points="${ptsStr(h)}"/>`;}
+  for(const id in GEO.blocks){const b=GEO.blocks[id];if(b.grey)continue;
     for(const p of b.plots){
-      let cls="p";
-      if(p.grey)cls+=" grey";
-      else{
-        const st=statusOf(p.id);if(st)cls+=" "+st;
-        let fade=false;
-        if(S.size!=="all"&&p.size!==S.size)fade=true;
-        if(S.show==="ours"&&!st)fade=true;
-        if(mode==="block"&&S.statusFilter!=="all"&&st!==S.statusFilter)fade=true;
-        if(fade)cls+=" fade";
-        if(S.plot===p.id)cls+=" sel";
-      }
-      s+=`<polygon class="${cls}" ${p.grey?"":`data-p="${p.id}"`} points="${ptsStr(p.pts)}"/>`;
-      if(mode==="block"&&id===blk){
-        const st=statusOf(p.id);
-        s+=`<text class="pn${st?" on":""}" x="${p.cx.toFixed(1)}" y="${(p.cy+1.2).toFixed(1)}" font-size="${p.size==="10M"?2.6:3.1}" text-anchor="middle" transform="rotate(${b.rot} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)})">${p.num}</text>`;
+      const st=statusOf(p.id);
+      if(mode==="mini"&&!st)continue;
+      let cls="p";if(st)cls+=" "+st;
+      let fade=false;
+      if(S.size!=="all"&&p.size!==S.size)fade=true;
+      if(mode==="block"&&S.statusFilter!=="all"&&st!==S.statusFilter)fade=true;
+      if(fade&&st)cls+=" fade";
+      if(S.plot===p.id)cls+=" sel";
+      if(p.num==null)cls+=" unread";
+      s+=`<polygon class="${cls}" ${mode==="mini"?"":`data-p="${p.id}"`} points="${ptsStr(p.pts)}"/>`;
+      if(mode==="block"&&id===blk&&(st||S.plot===p.id)){
+        s+=`<text class="pn${st?" on":""}" x="${p.cx.toFixed(1)}" y="${(p.cy+p.ph*0.07).toFixed(1)}" font-size="${(p.ph*0.2).toFixed(2)}" text-anchor="middle">${p.num!=null?p.num:"?"}</text>`;
       }
     }
-    const fs=b.grey?34:44;
-    s+=`<text class="blabel" x="${b.cx}" y="${b.cy+fs*0.35}" text-anchor="middle" font-size="${mode==="block"&&id===blk?0:fs}">${id}</text>`;
-    s+=`</g>`;
   }
+  if(mode==="mini")for(const id in GEO.blocks){const b=GEO.blocks[id];s+=`<text class="blabel" x="${b.label[0]}" y="${b.label[1]+30}" text-anchor="middle" font-size="90">${id}</text>`}
   return s;
 }
 function fitBox(bb,pad){return [bb[0]-pad,bb[1]-pad,bb[2]-bb[0]+pad*2,bb[3]-bb[1]+pad*2]}
 function vbKey(){return S.view==="block"?"block-"+S.block:"all"}
-function defaultVB(){return S.view==="block"?fitBox(GEO.blocks[S.block].bbox,14):WORLD.slice()}
+function defaultVB(){return S.view==="block"?fitBox(GEO.blocks[S.block].bbox,20):WORLD.slice()}
 function attachMap(wrap){
   const svg=wrap.querySelector("svg");
   const key=vbKey();
@@ -374,7 +349,7 @@ function attachMap(wrap){
   const apply=()=>{svg.setAttribute("viewBox",vb.map(n=>n.toFixed(2)).join(" "));S.vb[key]=vb};
   apply();
   const toWorld=(cx,cy)=>{const r=svg.getBoundingClientRect();const s=Math.max(vb[2]/r.width,vb[3]/r.height);const ox=(r.width*s-vb[2])/2,oy=(r.height*s-vb[3])/2;return [vb[0]-ox+(cx-r.left)*s,vb[1]-oy+(cy-r.top)*s,s]};
-  const zoomAt=(f,cx,cy)=>{const [wx,wy]=toWorld(cx,cy);const nw=Math.min(Math.max(vb[2]*f,40),1600),k=nw/vb[2];vb=[wx-(wx-vb[0])*k,wy-(wy-vb[1])*k,nw,vb[3]*k];apply()};
+  const zoomAt=(f,cx,cy)=>{const [wx,wy]=toWorld(cx,cy);const nw=Math.min(Math.max(vb[2]*f,25),WORLD[2]*1.6),k=nw/vb[2];vb=[wx-(wx-vb[0])*k,wy-(wy-vb[1])*k,nw,vb[3]*k];apply()};
   wrap.querySelector("[data-z='in']").onclick=()=>{const r=svg.getBoundingClientRect();zoomAt(0.75,r.left+r.width/2,r.top+r.height/2)};
   wrap.querySelector("[data-z='out']").onclick=()=>{const r=svg.getBoundingClientRect();zoomAt(1.33,r.left+r.width/2,r.top+r.height/2)};
   wrap.querySelector("[data-z='fit']").onclick=()=>{vb=defaultVB();apply()};
@@ -415,6 +390,7 @@ function clickMap(el){
 
 /* ---------- Views ---------- */
 function render(){
+  if(!GEO){$("#app").innerHTML=`<div class="empty" style="margin:24px">${S.geoErr?"The layout plan didn't load. Reload the page to try again.":"Loading the official layout plan…"}</div>`;return}
   renderHeader();
   const app=$("#app");
   // remember focus + caret
@@ -440,7 +416,7 @@ function allView(){
     <svg role="img" aria-label="Margalla Orchard blocks and plots">${mapSVG("all")}</svg>
     <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit to screen" style="font-size:12px">Fit</button></div>
     <div class="tip" hidden></div>
-    <div class="maphint">Tap a block or plot · drag to move · pinch or scroll to zoom</div>
+    <div class="maphint">Official FGEHA layout plan · tap a block or plot · drag · pinch or scroll to zoom</div>
   </section>
   <aside class="panel scroll">
     <div><div class="k">Our stock by block</div></div>
@@ -453,6 +429,7 @@ function activityHTML(){
   const items=[];
   for(const id in S.plots){const d=S.plots[id];if(d.updatedAt)items.push({t:d.updatedAt,col:`var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})`,txt:`Plot ${id} marked ${STATUS[d.status]?STATUS[d.status].label.toLowerCase():d.status}`,by:d.updatedBy,plot:id})}
   S.clients.forEach(c=>{if(c.createdAt)items.push({t:c.createdAt,col:"var(--brass)",txt:`New client on ${c.plotId}`,by:c.addedBy,plot:c.plotId})});
+  for(const k in S.fixes){const f=S.fixes[k];const p=GEO.byKey[k];if(p&&f.updatedAt)items.push({t:f.updatedAt,col:"var(--soft)",txt:`Plot number set: ${p.id}`,by:f.updatedBy,plot:p.id})}
   items.sort((a,b)=>a.t<b.t?1:-1);
   if(!items.length)return `<div class="empty">${S.ready?"Nothing yet. Open a block, tap a plot and add it to our plots to get started.":"Loading…"}</div>`;
   return `<div class="act">${items.slice(0,7).map(i=>`<button class="actrow" data-plot="${esc(i.plot)}" style="background:none;border:0;text-align:left;padding:0"><i style="background:${i.col}"></i><span>${esc(i.txt)}<small>${esc(nameOf(i.by))} · ${ago(i.t)}</small></span></button>`).join("")}</div>`;
@@ -464,7 +441,7 @@ function blockView(){
   <aside class="side scroll">
     <button class="back" data-nav="all">‹ All blocks</button>
     <div class="k">Whole scheme</div>
-    <div class="mini"><svg aria-hidden="true">${mapSVG("mini")}</svg></div>
+    <div class="mini"><svg aria-hidden="true" preserveAspectRatio="xMidYMid meet">${mapSVG("mini")}</svg></div>
     <div class="k">Blocks</div>
     <div class="blist">${list}</div>
   </aside>
@@ -481,7 +458,7 @@ function blockFile(b){
   const filt=ours.filter(d=>S.statusFilter==="all"||d.status===S.statusFilter);
   return `<div><div class="k">Block ${b} · ${geo.sizes.map(z=>SIZES[z].label).join(", ")}</div><h2 style="margin-top:6px">Block ${b}</h2></div>
   <div class="facts"><div><b style="color:var(--avail)">${s.available}</b><span>Available</span></div><div><b style="color:var(--book)">${s.prebooked}</b><span>Pre-booked</span></div><div><b style="color:var(--sold)">${s.sold}</b><span>Sold</span></div></div>
-  <div class="facts" style="grid-template-columns:1fr 1fr"><div><b>${s.ours}</b><span>Our plots here</span></div><div><b>${s.clients}</b><span>Clients interested</span></div></div>
+  <div class="facts"><div><b>${geo.plots.length}</b><span>Plots on plan</span></div><div><b>${s.ours}</b><span>Our plots</span></div><div><b>${s.clients}</b><span>Clients</span></div></div>
   <div class="k">Our plots in Block ${b}</div>
   <div class="filterrow">${[["all","All"],["available","Available"],["prebooked","Pre-booked"],["sold","Sold"]].map(([v,l])=>`<button class="pill${S.statusFilter===v?" on":""}" data-sf="${v}">${l}</button>`).join("")}</div>
   ${filt.length?`<div class="ourlist">${filt.map(d=>{const n=clientsFor(d.id).filter(c=>c.stage!=="dropped").length;return `<button class="ourrow" data-plot="${d.id}"><span class="dot" style="background:var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})"></span><span class="num">${d.id} <span class="meta">· ${SIZES[d.size]?SIZES[d.size].label:""}</span></span><span class="meta">${n} client${n===1?"":"s"}</span><span class="pr">${fmtPrice(d.price)}</span></button>`}).join("")}</div>`
@@ -489,29 +466,34 @@ function blockFile(b){
 }
 function neighbourSVG(id){
   const p=GEO.plots[id];const b=GEO.blocks[p.block];
-  const near=b.plots.filter(q=>Math.hypot(q.cx-p.cx,q.cy-p.cy)<p.ph*1.9);
+  const near=b.plots.filter(q=>Math.hypot(q.cx-p.cx,q.cy-p.cy)<p.ph*1.7);
   const xs=[],ys=[];near.forEach(q=>q.pts.forEach(t=>{xs.push(t[0]);ys.push(t[1])}));
-  const pad=4;const vb=[Math.min(...xs)-pad,Math.min(...ys)-pad,Math.max(...xs)-Math.min(...xs)+pad*2,Math.max(...ys)-Math.min(...ys)+pad*2];
-  let s=`<svg viewBox="${vb.map(n=>n.toFixed(1)).join(" ")}" style="aspect-ratio:${(vb[2]/vb[3]).toFixed(3)};max-height:220px" role="img" aria-label="Plot ${id} with its neighbours"><rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" style="fill:var(--card)"/>`;
+  const pad=3;const vb=[Math.min(...xs)-pad,Math.min(...ys)-pad,Math.max(...xs)-Math.min(...xs)+pad*2,Math.max(...ys)-Math.min(...ys)+pad*2];
+  let s=`<svg viewBox="${vb.map(n=>n.toFixed(1)).join(" ")}" style="aspect-ratio:${(vb[2]/vb[3]).toFixed(3)};max-height:230px" role="img" aria-label="Plot ${esc(plotLabel(p))} with its neighbours"><rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" style="fill:var(--card)"/><image href="plan.webp" x="0" y="0" width="${WORLD[2]}" height="${WORLD[3]}" preserveAspectRatio="none" class="plan" opacity=".55"/>`;
   near.forEach(q=>{const st=statusOf(q.id);const me=q.id===id;
-    s+=`<polygon class="p${st?" "+st:""}${me?" sel":""}" data-p="${q.id}" points="${ptsStr(q.pts)}" ${me?'style="stroke-width:.9"':""}/>`;
-    s+=`<text class="pn${st?" on":""}" x="${q.cx.toFixed(1)}" y="${(q.cy+(me?1.6:1)).toFixed(1)}" font-size="${me?3.8:2.8}" font-weight="${me?700:400}" text-anchor="middle" transform="rotate(${b.rot} ${q.cx.toFixed(1)} ${q.cy.toFixed(1)})">${q.num}</text>`});
+    s+=`<polygon class="p${st?" "+st:""}${me?" sel":""}" data-p="${q.id}" points="${ptsStr(q.pts)}" style="stroke-width:${me?.8:.25};stroke:var(--ink)"/>`;
+    if(st||me)s+=`<text class="pn${st?" on":""}" x="${q.cx.toFixed(1)}" y="${(q.cy+q.ph*(me?0.09:0.07)).toFixed(1)}" font-size="${(q.ph*(me?0.27:0.2)).toFixed(2)}" font-weight="${me?700:400}" text-anchor="middle">${q.num!=null?q.num:"?"}</text>`});
   return s+`</svg>`;
 }
 function plotFile(id){
   const p=GEO.plots[id];const d=S.plots[id];const sz=SIZES[p.size];
   const cls=clientsFor(id);const active=cls.filter(c=>c.stage!=="dropped");
   const w=S.canWrite!==false&&S.dbOK!==false;
-  let h=`<div><div class="k">Block ${p.block} · ${sz.label} · ${sz.dims}</div><h2 style="margin-top:6px">Plot ${id}</h2></div>
+  let h=`<div><div class="k">Block ${p.block} · ${sz.label} · ${sz.dims}</div><h2 style="margin-top:6px">${p.num!=null?"Plot "+id:"Plot number not read"}</h2></div>
   <div class="drawing">${neighbourSVG(id)}</div>`;
+  if(!d&&w){
+    if(S.fixOpen)h+=`<form class="add" id="fixForm"><div class="k">${p.num!=null?"Correct the plot number":"Enter the plot number"}</div><span class="meta">Check the number on the official plan. Everyone sees the change.</span><input id="fx" inputmode="numeric" placeholder="e.g. 142" autocomplete="off" aria-label="Plot number"><div class="btns"><button type="button" class="btn" data-act="cancelFix">Cancel</button><button type="submit" class="btn forest">Save number</button></div></form>`;
+    else h+=`<button class="sbtn" style="justify-self:start" data-act="openFix">${p.num!=null?"Wrong number? Correct it":"Enter the plot number"}</button>`;
+  }
   if(!d){
+    if(p.num==null){h+=`<div class="empty">The plan text for this plot could not be read. Enter its number first, then you can add it to our plots.</div>`;return h}
     h+=`<div class="empty">This plot isn't in our inventory.${w?" Add it to colour it on the map for the team.":""}</div>`;
     if(w)h+=`<form class="add" id="addPlotForm"><div class="k">Add to our plots</div>
       <label class="meta" for="np">Asking price (crore PKR)</label><input id="np" inputmode="decimal" placeholder="e.g. 4.10" autocomplete="off">
       <button class="btn forest" type="submit">Add to our plots</button></form>`;
     return h;
   }
-  h+=`<div class="facts"><div><b>${sz.sqyd}</b><span>sq yd</span></div><div><b>${active.length}</b><span>Clients</span></div><div><b style="color:var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})">${STATUS[d.status]?STATUS[d.status].label:"—"}</b><span>Status</span></div></div>
+  h+=`<div class="facts"><div><b>${sz.sqyd}</b><span>sq yd</span></div><div><b>${active.length}</b><span>Clients</span></div><div><b style="font-size:15px;color:var(--${d.status==="available"?"avail":d.status==="prebooked"?"book":"sold"})">${STATUS[d.status]?STATUS[d.status].label:"—"}</b><span>Status</span></div></div>
   <div class="k">Our asking price</div>`;
   if(S.editPrice&&w)h+=`<form class="price" id="priceForm"><input id="pp" inputmode="decimal" value="${typeof d.price==="number"?d.price:""}" aria-label="Asking price in crore" autocomplete="off"><small>crore PKR</small><button class="linkbtn" type="submit">Save</button></form>`;
   else h+=`<div class="price"><span class="v">${fmtPrice(d.price)}</span><small>crore PKR</small>${w?`<button class="linkbtn" data-act="editPrice">Edit</button>`:""}</div>`;
@@ -559,6 +541,8 @@ document.addEventListener("click",e=>{
     case"editPrice":S.editPrice=true;render();setTimeout(()=>{const i=$("#pp");if(i){i.focus();i.select()}});break;
     case"openAdd":S.addOpen=true;render();setTimeout(()=>{const i=$("#cn");if(i)i.focus()});break;
     case"cancelAdd":S.addOpen=false;["cn","cp","cnote"].forEach(k=>delete S.draft[k]);render();break;
+    case"openFix":S.fixOpen=true;render();setTimeout(()=>{const i=$("#fx");if(i)i.focus()});break;
+    case"cancelFix":S.fixOpen=false;delete S.draft.fx;render();break;
     case"askRemove":S.confirmRemove=true;render();break;
     case"cancelRemove":S.confirmRemove=false;render();break;
     case"doRemove":removePlot(S.plot);break;
@@ -572,6 +556,7 @@ document.addEventListener("submit",e=>{
   if(f.id==="priceForm")savePrice(S.plot,$("#pp").value);
   if(f.id==="addPlotForm")addPlot(S.plot,$("#np").value);
   if(f.id==="addClientForm")addClient(S.plot);
+  if(f.id==="fixForm")saveFix(S.plot,$("#fx").value);
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(S.plot)go("block",S.block);else if(S.view==="block")go("all")}});
 
@@ -615,6 +600,13 @@ async function removePlot(id){
   S.confirmRemove=false;
   await guard(async()=>{for(const c of clientsFor(id))await db.collection("clients").doc(c._id).delete();await db.collection("plots").doc(id).delete()},id+" removed from our plots");
 }
+function saveFix(id,raw){
+  const n=parseInt(String(raw).replace(/[^0-9]/g,""),10);if(!(n>0&&n<10000)){toast("Enter a plot number, e.g. 142");return}
+  const p=GEO.plots[id];if(!p)return;const nid=p.block+"-"+n;
+  if(GEO.plots[nid]&&GEO.plots[nid]!==p){toast(nid+" is already another plot on the map. Correct that one first.");return}
+  S.fixOpen=false;delete S.draft.fx;S._goAfterFix=nid;
+  guard(()=>db.collection("fixes").doc(p.key).set({n,updatedBy:S.me,updatedAt:nowIso()}),"Plot number saved: "+nid);
+}
 async function clearSamples(){
   await guard(async()=>{
     for(const c of S.clients.filter(c=>c.sample))await db.collection("clients").doc(c._id).delete();
@@ -633,8 +625,10 @@ async function resolveNames(){
 }
 
 /* ---------- Boot ---------- */
-fromHash();
 (async function boot(){
+  render();
+  try{const r=await fetch("plotdata.json");RAW=await r.json();WORLD=[0,0,RAW.w,RAW.h];GEO=buildGeo(RAW,{})}catch(e){S.geoErr=true;render();return}
+  fromHash();
   const C=window.claude;
   if(!C||!C.use){S.dbOK=false;render();return}
   const timer=setTimeout(()=>{if(!S.ready){S.timedOut=true;renderHeader()}},10000);
@@ -649,6 +643,13 @@ fromHash();
     const m={};snap.docs.forEach(d=>{const v=d.data();if(v&&GEO.plots[d.id]&&STATUS[v.status])m[d.id]=Object.assign({},v,{id:d.id})});
     S.plots=m;if(!snap.metadata.fromCache)gotP=true;done();render();
   },err=>{clearTimeout(timer);S.timedOut=true;render()});
+  db.collection("fixes").onSnapshot(snap=>{
+    const f={};snap.docs.forEach(d=>{const v=d.data();if(v&&v.n)f[d.id]=v});S.fixes=f;
+    const curKey=S.plot&&GEO.plots[S.plot]?GEO.plots[S.plot].key:null;
+    GEO=buildGeo(RAW,f);
+    if(curKey&&GEO.byKey[curKey]){const nid=GEO.byKey[curKey].id;if(nid!==S.plot){go("block",S.block,nid);return}}
+    render();
+  },()=>{});
   db.collection("clients").onSnapshot(snap=>{
     S.clients=snap.docs.map(d=>Object.assign({},d.data(),{_id:d.id})).filter(c=>c.plotId);
     if(!snap.metadata.fromCache)gotC=true;done();render();
