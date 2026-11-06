@@ -20,11 +20,12 @@ async function as(page, email, hash) {
   for (const u of ['sara@demo.pk', 'ali@demo.pk', 'owner@demo.pk']) await as(page, u);
   await as(page, 'viewer@demo.pk');
   log('viewer sees website', await page.locator('.site .hero').count(), '| sales tabs', await page.locator('#tabs:not([hidden])').count());
-  await page.evaluate(() => { location.hash = 'contact'; }); await page.waitForTimeout(400);
-  log('viewer contact:', (await page.locator('.sent p').innerText()).slice(0, 60));
-  await as(page, 'ali@demo.pk', '#contact');
-  await page.fill('#q_name', 'Asad Raza'); await page.fill('#q_phone', '0300 1112233'); await page.fill('#q_plot', 'A-540');
-  await page.click('#enquiryForm button[type=submit]'); await page.waitForSelector('.sent h3');
+  await page.evaluate(() => { location.hash = 'book'; }); await page.waitForTimeout(400);
+  log('viewer book:', (await page.locator('.formcard .sent p').innerText()).slice(0, 60));
+  await as(page, 'ali@demo.pk', '#book');
+  await page.click('#bookForm [data-togglesblock="A"]'); await page.click('#bookForm [data-togglesblock="C"]');
+  await page.fill('#bk_name', 'Asad Raza'); await page.fill('#bk_phone', '0300 1112233'); await page.check('#bk_optin');
+  await page.click('#bookForm button[type=submit]'); await page.waitForSelector('.sent h3');
   log('enquiry sent:', await page.locator('.sent h3').innerText());
   await as(page, 'owner@demo.pk');
   log('owner badge', await page.locator('#tabs .badge').allInnerTexts());
@@ -32,6 +33,10 @@ async function as(page, email, hash) {
   const card = page.locator('.req.lead', { hasText: 'Asad Raza' });
   const opt = await card.locator('select option', { hasText: 'Sara' }).getAttribute('value');
   await card.locator('select').selectOption(opt); await card.locator('[data-assignlead]').click(); await page.waitForTimeout(1200);
+  log('lead tags:', (await page.locator('.req.lead .leadtags').first().innerText()).replace(/\n/g, ' | '));
+  await page.click('[data-tab="sales"]'); await page.click('[data-act="loadInvestors"]'); await page.waitForSelector('.invtbl');
+  log('investor list rows', await page.locator('.invtbl tbody tr').count());
+  await page.click('[data-act="exportInvestors"]'); await page.waitForTimeout(500); log('saved through claude.ai downloads:', await page.evaluate(() => window.__saved));
   await page.click('[data-tab="team"]'); await page.fill('#ss_phone', '051 7654321'); await page.click('#siteSettingsForm button[type=submit]'); await page.waitForTimeout(800);
   await as(page, 'ali@demo.pk'); await page.click('[data-tab="sales"]'); await page.waitForTimeout(500);
   log('ali sees the enquiry in sales', await page.locator('.req.lead').count());
@@ -41,7 +46,7 @@ async function as(page, email, hash) {
   log('sara clients', await page.locator('.list .cl .n').allInnerTexts());
   await as(page, 'owner@demo.pk'); await page.click('[data-tab="approvals"]'); await page.waitForTimeout(800);
   log('owner open enquiries after conversion', await page.locator('.req.lead').count());
-  await as(page, 'viewer@demo.pk', '#contact');
+  await as(page, 'viewer@demo.pk', '#book');
   log('viewer sees phone', await page.locator('.cdl').innerText().catch(() => 'none'));
   log('ERRORS', errors);
   await browser.close();

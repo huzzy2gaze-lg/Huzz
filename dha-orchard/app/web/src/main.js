@@ -4,9 +4,9 @@ import { S, G, hooks, $, esc, num, iso, isAdmin, can, toast, notice, totals, nam
 import { buildGeo } from "./geo.js";
 import { createApi, TABLES } from "./api/index.js";
 import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus } from "./map.js";
-import { sitePage, SITE_PAGES } from "./site.js";
+import { sitePage, SITE_PAGES, siteAfterRender, adSource, updateOutlookDom } from "./site.js";
 import { allView, blockView } from "./panels.js";
-import { loginPage, noAccessPage, salesPage, approvalsPage, teamPage, PERMS } from "./pages.js";
+import { salesPage, approvalsPage, teamPage, PERMS, investorsCsv } from "./pages.js";
 import * as A from "./actions.js";
 import { calendarPage, dueCount, calStep, calendarAfterRender, slotFromClick } from "./calendar.js";
 import { uploadDoc, dstr } from "./deal.js";
@@ -230,6 +230,7 @@ function render() {
   fillThumbs();
   refreshViewerBar();
   calendarAfterRender();
+  if (S.area === "site" || !S.me) siteAfterRender();
   if (S._focusFind) { S._focusFind = false; const q = $("#q"); if (q) q.focus(); }
 }
 // photos of documents: the address of each file is asked once, then kept
@@ -262,7 +263,7 @@ function setTab(t) {
 window.addEventListener("hashchange", () => {
   if (S._hashLock) { S._hashLock = false; return; }
   const h = location.hash.slice(1);
-  if (SITE_PAGES.includes(h) || !S.me) { S.area = "site"; S.sitePage = SITE_PAGES.includes(h) ? h : "home"; S.ui = {}; if (h !== "plan") window.scrollTo(0, 0); render(); return; }
+  if (SITE_PAGES.includes(h) || !S.me) { S.area = "site"; S.sitePage = SITE_PAGES.includes(h) ? h : "home"; S.ui = {}; window.scrollTo(0, 0); render(); return; }
   S.area = "app"; fromHash();
 });
 
@@ -274,6 +275,13 @@ const focusSoon = (id) => setTimeout(() => { const i = document.getElementById(i
 const selIds = () => [...S.sel].filter((id) => G.geo.plots[id] && G.geo.plots[id].num != null);
 
 document.addEventListener("click", async (e) => {
+  if (e.target.closest(".explore [data-sblock]")) {
+    // the block map: the first tap shows a block and adds it to the call; a tap on the shown block removes it
+    const b = e.target.closest("[data-sblock]").dataset.sblock;
+    if (S.siteFocus === b && S.siteBlocks.has(b)) S.siteBlocks.delete(b); else S.siteBlocks.add(b);
+    S.siteFocus = b; S.siteSent = false;
+    return render();
+  }
   const t = e.target.closest("button,[data-agent],[data-calslot],a[data-act],a[data-siteplot]");
   if (!t || t.closest("svg")) return;
   const d = t.dataset;
@@ -331,6 +339,12 @@ document.addEventListener("click", async (e) => {
   if (d.dlapprove) return A.decideDownload(d.dlapprove, true);
   if (d.dlreject) return A.decideDownload(d.dlreject, false);
   if (d.siteplot) { siteFocus(d.siteplot); return; }
+  if (d.togglesblock) { const b = d.togglesblock; if (S.siteBlocks.has(b)) S.siteBlocks.delete(b); else S.siteBlocks.add(b); S.siteFocus = b; S.siteSent = false; return render(); }
+  if (d.outlookblock) { S.inv = { ...S.inv, block: d.outlookblock, price: null }; location.hash = "outlook"; return; }
+  if (d.invblock) { S.inv = { ...S.inv, block: d.invblock, price: null }; return render(); }
+  if (d.invn) { S.inv = { ...S.inv, n: Math.min(10, Math.max(1, S.inv.n + Number(d.invn))) }; return render(); }
+  if (d.booktime != null && t.closest("#bookForm")) { S.bookTime = d.booktime; return render(); }
+  if (d.acblock) { const cur = new Set(S.ui.acInterests || (S.account && S.account.interests) || []); if (cur.has(d.acblock)) cur.delete(d.acblock); else cur.add(d.acblock); S.ui.acInterests = [...cur]; return render(); }
   if (d.saveplot) {
     const on = !((S.account && S.account.saved) || []).includes(d.saveplot);
     try { await S.api.rpc("save_plot_for_later", { p_plot_id: d.saveplot, p_on: on }); S.account = await S.api.rpc("my_account"); toast(on ? "Plot saved" : "Plot removed"); render(); } catch (err) { toast(err.message, "err"); }
@@ -379,10 +393,12 @@ document.addEventListener("click", async (e) => {
     case "newMember": ui({ memberEdit: "new", memberRole: null }); focusSoon("me_e"); break;
     case "cancelMember": ui({ memberEdit: null, memberRole: null }); break;
     case "keepDoc": ui({ delDoc: null }); break;
+    case "loadInvestors": try { S.investors = (await S.api.rpc("investor_list")) || []; render(); } catch (err) { toast(err.message, "err"); } break;
+    case "exportInvestors": try { await S.api.saveBlob("investor-list-" + new Date().toISOString().slice(0, 10) + ".csv", new Blob(["\ufeff" + investorsCsv(S.investors || [])], { type: "text/csv" })); } catch (err) { toast(err.message || "The file was not saved.", "err"); } break;
     case "toApp": S.area = "app"; setHash(S.plot ? "plot-" + S.plot : S.block ? "block-" + S.block : ""); S._resetScroll = true; render(); break;
     case "siteAgain": S.siteSent = false; render(); break;
     case "closePlot": S.sitePlot = null; render(); break;
-    case "askPlot": S.siteSent = false; break;
+    case "askPlot": S.siteSent = false; if (d.block) S.siteBlocks.add(d.block); break;
     case "cancelEvent": clearDraft("ev_t", "ev_d", "ev_h", "ev_e", "ev_p", "ev_n"); ui({ eventOpen: null }); break;
     case "calClose": ui({ calItem: null, delEvent: null }); break;
     case "closeViewer": closeViewer(); break;
@@ -395,11 +411,14 @@ document.addEventListener("input", (e) => {
   if (!el.id || el.type === "file") return;
   S.draft[el.id] = el.value;
   if (el.id === "salesQ") { S.salesQ = el.value; render(); }
+  if (el.id === "invPrice") { S.inv = { ...S.inv, price: Number(el.value) }; updateOutlookDom(); }
+  if (el.id === "bk_phone" && document.getElementById("bk_same") && document.getElementById("bk_same").checked) { const w = document.getElementById("bk_wa"); w.value = el.value; S.draft.bk_wa = el.value; }
 });
 document.addEventListener("change", (e) => {
   const el = e.target;
   if (el.id && el.type !== "file") S.draft[el.id] = el.value;
   if (el.id === "cpick") syncClientPick();
+  if (el.id === "bk_same" && el.checked) { const w = document.getElementById("bk_wa"); w.value = val("bk_phone"); S.draft.bk_wa = w.value; }
   if (el.id === "salesAgent") { S.salesAgent = el.value; render(); }
   if (el.id === "calAgent") { S.calAgent = el.value; render(); }
   if (el.type === "file" && el.dataset.upkind) uploadDoc(el).then(() => refresh(["documents"]));
@@ -441,8 +460,24 @@ document.addEventListener("submit", async (e) => {
       return;
     }
     case "accountForm": {
-      try { await S.api.rpc("save_my_account", { p_full_name: val("ac_name"), p_phone: val("ac_phone") }); S.account = await S.api.rpc("my_account"); toast("Saved"); render(); }
-      catch (e) { toast(e.message, "err"); }
+      try {
+        await S.api.rpc("save_my_account", { p_full_name: val("ac_name"), p_phone: val("ac_phone"), p_whatsapp: val("ac_wa"),
+          p_interests: S.ui.acInterests || (S.account && S.account.interests) || [], p_opt_in: !!(document.getElementById("ac_optin") || {}).checked });
+        S.account = await S.api.rpc("my_account"); S.ui.acInterests = null; toast("Saved"); render();
+      } catch (e) { toast(e.message, "err"); }
+      return;
+    }
+    case "bookForm": {
+      const blocks = [...S.siteBlocks].sort();
+      try {
+        await S.api.rpc("book_call", { p_name: val("bk_name"), p_phone: val("bk_phone"), p_whatsapp: val("bk_wa"), p_email: val("bk_email"), p_blocks: blocks,
+          p_best_time: S.bookTime || "", p_message: val("bk_msg"), p_opt_in: !!(document.getElementById("bk_optin") || {}).checked,
+          p_source: adSource(), p_plot_id: S.sitePlot || null, p_website: val("bk_web") });
+        S.siteSent = { name: val("bk_name"), phone: val("bk_phone"), time: S.bookTime, blocks };
+        clearDraft("bk_name", "bk_phone", "bk_wa", "bk_email", "bk_msg");
+        if (S.user && !S.me) await refresh(["leads"]); else render();
+        const f2 = document.querySelector(".formcard"); if (f2) f2.scrollIntoView({ block: "center" });
+      } catch (e) { toast(e.message || "The request did not send. Try again.", "err"); }
       return;
     }
     case "leadNoteForm": { const r = await A.updateLead(f.dataset.id, "contacted", val("ln_" + f.dataset.id)); if (r && r.ok) clearDraft("ln_" + f.dataset.id); return; }
@@ -550,6 +585,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && S.
     S.bootErr = "The app could not start: " + e.message;
     render();
   }
+  adSource(); // keep the ad that brought the visitor
   if (import.meta.env.PROD && S.mode === "live" && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 })();
 

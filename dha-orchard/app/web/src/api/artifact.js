@@ -345,6 +345,35 @@ export async function create() {
       await ping(uid);
       return id;
     },
+    book_call: async ({ p_name, p_phone, p_whatsapp, p_email, p_blocks, p_best_time, p_message, p_opt_in, p_source, p_plot_id, p_website }) => {
+      if (p_website) return null;
+      if (!uid || !writeOk) fail("On the test page, you need Contributor access to book a call.");
+      if (String(p_name || "").trim().length < 2) fail("Write your name.");
+      const phone = String(p_phone || "").trim(), email = String(p_email || "").trim().toLowerCase();
+      if (!/^[0-9]{7,15}$/.test(phone.replace(/[^0-9]/g, ""))) fail("Write your phone number, so that we can call you.");
+      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) fail("The e-mail address is not valid.");
+      const blocks = [...new Set((p_blocks || []).map((b) => String(b).toUpperCase()).filter((b) => /^[A-H]$/.test(b)))].sort();
+      const id = rid();
+      await db.doc("leads/" + uid).set({ at: now() });
+      await db.doc(`leads/${uid}/items/${id}`).set({ name: String(p_name).trim().slice(0, 80), phone: phone.slice(0, 40), whatsapp: String(p_whatsapp || "").trim().slice(0, 40),
+        email: email.slice(0, 120), message: String(p_message || "").trim().slice(0, 1000), plot_id: p_plot_id || null, blocks, best_time: p_best_time || "",
+        marketing_opt_in: !!p_opt_in, source: String(p_source || "").slice(0, 200), status: "new", assigned_to: null, note: "", created_at: now() });
+      await logPrivate(uid, p_plot_id, "lead", `Call booked on the website: ${String(p_name).trim().slice(0, 80)}${blocks.length ? " · Block " + blocks.join(", ") : ""}`);
+      await ping(uid);
+      return id;
+    },
+    investor_list: async () => {
+      const m = requireMember();
+      if (!admin && !m.can_export) fail("You do not have permission to see the investor list. Ask an admin.");
+      const seen = new Set(), out = [];
+      for (const l of (await leadsAll()).filter((x) => x.marketing_opt_in).sort((a, b) => (a.created_at < b.created_at ? 1 : -1))) {
+        const key = (l.phone || "").replace(/[^0-9]/g, "") || l.email;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push({ name: l.name, phone: l.phone, whatsapp: l.whatsapp || "", email: l.email, blocks: l.blocks || [], source: l.source || "", joined: l.created_at, origin: "booked call" });
+      }
+      return out;
+    },
     assign_lead: async ({ p_id, p_agent }) => {
       requireAdmin();
       const l = await leadFind(p_id);
@@ -777,6 +806,10 @@ export async function create() {
       for (let i = 0; i < n; i++) await db.doc(`agents/${owner}/blobs/${fid}/parts/${i}`).delete();
       await db.doc(`agents/${owner}/blobs/${fid}`).delete();
       delete fileCache[path];
+    },
+    async saveBlob(name, blob) {
+      if (!downloads) fail("Saving files is not available here.");
+      await downloads.save({ filename: name, data: blob });
     },
     async saveFile(doc, path) {
       if (!downloads) fail("Saving files is not available here.");

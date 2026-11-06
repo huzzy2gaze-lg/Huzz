@@ -43,7 +43,8 @@ create function public.demo_del_file(p_path text) returns void language sql secu
 $f$;
 grant execute on function public.demo_put_file(text, text), public.demo_get_file(text), public.demo_del_file(text) to authenticated;
 `;
-const READ_ONLY = new Set(["me", "demo_get_file", "my_account"]);
+const READ_ONLY = new Set(["me", "demo_get_file", "my_account", "investor_list"]);
+const SET_RETURNING = new Set(["investor_list"]);
 const toDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
 
 function hash(s) {
@@ -96,6 +97,10 @@ export async function create({ fresh }) {
   await setClaims();
 
   const api = {
+    // a file made in the browser (for example the investor list as CSV)
+    async saveBlob(name, blob) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    },
     mode: "demo",
     demoUsers: DEMO_USERS,
     canSubmit: true,
@@ -148,10 +153,12 @@ export async function create({ fresh }) {
         const v = args[k];
         return v != null && typeof v === "object" && !Array.isArray(v) ? JSON.stringify(v) : v;
       });
-      const sql = `select public.${fn}(${keys.map((k, i) => `${k.replace(/[^a-z_]/g, "")} => $${i + 1}`).join(", ")}) as r`;
+      const call = `public.${fn}(${keys.map((k, i) => `${k.replace(/[^a-z_]/g, "")} => $${i + 1}`).join(", ")})`;
       let r;
       try {
-        r = (await db.query(sql, vals)).rows[0].r;
+        // functions that return a table give all their rows, like the Supabase client does
+        if (SET_RETURNING.has(fn)) r = (await db.query(`select * from ${call}`, vals)).rows;
+        else r = (await db.query(`select ${call} as r`, vals)).rows[0].r;
       } catch (e) {
         throw new Error(e.message);
       }

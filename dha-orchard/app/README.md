@@ -2,10 +2,20 @@
 
 One web app with two parts:
 
-- **The public website of WH Ventures**: home page, the official master plan of DHA Margalla Orchard (no stock,
-  no prices), contact and enquiry form, and client accounts (Google or an e-mail link) to save plots and follow
-  enquiries. A new enquiry goes to the admins; an admin assigns it to an agent; the agent can make it a client.
-  The admins edit the company details (phone, WhatsApp, e-mail, office, hours, about text) on the Team page.
+- **The public website of WH Ventures**, made for visitors from social media ads:
+  - an animated home page with the master plan, the scheme in numbers and six reasons to buy;
+  - **Choose your block**: the 8 blocks on the plan; tap a block to see its facts and market asking prices, and
+    add it to your call;
+  - **Investment outlook**: choose a block and a number of plots; an animated chart shows our team's outlook and a
+    careful case to December 2028 (the same figures as the client offer), with a clear note that it is not a promise;
+  - **Next door**: DHA's Margalla Enclave prices against Orchard;
+  - **Book a call**: blocks, name, phone (required), WhatsApp and e-mail (optional), best time, and consent to news;
+    the ad that brought the visitor (utm_source, utm_campaign, Facebook or Google click) is saved with the booking;
+  - the full master plan with every plot (no stock, no prices);
+  - client accounts (Google or an e-mail link): saved plots, interests by block, own calls, and news by consent.
+  A booking goes to the admins; an admin assigns it to an agent; the agent calls, logs a note and makes it a client.
+  Everyone who agrees to news is on the **investor list** (admins, and agents with the export permission), which
+  exports as CSV. The admins edit the company details on the Team page.
 - **The sales system** for the team, behind the same login. Clients and the public never see it.
 
 The sales system is for the DHA Margalla Orchard sales team. It works on a phone, a tablet, a laptop and a TV.
@@ -69,7 +79,7 @@ dha-orchard/app/supabase/tests/run.sh
 ```
 
 The script makes a fresh database `orchard_test` on the local Postgres, applies the migration and the seed,
-and runs 127 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents, download requests, calendar, website enquiries and client accounts.
+and runs 140 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents, download requests, calendar, website bookings, client accounts and the investor list.
 
 ## The claude.ai test page
 

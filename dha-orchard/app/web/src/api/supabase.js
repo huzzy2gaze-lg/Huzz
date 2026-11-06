@@ -9,6 +9,10 @@ export function create({ url, key }) {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" },
   });
   const api = {
+    // a file made in the browser (for example the investor list as CSV)
+    async saveBlob(name, blob) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    },
     mode: "live",
     maxUpload: 10 * 1048576,
     // files go to the private "documents" bucket, in the folder of the agent who owns them

@@ -9,6 +9,7 @@ export const S = {
   documents: [], events: [], fileUrls: {}, downloadRequests: [],
   calView: null, calDate: null, calAgent: "all",
   area: "site", sitePage: "home", sitePlot: null, site: {}, account: null, myLeads: [], leads: [], siteSent: false,
+  siteBlocks: new Set(), siteFocus: "A", inv: { block: "C", n: 1, price: null }, bookTime: "", investors: null,
   loaded: false,
   tab: "map",
   view: "all", block: null, plot: null, size: "all", show: "all", statusFilter: "all",

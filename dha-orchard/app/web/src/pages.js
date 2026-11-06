@@ -77,6 +77,7 @@ export function salesPage() {
 
   if (S.ui.clientEdit === "new") h += clientForm(null);
   h += leadsForAgent();
+  h += investorsSection();
 
   h += `<div class="toolbar"><input id="salesQ" type="search" placeholder="Search name, phone, CNIC or plot" value="${esc(S.salesQ)}" aria-label="Search clients">${admin ? `<select id="salesAgent" aria-label="Agent"><option value="all">All agents</option>${Object.values(S.people).sort((a, b) => a.name.localeCompare(b.name)).map((p) => `<option value="${p.id}"${S.salesAgent === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select>` : ""}</div>`;
 
@@ -185,6 +186,7 @@ function leadCard(l, admin) {
   const agents = Object.values(S.people).filter((p) => p.active).sort((a, b) => a.name.localeCompare(b.name));
   let h = `<div class="req lead"><div class="top"><span class="rkind">Website</span><b>${esc(l.name)}</b>${l.plot_id ? `<button class="plotlink" data-plot="${esc(l.plot_id)}">${esc(l.plot_id)}</button>` : ""}<span class="meta">${ago(l.created_at)}</span></div>
     <div class="grid3"><div><span class="meta">Phone</span><b>${esc(l.phone || "—")}</b></div><div><span class="meta">E-mail</span><b style="font-size:13px">${esc(l.email || "—")}</b></div><div><span class="meta">Status</span><b>${LEAD_STATUS[l.status] || l.status}</b><small>${l.assigned_to ? esc(nameOf(l.assigned_to)) : "Not assigned"}</small></div></div>
+    <div class="leadtags">${(l.blocks || []).length ? `<span>Block ${esc(l.blocks.join(", "))}</span>` : ""}${l.whatsapp ? `<span>WhatsApp ${esc(l.whatsapp)}</span>` : ""}${l.best_time ? `<span>Call in the ${esc(l.best_time)}</span>` : ""}${l.marketing_opt_in ? `<span class="ok">Wants news</span>` : ""}${l.source ? `<span title="${esc(l.source)}">From ${esc(sourceLabel(l.source))}</span>` : ""}</div>
     ${l.message ? `<div class="s">${esc(l.message)}</div>` : ""}${l.note ? `<div class="s"><b>Note:</b> ${esc(l.note)}</div>` : ""}`;
   if (admin && ["new", "assigned"].includes(l.status)) {
     h += `<div class="row"><select id="la_${l.id}" aria-label="Agent"><option value="">Assign to…</option>${agents.map((p) => `<option value="${p.id}"${l.assigned_to === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select><button class="sbtn primary" data-assignlead="${l.id}">${l.assigned_to ? "Change agent" : "Assign"}</button></div>`;
@@ -211,4 +213,28 @@ export function siteSettingsCard() {
     <div class="grid2">${SITE_FIELDS.filter(([k]) => k !== "about").map(([k, l]) => `<label class="fl"><span>${l}</span><input id="ss_${k}" value="${esc(S.site[k] || "")}" autocomplete="off"></label>`).join("")}</div>
     <label class="fl"><span>About the company (home page)</span><textarea id="ss_about">${esc(S.site.about || "")}</textarea></label>
     <button class="btn forest" type="submit">Save website details</button></form>`;
+}
+
+// where the visitor came from: the ad's utm_source, Facebook or Google click ids, or the referring site
+function sourceLabel(src) {
+  const q = new URLSearchParams(src);
+  if (q.get("utm_source")) return q.get("utm_source") + (q.get("utm_campaign") ? " · " + q.get("utm_campaign") : "");
+  if (q.get("fbclid")) return "Facebook ad";
+  if (q.get("gclid")) return "Google ad";
+  if (q.get("referrer")) return q.get("referrer");
+  return src === "direct" ? "direct visit" : src;
+}
+
+// ---------------------------------------------------------------- the investor list
+export function investorsSection() {
+  if (!(isAdmin() || (S.me && S.me.can_export))) return "";
+  if (!S.investors) return `<div class="k">Investor list</div><div class="card row2"><span>People who agreed to receive news about new plots and investment opportunities.<small>From client accounts and booked calls.</small></span><button class="btn" data-act="loadInvestors">Show the list</button></div>`;
+  const rows = S.investors;
+  return `<div class="pagehead"><div class="k">Investor list (${rows.length})</div><div class="row"><button class="btn" data-act="loadInvestors">Refresh</button><button class="btn forest" data-act="exportInvestors"${rows.length ? "" : " disabled"}>Export CSV</button></div></div>
+    ${rows.length ? `<div class="tablewrap"><table class="tbl invtbl"><thead><tr><th>Name</th><th>Phone</th><th>WhatsApp</th><th>E-mail</th><th>Blocks</th><th>From</th><th>Joined</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.name)}</td><td>${esc(r.phone)}</td><td>${esc(r.whatsapp)}</td><td>${esc(r.email)}</td><td>${esc((r.blocks || []).join(", "))}</td><td>${esc(r.origin)}${r.source ? " · " + esc(sourceLabel(r.source)) : ""}</td><td>${r.joined ? esc(new Date(r.joined).toLocaleDateString("en-GB")) : ""}</td></tr>`).join("")}</tbody></table></div>` : `<div class="empty">Nobody on the list yet.</div>`}`;
+}
+export function investorsCsv(rows) {
+  const q = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+  const head = ["Name", "Phone", "WhatsApp", "E-mail", "Blocks", "Origin", "Source", "Joined"];
+  return [head.map(q).join(","), ...rows.map((r) => [r.name, r.phone, r.whatsapp, r.email, (r.blocks || []).join(" "), r.origin, r.source, r.joined ? new Date(r.joined).toISOString().slice(0, 10) : ""].map(q).join(","))].join("\r\n");
 }
