@@ -480,12 +480,41 @@ body[data-tab="site"] #app{height:auto}
 .site{min-height:100%;display:flex;flex-direction:column}
 .sitewrap{max-width:1200px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));width:100%}
 .sitehead{background:rgba(14,58,44,.97);backdrop-filter:blur(8px);color:var(--on-forest);position:sticky;top:env(safe-area-inset-top,0px);z-index:20;border-bottom:1px solid rgba(255,255,255,.08)}
-.sitehead .sitewrap{display:flex;align-items:center;gap:20px;min-height:66px;flex-wrap:wrap}
-.wordmark{font:400 26px/1 var(--display);color:#fff;text-decoration:none;letter-spacing:.01em}
-.wordmark.sm{font-size:20px;color:inherit}
-.sitenav{display:flex;gap:2px}
-.sitenav a{color:var(--on-forest-soft);text-decoration:none;font-weight:600;padding:8px 12px;border-radius:8px}
-.sitenav a:hover,.sitenav a.on{color:#fff;background:rgba(255,255,255,.1)}
+.sitehead .sitewrap{display:flex;align-items:center;gap:28px;min-height:88px;flex-wrap:wrap;transition:min-height .3s ease}
+.sitehead.small .sitewrap{min-height:68px}
+.brandlink{display:flex;align-items:center;gap:14px;text-decoration:none;color:#fff}
+.logomark{position:relative;display:block;width:62px;height:58px;flex:none;transition:width .3s ease,height .3s ease,transform .4s ease}
+.logomark img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.logomark::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,250,225,.95) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:150% 0;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;pointer-events:none}
+.brandlink:hover .logomark{transform:rotate(-8deg) scale(1.06)}
+.sitehead.small .logomark{width:46px;height:43px}
+.wordmark{font:400 34px/1 var(--display);color:#fff;text-decoration:none;letter-spacing:.01em;transition:font-size .3s ease;white-space:nowrap}
+.wordmark span{display:inline-block}
+.sitehead.small .wordmark{font-size:28px}
+.wordmark.sm{font-size:22px;color:inherit}
+.footbrand{display:inline-flex;align-items:center;gap:10px}
+.footbrand .logomark{width:44px;height:41px}
+.sitenav{display:flex;gap:4px}
+.sitenav a{position:relative;color:var(--on-forest-soft);text-decoration:none;font-weight:650;font-size:17px;padding:11px 18px;border-radius:10px;transition:color .2s,background .2s}
+.sitenav a::after{content:"";position:absolute;left:18px;right:18px;bottom:5px;height:2.5px;border-radius:2px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+.sitenav a:hover,.sitenav a.on{color:#fff;background:rgba(255,255,255,.08)}
+.sitenav a:hover::after,.sitenav a.on::after{transform:scaleX(1)}
+.sitehead .sitebtn{font-size:15px;padding:11px 20px}
+@media (prefers-reduced-motion:no-preference){
+  .sitehead.intro .logomark img{animation:lmIn .9s .1s cubic-bezier(.2,.8,.2,1) both}
+  .sitehead.intro .logomark::after{animation:lmShine 1.2s 1.1s ease-in-out 1}
+  .brandlink:hover .logomark::after{animation:lmShine 1s ease-in-out 1}
+  .sitehead.intro .wordmark span{animation:hdUp .7s calc(.5s + var(--i) * .14s) cubic-bezier(.2,.8,.2,1) both}
+  .sitehead.intro .sitenav a{animation:hdDown .5s calc(.9s + var(--i) * .08s) ease-out both}
+  .sitehead.intro .siteright{animation:hdIn .6s 1.3s ease-out both}
+  .sitehead.intro .siteright .sitebtn.solid{animation:hdPulse 1.6s 2s ease-out 1}
+}
+@keyframes lmIn{from{opacity:0;transform:scale(.6) rotate(-20deg)}to{opacity:1;transform:none}}
+@keyframes lmShine{from{background-position:150% 0}to{background-position:-50% 0}}
+@keyframes hdUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes hdDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+@keyframes hdIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+@keyframes hdPulse{0%{box-shadow:0 0 0 0 rgba(201,162,39,.6)}100%{box-shadow:0 0 0 16px rgba(201,162,39,0)}}
 .siteright{margin-left:auto;display:flex;gap:8px;align-items:center}
 .sitebtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 18px;font-weight:700;font-size:14px;text-decoration:none;cursor:pointer;white-space:nowrap;transition:transform .15s ease,box-shadow .15s ease}
 .sitebtn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
@@ -689,11 +718,18 @@ body[data-tab="site"] #app{height:auto}
   .sitefoot .sitewrap{grid-template-columns:1fr}
   .sitesec{padding-block:52px}
 }
+@media (min-width:641px) and (max-width:1060px){
+  .sitehead .sitewrap,.sitehead.small .sitewrap{gap:4px 16px;padding-block:10px}
+  .sitenav{order:3;width:100%;justify-content:center}
+}
 @media (max-width:640px){
-  .sitehead .sitewrap{gap:6px 10px;padding-block:8px;min-height:56px}
-  .wordmark{font-size:22px}
+  .sitehead .sitewrap,.sitehead.small .sitewrap{gap:6px 10px;padding-block:8px;min-height:60px}
+  .logomark,.sitehead.small .logomark{width:46px;height:43px}
+  .brandlink{gap:10px}
+  .wordmark,.sitehead.small .wordmark{font-size:25px}
   .sitenav{order:3;width:100%;justify-content:space-between}
-  .sitenav a{padding:6px 6px;font-size:14px}
+  .sitenav a{padding:8px 8px;font-size:15px}
+  .sitenav a::after{left:8px;right:8px;bottom:3px}
   .siteright .sitebtn{padding:7px 12px;font-size:13px}
   .siteright .sitebtn.solid{display:none}
   .enqgrid{grid-template-columns:1fr}

@@ -5,6 +5,8 @@
 import { S, G, esc } from "./core.js";
 import { SIZES, ACTIVE } from "./geo.js";
 import { mapSVG } from "./map.js";
+import { logo } from "./brand/logo.js";
+let introDone = false;
 import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection, shareLink, GOALS, BUDGETS, WANT_SIZES, bookSummary } from "./site-extras.js";
 
 export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook"];
@@ -34,14 +36,18 @@ function header() {
   const link = (k, l) => `<a href="#${k}" class="${p === k ? "on" : ""}">${l}</a>`;
   const right = S.me ? `<button class="sitebtn" data-act="toApp">Sales system</button>`
     : S.user ? `<a href="#account" class="sitebtn">My account</a>` : `<a href="#signin" class="sitebtn ghost">Sign in</a>`;
-  return `<header class="sitehead"><div class="sitewrap"><a href="#home" class="wordmark">${esc(company())}</a>
-    <nav class="sitenav" aria-label="Website">${link("home", "Home")}${link("blocks", "Blocks")}${link("outlook", "Outlook")}${link("plan", "Master plan")}</nav>
+  // the entrance animation plays once per visit, not on every page change
+  const intro = introDone ? "" : " intro";
+  introDone = true;
+  const name = esc(company()).split(" ").map((w, i) => `<span style="--i:${i}">${w}</span>`).join(" ");
+  return `<header class="sitehead${intro}"><div class="sitewrap"><a href="#home" class="brandlink" aria-label="${esc(company())}, home">${logo()}<span class="wordmark">${name}</span></a>
+    <nav class="sitenav" aria-label="Website">${[["home", "Home"], ["blocks", "Blocks"], ["outlook", "Outlook"], ["plan", "Master plan"]].map(([k, l], i) => link(k, l).replace("<a ", `<a style="--i:${i}" `)).join("")}</nav>
     <div class="siteright">${right}<a href="#book" class="sitebtn solid">Book a call</a></div></div></header>`;
 }
 
 function footer() {
   const bits = [set("phone") && `Phone ${esc(set("phone"))}`, set("whatsapp") && `WhatsApp ${esc(set("whatsapp"))}`, set("email") && esc(set("email")), set("address") && esc(set("address"))].filter(Boolean);
-  return `<footer class="sitefoot"><div class="sitewrap"><div><b class="wordmark sm">${esc(company())}</b><p>${bits.length ? bits.join(" · ") : "Plots in DHA Margalla Orchard, Islamabad."}</p>
+  return `<footer class="sitefoot"><div class="sitewrap"><div><b class="footbrand">${logo()}<span class="wordmark sm">${esc(company())}</span></b><p>${bits.length ? bits.join(" · ") : "Plots in DHA Margalla Orchard, Islamabad."}</p>
     <p><a href="#book">Book a call</a> · <a href="#signin">Join our investor list</a> · <a href="#plan">Master plan</a></p></div>
     <p class="fine">Scheme facts: FGEHA, October 2026. Prices: asking prices in October 2026 and DHA's published Margalla Enclave prices. The outlook is our team's view, not a promise: prices can go up or down. The map is the official FGEHA layout plan.</p></div></footer>`;
 }
@@ -346,6 +352,12 @@ export function sitePage() {
 // ---------------------------------------------------------------- motion after drawing
 let io = null;
 export function siteAfterRender() {
+  if (!window.__headScroll) {
+    window.__headScroll = true;
+    const onScroll = () => document.querySelector(".sitehead")?.classList.toggle("small", scrollY > 40);
+    addEventListener("scroll", onScroll, { passive: true });
+  }
+  document.querySelector(".sitehead")?.classList.toggle("small", scrollY > 40);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   // numbers count up when they come into view (the final number is already in the page)
   const els = document.querySelectorAll(".site .countup:not([data-done]), .site .reveal:not(.in), .site .draw:not(.in), .site .grow:not(.in)");
