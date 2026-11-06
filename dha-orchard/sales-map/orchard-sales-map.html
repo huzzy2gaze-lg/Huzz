@@ -677,8 +677,7 @@ function plotFile(id){
   const p=GEO.plots[id];const d=S.plots[id];const sz=SIZES[p.size];
   const cls=clientsFor(id);const active=cls.filter(c=>c.stage!=="dropped");
   const w=S.canWrite!==false&&S.dbOK!==false;
-  let h=`<div><div class="k">Block ${p.block} · ${sz.label} · ${sz.dims}</div><h2 style="margin-top:6px">${p.num!=null?"Plot "+id:"Plot number not read"}</h2></div>
-  <div class="drawing">${neighbourSVG(id)}</div>`;
+  let h=`<div><div class="k">Block ${p.block} · ${sz.label} · ${sz.dims}</div><h2 style="margin-top:6px">${p.num!=null?"Plot "+id:"Plot number not read"}</h2></div>`;
   if(!d&&w){
     if(S.fixOpen)h+=`<form class="add" id="fixForm"><div class="k">${p.num!=null?"Correct the plot number":"Enter the plot number"}</div><span class="meta">Check the number on the official plan. Everyone sees the change.</span><input id="fx" inputmode="numeric" placeholder="e.g. 142" autocomplete="off" aria-label="Plot number"><div class="btns"><button type="button" class="btn" data-act="cancelFix">Cancel</button><button type="submit" class="btn forest">Save number</button></div></form>`;
     else h+=`<button class="sbtn" style="justify-self:start" data-act="openFix">${p.num!=null?"Wrong number? Correct it":"Enter the plot number"}</button>`;
