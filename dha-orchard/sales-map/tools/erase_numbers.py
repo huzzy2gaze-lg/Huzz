@@ -23,6 +23,22 @@ for b,num,size,flat,cx,cy,L in D['plots']:
         clean[y0:y1,x0:x1][comp]=1;hit=True
     n+=hit
 clean=cv2.dilate(clean,np.ones((3,3),np.uint8))
+# keep the big grey block names (BLOCK-A ... BLOCK-H): find their letters and never erase them
+grey=((mx>=90)&(mx<=150)&((mx-mn)<14)).astype(np.uint8)
+gc=cv2.morphologyEx(grey,cv2.MORPH_CLOSE,np.ones((7,7),np.uint8))
+nl,ll,sl,_=cv2.connectedComponentsWithStats(gc,8)
+letters=np.zeros_like(grey)
+for i in range(1,nl):
+    if max(sl[i,2],sl[i,3])<int(14*k) or sl[i,4]<int(60*k*k): continue
+    cxp,cyp=sl[i,0]+sl[i,2]/2,sl[i,1]+sl[i,3]/2
+    # only letters of the block names: near each block's label position
+    if min(np.hypot(cxp-bl['label'][0]*k,cyp-bl['label'][1]*k) for bl in D['blocks'].values())>130*k: continue
+    letters[ll==i]=1
+clean[letters>0]=0
 out=im.copy();out[(clean>0)&((mx-mn)<40)]=(255,255,255)
+# where a black plot number sat on a letter, paint the letter grey again
+holes=(letters>0)&(mx<90)
+out[holes]=(115,115,115)
+print('letter px',int(letters.sum()),'filled',int(holes.sum()))
 cv2.imwrite(out_path,out,[cv2.IMWRITE_WEBP_QUALITY,82])
 print('plots cleaned',n,'of',sum(1 for p in D['plots'] if p[1] is not None))

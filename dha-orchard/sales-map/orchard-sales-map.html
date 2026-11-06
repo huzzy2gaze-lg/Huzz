@@ -67,6 +67,13 @@ button{cursor:pointer}
 .legend span{display:flex;gap:8px;align-items:center}
 .sw{width:14px;height:14px;border-radius:3px;display:inline-block;flex:none;border:1px solid var(--plot-line)}
 .search{display:flex;gap:6px;margin-top:8px}
+.mapsearch{position:absolute;top:10px;left:12px;right:12px;max-width:420px;z-index:4;display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px;box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.mapsearch select{flex:none;border:0;background:var(--brass-soft);color:var(--ink);border-radius:8px;padding:0 8px;font-weight:700;font-size:14px;min-height:38px}
+.mapsearch input{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:0 10px;font-size:16px;min-height:38px}
+.mapsearch button{flex:none;border:0;background:var(--forest);color:#fff;border-radius:8px;padding:0 14px;font-weight:700;font-size:14px;min-height:38px}
+svg .beacon{fill:#E0141B;fill-opacity:0;stroke:#E0141B;stroke-width:4px;vector-effect:non-scaling-stroke;stroke-linejoin:round;pointer-events:none;animation:beacon .8s ease-in-out infinite}
+@keyframes beacon{0%,100%{fill-opacity:0;stroke-opacity:.25}50%{fill-opacity:.6;stroke-opacity:1}}
+@media (prefers-reduced-motion:reduce){svg .beacon{animation:none;fill-opacity:.4;stroke-opacity:1}}
 .search select{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 6px;font-weight:600}
 .search input{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px}
 .search button{border:0;background:var(--forest);color:#fff;border-radius:8px;padding:0 12px;font-weight:600}
@@ -75,10 +82,11 @@ button{cursor:pointer}
 /* Map */
 .mapwrap{position:relative;min-height:0;overflow:hidden;background:var(--ground);touch-action:none}
 .mapwrap svg{width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none}
-.zoom{position:absolute;left:12px;top:12px;display:grid;gap:4px;z-index:2}
+.zoom{position:absolute;left:12px;top:64px;display:grid;gap:4px;z-index:2}
 .zoom button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font:600 17px var(--body)}
 /* info bar: fixed at the top centre of the map, never under the mouse */
-.tip{position:absolute;top:12px;left:50%;transform:translateX(-50%);pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;box-shadow:0 6px 18px rgba(0,0,0,.12);font-size:12.5px;z-index:3;display:flex;align-items:baseline;gap:10px;white-space:nowrap;max-width:calc(100% - 120px);overflow:hidden;text-overflow:ellipsis}
+.tip{position:absolute;top:64px;left:50%;transform:translateX(-50%);pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;box-shadow:0 6px 18px rgba(0,0,0,.12);font-size:12.5px;z-index:3;display:flex;align-items:baseline;gap:10px;white-space:nowrap;max-width:calc(100% - 120px);overflow:hidden;text-overflow:ellipsis}
+.tip[hidden]{display:none}
 .tip b{font:400 17px var(--display)}
 .tip .meta br{display:none}
 .maphint{position:absolute;right:12px;bottom:12px;font:500 11px var(--mono);color:var(--soft);background:var(--surface);border:1px solid var(--line);padding:5px 8px;border-radius:6px}
@@ -186,7 +194,7 @@ form.add{display:grid;gap:8px;border:1px dashed var(--line);border-radius:12px;p
 .seg.sizes{grid-template-columns:repeat(4,1fr)}
 .seg.sizes button{font-size:12px;padding:9px 2px}
 .seg.sizes button.on{background:var(--forest);color:var(--on-forest)}
-.selbtn{position:absolute;right:12px;top:12px;z-index:2;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 12px;font-weight:600;font-size:12.5px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.selbtn{position:absolute;right:12px;top:64px;z-index:2;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 12px;font-weight:600;font-size:12.5px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .selbtn.on{background:var(--brass);border-color:var(--brass);color:#fff}
 .selchips{display:flex;flex-wrap:wrap;gap:6px;max-height:140px;overflow:auto}
 .notebar{display:grid;gap:8px;border:1px solid var(--line);border-left:3px solid var(--brass);border-radius:12px;padding:10px 12px;background:var(--card)}
@@ -358,6 +366,7 @@ function go(view,block,plot,{push=true}={}){
     S._anim={from:fromVB};
   }
   if(GEO&&S._focusVB){S.vb[toKey]=S._focusVB;S._focusVB=null;S._anim={from:fromVB}}
+  if(view==="block"&&block)S.findBlock=block;
   S.view=view;S.block=block||null;S.plot=plot||null;S.editPrice=false;S.confirmRemove=false;S.addOpen=false;S.fixOpen=false;S.addSize=null;S.editSize=false;S.editNote=false;
   if(view!=="block"||block!==S._selBlock){S.sel=new Set();S.multi=false;S.bulkConfirm=false}S._selBlock=block;
   const h=plot?"plot-"+plot:block?"block-"+block:"";
@@ -365,6 +374,9 @@ function go(view,block,plot,{push=true}={}){
   render();
 }
 // open a plot and zoom the big map smoothly to it, with its street around it
+// the found plot blinks for 6.5 seconds
+function blinkPlot(id){S.blink={id,until:Date.now()+6500};clearTimeout(blinkPlot._t);
+  blinkPlot._t=setTimeout(()=>{S.blink=null;document.querySelectorAll(".beacon").forEach(e=>e.remove())},6600)}
 function focusPlot(id){const p=GEO.plots[id];if(!p)return;
   const z=Math.max(p.ph*9,120);S._focusVB=[p.cx-z/2,p.cy-z/2,z,z];go("block",p.block,id)}
 function fromHash(){
@@ -436,6 +448,7 @@ function mapSVG(mode){
     }
   }
   if(mode!=="mini")s+=`<g class="labels">${lab}</g><g class="labels-on">${labOn}</g>`;
+  if(mode!=="mini"&&S.blink&&Date.now()<S.blink.until&&GEO.plots[S.blink.id])s+=`<polygon class="beacon" points="${ptsStr(GEO.plots[S.blink.id].pts)}"/>`;
   if(mode==="mini")for(const id in GEO.blocks){const b=GEO.blocks[id];s+=`<text class="blabel" x="${b.label[0]}" y="${b.label[1]+30}" text-anchor="middle" font-size="90">${id}</text>`}
   return s;
 }
@@ -563,10 +576,11 @@ function allView(){
     <div><div class="k">Size</div><div class="pills">${[["all","All"],["1K","1 Kanal"],["14M","14 M"],["10M","10 M"],["X","Corner"]].map(([v,l])=>`<button class="pill${S.size===v?" on":""}" data-size="${v}">${l}</button>`).join("")}</div></div>
     <div><div class="k">Show</div><div class="pills"><button class="pill${S.show==="all"?" on":""}" data-show="all">All plots</button><button class="pill${S.show==="ours"?" on":""}" data-show="ours">Our plots</button></div></div>
     <div><div class="k">Legend</div><div class="legend"><span><i class="sw" style="background:var(--avail);border:0"></i>Ours, available</span><span><i class="sw" style="background:var(--book);border:0"></i>Pre-booked</span><span><i class="sw" style="background:var(--sold);border:0"></i>Sold</span><span><i class="sw" style="background:var(--plot)"></i>Not ours</span></div></div>
-    <div><div class="k">Find a plot</div>${findForm()}<div class="hint" style="margin-top:6px">Choose the block, then type the plot number.</div></div>
+
   </aside>
   <section class="mapwrap" aria-label="Map of all blocks">
     <svg role="img" aria-label="Margalla Orchard blocks and plots">${mapSVG("all")}</svg>
+    ${findForm()}
     <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit to screen" style="font-size:12px">Fit</button></div>
     <div class="tip" hidden></div>
     <div class="maphint">Official FGEHA layout plan · tap a block or plot · drag · pinch or scroll to zoom</div>
@@ -593,7 +607,6 @@ function blockView(){
   return `<div class="layout block">
   <aside class="side scroll">
     <button class="back" data-nav="all">‹ All blocks</button>
-    <div><div class="k">Find a plot</div>${findForm()}</div>
     <div class="k">Whole scheme</div>
     <div class="mini"><svg aria-hidden="true" preserveAspectRatio="xMidYMid meet">${mapSVG("mini")}</svg></div>
     <div class="k">Blocks</div>
@@ -601,6 +614,7 @@ function blockView(){
   </aside>
   <section class="mapwrap" aria-label="Block ${b} close-up">
     <svg role="img" aria-label="Block ${b} plots">${mapSVG("block")}</svg>
+    ${findForm()}
     <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit block" style="font-size:12px">Fit</button></div>
     <button class="selbtn${S.multi?" on":""}" data-act="toggleMulti">${S.multi?"Done selecting":"Select several plots"}</button>
     <div class="maphint">${S.multi?"Tap plots to select them · tap again to unselect":"Tap a plot to open its file · Ctrl/Shift-tap to select several · tap outside the block to close it"}</div>
@@ -648,7 +662,7 @@ function neighbourSVG(id){
   return s+`</svg>`;
 }
 function findForm(){const cur=S.findBlock||S.block||"A";
-  return `<form class="search" id="searchForm"><select id="qb" aria-label="Block">${ACTIVE.map(b=>`<option value="${b}"${b===cur?" selected":""}>Block ${b}</option>`).join("")}</select><input id="q" inputmode="numeric" placeholder="Plot no." autocomplete="off" aria-label="Plot number"><button>Go</button></form>`}
+  return `<form class="mapsearch" id="searchForm" role="search"><select id="qb" aria-label="Block">${ACTIVE.map(b=>`<option value="${b}"${b===cur?" selected":""}>Block ${b}</option>`).join("")}</select><input id="q" type="search" inputmode="numeric" enterkeyhint="search" placeholder="Plot number" autocomplete="off" aria-label="Plot number"><button aria-label="Find plot">Find</button></form>`}
 function sizeChoice(cur,attr){return `<div class="seg sizes" role="group" aria-label="Plot size">${SIZE_ORDER.map(k=>`<button type="button" class="${cur===k?"on":""}" data-${attr}="${k}">${k==="X"?"Corner":SIZES[k].label}</button>`).join("")}</div>`}
 function notesBar(id,d,w){
   const tags=Array.isArray(d.tags)?d.tags:[];
@@ -759,10 +773,9 @@ document.addEventListener("submit",e=>{
   if(f.id==="searchForm"){const b=$("#qb").value;const n=($("#q").value||"").replace(/[^0-9]/g,"");S.findBlock=b;
     if(!n){toast("Type a plot number");return}
     const v=b+"-"+parseInt(n,10);
-    if(GEO.plots[v]){delete S.draft.q;S._focusFind=true;
-      // the block opens fitted to the screen, ready for the next search in the same block
-      if(S.view==="block"&&S.block===b){const k="block-"+b;S._anim={from:(S.vb[k]||defaultVB()).slice()};delete S.vb[k]}
-      go("block",b,v)}
+    if(GEO.plots[v]){delete S.draft.q;
+      if(matchMedia("(pointer:fine)").matches)S._focusFind=true;else if(document.activeElement)document.activeElement.blur();   // phone: close the keyboard so the map shows
+      blinkPlot(v);focusPlot(v)}
     else toast("No plot "+v+" on the map. Check the number.")}
   if(f.id==="priceForm")savePrice(S.plot,$("#pp").value);
   if(f.id==="addPlotForm")addPlot(S.plot,$("#np").value);
