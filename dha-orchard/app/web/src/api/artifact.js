@@ -413,9 +413,9 @@ export async function create() {
     },
     save_site_settings: async ({ p_values }) => {
       requireAdmin();
-      const keys = ["company", "phone", "whatsapp", "email", "address", "hours", "about"];
+      const keys = ["company", "phone", "whatsapp", "email", "address", "hours", "about", "nearby"];
       const v = {};
-      for (const k of keys) if (p_values && k in p_values) v[k] = String(p_values[k] || "").slice(0, 600);
+      for (const k of keys) if (p_values && k in p_values) v[k] = String(p_values[k] || "").slice(0, 2000);
       await db.doc("settings/site").set({ ...shared.settings, ...v });
     },
 

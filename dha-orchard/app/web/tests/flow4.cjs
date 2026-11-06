@@ -37,8 +37,12 @@ async function signIn(page, email) {
   log('after price 4.40:', (await page.locator('.bignums').innerText()).replace(/\n/g, ' | '));
   await page.screenshot({ path: OUT + '/w-outlook.png' });
   // book a call
-  await page.locator('#bookForm').scrollIntoViewIfNeeded();
-  log('form blocks on:', await page.locator('#bookForm .chip2.on').allInnerTexts());
+  await page.locator('.formcard').scrollIntoViewIfNeeded();
+  await page.click('[data-bookans="goal:invest"]'); await page.click('[data-bookstep="2"]');
+  await page.click('[data-bookans="budget:3-4"]'); await page.click('[data-bookans="size:1 Kanal"]'); await page.click('[data-bookstep="3"]');
+  log('step 3 blocks on:', await page.locator('.formcard .chip2.on').allInnerTexts());
+  await page.click('[data-bookstep="4"]'); await page.waitForSelector('#bookForm');
+  log('step 4 summary:', await page.locator('#bookForm .fine').first().innerText());
   await page.fill('#bk_name', 'Hamza Ali'); await page.fill('#bk_phone', '0301 2223344'); await page.check('#bk_same');
   log('WhatsApp copied:', await page.inputValue('#bk_wa'));
   await page.click('[data-booktime="evening"]'); await page.check('#bk_optin');
@@ -52,7 +56,7 @@ async function signIn(page, email) {
   // the admin: the booking with its details, assign to Ali; the investor list
   await signIn(page, 'owner@demo.pk');
   await page.click('[data-tab="approvals"]'); await page.waitForSelector('.req.lead');
-  log('lead tags:', await page.locator('.req.lead .leadtags').first().innerText());
+  log('lead tags:', await page.locator('.req.lead .leadtags').first().innerText(), '| message:', await page.locator('.req.lead .s').first().innerText());
   const card = page.locator('.req.lead', { hasText: 'Hamza Ali' });
   await card.locator('select').selectOption({ label: 'Ali' }); await card.locator('[data-assignlead]').click(); await page.waitForTimeout(800);
   await page.click('[data-tab="sales"]'); await page.click('[data-act="loadInvestors"]'); await page.waitForSelector('.invtbl');

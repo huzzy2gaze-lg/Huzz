@@ -5,6 +5,7 @@ import { buildGeo } from "./geo.js";
 import { createApi, TABLES } from "./api/index.js";
 import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus } from "./map.js";
 import { sitePage, SITE_PAGES, siteAfterRender, adSource, updateOutlookDom } from "./site.js";
+import { startTour, stopTour, tourOn, resumeTour, updateBudgetDom, bookSummary } from "./site-extras.js";
 import { allView, blockView } from "./panels.js";
 import { salesPage, approvalsPage, teamPage, PERMS, investorsCsv } from "./pages.js";
 import * as A from "./actions.js";
@@ -230,7 +231,11 @@ function render() {
   fillThumbs();
   refreshViewerBar();
   calendarAfterRender();
-  if (S.area === "site" || !S.me) siteAfterRender();
+  if (S.area === "site" || !S.me) {
+    siteAfterRender();
+    if (S._startTour && document.querySelector(".explore")) { S._startTour = false; document.querySelector(".explore").scrollIntoView({ block: "center" }); setTimeout(startTour, 400); }
+    else resumeTour();
+  }
   if (S._focusFind) { S._focusFind = false; const q = $("#q"); if (q) q.focus(); }
 }
 // photos of documents: the address of each file is asked once, then kept
@@ -263,6 +268,7 @@ function setTab(t) {
 window.addEventListener("hashchange", () => {
   if (S._hashLock) { S._hashLock = false; return; }
   const h = location.hash.slice(1);
+  if (tourOn()) stopTour(false);
   if (SITE_PAGES.includes(h) || !S.me) { S.area = "site"; S.sitePage = SITE_PAGES.includes(h) ? h : "home"; S.ui = {}; window.scrollTo(0, 0); render(); return; }
   S.area = "app"; fromHash();
 });
@@ -339,6 +345,9 @@ document.addEventListener("click", async (e) => {
   if (d.dlapprove) return A.decideDownload(d.dlapprove, true);
   if (d.dlreject) return A.decideDownload(d.dlreject, false);
   if (d.siteplot) { siteFocus(d.siteplot); return; }
+  if (d.sizepick) { S.sizePick = d.sizepick; return render(); }
+  if (d.bookans) { const [k, v] = d.bookans.split(":"); S.bookAns = { ...(S.bookAns || {}), [k]: v }; return render(); }
+  if (d.bookstep) { S.bookStep = Number(d.bookstep); render(); const fc = document.querySelector(".formcard"); if (fc && fc.getBoundingClientRect().top < 60) fc.scrollIntoView({ block: "start" }); return; }
   if (d.togglesblock) { const b = d.togglesblock; if (S.siteBlocks.has(b)) S.siteBlocks.delete(b); else S.siteBlocks.add(b); S.siteFocus = b; S.siteSent = false; return render(); }
   if (d.outlookblock) { S.inv = { ...S.inv, block: d.outlookblock, price: null }; location.hash = "outlook"; return; }
   if (d.invblock) { S.inv = { ...S.inv, block: d.invblock, price: null }; return render(); }
@@ -395,6 +404,14 @@ document.addEventListener("click", async (e) => {
     case "keepDoc": ui({ delDoc: null }); break;
     case "loadInvestors": try { S.investors = (await S.api.rpc("investor_list")) || []; render(); } catch (err) { toast(err.message, "err"); } break;
     case "exportInvestors": try { await S.api.saveBlob("investor-list-" + new Date().toISOString().slice(0, 10) + ".csv", new Blob(["\ufeff" + investorsCsv(S.investors || [])], { type: "text/csv" })); } catch (err) { toast(err.message || "The file was not saved.", "err"); } break;
+    case "tour": {
+      if (tourOn()) { stopTour(); break; }
+      const ex = document.querySelector(".explore");
+      if (!ex) { S._startTour = true; location.hash = "blocks"; break; }
+      ex.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
+      setTimeout(startTour, 500);
+      break;
+    }
     case "toApp": S.area = "app"; setHash(S.plot ? "plot-" + S.plot : S.block ? "block-" + S.block : ""); S._resetScroll = true; render(); break;
     case "siteAgain": S.siteSent = false; render(); break;
     case "closePlot": S.sitePlot = null; render(); break;
@@ -411,6 +428,7 @@ document.addEventListener("input", (e) => {
   if (!el.id || el.type === "file") return;
   S.draft[el.id] = el.value;
   if (el.id === "salesQ") { S.salesQ = el.value; render(); }
+  if (el.id === "budgetRange") { S.budget = Number(el.value); updateBudgetDom(); }
   if (el.id === "invPrice") { S.inv = { ...S.inv, price: Number(el.value) }; updateOutlookDom(); }
   if (el.id === "bk_phone" && document.getElementById("bk_same") && document.getElementById("bk_same").checked) { const w = document.getElementById("bk_wa"); w.value = el.value; S.draft.bk_wa = el.value; }
 });
@@ -471,9 +489,10 @@ document.addEventListener("submit", async (e) => {
       const blocks = [...S.siteBlocks].sort();
       try {
         await S.api.rpc("book_call", { p_name: val("bk_name"), p_phone: val("bk_phone"), p_whatsapp: val("bk_wa"), p_email: val("bk_email"), p_blocks: blocks,
-          p_best_time: S.bookTime || "", p_message: val("bk_msg"), p_opt_in: !!(document.getElementById("bk_optin") || {}).checked,
+          p_best_time: S.bookTime || "", p_message: [bookSummary(), val("bk_msg")].filter(Boolean).join(" · "), p_opt_in: !!(document.getElementById("bk_optin") || {}).checked,
           p_source: adSource(), p_plot_id: S.sitePlot || null, p_website: val("bk_web") });
         S.siteSent = { name: val("bk_name"), phone: val("bk_phone"), time: S.bookTime, blocks };
+        S.bookStep = 1; S.bookAns = {};
         clearDraft("bk_name", "bk_phone", "bk_wa", "bk_email", "bk_msg");
         if (S.user && !S.me) await refresh(["leads"]); else render();
         const f2 = document.querySelector(".formcard"); if (f2) f2.scrollIntoView({ block: "center" });
@@ -483,7 +502,7 @@ document.addEventListener("submit", async (e) => {
     case "leadNoteForm": { const r = await A.updateLead(f.dataset.id, "contacted", val("ln_" + f.dataset.id)); if (r && r.ok) clearDraft("ln_" + f.dataset.id); return; }
     case "siteSettingsForm": {
       const v = {};
-      for (const k of ["company", "phone", "whatsapp", "email", "address", "hours", "about"]) v[k] = val("ss_" + k);
+      for (const k of ["company", "phone", "whatsapp", "email", "address", "hours", "about", "nearby"]) v[k] = val("ss_" + k);
       return A.saveSiteSettings(v);
     }
     case "priceForm": S.ui.editPrice = false; clearDraft("pp"); return A.setPrice([S.plot], val("pp"));

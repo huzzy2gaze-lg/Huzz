@@ -5,6 +5,7 @@
 import { S, G, esc } from "./core.js";
 import { SIZES, ACTIVE } from "./geo.js";
 import { mapSVG } from "./map.js";
+import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection, shareLink, GOALS, BUDGETS, WANT_SIZES, bookSummary } from "./site-extras.js";
 
 export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook"];
 const set = (k) => (S.site[k] || "").trim();
@@ -45,11 +46,11 @@ function footer() {
     <p class="fine">Scheme facts: FGEHA, October 2026. Prices: asking prices in October 2026 and DHA's published Margalla Enclave prices. The outlook is our team's view, not a promise: prices can go up or down. The map is the official FGEHA layout plan.</p></div></footer>`;
 }
 
-function waLink() {
+function waLink(msg) {
   const n = set("whatsapp").replace(/[^0-9]/g, "");
   if (!n) return "";
   const intl = n.startsWith("0") ? "92" + n.slice(1) : n;
-  return `https://wa.me/${intl}?text=${encodeURIComponent("Hello " + company() + ", I want to know about plots in DHA Margalla Orchard.")}`;
+  return `https://wa.me/${intl}?text=${encodeURIComponent("Hello " + company() + ", " + (msg || "I want to know about plots in DHA Margalla Orchard."))}`;
 }
 
 // ---------------------------------------------------------------- the block map (8 blocks on the plan)
@@ -64,18 +65,18 @@ function blockMap(animated) {
     const on = S.siteBlocks.has(h.b), focus = S.siteFocus === h.b;
     s += `<g class="bmblock${on ? " on" : ""}${focus ? " focus" : ""}" data-sblock="${h.b}" tabindex="0" role="button" aria-label="Block ${h.b}${on ? ", chosen" : ""}">`;
     s += h.polys.map((p) => `<polygon points="${ptsStr(p)}"/>`).join("");
-    s += `<g transform="translate(${h.label[0].toFixed(0)} ${(h.label[1] + 10).toFixed(0)})"><g class="bmlabel"><circle r="46"/><text text-anchor="middle" dominant-baseline="central">${h.b}</text></g></g></g>`;
+    s += `<g transform="translate(${h.label[0].toFixed(0)} ${(h.label[1] + 10).toFixed(0)})">${h.b === "A" ? `<circle class="beaconA" r="46"/><circle class="beaconA b2" r="46"/><g class="atag"><rect x="56" y="-24" width="250" height="48" rx="24"/><text x="181" y="2" text-anchor="middle" dominant-baseline="central">First possession</text></g>` : ""}<g class="bmlabel"><circle r="46"/><text text-anchor="middle" dominant-baseline="central">${h.b}</text></g></g></g>`;
   }
   return s + `</svg>`;
 }
 
-function blockCard() {
+export function blockCard() {
   const b = S.siteFocus || "A", info = BLOCKS[b], on = S.siteBlocks.has(b);
   return `<div class="bcardx" aria-live="polite"><div class="eyebrow">Block ${b}</div><h3>Block ${b}</h3>
     <p>${esc(info.line)}</p>
     <dl class="bfacts"><div><dt>Plots</dt><dd>about ${info.plots.toLocaleString("en-IN")}</dd></div><div><dt>Sizes</dt><dd>${esc(info.sizes)}</dd></div>
     ${info.price ? `<div><dt>Market asks</dt><dd>${info.price[0].toFixed(2)}–${info.price[1].toFixed(2)} Cr <small>${esc(info.size)}, Oct 2026</small></dd></div>` : ""}</dl>
-    <div class="row"><button class="sitebtn ${on ? "" : "solid"}" data-togglesblock="${b}">${on ? "✓ Added to my call" : "Add Block " + b + " to my call"}</button>${info.price ? `<button class="sitebtn" data-outlookblock="${b}">See the outlook</button>` : ""}</div></div>`;
+    <div class="row"><button class="sitebtn ${on ? "" : "solid"}" data-togglesblock="${b}">${on ? "✓ Added to my call" : "Add Block " + b + " to my call"}</button>${info.price ? `<button class="sitebtn" data-outlookblock="${b}">See the outlook</button>` : ""}${waLink() ? `<a class="sitebtn wa" target="_blank" rel="noopener" href="${waLink("I want to know about plots in Block " + b + " of DHA Margalla Orchard.")}">WhatsApp</a>` : ""}</div></div>`;
 }
 
 function chosenBar() {
@@ -193,9 +194,16 @@ function bookForm() {
   if (S.api && S.api.canSubmit === false) return `<div class="sent"><h3>Book a call</h3><p>On the test page, you need Contributor access to book a call. On the real website, everyone can book one.</p></div>`;
   const acc = S.account || {};
   const chosen = S.siteBlocks;
-  return `<form class="enq" id="bookForm" novalidate>
-    <div class="lbl">Which blocks? <small>Choose one or more</small></div>
-    <div class="chiprow">${ACTIVE.map((b) => `<button type="button" class="chip2${chosen.has(b) ? " on" : ""}" data-togglesblock="${b}" aria-pressed="${chosen.has(b)}">Block ${b}</button>`).join("")}</div>
+  const step = S.bookStep || 1, ans = S.bookAns || {};
+  const bar = `<div class="stepbar"><span>Step ${step} of 4</span><i><i style="width:${step * 25}%"></i></i></div>`;
+  const chips = (key, list) => `<div class="chiprow">${list.map(([k, l]) => `<button type="button" class="chip2${(ans[key] || "") === k && (k || ans[key] === "") ? " on" : ""}" data-bookans="${key}:${k}">${l}</button>`).join("")}</div>`;
+  const nav = (back, next, label) => `<div class="stepnav">${back ? `<button type="button" class="sitebtn ghost" data-bookstep="${back}">Back</button>` : "<span></span>"}<button type="button" class="sitebtn solid" data-bookstep="${next}">${label || "Next"}</button></div>`;
+  if (step === 1) return `<div class="enq">${bar}<h3 class="steph">What is the plot for?</h3>${chips("goal", GOALS)}${nav(0, 2)}</div>`;
+  if (step === 2) return `<div class="enq">${bar}<h3 class="steph">Your budget for one plot</h3>${chips("budget", BUDGETS)}<div class="lbl">Plot size</div>${chips("size", WANT_SIZES)}${nav(1, 3)}</div>`;
+  if (step === 3) return `<div class="enq">${bar}<h3 class="steph">Which blocks do you like?</h3><p class="fine">Choose one or more, or go on: our agent can advise you.</p>
+    <div class="chiprow">${ACTIVE.map((b) => `<button type="button" class="chip2${chosen.has(b) ? " on" : ""}" data-togglesblock="${b}" aria-pressed="${chosen.has(b)}">Block ${b}</button>`).join("")}</div>${nav(2, 4)}</div>`;
+  return `<form class="enq" id="bookForm" novalidate>${bar}<h3 class="steph">Where can we call you?</h3>
+    ${bookSummary() || chosen.size ? `<p class="fine">${esc([bookSummary(), chosen.size ? "Blocks: " + [...chosen].sort().join(", ") : ""].filter(Boolean).join(" · "))} <button type="button" class="linkbtn" data-bookstep="1">Change</button></p>` : ""}
     <label><span>Your name *</span><input id="bk_name" autocomplete="name" required value="${esc(acc.full_name || "")}"></label>
     <label><span>Phone number * <small>We call this number</small></span><input id="bk_phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="03xx xxxxxxx" value="${esc(acc.phone || "")}"></label>
     <div class="enqgrid"><label><span>WhatsApp (optional)</span><input id="bk_wa" type="tel" inputmode="tel" value="${esc(acc.whatsapp || "")}"></label>
@@ -206,7 +214,7 @@ function bookForm() {
     <label><span>Message (optional)</span><textarea id="bk_msg" placeholder="For example: I want a 1 Kanal plot for investment.">${S.sitePlot ? "About plot " + esc(S.sitePlot) + ". " : ""}</textarea></label>
     <label class="check"><input type="checkbox" id="bk_optin"> Send me news about new plots and investment opportunities by WhatsApp, SMS or e-mail. I can stop this at any time.</label>
     <input id="bk_web" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-    <button class="sitebtn solid big" type="submit">Book my call</button>
+    <div class="stepnav"><button type="button" class="sitebtn ghost" data-bookstep="3">Back</button><button class="sitebtn solid big" type="submit">Book my call</button></div>
     <p class="fine">We use your details to call you, and for news only if you agree above.</p></form>`;
 }
 function bookSection() {
@@ -231,7 +239,7 @@ function home() {
         <div class="eyebrow">DHA Margalla Orchard · Islamabad</div>
         <h1><span class="rise">Your plot in</span> <span class="rise d1">DHA Margalla Orchard.</span></h1>
         <p class="rise d2">${esc(set("about") || "Developed by DHA Islamabad on Main Park Road. 1 Kanal, 14 Marla and 10 Marla plots on the official FGEHA master plan.")}</p>
-        <div class="herobtns rise d3"><a href="#book" class="sitebtn solid big">Book a call</a><a href="#blocks" class="sitebtn big light">Explore the blocks</a></div>
+        <div class="herobtns rise d3"><a href="#book" class="sitebtn solid big">Book a call</a><button class="sitebtn big light" data-act="tour">▶ Tour the blocks</button></div>
         <div class="trust rise d3"><span>Block A possession: July 2027 target</span><span>50% of development done</span><span>Source: FGEHA, Oct 2026</span></div>
       </div>
       <a href="#blocks" class="heromap2" aria-label="Explore the blocks on the master plan">${blockMap(true)}</a>
@@ -243,8 +251,12 @@ function home() {
       <div><b><span class="countup" data-to="50">50</span>%</b><span>of development done</span></div>
     </div></section>
     ${explorer()}
+    ${sizesSection()}
+    ${budgetSection()}
     ${outlookSection(false)}
     ${nextDoor()}
+    ${timelineSection()}
+    ${nearbySection()}
     ${why()}
     <section class="sitesec"><div class="sitewrap"><div class="sechead"><div class="eyebrow">How it works</div><h2>From a call to your allotment letter</h2></div>
       <ol class="steps5">
@@ -255,6 +267,7 @@ function home() {
         <li class="reveal"><b>Allotment letter</b><span>The authority gives the receipt, then your allotment letter.</span></li>
       </ol></div></section>
     ${bookSection()}
+    ${faqSection()}
     <section class="sitesec join"><div class="sitewrap joinbox"><div><div class="eyebrow">Investor list</div><h2>Hear about new plots first</h2>
       <p>Create a free account. We send you news about new plots and investment opportunities in DHA Margalla Orchard, by WhatsApp, SMS or e-mail.</p></div>
       <a href="#${S.user ? "account" : "signin"}" class="sitebtn solid big">${S.user ? "My account" : "Join the investor list"}</a></div></section>`;
@@ -262,8 +275,9 @@ function home() {
 
 function explorer() {
   return `<section class="sitesec" id="blocks"><div class="sitewrap">
-    <div class="sechead"><div class="eyebrow">The master plan</div><h2>Choose your block</h2><p>Tap a block to see what it offers. Add the blocks you like to your call.</p></div>
-    <div class="explore"><div class="bmapbox">${blockMap(false)}</div><div class="bside">${blockCard()}${chosenBar()}
+    <div class="sechead row2"><div><div class="eyebrow">The master plan</div><h2>Choose your block</h2><p>Tap a block to see what it offers. Add the blocks you like to your call.</p></div>
+      <button class="sitebtn solid" data-act="tour">▶ Take the 30-second tour</button></div>
+    <div class="explore"><div class="bmapbox">${blockMap(false)}<div class="tourcap" hidden></div></div><div class="bside">${blockCard()}${chosenBar()}
       <a href="#plan" class="sitebtn ghost">Open the full master plan with every plot</a></div></div></div></section>`;
 }
 
@@ -279,7 +293,7 @@ function plan() {
       <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit to screen" style="font-size:12px">Fit</button></div>
       <div class="tip" hidden></div>
       ${p ? `<div class="plotcard"><div><div class="eyebrow">Block ${p.block}</div><h3>Plot ${esc(S.sitePlot)}</h3><p>${sz.label} · ${sz.dims}${sz.sqyd ? ` · ${sz.sqyd} sq yd` : ""}</p></div>
-        <div class="row"><a href="#book" class="sitebtn solid" data-act="askPlot" data-block="${p.block}">Book a call about this plot</a>${S.user && !S.me && S.mode !== "artifact" ? `<button class="sitebtn" data-saveplot="${esc(S.sitePlot)}">${saved.includes(S.sitePlot) ? "Saved ✓" : "Save plot"}</button>` : ""}<button class="sitebtn" data-act="closePlot" aria-label="Close">×</button></div></div>` : ""}
+        <div class="row"><a href="#book" class="sitebtn solid" data-act="askPlot" data-block="${p.block}">Book a call about this plot</a>${S.user && !S.me && S.mode !== "artifact" ? `<button class="sitebtn" data-saveplot="${esc(S.sitePlot)}">${saved.includes(S.sitePlot) ? "Saved ✓" : "Save plot"}</button>` : ""}<a class="sitebtn" target="_blank" rel="noopener" href="${shareLink("Plot " + S.sitePlot + " (" + sz.label + ") in DHA Margalla Orchard, on the official master plan:")}">Share</a><button class="sitebtn" data-act="closePlot" aria-label="Close">×</button></div></div>` : ""}
     </div></section>`;
 }
 

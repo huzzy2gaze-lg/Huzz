@@ -23,7 +23,8 @@ async function as(page, email, hash) {
   await page.evaluate(() => { location.hash = 'book'; }); await page.waitForTimeout(400);
   log('viewer book:', (await page.locator('.formcard .sent p').innerText()).slice(0, 60));
   await as(page, 'ali@demo.pk', '#book');
-  await page.click('#bookForm [data-togglesblock="A"]'); await page.click('#bookForm [data-togglesblock="C"]');
+  await page.click('[data-bookstep="2"]'); await page.click('[data-bookstep="3"]');
+  await page.click('.formcard [data-togglesblock="A"]'); await page.click('.formcard [data-togglesblock="C"]'); await page.click('[data-bookstep="4"]');
   await page.fill('#bk_name', 'Asad Raza'); await page.fill('#bk_phone', '0300 1112233'); await page.check('#bk_optin');
   await page.click('#bookForm button[type=submit]'); await page.waitForSelector('.sent h3');
   log('enquiry sent:', await page.locator('.sent h3').innerText());

@@ -25,5 +25,9 @@ select t.as_user('owner@example.com');
 select public.save_member((select v from t.ids where k = 'ali'), 'ali@example.com', 'Ali', '0300', 'agent', true, '{"can_export":true}');
 select t.as_user('ali@example.com');
 select t.ok((select count(*) from public.investor_list()) = 2, 'an agent with the export permission sees the list');
+select t.as_user('owner@example.com');
+select public.save_site_settings('{"nearby":"COMSATS University | 1 min\nMurree Road | 10 min"}');
+select t.ok((select value from public.site_settings where key = 'nearby') like 'COMSATS University | 1 min%', 'admins save nearby places');
+select t.fails($$select public.save_site_settings('{"secret":"x"}')$$, 'Unknown setting');
 reset role;
 \echo phase 5 tests: all checks passed
