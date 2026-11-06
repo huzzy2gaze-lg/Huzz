@@ -5,21 +5,22 @@ import { S, esc, cr, pkr, day, ago, nameOf, isAdmin, can, PAYMODES, toast } from
 export const AUTHORITIES = ["FGEHA", "CDA", "Housing Foundation", "DHA", "Other"];
 export const TRANSFER_MODES = { pay_order: "Pay order", bank_transfer: "Bank transfer", cash: "Cash", other: "Other" };
 export const DOC_KINDS = {
+  lp_letter: "LP letter (land provider)", ndc_application: "NDC application",
   ownership: "Ownership papers", agreement: "Agreement", token_receipt: "Token payment proof", cnic: "CNIC copy",
-  ndc: "NDC", transfer_letter: "Transfer date letter", pay_order: "Pay order or bank slip",
+  ndc: "NDC (approved)", transfer_letter: "Transfer date letter", pay_order: "Pay order or bank slip",
   transfer_receipt: "Authority receipt", allotment_letter: "Allotment letter", other: "Other",
 };
 
 // The 8 stages of a deal. Each has the details it records and the documents it usually needs.
 export const FLOW = [
-  { k: "interested", n: 1, label: "Interested", docs: ["cnic", "other"],
+  { k: "interested", n: 1, label: "Interested", docs: ["cnic"],
     fields: [["agreement_on", "Planned token agreement date", "date"]] },
-  { k: "prebooked", n: 2, label: "Pre-booked", docs: ["cnic", "other"],
+  { k: "prebooked", n: 2, label: "Pre-booked", docs: ["cnic"],
     fields: [["agreement_on", "Planned token agreement date", "date"]] },
-  { k: "token", n: 3, label: "Token (Bayana)", docs: ["agreement", "token_receipt", "cnic"],
+  { k: "token", n: 3, label: "Token (Bayana)", docs: ["agreement", "token_receipt"],
     hint: "Agreed: the price, the time for the transfer, the token amount and the mode of payment.",
     fields: [["agreement_on", "Agreement date", "date"], ["token_amount", "Token amount (PKR)", "amount"], ["payment_mode", "Mode of payment", "paymode"], ["transfer_deadline", "Time limit for the transfer", "date"]] },
-  { k: "ndc_submitted", n: 4, label: "NDC submitted", docs: ["ndc", "other"],
+  { k: "ndc_submitted", n: 4, label: "NDC submitted", docs: ["ndc_application"],
     hint: "No Demand Certificate submitted to the authority. Housing Foundation takes about 2 to 3 days.",
     fields: [["authority", "Authority", "authority"], ["ndc_submitted_on", "Submitted on", "date"], ["ndc_expected", "Approval expected on", "date"]] },
   { k: "ndc_approved", n: 5, label: "NDC approved", docs: ["ndc"],
@@ -35,6 +36,8 @@ export const FLOW = [
     fields: [["allotment_received", "Received on", "date"]] },
 ];
 export const stageIndex = (k) => FLOW.findIndex((s) => s.k === k);
+// a plot with no client yet takes the LP letter
+export const PLOT_DOCS = ["lp_letter"];
 
 // a date value from either backend as YYYY-MM-DD
 export function dstr(v) {
@@ -73,7 +76,10 @@ export function docGrid(docs, canDelete) {
 function uploader(target, kinds) {
   if (!can("upload_docs")) return `<div class="meta">You do not have permission to upload documents.</div>`;
   const sel = `up_kind_${target.stage || "plot"}`;
-  return `<div class="upload"><select id="${sel}" aria-label="Type of document">${kinds.concat(Object.keys(DOC_KINDS).filter((k) => !kinds.includes(k))).map((k) => `<option value="${k}">${DOC_KINDS[k]}</option>`).join("")}</select>
+  const choose = kinds.length > 1
+    ? `<select id="${sel}" aria-label="Type of document">${kinds.map((k) => `<option value="${k}">${DOC_KINDS[k]}</option>`).join("")}</select>`
+    : `<input type="hidden" id="${sel}" value="${kinds[0]}"><span class="upkind">${DOC_KINDS[kinds[0]]}</span>`;
+  return `<div class="upload">${choose}
     <label class="btn upbtn">Add photo or PDF<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" data-updeal="${target.deal || ""}" data-upplot="${esc(target.plot || "")}" data-upstage="${target.stage || ""}" data-upkind="${sel}"></label></div>`;
 }
 
@@ -92,10 +98,13 @@ export function dealFile(d) {
     h += `<li class="step ${state}${open === st.k ? " open" : ""}"><button class="stephead" data-stage="${st.k}" aria-expanded="${open === st.k}"><span class="num">${state === "done" ? "✓" : st.n}</span><span class="sl">${st.label}</span>${nd ? `<span class="dc">${nd} doc${nd === 1 ? "" : "s"}</span>` : ""}</button>`;
     if (open === st.k) {
       h += `<div class="stagebody">${st.hint ? `<div class="meta">${st.hint}</div>` : ""}`;
-      h += `<form class="stageform" id="stageForm" data-deal="${d.id}" data-stage="${st.k}"><div class="grid2">${st.fields.map((f) => fieldInput(d, f, w)).join("")}</div>
-        ${w ? `<button class="btn forest" type="submit">Save details</button>` : ""}</form>`;
-      h += docGrid(docsOf(d.id, st.k), canDelDoc);
-      if (w) h += uploader({ deal: d.id, stage: st.k }, st.docs);
+      if (i > cur) h += `<div class="empty">The details and documents of this stage open when the deal reaches it.</div>`;
+      else {
+        h += `<form class="stageform" id="stageForm" data-deal="${d.id}" data-stage="${st.k}"><div class="grid2">${st.fields.map((f) => fieldInput(d, f, w)).join("")}</div>
+          ${w ? `<button class="btn forest" type="submit">Save details</button>` : ""}</form>`;
+        h += docGrid(docsOf(d.id, st.k), canDelDoc);
+        if (w) h += uploader({ deal: d.id, stage: st.k }, st.docs);
+      }
       if (w && d.sold && i >= stageIndex("token") && i !== cur) h += `<button class="sbtn" data-setstage="${st.k}" data-deal="${d.id}">Make this the current stage</button>`;
       h += `</div>`;
     }
@@ -114,7 +123,7 @@ export function dealFile(d) {
 export function plotDocs(plotId) {
   const docs = S.documents.filter((x) => !x.deal_id && x.plot_id === plotId);
   if (!docs.length && !can("upload_docs")) return "";
-  return `<div class="card"><div class="k">Plot documents (private)</div><div class="meta">Only you and the admins see the files you add here.</div>${docGrid(docs, canDelDoc)}${uploader({ plot: plotId, stage: "plot" }, ["ownership", "other"])}</div>`;
+  return `<div class="card"><div class="k">Plot documents (private)</div><div class="meta">The LP letter (land provider letter) of this plot. Documents of a deal go in the client's deal file, in its stage. Only the uploader and the admins see these files.</div>${docGrid(docs, canDelDoc)}${uploader({ plot: plotId, stage: "plot" }, PLOT_DOCS)}</div>`;
 }
 
 // a photo is made smaller before upload: longest side 1600 px, JPEG

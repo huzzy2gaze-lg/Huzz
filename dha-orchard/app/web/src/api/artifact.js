@@ -13,6 +13,9 @@ const CHUNK = 180000; // characters of a file in one database document
 const PALETTE = ["#2F6F8F", "#8F4A2F", "#5B7F2F", "#7A3F8F", "#2F8F7A", "#8F7A2F", "#3F4F8F", "#8F2F5B"];
 const STAGES = ["token", "ndc_submitted", "ndc_approved", "transfer_date", "transfer_done", "closed"];
 const STAGE_LABEL = { token: "Token (Bayana)", ndc_submitted: "NDC submitted", ndc_approved: "NDC approved", transfer_date: "Transfer date set", transfer_done: "Transfer done", closed: "Allotment letter received, deal closed" };
+const STAGE_KINDS = { plot: ["lp_letter"], interested: ["cnic"], prebooked: ["cnic"], token: ["agreement", "token_receipt"], ndc_submitted: ["ndc_application"],
+  ndc_approved: ["ndc"], transfer_date: ["transfer_letter"], transfer_done: ["pay_order", "transfer_receipt"], closed: ["allotment_letter"] };
+const ORDER = ["interested", "prebooked", "token", "ndc_submitted", "ndc_approved", "transfer_date", "transfer_done", "closed"];
 const PERM_KEYS = ["can_edit_price", "can_add_plots", "can_add_listings", "can_mark_sold", "can_upload_docs", "can_export"];
 const DEFAULT_PERMS = { can_edit_price: false, can_add_plots: false, can_add_listings: false, can_mark_sold: true, can_upload_docs: true, can_export: false };
 
@@ -526,11 +529,17 @@ export async function create() {
     },
     add_document: async ({ p_deal_id, p_plot_id, p_stage, p_kind, p_file_name, p_mime, p_size, p_path, p_note }) => {
       can("upload_docs", "upload documents");
-      let owner = uid, plot = p_plot_id;
-      if (p_deal_id) { const { a, d } = await dealFind(p_deal_id); owner = a; plot = d.plot_id; } else if (!(await plotGet(p_plot_id))) fail("This plot is not in our stock.");
+      let owner = uid, plot = p_plot_id, stage = "plot";
+      if (p_deal_id) {
+        const { a, d } = await dealFind(p_deal_id); owner = a; plot = d.plot_id; stage = p_stage;
+        if (d.stage === "dropped") fail("This deal stopped.");
+        if (ORDER.indexOf(stage) < 0) fail("Unknown stage.");
+        if (ORDER.indexOf(stage) > ORDER.indexOf(d.stage)) fail("Add documents to this stage when the deal reaches it.");
+      } else if (!(await plotGet(p_plot_id))) fail("This plot is not in our stock.");
+      if (!(STAGE_KINDS[stage] || []).includes(p_kind)) fail("This type of document is not for this stage.");
       if (!p_path || p_path.split("/")[0] !== owner) fail("The file is in the wrong folder.");
       const id = rid();
-      await pset(owner, "docs", id, { deal_id: p_deal_id || null, plot_id: plot, stage: p_stage || (p_deal_id ? null : "plot"), kind: p_kind, file_name: String(p_file_name).slice(0, 160),
+      await pset(owner, "docs", id, { deal_id: p_deal_id || null, plot_id: plot, stage, kind: p_kind, file_name: String(p_file_name).slice(0, 160),
         mime: p_mime, size_bytes: p_size, path: p_path, note: String(p_note || ""), uploaded_by: uid, created_at: now() });
       await ping(owner);
       return id;

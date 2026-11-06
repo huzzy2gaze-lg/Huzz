@@ -3,3 +3,4 @@ dist/
 dist-artifact/
 .env.local
 .env.*.local
+tests/*.png

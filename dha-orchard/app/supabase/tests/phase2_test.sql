@@ -43,5 +43,19 @@ select public.save_event((select v from t.ids where k = 'e1'), (select v from t.
 select t.ok((select done from public.events where id = (select v from t.ids where k = 'e1')), 'admin marks the event done');
 select t.ok((select count(*) from public.audit_log where tbl = 'documents') = 1, 'change log records the document');
 
+-- documents follow the stage
+select t.as_user('ali@example.com');
+select t.fails(format('select public.add_document(%L, null, %L, %L, %L, %L, 1000, %L)', (select v from t.ids where k = 'd_ali'),
+               'token', 'allotment_letter', 'a.jpg', 'image/jpeg', (select v from t.ids where k = 'ali')::text || '/a.jpg'), 'not for this stage');
+select t.fails(format('select public.add_document(%L, null, %L, %L, %L, %L, 1000, %L)', (select v from t.ids where k = 'd_ali'),
+               'closed', 'allotment_letter', 'a.jpg', 'image/jpeg', (select v from t.ids where k = 'ali')::text || '/a.jpg'), 'when the deal reaches it');
+select t.ok(public.add_document((select v from t.ids where k = 'd_ali'), null, 'ndc_submitted', 'ndc_application', 'ndc.pdf', 'application/pdf', 3000,
+            (select v from t.ids where k = 'ali')::text || '/ndc.pdf') is not null, 'document for the current stage');
+select t.as_user('owner@example.com');
+select t.ok(public.add_document(null, 'A-538', null, 'lp_letter', 'lp.jpg', 'image/jpeg', 2000,
+            (select id from public.members where email = 'owner@example.com')::text || '/lp.jpg') is not null, 'LP letter on a plot');
+select t.fails(format('select public.add_document(null, %L, null, %L, %L, %L, 1000, %L)', 'A-538', 'agreement', 'a.jpg', 'image/jpeg',
+               (select id from public.members where email = 'owner@example.com')::text || '/a.jpg'), 'not for this stage');
+
 reset role;
 \echo phase 2 tests: all checks passed

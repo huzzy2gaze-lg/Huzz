@@ -17,8 +17,9 @@ Later, the same code becomes the Android APK.
 - **Change log**: every change is recorded with the person and the time (admins only).
 - **Deal file**: the 8 stages of a deal (interested, pre-booked, token, NDC submitted, NDC approved, transfer date,
   transfer done, allotment letter). Each stage keeps its details (dates, amounts, authority, receipt number).
-- **Documents**: photos and PDFs for each stage (agreement, token payment proof, CNIC, NDC, pay order, authority
-  receipt, allotment letter) and for each plot (ownership papers). Photos are made smaller before upload.
+- **Documents**: photos and PDFs. A plot with no client takes its LP letter (land provider letter). Each deal stage
+  takes only its own documents, and only when the deal is at that stage or past it (agreement, token payment proof, CNIC, NDC, pay order, authority
+  receipt, allotment letter). Photos are made smaller before upload.
   Only the agent of the deal and the admins can open them.
 - **Calendar**: all deal dates (token agreement, transfer time limit, NDC, transfer, allotment letter) and own
   entries (for example a site visit), as a list (late, today, tomorrow, this week, next week) and as a month.
@@ -55,7 +56,7 @@ dha-orchard/app/supabase/tests/run.sh
 ```
 
 The script makes a fresh database `orchard_test` on the local Postgres, applies the migration and the seed,
-and runs 86 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents and calendar.
+and runs 91 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents and calendar.
 
 ## The claude.ai test page
 
