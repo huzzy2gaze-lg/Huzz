@@ -601,9 +601,9 @@ body[data-tab="site"] #app{height:auto}
 .bignums small{color:#E2BE55;font-weight:700}
 .bars{display:grid;gap:14px}
 .barrow{display:grid;grid-template-columns:200px minmax(0,1fr) 80px;gap:12px;align-items:center;font-size:14px}
-.barrow .bar{height:16px;background:var(--line);border-radius:8px;overflow:hidden}
-.barrow .bar i{display:block;height:100%;width:var(--w);background:#B4473A;border-radius:8px}
-.barrow.orc .bar i{background:var(--gold)}
+.barrow .bartrack{height:16px;background:var(--line);border-radius:8px;overflow:hidden}
+.barrow .bartrack i{display:block;height:100%;width:var(--w);background:#B4473A;border-radius:8px}
+.barrow.orc .bartrack i{background:var(--gold)}
 .barrow b{font-variant-numeric:tabular-nums;text-align:right}
 .grow.pre{width:0!important}
 .grow.pre.in{width:var(--w)!important;transition:width 1.2s cubic-bezier(.2,.7,.2,1)}

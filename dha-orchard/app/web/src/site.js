@@ -156,7 +156,7 @@ function nextDoor() {
     <div><div class="eyebrow">Next door</div><h2>DHA's price for 1 Kanal next door rose 65% in 18 months</h2>
       <p>DHA Margalla Enclave is about 4 km away. DHA's own price for a 1 Kanal plot there went from 4.41 crore to 7.29 crore. A 1 Kanal plot in Margalla Orchard asks about ${TODAY_1K} crore today.</p>
       <p><b>The gap is the opportunity.</b></p></div>
-    <div class="bars">${rows.map(([l, v, c]) => `<div class="barrow ${c}"><span>${l}</span><div class="bar"><i class="grow" style="--w:${(v / 7.29) * 100}%"></i></div><b>${v.toFixed(2)} Cr</b></div>`).join("")}
+    <div class="bars">${rows.map(([l, v, c]) => `<div class="barrow ${c}"><span>${l}</span><div class="bartrack"><i class="grow" style="--w:${(v / 7.29) * 100}%"></i></div><b>${v.toFixed(2)} Cr</b></div>`).join("")}
       <p class="fine">DHA Margalla Enclave: DHA's published prices. Margalla Orchard: average asking price, October 2026.</p></div>
   </div></section>`;
 }
