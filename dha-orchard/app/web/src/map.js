@@ -30,9 +30,9 @@ export function go(view, block, plot, { push = true } = {}) {
 }
 export function setHash(h, push = true) {
   if (!push || location.hash.slice(1) === h) return;
-  S._hashLock = true;
-  if (h) location.hash = h;
-  else history.replaceState(null, "", location.pathname + location.search);
+  // the lock skips the one hashchange event our own change makes; replaceState makes no event, so no lock for it
+  if (h) { S._hashLock = true; location.hash = h; }
+  else { S._hashLock = false; history.replaceState(null, "", location.pathname + location.search); }
 }
 export function blinkPlot(id) {
   S.blink = { id, until: Date.now() + 6500 };

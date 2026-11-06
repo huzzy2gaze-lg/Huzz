@@ -4,6 +4,7 @@ import { S, G, hooks, $, esc, num, iso, isAdmin, can, toast, notice, totals, nam
 import { buildGeo } from "./geo.js";
 import { createApi, TABLES } from "./api/index.js";
 import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus } from "./map.js";
+import { logo } from "./brand/logo.js";
 import { sitePage, SITE_PAGES, siteAfterRender, adSource, updateOutlookDom } from "./site.js";
 import { startTour, stopTour, tourOn, resumeTour, updateBudgetDom, bookSummary } from "./site-extras.js";
 import { allView, blockView } from "./panels.js";
@@ -199,7 +200,7 @@ function renderHeader() {
     ? `<span class="chip"><i style="background:var(--avail)"></i>Available ${t.available}</span><span class="chip"><i style="background:var(--book)"></i>Pre-booked ${t.prebooked}</span><span class="chip"><i style="background:var(--sold)"></i>Sold ${t.sold + t.sold_pending}</span>`
     : "";
   const live = S.mode === "demo" ? "Demo · this browser" : S.mode === "artifact" ? "Test version · live" : S.live === "SUBSCRIBED" ? "Live" : S.live === "connecting" ? "Connecting…" : "Reconnecting…";
-  $("#who").innerHTML = `<a class="sync weblink" href="#home">Website</a><span class="sync">${live}</span><span class="me"><span class="av sm" style="background:${S.me.color}">${esc((S.me.full_name || S.me.email)[0].toUpperCase())}</span><span class="mename">${esc(S.me.full_name || S.me.email)}<small>${S.me.role === "admin" ? "Admin" : "Sales agent"}</small></span></span>${S.mode === "artifact" ? "" : `<button class="out" data-act="${S.mode === "demo" ? "switchUser" : "signOut"}">${S.mode === "demo" ? "Switch person" : "Sign out"}</button>`}`;
+  $("#who").innerHTML = `<a class="webbtn" href="#home" title="Open the WH Ventures website">${logo()}<span>Website</span></a><span class="sync">${live}</span><span class="me"><span class="av sm" style="background:${S.me.color}">${esc((S.me.full_name || S.me.email)[0].toUpperCase())}</span><span class="mename">${esc(S.me.full_name || S.me.email)}<small>${S.me.role === "admin" ? "Admin" : "Sales agent"}</small></span></span>${S.mode === "artifact" ? "" : `<button class="out" data-act="${S.mode === "demo" ? "switchUser" : "signOut"}">${S.mode === "demo" ? "Switch person" : "Sign out"}</button>`}`;
 }
 
 function render() {
