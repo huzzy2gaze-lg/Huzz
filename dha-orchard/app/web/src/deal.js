@@ -67,7 +67,7 @@ export function docGrid(docs, canDelete) {
   return `<div class="docs">${docs.map((x) => {
     const img = x.mime.startsWith("image/");
     const url = S.fileUrls[x.path];
-    return `<div class="doc"><button class="docthumb" data-opendoc="${x.id}" aria-label="Open ${esc(x.file_name)}">${img ? (url ? `<img src="${esc(url)}" alt="">` : `<span class="docload">Loading…</span>`) : `<span class="pdf">PDF</span>`}</button>
+    return `<div class="doc"><button class="docthumb" data-opendoc="${x.id}" aria-label="Open ${esc(x.file_name)}">${img ? `<span class="thumbimg${url ? " on" : ""}"${url ? ` style="background-image:url(&quot;${esc(url)}&quot;)"` : ""}></span>` : `<span class="pdf">PDF</span>`}</button>
       <div class="docmeta"><b>${esc(DOC_KINDS[x.kind] || x.kind)}</b><small>${esc(x.file_name)} · ${esc(nameOf(x.uploaded_by))} · ${ago(x.created_at)}</small></div>
       ${canDelete(x) ? (S.ui.delDoc === x.id ? `<span class="row"><button class="sbtn" data-act="keepDoc">Keep</button><button class="sbtn danger" data-deldoc="${x.id}">Delete</button></span>` : `<button class="linkbtn danger" data-askdeldoc="${x.id}">Delete</button>`) : ""}</div>`;
   }).join("")}</div>`;

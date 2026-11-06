@@ -12,4 +12,5 @@ for f in "$PWD"/../migrations/*.sql; do run -d $DB -f "$f"; done
 run -d $DB -f "$PWD/../seed/initial_data.sql"
 run -d $DB -o /dev/null -f "$PWD/access_test.sql"
 run -d $DB -o /dev/null -f "$PWD/phase2_test.sql"
+run -d $DB -o /dev/null -f "$PWD/phase3_test.sql"
 echo "All database tests passed."

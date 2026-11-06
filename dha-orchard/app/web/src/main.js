@@ -7,8 +7,9 @@ import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash } fro
 import { allView, blockView } from "./panels.js";
 import { loginPage, noAccessPage, salesPage, approvalsPage, teamPage, PERMS } from "./pages.js";
 import * as A from "./actions.js";
-import { calendarPage, dueCount } from "./calendar.js";
-import { uploadDoc, dstr, DOC_KINDS } from "./deal.js";
+import { calendarPage, dueCount, calStep, calendarAfterRender, slotFromClick } from "./calendar.js";
+import { uploadDoc, dstr } from "./deal.js";
+import { openViewer, closeViewer, viewerAction, sendDownloadRequest, refreshViewerBar, viewerOpen } from "./viewer.js";
 
 hooks.go = go;
 hooks.focusPlot = focusPlot;
@@ -24,6 +25,7 @@ const norm = {
     return o;
   },
   documents: (r) => ({ ...r, size_bytes: num(r.size_bytes), created_at: iso(r.created_at) }),
+  download_requests: (r) => ({ ...r, created_at: iso(r.created_at), decided_at: iso(r.decided_at), used_at: iso(r.used_at) }),
   events: (r) => ({ ...r, on_date: dstr(r.on_date), at_time: r.at_time ? String(r.at_time).slice(0, 5) : null, created_at: iso(r.created_at) }),
   requests: (r) => ({ ...r, sale_price: num(r.sale_price), token_amount: num(r.token_amount), created_at: iso(r.created_at), decided_at: iso(r.decided_at), transfer_deadline: iso(r.transfer_deadline) }),
   activity: (r) => ({ ...r, id: Number(r.id), at: iso(r.at) }),
@@ -66,6 +68,7 @@ async function loadTable(t) {
     case "members": S.members = rows; break;
     case "documents": S.documents = rows.map(norm.documents); break;
     case "events": S.events = rows.map(norm.events); break;
+    case "download_requests": S.downloadRequests = rows.map(norm.download_requests); break;
     case "listing_owners": S.owners = Object.fromEntries(rows.map((r) => [r.plot_id, { ...r, owner_demand: num(r.owner_demand) }])); break;
   }
 }
@@ -132,7 +135,8 @@ async function startSession() {
   S.salesQ = "";
   S.salesAgent = "all";
   S.plots = {}; S.clients = {}; S.deals = []; S.requests = []; S.activity = []; S.members = []; S.owners = {};
-  S.documents = []; S.events = []; S.fileUrls = {}; S.calAgent = "all";
+  S.documents = []; S.events = []; S.fileUrls = {}; S.calAgent = "all"; S.downloadRequests = [];
+  closeViewer();
   if (S.user) {
     try { S.me = await S.api.rpc("me"); } catch (e) { S.bootErr = e.message; }
     if (S.me) {
@@ -150,7 +154,7 @@ function renderHeader() {
   const bar = $("#bar");
   if (!S.me) { bar.hidden = true; $("#tabs").hidden = true; return; }
   bar.hidden = false;
-  const pend = S.requests.filter((r) => r.status === "pending").length;
+  const pend = S.requests.filter((r) => r.status === "pending").length + (isAdmin() ? S.downloadRequests.filter((r) => r.status === "pending").length : 0);
   const due = dueCount();
   const tabs = [["map", "Map"], ["sales", isAdmin() ? "Sales" : "My sales"], ["calendar", "Calendar" + (due ? ` <b class="badge">${due}</b>` : "")]];
   if (isAdmin()) tabs.push(["approvals", "Approvals" + (pend ? ` <b class="badge">${pend}</b>` : "")], ["team", "Team"]);
@@ -201,6 +205,8 @@ function render() {
   [...app.querySelectorAll(".scroll,.page")].forEach((e, i) => { if (keepScroll[i] != null && !S._resetScroll) e.scrollTop = keepScroll[i]; });
   S._resetScroll = false;
   fillThumbs();
+  refreshViewerBar();
+  calendarAfterRender();
   if (S._focusFind) { S._focusFind = false; const q = $("#q"); if (q) q.focus(); }
 }
 // photos of documents: the address of each file is asked once, then kept
@@ -211,25 +217,10 @@ function fillThumbs() {
     S.fileUrls[doc.path] = "";
     S.api.fileUrl(doc.path).then((u) => {
       S.fileUrls[doc.path] = u;
-      document.querySelectorAll(`[data-opendoc="${doc.id}"]`).forEach((el) => { el.innerHTML = `<img src="${esc(u)}" alt="">`; });
+      document.querySelectorAll(`[data-opendoc="${doc.id}"] .thumbimg`).forEach((el) => { el.style.backgroundImage = `url("${u}")`; el.classList.add("on"); });
     }).catch(() => { delete S.fileUrls[doc.path]; });
   }
 }
-async function openDoc(id) {
-  const doc = S.documents.find((x) => x.id === id);
-  if (!doc) return;
-  if (doc.mime === "application/pdf") {
-    try { await S.api.openFile(doc); } catch (e) { toast(e.message || "The file did not open.", "err"); }
-    return;
-  }
-  const url = S.fileUrls[doc.path] || (await S.api.fileUrl(doc.path).catch(() => ""));
-  if (!url) return toast("The photo did not load. Try again.", "err");
-  let v = $("#viewer");
-  if (!v) { v = document.createElement("div"); v.id = "viewer"; document.body.appendChild(v); }
-  v.innerHTML = `<div class="vbar"><b>${esc(DOC_KINDS[doc.kind] || doc.kind)}</b><span>${esc(doc.file_name)}</span><button class="out" data-act="closeViewer">Close</button></div><img src="${esc(url)}" alt="${esc(doc.file_name)}">`;
-  v.hidden = false;
-}
-
 function syncClientPick() {
   const pick = $("#cpick"), box = $("#newClientFields");
   if (pick && box) box.hidden = !!pick.value;
@@ -237,6 +228,7 @@ function syncClientPick() {
 
 function setTab(t) {
   S.tab = t;
+  if (t === "calendar") S._calJump = true;
   S.ui = {};
   S._resetScroll = true;
   if (t === "map") setHash(S.plot ? "plot-" + S.plot : S.block ? "block-" + S.block : "");
@@ -254,7 +246,7 @@ const focusSoon = (id) => setTimeout(() => { const i = document.getElementById(i
 const selIds = () => [...S.sel].filter((id) => G.geo.plots[id] && G.geo.plots[id].num != null);
 
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("button,[data-agent]");
+  const t = e.target.closest("button,[data-agent],[data-calslot]");
   if (!t || t.closest("svg")) return;
   const d = t.dataset;
   if (d.tab) return setTab(d.tab);
@@ -292,15 +284,24 @@ document.addEventListener("click", async (e) => {
   if (d.opendeal) { const x = S.deals.find((y) => y.id === d.opendeal); if (x) { focusPlot(x.plot_id); S.ui.dealOpen = x.id; render(); } return; }
   if (d.stage && t.classList.contains("stephead")) { S.ui.stageOpen = d.stage; return render(); }
   if (d.setstage) { S.ui.stageOpen = d.setstage; return A.updateDeal(d.deal, d.setstage, {}); }
-  if (d.opendoc) return openDoc(d.opendoc);
+  if (d.opendoc) return openViewer(d.opendoc);
   if (d.askdeldoc) return ui({ delDoc: d.askdeldoc });
   if (d.deldoc) { S.ui.delDoc = null; return A.deleteDocument(d.deldoc); }
-  if (d.calview) { S.calView = d.calview; return render(); }
-  if (d.calmonth) { S.calMonth = d.calmonth; return render(); }
-  if (d.calday) { S.calDay = d.calday; return render(); }
-  if (d.evdone) { const e = S.events.find((x) => x.id === d.evdone); return e && A.saveEvent(e.id, { ...e, done: !e.done }); }
+  if (d.calview) { S.calView = d.calview; S._calJump = true; S.ui = {}; return render(); }
+  if (d.calgo) { calStep(d.calgo); S._calJump = true; return render(); }
+  if (d.calday) { S.calDate = d.calday; S.calView = "day"; S._calJump = true; S.ui = {}; return render(); }
+  if (d.calnew != null && t.tagName === "BUTTON") {
+    const ev = d.calnew.startsWith("e:") ? d.calnew.slice(2) : null;
+    S.ui = { eventOpen: ev ? { edit: ev } : { date: S.calDate || undefined } };
+    render(); return focusSoon("ev_t");
+  }
+  if (d.calitem) return ui({ calItem: d.calitem, delEvent: null });
+  if (d.calslot && t === e.target) { S.ui = { eventOpen: slotFromClick(t, e) }; render(); return focusSoon("ev_t"); }
+  if (d.evdone) { const ev = S.events.find((x) => x.id === d.evdone); return ev && A.saveEvent(ev.id, { ...ev, done: !ev.done }); }
   if (d.askdelevent) return ui({ delEvent: d.askdelevent });
-  if (d.delevent) { S.ui.delEvent = null; return A.deleteEvent(d.delevent); }
+  if (d.delevent) { S.ui = {}; return A.deleteEvent(d.delevent); }
+  if (d.dlapprove) return A.decideDownload(d.dlapprove, true);
+  if (d.dlreject) return A.decideDownload(d.dlreject, false);
   if (d.toggleactive) {
     const m = S.members.find((x) => x.id === d.toggleactive);
     if (m) return A.saveMember(m.id, { email: m.email, name: m.full_name, phone: m.phone, role: m.role, active: !m.active });
@@ -341,9 +342,10 @@ document.addEventListener("click", async (e) => {
     case "newMember": ui({ memberEdit: "new", memberRole: null }); focusSoon("me_e"); break;
     case "cancelMember": ui({ memberEdit: null, memberRole: null }); break;
     case "keepDoc": ui({ delDoc: null }); break;
-    case "newEvent": ui({ eventOpen: true }); focusSoon("ev_t"); break;
-    case "cancelEvent": clearDraft("ev_t", "ev_d", "ev_h", "ev_p", "ev_n"); ui({ eventOpen: false }); break;
-    case "closeViewer": { const v = $("#viewer"); if (v) v.hidden = true; break; }
+    case "cancelEvent": clearDraft("ev_t", "ev_d", "ev_h", "ev_e", "ev_p", "ev_n"); ui({ eventOpen: null }); break;
+    case "calClose": ui({ calItem: null, delEvent: null }); break;
+    case "closeViewer": closeViewer(); break;
+    case "dlAsk": case "dlNow": case "dlUse": viewerAction(d.act, d); break;
   }
 });
 
@@ -423,6 +425,7 @@ document.addEventListener("submit", async (e) => {
       return;
     }
     case "rejectForm": { const r = await A.decide(f.dataset.id, false, val("rr")); if (r && r.ok) { clearDraft("rr"); S.ui.rejectFor = null; render(); } return; }
+    case "dlForm": return sendDownloadRequest(val("dl_reason"));
     case "stageForm": {
       const fields = {};
       f.querySelectorAll("[data-f]").forEach((i) => { fields[i.dataset.f] = i.dataset.f === "token_amount" ? i.value.replace(/[^0-9]/g, "") : i.value; });
@@ -431,8 +434,10 @@ document.addEventListener("submit", async (e) => {
       return;
     }
     case "eventForm": {
-      const r = await A.saveEvent(null, { title: val("ev_t"), on_date: val("ev_d"), at_time: val("ev_h"), plot_id: val("ev_p"), note: val("ev_n") });
-      if (r && r.ok) { clearDraft("ev_t", "ev_d", "ev_h", "ev_p", "ev_n"); S.ui.eventOpen = false; S.calDay = val("ev_d") || S.calDay; render(); }
+      const old = f.dataset.edit ? S.events.find((x) => x.id === f.dataset.edit) : null;
+      const r = await A.saveEvent(old ? old.id : null, { title: val("ev_t"), on_date: val("ev_d"), at_time: val("ev_h"), end_time: val("ev_e"), plot_id: val("ev_p"),
+        note: val("ev_n"), deal_id: old ? old.deal_id : null, done: old ? old.done : false });
+      if (r && r.ok) { clearDraft("ev_t", "ev_d", "ev_h", "ev_e", "ev_p", "ev_n"); S.ui = {}; S.calDate = val("ev_d") || S.calDate; render(); }
       return;
     }
     case "memberForm": {
@@ -447,8 +452,7 @@ document.addEventListener("submit", async (e) => {
   }
 });
 document.addEventListener("keydown", (e) => {
-  const v = $("#viewer");
-  if (e.key === "Escape" && v && !v.hidden) { v.hidden = true; return; }
+  if (e.key === "Escape" && viewerOpen()) { closeViewer(); return; }
   if (e.key !== "Escape" || S.tab !== "map") return;
   if (S.plot) go("block", S.block);
   else if (S.view === "block") go("all");

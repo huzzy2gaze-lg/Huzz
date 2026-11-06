@@ -107,9 +107,9 @@ export async function create({ fresh }) {
       return u;
     },
     async removeFile(path) { await api.rpc("demo_del_file", { p_path: path }); },
-    async openFile(doc) {
-      const blob = await (await fetch(await api.fileUrl(doc.path))).blob();
-      window.open(URL.createObjectURL(blob), "_blank", "noopener");
+    async saveFile(doc, path) {
+      const blob = await (await fetch(await api.fileUrl(path))).blob();
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = doc.file_name; document.body.appendChild(a); a.click(); a.remove();
     },
     async getUser() {
       return email ? { email } : null;

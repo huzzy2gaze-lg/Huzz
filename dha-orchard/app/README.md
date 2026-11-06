@@ -21,8 +21,13 @@ Later, the same code becomes the Android APK.
   takes only its own documents, and only when the deal is at that stage or past it (agreement, token payment proof, CNIC, NDC, pay order, authority
   receipt, allotment letter). Photos are made smaller before upload.
   Only the agent of the deal and the admins can open them.
-- **Calendar**: all deal dates (token agreement, transfer time limit, NDC, transfer, allotment letter) and own
-  entries (for example a site visit), as a list (late, today, tomorrow, this week, next week) and as a month.
+- **Protected documents**: photos and PDFs open only inside the app, drawn with the viewer's name and the time
+  across them. Agents cannot download: they ask, an admin approves one download. The app hides a document when
+  it is not in front, when the screenshot key is pressed (the admins are told) and when someone prints.
+  A web page cannot fully block screenshots; the Android app (phase 3) blocks them.
+- **Calendar**: Day and Week views with an hour grid (tap an empty hour to add an entry with a start and an end
+  time), a Month view and a List view. It shows all deal dates (token agreement, transfer time limit, NDC,
+  transfer, allotment letter) and own entries.
 
 Phase 3 (next): APK, phone notifications when the app is closed, WhatsApp alerts, reports.
 
@@ -56,7 +61,7 @@ dha-orchard/app/supabase/tests/run.sh
 ```
 
 The script makes a fresh database `orchard_test` on the local Postgres, applies the migration and the seed,
-and runs 91 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents and calendar.
+and runs 106 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents, download requests and calendar.
 
 ## The claude.ai test page
 

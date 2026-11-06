@@ -108,11 +108,26 @@ function clientCard(c) {
 }
 
 // ---------------------------------------------------------------- Approvals (admins)
+const DOC_LABEL = { lp_letter: "LP letter", agreement: "Agreement", token_receipt: "Token payment proof", cnic: "CNIC copy", ndc_application: "NDC application", ndc: "NDC",
+  transfer_letter: "Transfer date letter", pay_order: "Pay order", transfer_receipt: "Authority receipt", allotment_letter: "Allotment letter" };
+function downloadsHTML() {
+  const pend = S.downloadRequests.filter((r) => r.status === "pending").sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+  if (!pend.length) return "";
+  return `<div class="k">Download requests (${pend.length})</div><div class="list">${pend.map((r) => {
+    const doc = S.documents.find((x) => x.id === r.document_id) || {};
+    return `<div class="req dl"><div class="top"><span class="rkind">Download</span><b>${esc(DOC_LABEL[doc.kind] || "Document")}</b><button class="plotlink" data-plot="${esc(doc.plot_id || "")}">${esc(doc.plot_id || "")}</button><span class="meta">${ago(r.created_at)}</span></div>
+      <div class="s">${esc(nameOf(r.requested_by))} asks to download <b>${esc(doc.file_name || "")}</b>${r.reason ? ": " + esc(r.reason) : ""}</div>
+      <div class="row">${doc.id ? `<button class="sbtn" data-opendoc="${doc.id}">View the document</button>` : ""}</div>
+      <div class="btns"><button class="btn" data-dlreject="${r.id}">Do not approve</button><button class="btn forest" data-dlapprove="${r.id}">Approve one download</button></div></div>`;
+  }).join("")}</div>`;
+}
+
 export function approvalsPage() {
   const pending = S.requests.filter((r) => r.status === "pending").sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
   const done = S.requests.filter((r) => r.status !== "pending").sort((a, b) => (a.decided_at < b.decided_at ? 1 : -1)).slice(0, 15);
   let h = `<div class="page"><div class="pagehead"><div><div class="k">Any one admin can approve</div><h2>Approvals</h2></div>${"Notification" in window && Notification.permission !== "granted" ? `<button class="btn" data-act="alerts">Turn on alerts</button>` : ""}</div>`;
-  h += pending.length ? `<div class="list">${pending.map(reqCard).join("")}</div>` : `<div class="empty">Nothing waits for approval.</div>`;
+  h += pending.length ? `<div class="list">${pending.map(reqCard).join("")}</div>` : `<div class="empty">No pre-booking or sale waits for approval.</div>`;
+  h += downloadsHTML();
   if (done.length) h += `<div class="k">Recent decisions</div><div class="list">${done.map((r) => `<div class="card row2"><span>${reqLine(r)}${r.kind === "sale" ? " · " + cr(r.sale_price) + " Cr" : ""}<small>${esc(nameOf(r.agent_id))} · ${r.decided_by ? "by " + esc(nameOf(r.decided_by)) + " · " : ""}${ago(r.decided_at)}${r.reason ? " · " + esc(r.reason) : ""}</small></span><span class="rstat ${r.status}">${r.status === "approved" ? "Approved" : r.status === "rejected" ? "Not approved" : r.status === "cancelled" ? "Cancelled" : "Closed"}</span></div>`).join("")}</div>`;
   return h + `</div>`;
 }

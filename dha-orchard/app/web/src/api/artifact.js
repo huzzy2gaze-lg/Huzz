@@ -8,7 +8,7 @@
 // server the database checks all of them.
 import { TABLES } from "./index.js";
 
-const PRIV = ["clients", "deals", "requests", "owners", "docs", "events", "log"];
+const PRIV = ["clients", "deals", "requests", "owners", "docs", "events", "log", "dlreq"];
 const CHUNK = 180000; // characters of a file in one database document
 const PALETTE = ["#2F6F8F", "#8F4A2F", "#5B7F2F", "#7A3F8F", "#2F8F7A", "#8F7A2F", "#3F4F8F", "#8F2F5B"];
 const STAGES = ["token", "ndc_submitted", "ndc_approved", "transfer_date", "transfer_done", "closed"];
@@ -209,11 +209,20 @@ export async function create() {
       case "listing_owners": return (await all("owners")).map(({ _agent, id, ...r }) => ({ ...r, plot_id: id, agent_id: _agent }));
       case "documents": return (await all("docs")).map(({ _agent, ...r }) => ({ ...r, owner_agent: _agent }));
       case "events": return (await all("events")).map(({ _agent, ...r }) => ({ ...r, agent_id: _agent }));
+      case "download_requests": return (await all("dlreq")).map(({ _agent, ...r }) => ({ ...r, requested_by: _agent }));
     }
     return [];
   }
 
   // ---------------------------------------------------------------- server functions
+  const DOC_LABEL = { lp_letter: "LP letter", agreement: "Agreement", token_receipt: "Token payment proof", cnic: "CNIC copy", ndc_application: "NDC application", ndc: "NDC",
+    transfer_letter: "Transfer date letter", pay_order: "Pay order", transfer_receipt: "Authority receipt", allotment_letter: "Allotment letter" };
+  const docLabel = (row) => (DOC_LABEL[row.kind] || "Document") + " of " + row.plot_id;
+  async function seeDoc(id) {
+    const f = await findPriv("docs", id);
+    if (!f || !(admin || f.a === uid || f.row.uploaded_by === uid)) fail("This document does not exist.");
+    return f;
+  }
   async function dealFind(id) {
     const f = await findPriv("deals", id);
     if (!f) fail("This record belongs to another agent.");
@@ -553,17 +562,62 @@ export async function create() {
       await ping(f.a);
       return f.row.path;
     },
-    save_event: async ({ p_id, p_deal_id, p_plot_id, p_title, p_on_date, p_at_time, p_note, p_done }) => {
+    request_download: async ({ p_document_id, p_reason }) => {
+      requireMember();
+      const f = await seeDoc(p_document_id);
+      if (admin) fail("Admins can download without a request.");
+      const mine = Object.values((await loadAgent(uid, true)).dlreq).filter((r) => r.document_id === p_document_id);
+      if (mine.some((r) => r.status === "pending")) fail("Your request for this document is already waiting.");
+      if (mine.some((r) => r.status === "approved")) fail("Your request is already approved. Download the file.");
+      const id = rid();
+      await pset(uid, "dlreq", id, { document_id: p_document_id, reason: String(p_reason || "").trim().slice(0, 200), status: "pending", created_at: now() });
+      await logPrivate(uid, f.row.plot_id, "download_request", `Download request: ${docLabel(f.row)} · by ${nameOf(uid)}`);
+      await ping(uid);
+      return id;
+    },
+    decide_download: async ({ p_id, p_approve, p_reason }) => {
+      requireAdmin();
+      const f = await findPriv("dlreq", p_id);
+      if (!f || f.row.status !== "pending") fail("This request is already closed.");
+      await pset(f.a, "dlreq", p_id, { ...strip(f.row), status: p_approve ? "approved" : "rejected", decided_by: uid, decided_at: now(), reason: String(p_reason || "").trim() || f.row.reason || "" });
+      const d = await findPriv("docs", f.row.document_id);
+      await logPrivate(f.a, d ? d.row.plot_id : null, "download_decision", `${p_approve ? "Download approved" : "Download not approved"}: ${d ? docLabel(d.row) : "document"} · by ${nameOf(uid)}`);
+      await ping(f.a);
+    },
+    use_download: async ({ p_id }) => {
+      requireMember();
+      const data = await loadAgent(uid, true);
+      const r = data.dlreq[p_id];
+      if (!r) fail("This request does not exist.");
+      if (r.status !== "approved") fail("An admin must approve the download first.");
+      const d = await findPriv("docs", r.document_id);
+      if (!d) fail("This document does not exist.");
+      await pset(uid, "dlreq", p_id, { ...r, status: "used", used_at: now() });
+      await logPrivate(uid, d.row.plot_id, "download", `Downloaded: ${docLabel(d.row)} · by ${nameOf(uid)}`);
+      await ping(uid);
+      return d.row.path;
+    },
+    report_document_event: async ({ p_document_id, p_event }) => {
+      requireMember();
+      const f = await findPriv("docs", p_document_id);
+      if (!f) return;
+      const what = { screenshot_key: "Screenshot key pressed on ", print: "Print tried on ", download: "Downloaded: " }[p_event];
+      if (!what) fail("Unknown event.");
+      await logPrivate(uid, f.row.plot_id, "doc_" + p_event, what + docLabel(f.row) + " · by " + nameOf(uid));
+      await ping(uid);
+    },
+    save_event: async ({ p_id, p_deal_id, p_plot_id, p_title, p_on_date, p_at_time, p_note, p_done, p_end_time }) => {
       requireMember();
       if (!String(p_title || "").trim()) fail("Add a title.");
       if (!/^\d{4}-\d{2}-\d{2}$/.test(p_on_date || "")) fail("Choose a date.");
+      if (p_end_time && (!p_at_time || p_end_time <= p_at_time)) fail("The end time must be after the start time.");
       let a = uid, plot = p_plot_id || null;
       if (p_deal_id) { const f = await dealFind(p_deal_id); a = f.a; plot = f.d.plot_id; }
       let base = { created_by: uid, created_at: now() };
       if (p_id) { const f = await findPriv("events", p_id); if (!f) fail("This record belongs to another agent."); a = f.a; base = strip(f.row); }
       const id = p_id || rid();
       await pset(a, "events", id, { ...base, deal_id: p_deal_id || null, plot_id: plot, title: String(p_title).trim().slice(0, 120), on_date: p_on_date,
-        at_time: p_at_time || null, note: String(p_note || "").trim().slice(0, 400), done: !!p_done });
+        at_time: p_at_time || null, end_time: p_end_time || null, note: String(p_note || "").trim().slice(0, 400), done: !!p_done });
       await ping(a);
       return id;
     },
@@ -631,9 +685,9 @@ export async function create() {
       await db.doc(`agents/${owner}/blobs/${fid}`).delete();
       delete fileCache[path];
     },
-    async openFile(doc) {
+    async saveFile(doc, path) {
       if (!downloads) fail("Saving files is not available here.");
-      const blob = dataUrlToBlob(await api.fileUrl(doc.path));
+      const blob = dataUrlToBlob(await api.fileUrl(path));
       await downloads.save({ filename: doc.file_name, data: blob });
     },
   };

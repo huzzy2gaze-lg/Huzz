@@ -140,6 +140,10 @@ export async function saveEvent(id, f) {
   if (!f.on_date) return toast("Choose a date", "err");
   const deal = f.deal_id ? f.deal_id : null;
   return call("save_event", { p_id: id || null, p_deal_id: deal, p_plot_id: f.plot_id || null, p_title: f.title, p_on_date: f.on_date,
-    p_at_time: f.at_time || null, p_note: f.note || "", p_done: !!f.done }, id ? null : "Entry added to the calendar");
+    p_at_time: f.at_time || null, p_note: f.note || "", p_done: !!f.done, p_end_time: f.at_time && f.end_time ? f.end_time : null }, id ? null : "Entry added to the calendar");
 }
 export async function deleteEvent(id) { return call("delete_event", { p_id: id }, "Entry deleted"); }
+
+export async function decideDownload(id, approve) {
+  return call("decide_download", { p_id: id, p_approve: approve, p_reason: null }, approve ? "Download approved" : "Download not approved");
+}

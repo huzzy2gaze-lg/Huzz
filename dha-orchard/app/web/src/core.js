@@ -6,8 +6,8 @@ export const G = { geo: null, raw: null, world: [0, 0, 1000, 800] };
 export const S = {
   api: null, mode: null, user: null, me: null, booting: true, bootErr: null, live: "connecting",
   plots: {}, fixes: {}, people: {}, demand: {}, clients: {}, deals: [], requests: [], activity: [], members: [], owners: {},
-  documents: [], events: [], fileUrls: {},
-  calView: "agenda", calMonth: null, calDay: null, calAgent: "all",
+  documents: [], events: [], fileUrls: {}, downloadRequests: [],
+  calView: null, calDate: null, calAgent: "all",
   loaded: false,
   tab: "map",
   view: "all", block: null, plot: null, size: "all", show: "all", statusFilter: "all",

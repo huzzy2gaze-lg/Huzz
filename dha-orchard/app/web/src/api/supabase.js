@@ -24,7 +24,11 @@ export function create({ url, key }) {
       return data.signedUrl;
     },
     async removeFile(path) { await sb.storage.from("documents").remove([path]); },
-    async openFile(doc) { window.open(await api.fileUrl(doc.path), "_blank", "noopener"); },
+    async saveFile(doc, path) {
+      const { data, error } = await sb.storage.from("documents").createSignedUrl(path, 60, { download: doc.file_name });
+      if (error) throw new Error(error.message);
+      const a = document.createElement("a"); a.href = data.signedUrl; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
+    },
     async getUser() {
       const { data } = await sb.auth.getSession();
       const u = data.session && data.session.user;
