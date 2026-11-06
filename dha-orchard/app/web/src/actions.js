@@ -125,3 +125,21 @@ export async function saveMember(id, f) {
     p_perms: f.perms || {},
   }, id ? "Account saved" : "Account added");
 }
+
+export async function updateDeal(dealId, stage, fields, okMsg) {
+  return call("update_deal", { p_deal_id: dealId, p_stage: stage || null, p_fields: fields || {} }, okMsg || (stage ? "Stage changed" : null));
+}
+export async function deleteDocument(id) {
+  const doc = S.documents.find((x) => x.id === id);
+  const res = await call("delete_document", { p_id: id }, "Document deleted");
+  if (res.ok && doc) await S.api.removeFile(doc.path).catch(() => {});
+  return res;
+}
+export async function saveEvent(id, f) {
+  if (!String(f.title || "").trim()) return toast("Add a title", "err");
+  if (!f.on_date) return toast("Choose a date", "err");
+  const deal = f.deal_id ? f.deal_id : null;
+  return call("save_event", { p_id: id || null, p_deal_id: deal, p_plot_id: f.plot_id || null, p_title: f.title, p_on_date: f.on_date,
+    p_at_time: f.at_time || null, p_note: f.note || "", p_done: !!f.done }, id ? null : "Entry added to the calendar");
+}
+export async function deleteEvent(id) { return call("delete_event", { p_id: id }, "Entry deleted"); }

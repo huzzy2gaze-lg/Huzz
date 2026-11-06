@@ -7,6 +7,8 @@ import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash } fro
 import { allView, blockView } from "./panels.js";
 import { loginPage, noAccessPage, salesPage, approvalsPage, teamPage, PERMS } from "./pages.js";
 import * as A from "./actions.js";
+import { calendarPage, dueCount } from "./calendar.js";
+import { uploadDoc, dstr, DOC_KINDS } from "./deal.js";
 
 hooks.go = go;
 hooks.focusPlot = focusPlot;
@@ -16,7 +18,13 @@ hooks.refresh = () => refresh(TABLES);
 // ---------------------------------------------------------------- data
 const norm = {
   plots: (r) => ({ ...r, price: num(r.price), tags: r.tags || [], updated_at: iso(r.updated_at), created_at: iso(r.created_at) }),
-  deals: (r) => ({ ...r, sale_price: num(r.sale_price), token_amount: num(r.token_amount), created_at: iso(r.created_at), updated_at: iso(r.updated_at), transfer_deadline: iso(r.transfer_deadline) }),
+  deals: (r) => {
+    const o = { ...r, sale_price: num(r.sale_price), token_amount: num(r.token_amount), created_at: iso(r.created_at), updated_at: iso(r.updated_at) };
+    for (const k of ["agreement_on", "transfer_deadline", "ndc_submitted_on", "ndc_expected", "ndc_approved_on", "transfer_on", "allotment_expected", "allotment_received"]) o[k] = dstr(r[k]) || null;
+    return o;
+  },
+  documents: (r) => ({ ...r, size_bytes: num(r.size_bytes), created_at: iso(r.created_at) }),
+  events: (r) => ({ ...r, on_date: dstr(r.on_date), at_time: r.at_time ? String(r.at_time).slice(0, 5) : null, created_at: iso(r.created_at) }),
   requests: (r) => ({ ...r, sale_price: num(r.sale_price), token_amount: num(r.token_amount), created_at: iso(r.created_at), decided_at: iso(r.decided_at), transfer_deadline: iso(r.transfer_deadline) }),
   activity: (r) => ({ ...r, id: Number(r.id), at: iso(r.at) }),
   clients: (r) => ({ ...r, created_at: iso(r.created_at), updated_at: iso(r.updated_at) }),
@@ -56,6 +64,8 @@ async function loadTable(t) {
     case "deals": S.deals = rows.map(norm.deals); break;
     case "requests": S.requests = rows.map(norm.requests); break;
     case "members": S.members = rows; break;
+    case "documents": S.documents = rows.map(norm.documents); break;
+    case "events": S.events = rows.map(norm.events); break;
     case "listing_owners": S.owners = Object.fromEntries(rows.map((r) => [r.plot_id, { ...r, owner_demand: num(r.owner_demand) }])); break;
   }
 }
@@ -122,6 +132,7 @@ async function startSession() {
   S.salesQ = "";
   S.salesAgent = "all";
   S.plots = {}; S.clients = {}; S.deals = []; S.requests = []; S.activity = []; S.members = []; S.owners = {};
+  S.documents = []; S.events = []; S.fileUrls = {}; S.calAgent = "all";
   if (S.user) {
     try { S.me = await S.api.rpc("me"); } catch (e) { S.bootErr = e.message; }
     if (S.me) {
@@ -140,7 +151,8 @@ function renderHeader() {
   if (!S.me) { bar.hidden = true; $("#tabs").hidden = true; return; }
   bar.hidden = false;
   const pend = S.requests.filter((r) => r.status === "pending").length;
-  const tabs = [["map", "Map"], ["sales", isAdmin() ? "Sales" : "My sales"]];
+  const due = dueCount();
+  const tabs = [["map", "Map"], ["sales", isAdmin() ? "Sales" : "My sales"], ["calendar", "Calendar" + (due ? ` <b class="badge">${due}</b>` : "")]];
   if (isAdmin()) tabs.push(["approvals", "Approvals" + (pend ? ` <b class="badge">${pend}</b>` : "")], ["team", "Team"]);
   else if (pend) tabs[1][1] += ` <b class="badge">${pend}</b>`;
   const nav = tabs.map(([k, l]) => `<button class="tab${S.tab === k ? " on" : ""}" data-tab="${k}">${l}</button>`).join("");
@@ -157,8 +169,8 @@ function renderHeader() {
   $("#chips").innerHTML = S.tab === "map"
     ? `<span class="chip"><i style="background:var(--avail)"></i>Available ${t.available}</span><span class="chip"><i style="background:var(--book)"></i>Pre-booked ${t.prebooked}</span><span class="chip"><i style="background:var(--sold)"></i>Sold ${t.sold + t.sold_pending}</span>`
     : "";
-  const live = S.mode === "demo" ? "Demo · this browser" : S.live === "SUBSCRIBED" ? "Live" : S.live === "connecting" ? "Connecting…" : "Reconnecting…";
-  $("#who").innerHTML = `<span class="sync">${live}</span><span class="me"><span class="av sm" style="background:${S.me.color}">${esc((S.me.full_name || S.me.email)[0].toUpperCase())}</span><span class="mename">${esc(S.me.full_name || S.me.email)}<small>${S.me.role === "admin" ? "Admin" : "Sales agent"}</small></span></span><button class="out" data-act="${S.mode === "demo" ? "switchUser" : "signOut"}">${S.mode === "demo" ? "Switch person" : "Sign out"}</button>`;
+  const live = S.mode === "demo" ? "Demo · this browser" : S.mode === "artifact" ? "Test version · live" : S.live === "SUBSCRIBED" ? "Live" : S.live === "connecting" ? "Connecting…" : "Reconnecting…";
+  $("#who").innerHTML = `<span class="sync">${live}</span><span class="me"><span class="av sm" style="background:${S.me.color}">${esc((S.me.full_name || S.me.email)[0].toUpperCase())}</span><span class="mename">${esc(S.me.full_name || S.me.email)}<small>${S.me.role === "admin" ? "Admin" : "Sales agent"}</small></span></span>${S.mode === "artifact" ? "" : `<button class="out" data-act="${S.mode === "demo" ? "switchUser" : "signOut"}">${S.mode === "demo" ? "Switch person" : "Sign out"}</button>`}`;
 }
 
 function render() {
@@ -174,9 +186,10 @@ function render() {
   const caret = focusId && ae.selectionStart != null ? [ae.selectionStart, ae.selectionEnd] : null;
   const keepScroll = [...app.querySelectorAll(".scroll,.page")].map((e) => e.scrollTop);
   resetLift();
-  if (!S.user) app.innerHTML = loginPage();
+  if (!S.user) app.innerHTML = S.mode === "artifact" ? noAccessPage() : loginPage();
   else if (!S.me) app.innerHTML = noAccessPage();
   else if (S.tab === "sales") app.innerHTML = salesPage();
+  else if (S.tab === "calendar") app.innerHTML = calendarPage();
   else if (S.tab === "approvals" && isAdmin()) app.innerHTML = approvalsPage();
   else if (S.tab === "team" && isAdmin()) app.innerHTML = teamPage();
   else { S.tab = "map"; app.innerHTML = S.view === "block" && S.block ? blockView() : allView(); }
@@ -187,8 +200,36 @@ function render() {
   if (focusId) { const el = document.getElementById(focusId); if (el) { el.focus(); if (caret && el.setSelectionRange) try { el.setSelectionRange(caret[0], caret[1]); } catch (e) {} } }
   [...app.querySelectorAll(".scroll,.page")].forEach((e, i) => { if (keepScroll[i] != null && !S._resetScroll) e.scrollTop = keepScroll[i]; });
   S._resetScroll = false;
+  fillThumbs();
   if (S._focusFind) { S._focusFind = false; const q = $("#q"); if (q) q.focus(); }
 }
+// photos of documents: the address of each file is asked once, then kept
+function fillThumbs() {
+  for (const b of document.querySelectorAll("[data-opendoc]")) {
+    const doc = S.documents.find((x) => x.id === b.dataset.opendoc);
+    if (!doc || !doc.mime.startsWith("image/") || S.fileUrls[doc.path]) continue;
+    S.fileUrls[doc.path] = "";
+    S.api.fileUrl(doc.path).then((u) => {
+      S.fileUrls[doc.path] = u;
+      document.querySelectorAll(`[data-opendoc="${doc.id}"]`).forEach((el) => { el.innerHTML = `<img src="${esc(u)}" alt="">`; });
+    }).catch(() => { delete S.fileUrls[doc.path]; });
+  }
+}
+async function openDoc(id) {
+  const doc = S.documents.find((x) => x.id === id);
+  if (!doc) return;
+  if (doc.mime === "application/pdf") {
+    try { await S.api.openFile(doc); } catch (e) { toast(e.message || "The file did not open.", "err"); }
+    return;
+  }
+  const url = S.fileUrls[doc.path] || (await S.api.fileUrl(doc.path).catch(() => ""));
+  if (!url) return toast("The photo did not load. Try again.", "err");
+  let v = $("#viewer");
+  if (!v) { v = document.createElement("div"); v.id = "viewer"; document.body.appendChild(v); }
+  v.innerHTML = `<div class="vbar"><b>${esc(DOC_KINDS[doc.kind] || doc.kind)}</b><span>${esc(doc.file_name)}</span><button class="out" data-act="closeViewer">Close</button></div><img src="${esc(url)}" alt="${esc(doc.file_name)}">`;
+  v.hidden = false;
+}
+
 function syncClientPick() {
   const pick = $("#cpick"), box = $("#newClientFields");
   if (pick && box) box.hidden = !!pick.value;
@@ -247,6 +288,19 @@ document.addEventListener("click", async (e) => {
   if (d.agent) { S.salesAgent = S.salesAgent === d.agent ? "all" : d.agent; return render(); }
   if (d.editmember) return ui({ memberEdit: d.editmember, memberRole: null });
   if (d.mrole) return ui({ memberRole: d.mrole });
+  if (d.dealfile) { S.ui.dealOpen = S.ui.dealOpen === d.dealfile ? null : d.dealfile; S.ui.stageOpen = null; return render(); }
+  if (d.opendeal) { const x = S.deals.find((y) => y.id === d.opendeal); if (x) { focusPlot(x.plot_id); S.ui.dealOpen = x.id; render(); } return; }
+  if (d.stage && t.classList.contains("stephead")) { S.ui.stageOpen = d.stage; return render(); }
+  if (d.setstage) { S.ui.stageOpen = d.setstage; return A.updateDeal(d.deal, d.setstage, {}); }
+  if (d.opendoc) return openDoc(d.opendoc);
+  if (d.askdeldoc) return ui({ delDoc: d.askdeldoc });
+  if (d.deldoc) { S.ui.delDoc = null; return A.deleteDocument(d.deldoc); }
+  if (d.calview) { S.calView = d.calview; return render(); }
+  if (d.calmonth) { S.calMonth = d.calmonth; return render(); }
+  if (d.calday) { S.calDay = d.calday; return render(); }
+  if (d.evdone) { const e = S.events.find((x) => x.id === d.evdone); return e && A.saveEvent(e.id, { ...e, done: !e.done }); }
+  if (d.askdelevent) return ui({ delEvent: d.askdelevent });
+  if (d.delevent) { S.ui.delEvent = null; return A.deleteEvent(d.delevent); }
   if (d.toggleactive) {
     const m = S.members.find((x) => x.id === d.toggleactive);
     if (m) return A.saveMember(m.id, { email: m.email, name: m.full_name, phone: m.phone, role: m.role, active: !m.active });
@@ -286,20 +340,26 @@ document.addEventListener("click", async (e) => {
     case "cancelReject": clearDraft("rr"); ui({ rejectFor: null }); break;
     case "newMember": ui({ memberEdit: "new", memberRole: null }); focusSoon("me_e"); break;
     case "cancelMember": ui({ memberEdit: null, memberRole: null }); break;
+    case "keepDoc": ui({ delDoc: null }); break;
+    case "newEvent": ui({ eventOpen: true }); focusSoon("ev_t"); break;
+    case "cancelEvent": clearDraft("ev_t", "ev_d", "ev_h", "ev_p", "ev_n"); ui({ eventOpen: false }); break;
+    case "closeViewer": { const v = $("#viewer"); if (v) v.hidden = true; break; }
   }
 });
 
 document.addEventListener("input", (e) => {
   const el = e.target;
-  if (!el.id) return;
+  if (!el.id || el.type === "file") return;
   S.draft[el.id] = el.value;
   if (el.id === "salesQ") { S.salesQ = el.value; render(); }
 });
 document.addEventListener("change", (e) => {
   const el = e.target;
-  if (el.id) S.draft[el.id] = el.value;
+  if (el.id && el.type !== "file") S.draft[el.id] = el.value;
   if (el.id === "cpick") syncClientPick();
   if (el.id === "salesAgent") { S.salesAgent = el.value; render(); }
+  if (el.id === "calAgent") { S.calAgent = el.value; render(); }
+  if (el.type === "file" && el.dataset.upkind) uploadDoc(el).then(() => refresh(["documents"]));
   if (el.dataset && el.dataset.perm) {
     const m = S.members.find((x) => x.id === el.dataset.mid);
     if (m) A.saveMember(m.id, { email: m.email, name: m.full_name, phone: m.phone, role: m.role, active: m.active, perms: { [el.dataset.perm]: el.checked } });
@@ -363,6 +423,18 @@ document.addEventListener("submit", async (e) => {
       return;
     }
     case "rejectForm": { const r = await A.decide(f.dataset.id, false, val("rr")); if (r && r.ok) { clearDraft("rr"); S.ui.rejectFor = null; render(); } return; }
+    case "stageForm": {
+      const fields = {};
+      f.querySelectorAll("[data-f]").forEach((i) => { fields[i.dataset.f] = i.dataset.f === "token_amount" ? i.value.replace(/[^0-9]/g, "") : i.value; });
+      const r = await A.updateDeal(f.dataset.deal, null, fields, "Details saved");
+      if (r && r.ok) { f.querySelectorAll("[data-f]").forEach((i) => clearDraft(i.id)); render(); }
+      return;
+    }
+    case "eventForm": {
+      const r = await A.saveEvent(null, { title: val("ev_t"), on_date: val("ev_d"), at_time: val("ev_h"), plot_id: val("ev_p"), note: val("ev_n") });
+      if (r && r.ok) { clearDraft("ev_t", "ev_d", "ev_h", "ev_p", "ev_n"); S.ui.eventOpen = false; S.calDay = val("ev_d") || S.calDay; render(); }
+      return;
+    }
     case "memberForm": {
       const role = S.ui.memberRole || (f.dataset.id ? (S.members.find((m) => m.id === f.dataset.id) || {}).role : "agent") || "agent";
       const perms = {};
@@ -375,6 +447,8 @@ document.addEventListener("submit", async (e) => {
   }
 });
 document.addEventListener("keydown", (e) => {
+  const v = $("#viewer");
+  if (e.key === "Escape" && v && !v.hidden) { v.hidden = true; return; }
   if (e.key !== "Escape" || S.tab !== "map") return;
   if (S.plot) go("block", S.block);
   else if (S.view === "block") go("all");
@@ -405,7 +479,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && S.
     S.bootErr = "The app could not start: " + e.message;
     render();
   }
-  if (import.meta.env.PROD && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  if (import.meta.env.PROD && S.mode === "live" && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 })();
 
 // for tests in the browser console

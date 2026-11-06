@@ -51,7 +51,7 @@ export function fromHash() {
   if (!G.geo) return;
   const h = decodeURIComponent(location.hash.slice(1));
   let m;
-  if (["sales", "approvals", "team"].includes(h)) { S.tab = h; hooks.render(); return; }
+  if (["sales", "approvals", "team", "calendar"].includes(h)) { S.tab = h; hooks.render(); return; }
   if ((m = h.match(/^plot-([A-Z])-(x?[0-9_]+)$/)) && G.geo.plots[m[1] + "-" + m[2]]) return go("block", m[1], m[1] + "-" + m[2], { push: false });
   if ((m = h.match(/^block-([A-Z])$/)) && ACTIVE.includes(m[1])) return go("block", m[1], null, { push: false });
   go("all", null, null, { push: false });

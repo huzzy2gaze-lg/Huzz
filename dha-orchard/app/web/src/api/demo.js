@@ -23,6 +23,26 @@ insert into public.members (email, full_name, role, color, can_edit_price, can_a
   ('sara@demo.pk', 'Sara', 'agent', '#7A3F8F', true, true, true);
 `;
 
+// demo only: files are kept inside the demo database, with the same folder rule as the real storage
+const DEMO_FILES = `
+create table app.demo_files (path text primary key, data text not null);
+create function public.demo_put_file(p_path text, p_data text) returns void language plpgsql security definer set search_path = '' as $f$
+begin
+  perform app.require('upload_docs', 'upload documents');
+  if not (app.is_admin() or split_part(p_path, '/', 1) = app.uid()::text) then raise exception 'The file is in the wrong folder.'; end if;
+  insert into app.demo_files values (p_path, p_data) on conflict (path) do update set data = excluded.data;
+end $f$;
+create function public.demo_get_file(p_path text) returns text language sql stable security definer set search_path = '' as $f$
+  select data from app.demo_files where path = p_path and (app.is_admin() or split_part(p_path, '/', 1) = app.uid()::text)
+$f$;
+create function public.demo_del_file(p_path text) returns void language sql security definer set search_path = '' as $f$
+  delete from app.demo_files where path = p_path and (app.is_admin() or split_part(p_path, '/', 1) = app.uid()::text)
+$f$;
+grant execute on function public.demo_put_file(text, text), public.demo_get_file(text), public.demo_del_file(text) to authenticated;
+`;
+const READ_ONLY = new Set(["me", "demo_get_file"]);
+const toDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+
 function hash(s) {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
@@ -33,6 +53,7 @@ const SQL = [
   ...Object.keys(migrations).sort().map((k) => migrations[k]),
   ...Object.values(seed),
   DEMO_TEAM,
+  DEMO_FILES,
 ];
 const VERSION = hash(SQL.join("\n"));
 const LS = "orchard-demo-user";
@@ -71,9 +92,25 @@ export async function create({ fresh }) {
   const setClaims = () => db.query("select set_config('request.jwt.claims', $1, false)", [JSON.stringify(email ? { email } : {})]);
   await setClaims();
 
-  return {
+  const api = {
     mode: "demo",
     demoUsers: DEMO_USERS,
+    maxUpload: 3 * 1048576,
+    async upload(blob, { owner, name }) {
+      const path = `${owner}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${String(name).replace(/[^a-zA-Z0-9._-]+/g, "_").slice(-80)}`;
+      await api.rpc("demo_put_file", { p_path: path, p_data: await toDataUrl(blob) });
+      return path;
+    },
+    async fileUrl(path) {
+      const u = await api.rpc("demo_get_file", { p_path: path });
+      if (!u) throw new Error("The file is not available.");
+      return u;
+    },
+    async removeFile(path) { await api.rpc("demo_del_file", { p_path: path }); },
+    async openFile(doc) {
+      const blob = await (await fetch(await api.fileUrl(doc.path))).blob();
+      window.open(URL.createObjectURL(blob), "_blank", "noopener");
+    },
     async getUser() {
       return email ? { email } : null;
     },
@@ -113,7 +150,7 @@ export async function create({ fresh }) {
       } catch (e) {
         throw new Error(e.message);
       }
-      if (fn !== "me") setTimeout(() => listener && listener("*"), 0); // a change: tell the app, like the live server does
+      if (!READ_ONLY.has(fn)) setTimeout(() => listener && listener("*"), 0); // a change: tell the app, like the live server does
       return r;
     },
     subscribe(cb, onStatus) {
@@ -127,4 +164,5 @@ export async function create({ fresh }) {
       await dropIdb(name);
     },
   };
+  return api;
 }

@@ -2,6 +2,7 @@
 import { S, G, esc, cr, pkr, day, ago, initials, nameOf, colorOf, isAdmin, can, STATUS, STAGES, PAYMODES, TAGS, blockStats, stackHTML, dealsFor, pendingFor } from "./core.js";
 import { SIZES, SIZE_ORDER, ACTIVE } from "./geo.js";
 import { mapSVG } from "./map.js";
+import { dealFile, plotDocs, docSummary } from "./deal.js";
 
 const statusChip = (st) => `<span class="schip ${st}">${STATUS[st] ? STATUS[st].label : esc(st)}</span>`;
 
@@ -161,6 +162,8 @@ function dealCard(d, plot) {
   if (preq) h += `<div class="wait">Pre-booking request waiting for an admin · ${ago(preq.created_at)}</div>`;
   if (sreq) h += `<div class="wait">Sale waiting for an admin: ${cr(sreq.sale_price)} Cr · token ${pkr(sreq.token_amount)} · ${PAYMODES[sreq.payment_mode] || "mode not set"}</div>`;
   if (d.stage === "dropped" && d.drop_reason) h += `<div class="s">Stopped: ${esc(d.drop_reason)}</div>`;
+  const sum = docSummary(d);
+  if (sum) h += `<div class="s">${esc(sum)}</div>`;
   if (S.ui.saleFor === d.id) return h + saleForm(d.id, isAdmin()) + `</div>`;
   if (S.ui.dropFor === d.id) {
     return h + `<form class="add" id="dropForm" data-deal="${d.id}"><div class="k">Stop this deal</div><input id="dr" placeholder="Reason, e.g. bought another plot" aria-label="Reason"><div class="btns"><button type="button" class="btn" data-act="cancelDrop">Cancel</button><button class="btn danger" type="submit">Stop deal</button></div></form></div>`;
@@ -175,7 +178,9 @@ function dealCard(d, plot) {
     }
     if (d.stage !== "dropped" && (!d.sold || isAdmin())) btns.push(`<button class="sbtn" data-drop="${d.id}">Stop</button>`);
   }
+  if (d.stage !== "dropped") btns.push(`<button class="sbtn${S.ui.dealOpen === d.id ? " on" : ""}" data-dealfile="${d.id}" aria-expanded="${S.ui.dealOpen === d.id}">${S.ui.dealOpen === d.id ? "Close deal file" : "Deal file and documents"}</button>`);
   if (btns.length) h += `<div class="row">${btns.join("")}</div>`;
+  if (S.ui.dealOpen === d.id && d.stage !== "dropped") h += dealFile(d);
   return h + `</div>`;
 }
 
@@ -224,6 +229,7 @@ export function plotFile(id) {
   else h += `<div class="price"><span class="v" style="font-size:18px">${esc(sz.label)}</span><small>${esc(sz.dims)}</small>${can("add_plots") ? `<button class="linkbtn" data-act="editSize">Edit</button>` : ""}</div>`;
   h += notesBar(id, d);
   if (d.kind === "listing") h += ownerCard(id);
+  h += plotDocs(id);
   if (isAdmin()) h += `<div class="k">Set status directly (admin)</div><div class="seg" role="group" aria-label="Plot status">${["available", "prebooked", "sold"].map((k) => `<button class="${k}${d.status === k ? " on" : ""}" data-status="${k}">${STATUS[k].label}</button>`).join("")}</div>`;
   h += `<div class="meta">Updated by ${esc(nameOf(d.updated_by))} · ${ago(d.updated_at)}</div>`;
   if (d.status === "sold" && can("add_listings")) {

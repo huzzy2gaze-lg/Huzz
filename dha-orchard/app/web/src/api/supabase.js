@@ -2,13 +2,29 @@ import { createClient } from "@supabase/supabase-js";
 import { TABLES } from "./index.js";
 
 const PAGE = 1000; // Supabase returns at most 1000 rows for one request
+const safeName = (n) => String(n || "file").replace(/[^a-zA-Z0-9._-]+/g, "_").slice(-80);
 
 export function create({ url, key }) {
   const sb = createClient(url, key, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" },
   });
-  return {
+  const api = {
     mode: "live",
+    maxUpload: 10 * 1048576,
+    // files go to the private "documents" bucket, in the folder of the agent who owns them
+    async upload(blob, { owner, name, mime }) {
+      const path = `${owner}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName(name)}`;
+      const { error } = await sb.storage.from("documents").upload(path, blob, { contentType: mime, upsert: false });
+      if (error) throw new Error(error.message);
+      return path;
+    },
+    async fileUrl(path) {
+      const { data, error } = await sb.storage.from("documents").createSignedUrl(path, 3600);
+      if (error) throw new Error(error.message);
+      return data.signedUrl;
+    },
+    async removeFile(path) { await sb.storage.from("documents").remove([path]); },
+    async openFile(doc) { window.open(await api.fileUrl(doc.path), "_blank", "noopener"); },
     async getUser() {
       const { data } = await sb.auth.getSession();
       const u = data.session && data.session.user;
@@ -58,4 +74,5 @@ export function create({ url, key }) {
       return () => sb.removeChannel(ch);
     },
   };
+  return api;
 }

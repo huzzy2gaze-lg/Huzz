@@ -6,7 +6,7 @@ export const PERMS = [
   ["can_add_plots", "Add plots and correct the plan"],
   ["can_add_listings", "Add dealer listings"],
   ["can_mark_sold", "Mark plots sold"],
-  ["can_upload_docs", "Upload documents (phase 2)"],
+  ["can_upload_docs", "Upload documents"],
   ["can_export", "Export reports (phase 3)"],
 ];
 
@@ -25,6 +25,7 @@ export function loginPage() {
 }
 
 export function noAccessPage() {
+  if (S.mode === "artifact") return `<div class="center"><div class="login"><div class="brand">Orchard Sales</div><h3>No access yet</h3><p>${esc(S.api.noAccess)}</p></div></div>`;
   return `<div class="center"><div class="login">
     <div class="brand">Orchard Sales</div>
     <h3>This account is not in the team list</h3>
@@ -101,7 +102,7 @@ function clientCard(c) {
   return `<div class="cl"><div class="top"><span class="av" style="background:${colorOf(c.agent_id)}">${esc(initials(c.name))}</span><div style="min-width:0;flex:1"><div class="n">${esc(c.name)}</div><div class="s">${esc(c.phone || "No number")}${c.cnic ? " · CNIC " + esc(c.cnic) : ""}${isAdmin() ? " · agent " + esc(nameOf(c.agent_id)) : ""}</div></div>
     <button class="sbtn" data-editclient="${c.id}">Edit</button></div>
     ${c.note ? `<div class="s">${esc(c.note)}</div>` : ""}
-    <div class="deals">${ds.length ? ds.map((d) => { const pend = S.requests.find((r) => r.deal_id === d.id && r.status === "pending"); return `<button class="dealchip ${d.sold ? "sold" : d.stage}" data-plot="${esc(d.plot_id)}"><b>${esc(d.plot_id)}</b> ${pend ? "Waiting for approval" : d.sold ? "Sold · " + cr(d.sale_price) + " Cr" : STAGES[d.stage]}</button>`; }).join("") : `<span class="meta">No plot yet. Open a plot on the map and add this client.</span>`}</div>
+    <div class="deals">${ds.length ? ds.map((d) => { const pend = S.requests.find((r) => r.deal_id === d.id && r.status === "pending"); return `<button class="dealchip ${d.sold ? "sold" : d.stage}" data-opendeal="${d.id}"><b>${esc(d.plot_id)}</b> ${pend ? "Waiting for approval" : d.sold ? (d.stage === "token" ? "Sold · " + cr(d.sale_price) + " Cr" : STAGES[d.stage]) : STAGES[d.stage]}</button>`; }).join("") : `<span class="meta">No plot yet. Open a plot on the map and add this client.</span>`}</div>
     ${S.ui.delClient === c.id ? `<div class="confirm"><b>Delete ${esc(c.name)}?</b><span class="meta">The client and their plot interest are deleted.</span><div class="btns"><button class="btn" data-act="keepClient">Keep</button><button class="btn danger" data-delclient="${c.id}">Delete</button></div></div>` : `<button class="linkbtn danger" style="justify-self:start;padding-left:0" data-askdel="${c.id}">Delete client</button>`}
   </div>`;
 }
@@ -135,8 +136,9 @@ function reqCard(r) {
 // ---------------------------------------------------------------- Team (admins)
 export function teamPage() {
   const ms = S.members.slice().sort((a, b) => (a.active === b.active ? (a.role === b.role ? a.full_name.localeCompare(b.full_name) : a.role === "admin" ? -1 : 1) : a.active ? -1 : 1));
-  let h = `<div class="page"><div class="pagehead"><div><div class="k">Only admins see this page</div><h2>Team and permissions</h2></div><button class="btn primary" data-act="newMember">+ Add account</button></div>
-    <p class="meta">Add the person's Gmail address. They sign in with "Sign in with Google". To stop access, turn the account off.</p>`;
+  const art = S.mode === "artifact";
+  let h = `<div class="page"><div class="pagehead"><div><div class="k">Only admins see this page</div><h2>Team and permissions</h2></div>${art ? "" : `<button class="btn primary" data-act="newMember">+ Add account</button>`}</div>
+    <p class="meta">${art ? "Test version: to add a person, share this page with them from the Share menu. Editor makes an admin. Contributor makes a sales agent. They show here after they open the page. Then set their permissions here." : "Add the person's Gmail address. They sign in with \"Sign in with Google\". To stop access, turn the account off."}</p>`;
   if (S.ui.memberEdit === "new") h += memberForm(null);
   h += `<div class="list">${ms.map((m) => S.ui.memberEdit === m.id ? memberForm(m) : memberCard(m)).join("")}</div>`;
   return h + `</div>`;
@@ -146,15 +148,15 @@ function memberCard(m) {
   return `<div class="cl member${m.active ? "" : " off"}"><div class="top"><span class="av" style="background:${m.color}">${esc(initials(m.full_name || m.email))}</span><div style="min-width:0;flex:1"><div class="n">${esc(m.full_name || m.email)}${self ? ' <span class="meta">(you)</span>' : ""}</div><div class="s">${esc(m.email)}${m.phone ? " · " + esc(m.phone) : ""}</div></div>
     <span class="stage ${m.role}">${m.role === "admin" ? "Admin" : "Sales agent"}</span></div>
     ${m.role === "agent" ? `<div class="perms">${PERMS.map(([k, l]) => `<label class="perm"><input type="checkbox" data-perm="${k}" data-mid="${m.id}"${m[k] ? " checked" : ""}> ${l}</label>`).join("")}</div>` : `<div class="s">Admins can do everything, and approve sales and pre-bookings.</div>`}
-    <div class="row"><button class="sbtn" data-editmember="${m.id}">Edit</button><button class="sbtn${m.active ? " danger" : ""}" data-toggleactive="${m.id}">${m.active ? "Turn off account" : "Turn on account"}</button></div></div>`;
+    <div class="row"><button class="sbtn" data-editmember="${m.id}">Edit</button>${self ? "" : `<button class="sbtn${m.active ? " danger" : ""}" data-toggleactive="${m.id}">${m.active ? "Turn off account" : "Turn on account"}</button>`}</div></div>`;
 }
 function memberForm(m) {
   const role = S.ui.memberRole || (m ? m.role : "agent");
   return `<form class="add" id="memberForm" data-id="${m ? m.id : ""}"><div class="k">${m ? "Edit account" : "New account"}</div>
-    <div class="grid2"><label class="fl"><span>Gmail address</span><input id="me_e" type="email" value="${esc(m ? m.email : "")}" required autocomplete="off"></label>
+    <div class="grid2">${S.mode === "artifact" ? `<input id="me_e" type="hidden" value="${esc(m ? m.email || "x@x.x" : "")}">` : `<label class="fl"><span>Gmail address</span><input id="me_e" type="email" value="${esc(m ? m.email : "")}" required autocomplete="off"></label>`}
     <label class="fl"><span>Full name</span><input id="me_n" value="${esc(m ? m.full_name : "")}" autocomplete="off"></label>
     <label class="fl"><span>Phone</span><input id="me_p" inputmode="tel" value="${esc(m ? m.phone : "")}" autocomplete="off"></label></div>
-    <div class="seg two" role="group" aria-label="Role"><button type="button" class="${role === "agent" ? "on" : ""}" data-mrole="agent">Sales agent</button><button type="button" class="${role === "admin" ? "on" : ""}" data-mrole="admin">Admin</button></div>
+    ${S.mode === "artifact" ? "" : `<div class="seg two" role="group" aria-label="Role"><button type="button" class="${role === "agent" ? "on" : ""}" data-mrole="agent">Sales agent</button><button type="button" class="${role === "admin" ? "on" : ""}" data-mrole="admin">Admin</button></div>`}
     ${role === "agent" ? `<div class="perms">${PERMS.map(([k, l]) => `<label class="perm"><input type="checkbox" id="mp_${k}"${(m ? m[k] : k === "can_mark_sold" || k === "can_upload_docs") ? " checked" : ""}> ${l}</label>`).join("")}</div>` : `<div class="meta">An admin can approve sales and pre-bookings, and manage accounts.</div>`}
     <div class="btns"><button type="button" class="btn" data-act="cancelMember">Cancel</button><button class="btn primary" type="submit">Save account</button></div></form>`;
 }

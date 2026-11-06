@@ -243,7 +243,7 @@ form.add textarea{min-height:56px;resize:vertical}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap}
 .toolbar input{flex:1;min-width:200px}
 .toolbar select{width:auto}
-.list{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))}
+.list{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));align-items:start}
 .deals{display:flex;flex-wrap:wrap;gap:6px}
 .dealchip{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:5px 9px;font-size:12px}
 .dealchip b{font-family:var(--mono)}
@@ -332,4 +332,89 @@ form.add textarea{min-height:56px;resize:vertical}
   .layout.block{grid-template-columns:280px minmax(0,1fr) 480px}
   .panel h2,.page h2{font-size:38px}
   .page{max-width:1500px}
+}
+
+/* Deal file: stages and documents */
+.sbtn.on{background:var(--forest);border-color:var(--forest);color:#fff}
+.dealfile{display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:10px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.step{border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+.stephead{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;padding:8px 10px;text-align:left}
+.step .num{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:600 12px var(--mono);border:1.5px solid var(--line);color:var(--soft);flex:none;background:var(--surface)}
+.step.done .num{background:var(--avail);border-color:var(--avail);color:#fff}
+.step.now .num{background:var(--brass);border-color:var(--brass);color:#fff}
+.step.now{border-color:var(--brass)}
+.step .sl{font-weight:600;font-size:13px;flex:1}
+.step:not(.done):not(.now) .sl{color:var(--soft)}
+.step .dc{font:500 11px var(--mono);color:var(--brass)}
+.stagebody{display:grid;gap:10px;padding:0 10px 12px}
+.stageform{display:grid;gap:8px}
+.stageform input,.stageform select,.upload select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 10px;width:100%;font-size:15px;min-width:0}
+.stageform input:disabled,.stageform select:disabled{opacity:.8}
+.docs{display:grid;gap:8px}
+.doc{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:10px;align-items:center}
+.docthumb{width:64px;height:64px;border-radius:8px;border:1px solid var(--line);background:var(--surface);padding:0;overflow:hidden;display:grid;place-items:center}
+.docthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.docload{font-size:10px;color:var(--soft)}
+.pdf{font:700 13px var(--mono);color:#fff;background:var(--sold);padding:4px 6px;border-radius:4px}
+.docmeta{min-width:0}
+.docmeta b{display:block;font-size:13px}
+.docmeta small{display:block;font-size:11.5px;color:var(--soft);overflow-wrap:anywhere}
+.upload{display:flex;gap:8px;flex-wrap:wrap}
+.upload select{flex:1;min-width:140px;width:auto}
+.upbtn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;white-space:nowrap}
+.upbtn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+.upbtn:focus-within{outline:2px solid var(--brass);outline-offset:2px}
+#viewer{position:fixed;inset:0;z-index:50;background:rgba(5,12,9,.92);display:flex;flex-direction:column;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+#viewer .vbar{display:flex;gap:10px;align-items:center;color:#fff;padding:10px 16px;font-size:13px}
+#viewer .vbar span{opacity:.75;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#viewer .vbar .out{margin-left:auto}
+#viewer img{flex:1;min-height:0;width:100%;object-fit:contain}
+
+/* Calendar */
+.calseg{width:180px}
+.calgroup{display:grid;gap:8px}
+.calgroup.late .k{color:var(--sold)}
+.callist{display:grid;gap:6px}
+.calday{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;align-items:start}
+.caldate{font:500 12px var(--mono);color:var(--soft);padding-top:12px}
+.calday > div:last-child{display:grid;gap:6px}
+.cal-item{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--brass);border-radius:10px;padding:8px 10px}
+.cal-item.transfer,.cal-item.deadline{border-left-color:var(--sold)}
+.cal-item.ndc{border-left-color:var(--listing)}
+.cal-item.allotment{border-left-color:var(--avail)}
+.cal-item.event{border-left-color:var(--forest)}
+.cal-item.done{opacity:.6}
+.cal-item.done b{text-decoration:line-through}
+.cal-item.late{background:color-mix(in srgb,var(--sold) 8%,var(--surface))}
+.cal-time{font:500 12px var(--mono);color:var(--soft)}
+.cal-body{min-width:0}
+.cal-body b{display:block;font-size:14px}
+.cal-body small{display:block;color:var(--soft);font-size:12px}
+.lt{color:var(--sold);font-weight:700}
+.okmark{color:var(--avail);font-weight:700}
+.month{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:10px;display:grid;gap:8px}
+.monthhead{display:flex;gap:8px;align-items:center}
+.monthhead b{font:400 22px var(--display);flex:1;text-align:center}
+.grid7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.wd{font:500 11px var(--mono);color:var(--soft);text-align:center;padding:4px 0}
+.dcell{min-height:64px;border:1px solid var(--line);border-radius:8px;background:var(--card);display:grid;align-content:start;gap:3px;padding:5px;text-align:left;position:relative}
+.dcell.out{opacity:.45}
+.dcell.today{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass)}
+.dcell.sel{background:var(--brass-soft)}
+.dn{font:600 12px var(--mono)}
+.dots{display:flex;flex-wrap:wrap;gap:3px;font-size:10px;color:var(--soft)}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--brass)}
+.dots i.transfer,.dots i.deadline{background:var(--sold)}.dots i.ndc{background:var(--listing)}.dots i.allotment{background:var(--avail)}.dots i.event{background:var(--forest)}
+.dots i.done{opacity:.4}
+.dcount{position:absolute;right:5px;top:4px;font:600 10px var(--mono);color:var(--soft)}
+.dcount.late{color:var(--sold)}
+@media (max-width:760px){
+  .calday{grid-template-columns:1fr;gap:4px}
+  .caldate{padding-top:0}
+  .dcell{min-height:46px;padding:3px}
+  .dots i{width:5px;height:5px}
+  .tab{font-size:12px;padding:10px 2px}
+  .doc{grid-template-columns:56px minmax(0,1fr)}
+  .doc > :last-child{grid-column:2}
 }

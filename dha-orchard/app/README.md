@@ -1,4 +1,4 @@
-# Orchard Sales System (Phase 1)
+# Orchard Sales System (Phases 1 and 2)
 
 A web app for the DHA Margalla Orchard sales team. It works on a phone, a tablet, a laptop and a TV.
 Later, the same code becomes the Android APK.
@@ -15,8 +15,15 @@ Later, the same code becomes the Android APK.
 - **Notices**: each change shows at the top of the screen for everyone who may see it. Admins can turn on
   browser alerts for new requests.
 - **Change log**: every change is recorded with the person and the time (admins only).
+- **Deal file**: the 8 stages of a deal (interested, pre-booked, token, NDC submitted, NDC approved, transfer date,
+  transfer done, allotment letter). Each stage keeps its details (dates, amounts, authority, receipt number).
+- **Documents**: photos and PDFs for each stage (agreement, token payment proof, CNIC, NDC, pay order, authority
+  receipt, allotment letter) and for each plot (ownership papers). Photos are made smaller before upload.
+  Only the agent of the deal and the admins can open them.
+- **Calendar**: all deal dates (token agreement, transfer time limit, NDC, transfer, allotment letter) and own
+  entries (for example a site visit), as a list (late, today, tomorrow, this week, next week) and as a month.
 
-Phase 2 (next): the 8 deal stages after the token, documents, reminders. Phase 3: APK, WhatsApp alerts, reports.
+Phase 3 (next): APK, phone notifications when the app is closed, WhatsApp alerts, reports.
 
 ## Folders
 
@@ -26,6 +33,7 @@ Phase 2 (next): the 8 deal stages after the token, documents, reminders. Phase 3
 | `supabase/seed/initial_data.sql` | Our current stock from the first sales map (20 plots in Block A, and the size corrections). |
 | `supabase/tests/` | Tests for the access rules. They run on a local Postgres. |
 | `web/` | The web app (Vite, plain JavaScript). |
+| `web/src/api/` | The data services: `supabase.js` (real server), `demo.js` (database in the browser), `artifact.js` (claude.ai test page). |
 
 ## Try it without a server (demo mode)
 
@@ -47,7 +55,19 @@ dha-orchard/app/supabase/tests/run.sh
 ```
 
 The script makes a fresh database `orchard_test` on the local Postgres, applies the migration and the seed,
-and runs 68 checks: agent privacy, permissions, approvals, and closed accounts.
+and runs 86 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents and calendar.
+
+## The claude.ai test page
+
+`npm run build:artifact` (in `web/`) makes `web/dist-artifact/orchard-sales.html`, with `plan.webp` and
+`plotdata.json` beside it. It is published as the team's test page on claude.ai. There, the page's shared database
+stands in for the server:
+
+- The Owner and every **Editor** of the page are admins. Every **Contributor** is a sales agent. Viewers see nothing.
+- The page's access rules keep `agents/<id>/` (clients, deals, requests, documents, calendar) readable only by that
+  agent and the admins. The permission switches and the sale rules are checked by the page in this test version;
+  on the real server the database checks all of them.
+- Files are kept in the database in pieces, so a file on the test page is limited to 2.5 MB.
 
 ## Set up the real system
 
@@ -56,7 +76,8 @@ and runs 68 checks: agent privacy, permissions, approvals, and closed accounts.
 1. Create an account at supabase.com in the company name. Create a project.
    Choose the region **Mumbai (ap-south-1)** or **Singapore (ap-southeast-1)**. Choose the **Pro** plan for real use
    (daily backups; a free project stops after about one week with no use).
-2. In **SQL Editor**, run the file `supabase/migrations/20261106000000_init.sql`. Then run `supabase/seed/initial_data.sql`.
+2. In **SQL Editor**, run the files in `supabase/migrations/` in order of their names. Then run `supabase/seed/initial_data.sql`.
+   The second migration also makes the private storage bucket `documents` for photos and PDFs.
 3. In **SQL Editor**, add the first admin (use your own Gmail address and name):
 
    ```sql
