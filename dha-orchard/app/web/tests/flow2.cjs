@@ -2,12 +2,13 @@
 // BASE = demo app URL (default) or the artifact-mode test page.
 const { chromium, devices } = require('playwright');
 const OUT = __dirname;
-const BASE = process.env.BASE || 'http://localhost:4173/?demo&fresh';
+const BASE = process.env.BASE || 'http://localhost:4173/?demo&fresh#signin';
 const errors = [];
 const log = (...a) => console.log(...a);
 const day = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 async function as(page, email) {
   if (await page.locator('[data-act="switchUser"]').count()) await page.click('[data-act="switchUser"]');
+  await page.evaluate(() => { location.hash = 'signin'; }); await page.waitForSelector('[data-demo]');
   await page.click(`[data-demo="${email}"]`);
   await page.waitForSelector('#tabs:not([hidden])');
   await page.waitForTimeout(500);

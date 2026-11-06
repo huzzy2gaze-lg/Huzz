@@ -8,6 +8,7 @@ export const S = {
   plots: {}, fixes: {}, people: {}, demand: {}, clients: {}, deals: [], requests: [], activity: [], members: [], owners: {},
   documents: [], events: [], fileUrls: {}, downloadRequests: [],
   calView: null, calDate: null, calAgent: "all",
+  area: "site", sitePage: "home", sitePlot: null, site: {}, account: null, myLeads: [], leads: [], siteSent: false,
   loaded: false,
   tab: "map",
   view: "all", block: null, plot: null, size: "all", show: "all", statusFilter: "all",
@@ -17,7 +18,7 @@ export const S = {
 };
 
 // one hook object so that modules can call each other without import cycles at load time
-export const hooks = { render: () => {}, go: () => {}, focusPlot: () => {}, refresh: () => {} };
+export const hooks = { render: () => {}, go: () => {}, focusPlot: () => {}, refresh: () => {}, siteClick: () => {} };
 
 export const STATUS = {
   available: { label: "Available", cls: "available", color: "var(--avail)" },

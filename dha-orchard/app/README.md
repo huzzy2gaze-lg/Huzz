@@ -1,6 +1,14 @@
-# Orchard Sales System (Phases 1 and 2)
+# WH Ventures: website and Orchard Sales System
 
-A web app for the DHA Margalla Orchard sales team. It works on a phone, a tablet, a laptop and a TV.
+One web app with two parts:
+
+- **The public website of WH Ventures**: home page, the official master plan of DHA Margalla Orchard (no stock,
+  no prices), contact and enquiry form, and client accounts (Google or an e-mail link) to save plots and follow
+  enquiries. A new enquiry goes to the admins; an admin assigns it to an agent; the agent can make it a client.
+  The admins edit the company details (phone, WhatsApp, e-mail, office, hours, about text) on the Team page.
+- **The sales system** for the team, behind the same login. Clients and the public never see it.
+
+The sales system is for the DHA Margalla Orchard sales team. It works on a phone, a tablet, a laptop and a TV.
 Later, the same code becomes the Android APK.
 
 - **Live map**: the official FGEHA layout plan, with our stock coloured on it. Search by block and plot number.
@@ -61,7 +69,7 @@ dha-orchard/app/supabase/tests/run.sh
 ```
 
 The script makes a fresh database `orchard_test` on the local Postgres, applies the migration and the seed,
-and runs 106 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents, download requests and calendar.
+and runs 127 checks: agent privacy, permissions, approvals, closed accounts, deal stages, documents, download requests, calendar, website enquiries and client accounts.
 
 ## The claude.ai test page
 
@@ -69,7 +77,9 @@ and runs 106 checks: agent privacy, permissions, approvals, closed accounts, dea
 `plotdata.json` beside it. It is published as the team's test page on claude.ai. There, the page's shared database
 stands in for the server:
 
-- The Owner and every **Editor** of the page are admins. Every **Contributor** is a sales agent. Viewers see nothing.
+- The Owner and every **Editor** of the page are admins. Every **Contributor** is a sales agent. A **Viewer** sees
+  only the public website. On the test page, sending an enquiry needs Contributor access; client accounts work
+  on the real website only.
 - The page's access rules keep `agents/<id>/` (clients, deals, requests, documents, calendar) readable only by that
   agent and the admins. The permission switches and the sale rules are checked by the page in this test version;
   on the real server the database checks all of them.

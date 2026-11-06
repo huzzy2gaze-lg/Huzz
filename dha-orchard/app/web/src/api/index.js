@@ -1,6 +1,6 @@
 // Chooses the data service: the real Supabase server, or the demo database in the browser.
 // The demo runs the same SQL (tables, access rules, functions) with PGlite, so it behaves like the server.
-export const TABLES = ["plots", "plot_fixes", "people", "plot_demand", "clients", "deals", "requests", "activity", "members", "listing_owners", "documents", "events", "download_requests"];
+export const TABLES = ["plots", "plot_fixes", "people", "plot_demand", "clients", "deals", "requests", "activity", "members", "listing_owners", "documents", "events", "download_requests", "site_settings", "leads"];
 
 export async function createApi() {
   // the claude.ai test build: the artifact's shared database stands in for the server

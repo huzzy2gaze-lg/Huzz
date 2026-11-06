@@ -12,7 +12,10 @@ export const DEMO_USERS = [
   { email: "murtaza@demo.pk", name: "Ghulam Murtaza", note: "Admin" },
   { email: "ali@demo.pk", name: "Ali", note: "Sales agent · can mark sold" },
   { email: "sara@demo.pk", name: "Sara", note: "Sales agent · can change prices and add plots" },
+  { email: "buyer@demo.pk", name: "Bilal (a client)", note: "Website account: no access to the sales system" },
 ];
+// a stable id for the login token, like the id of a real login
+const subOf = (e) => { let h = 0; for (let i = 0; i < e.length; i++) h = (h * 31 + e.charCodeAt(i)) >>> 0; return "00000000-0000-4000-8000-" + h.toString(16).padStart(12, "0"); };
 
 const DEMO_TEAM = `
 insert into public.members (email, full_name, role, color, can_edit_price, can_add_plots, can_add_listings) values
@@ -40,7 +43,7 @@ create function public.demo_del_file(p_path text) returns void language sql secu
 $f$;
 grant execute on function public.demo_put_file(text, text), public.demo_get_file(text), public.demo_del_file(text) to authenticated;
 `;
-const READ_ONLY = new Set(["me", "demo_get_file"]);
+const READ_ONLY = new Set(["me", "demo_get_file", "my_account"]);
 const toDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
 
 function hash(s) {
@@ -89,12 +92,14 @@ export async function create({ fresh }) {
   let listener = null;
   let email = store.get();
   const authCbs = [];
-  const setClaims = () => db.query("select set_config('request.jwt.claims', $1, false)", [JSON.stringify(email ? { email } : {})]);
+  const setClaims = () => db.query("select set_config('request.jwt.claims', $1, false)", [JSON.stringify(email ? { email, sub: subOf(email) } : {})]);
   await setClaims();
 
   const api = {
     mode: "demo",
     demoUsers: DEMO_USERS,
+    canSubmit: true,
+    async signInEmail() { throw new Error("In the demo, choose a person."); },
     maxUpload: 3 * 1048576,
     async upload(blob, { owner, name }) {
       const path = `${owner}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${String(name).replace(/[^a-zA-Z0-9._-]+/g, "_").slice(-80)}`;

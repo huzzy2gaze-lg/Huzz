@@ -76,6 +76,7 @@ export function salesPage() {
   }
 
   if (S.ui.clientEdit === "new") h += clientForm(null);
+  h += leadsForAgent();
 
   h += `<div class="toolbar"><input id="salesQ" type="search" placeholder="Search name, phone, CNIC or plot" value="${esc(S.salesQ)}" aria-label="Search clients">${admin ? `<select id="salesAgent" aria-label="Agent"><option value="all">All agents</option>${Object.values(S.people).sort((a, b) => a.name.localeCompare(b.name)).map((p) => `<option value="${p.id}"${S.salesAgent === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select>` : ""}</div>`;
 
@@ -128,6 +129,7 @@ export function approvalsPage() {
   let h = `<div class="page"><div class="pagehead"><div><div class="k">Any one admin can approve</div><h2>Approvals</h2></div>${"Notification" in window && Notification.permission !== "granted" ? `<button class="btn" data-act="alerts">Turn on alerts</button>` : ""}</div>`;
   h += pending.length ? `<div class="list">${pending.map(reqCard).join("")}</div>` : `<div class="empty">No pre-booking or sale waits for approval.</div>`;
   h += downloadsHTML();
+  h += leadsForAdmin();
   if (done.length) h += `<div class="k">Recent decisions</div><div class="list">${done.map((r) => `<div class="card row2"><span>${reqLine(r)}${r.kind === "sale" ? " · " + cr(r.sale_price) + " Cr" : ""}<small>${esc(nameOf(r.agent_id))} · ${r.decided_by ? "by " + esc(nameOf(r.decided_by)) + " · " : ""}${ago(r.decided_at)}${r.reason ? " · " + esc(r.reason) : ""}</small></span><span class="rstat ${r.status}">${r.status === "approved" ? "Approved" : r.status === "rejected" ? "Not approved" : r.status === "cancelled" ? "Cancelled" : "Closed"}</span></div>`).join("")}</div>`;
   return h + `</div>`;
 }
@@ -154,6 +156,7 @@ export function teamPage() {
   const art = S.mode === "artifact";
   let h = `<div class="page"><div class="pagehead"><div><div class="k">Only admins see this page</div><h2>Team and permissions</h2></div>${art ? "" : `<button class="btn primary" data-act="newMember">+ Add account</button>`}</div>
     <p class="meta">${art ? "Test version: to add a person, share this page with them from the Share menu. Editor makes an admin. Contributor makes a sales agent. They show here after they open the page. Then set their permissions here." : "Add the person's Gmail address. They sign in with \"Sign in with Google\". To stop access, turn the account off."}</p>`;
+  h += siteSettingsCard();
   if (S.ui.memberEdit === "new") h += memberForm(null);
   h += `<div class="list">${ms.map((m) => S.ui.memberEdit === m.id ? memberForm(m) : memberCard(m)).join("")}</div>`;
   return h + `</div>`;
@@ -174,4 +177,38 @@ function memberForm(m) {
     ${S.mode === "artifact" ? "" : `<div class="seg two" role="group" aria-label="Role"><button type="button" class="${role === "agent" ? "on" : ""}" data-mrole="agent">Sales agent</button><button type="button" class="${role === "admin" ? "on" : ""}" data-mrole="admin">Admin</button></div>`}
     ${role === "agent" ? `<div class="perms">${PERMS.map(([k, l]) => `<label class="perm"><input type="checkbox" id="mp_${k}"${(m ? m[k] : k === "can_mark_sold" || k === "can_upload_docs") ? " checked" : ""}> ${l}</label>`).join("")}</div>` : `<div class="meta">An admin can approve sales and pre-bookings, and manage accounts.</div>`}
     <div class="btns"><button type="button" class="btn" data-act="cancelMember">Cancel</button><button class="btn primary" type="submit">Save account</button></div></form>`;
+}
+
+// ---------------------------------------------------------------- website enquiries
+const LEAD_STATUS = { new: "New", assigned: "Assigned", contacted: "Contacted", converted: "Client", closed: "Closed" };
+function leadCard(l, admin) {
+  const agents = Object.values(S.people).filter((p) => p.active).sort((a, b) => a.name.localeCompare(b.name));
+  let h = `<div class="req lead"><div class="top"><span class="rkind">Website</span><b>${esc(l.name)}</b>${l.plot_id ? `<button class="plotlink" data-plot="${esc(l.plot_id)}">${esc(l.plot_id)}</button>` : ""}<span class="meta">${ago(l.created_at)}</span></div>
+    <div class="grid3"><div><span class="meta">Phone</span><b>${esc(l.phone || "—")}</b></div><div><span class="meta">E-mail</span><b style="font-size:13px">${esc(l.email || "—")}</b></div><div><span class="meta">Status</span><b>${LEAD_STATUS[l.status] || l.status}</b><small>${l.assigned_to ? esc(nameOf(l.assigned_to)) : "Not assigned"}</small></div></div>
+    ${l.message ? `<div class="s">${esc(l.message)}</div>` : ""}${l.note ? `<div class="s"><b>Note:</b> ${esc(l.note)}</div>` : ""}`;
+  if (admin && ["new", "assigned"].includes(l.status)) {
+    h += `<div class="row"><select id="la_${l.id}" aria-label="Agent"><option value="">Assign to…</option>${agents.map((p) => `<option value="${p.id}"${l.assigned_to === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select><button class="sbtn primary" data-assignlead="${l.id}">${l.assigned_to ? "Change agent" : "Assign"}</button></div>`;
+  }
+  if (l.assigned_to && (l.assigned_to === S.me.id || admin) && !["converted", "closed"].includes(l.status)) {
+    h += `<form class="row" id="leadNoteForm" data-id="${l.id}"><input id="ln_${l.id}" placeholder="Note after the call" aria-label="Note" style="flex:1;min-width:160px"><button class="sbtn">Contacted</button></form>
+      <div class="row"><button class="sbtn sold" data-convertlead="${l.id}">Add as a client</button><button class="sbtn" data-leadstatus="closed" data-lead="${l.id}">Close</button></div>`;
+  }
+  return h + `</div>`;
+}
+export function leadsForAdmin() {
+  const open = S.leads.filter((l) => ["new", "assigned"].includes(l.status)).sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+  if (!open.length) return `<div class="k">Website enquiries</div><div class="empty">No new website enquiries.</div>`;
+  return `<div class="k">Website enquiries (${open.length})</div><div class="list">${open.map((l) => leadCard(l, true)).join("")}</div>`;
+}
+export function leadsForAgent() {
+  const mine = S.leads.filter((l) => l.assigned_to === S.me.id && !["converted", "closed"].includes(l.status));
+  if (!mine.length) return "";
+  return `<div class="k">Website enquiries for you (${mine.length})</div><div class="list">${mine.map((l) => leadCard(l, isAdmin())).join("")}</div>`;
+}
+const SITE_FIELDS = [["company", "Company name"], ["phone", "Phone"], ["whatsapp", "WhatsApp"], ["email", "E-mail"], ["address", "Office address"], ["hours", "Office hours"], ["about", "About the company (home page)"]];
+export function siteSettingsCard() {
+  return `<form class="add" id="siteSettingsForm"><div class="k">Website details</div><span class="meta">These show on the public website. Empty fields do not show.</span>
+    <div class="grid2">${SITE_FIELDS.filter(([k]) => k !== "about").map(([k, l]) => `<label class="fl"><span>${l}</span><input id="ss_${k}" value="${esc(S.site[k] || "")}" autocomplete="off"></label>`).join("")}</div>
+    <label class="fl"><span>About the company (home page)</span><textarea id="ss_about">${esc(S.site.about || "")}</textarea></label>
+    <button class="btn forest" type="submit">Save website details</button></form>`;
 }

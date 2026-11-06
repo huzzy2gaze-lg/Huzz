@@ -27,7 +27,7 @@ async function find(page, b, n) {
   await page.evaluate((s) => { localStorage.clear(); localStorage.setItem('mockStore', s); }, seed);
   // everyone opens the page once, so they are on the team list
   for (const u of ['sara@demo.pk', 'ali@demo.pk', 'nadeem@demo.pk', 'owner@demo.pk']) await as(page, u);
-  log('owner: plots coloured', await page.locator('svg .p.available').count(), '| header', await page.locator('.sync').innerText());
+  log('owner: plots coloured', await page.locator('svg .p.available').count(), '| header', await page.locator('.sync:not(.weblink)').innerText());
   await page.click('[data-tab="team"]'); await page.waitForTimeout(400);
   log('team members', await page.locator('.member').count(), '| add button?', await page.locator('[data-act="newMember"]').count());
   // give Sara the price switch

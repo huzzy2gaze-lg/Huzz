@@ -4,7 +4,7 @@ const { chromium, devices } = require('playwright');
 const fs = require('fs');
 const OUT = __dirname;
 const ART = process.env.BASE === 'art';
-const URL = ART ? 'http://127.0.0.1:8766/_test.html' : 'http://localhost:4173/?demo&fresh';
+const URL = ART ? 'http://127.0.0.1:8766/_test.html' : 'http://localhost:4173/?demo&fresh#signin';
 const errors = [];
 const log = (...a) => console.log(...a);
 const day = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
@@ -14,6 +14,7 @@ async function as(page, email) {
     await page.goto('about:blank'); await page.goto(URL);
   } else {
     if (await page.locator('[data-act="switchUser"]').count()) await page.click('[data-act="switchUser"]');
+  await page.evaluate(() => { location.hash = 'signin'; }); await page.waitForSelector('[data-demo]');
     await page.click(`[data-demo="${email}"]`);
   }
   await page.waitForSelector('#tabs:not([hidden])', { timeout: 30000 });

@@ -32,7 +32,7 @@ export function create({ url, key }) {
     async getUser() {
       const { data } = await sb.auth.getSession();
       const u = data.session && data.session.user;
-      return u ? { email: u.email } : null;
+      return u ? { email: u.email, id: u.id } : null;
     },
     async signIn() {
       const { error } = await sb.auth.signInWithOAuth({
@@ -41,6 +41,12 @@ export function create({ url, key }) {
       });
       if (error) throw new Error(error.message);
     },
+    // clients can also sign in with a link sent by e-mail
+    async signInEmail(email) {
+      const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname + "#account" } });
+      if (error) throw new Error(error.message);
+    },
+    canSubmit: true,
     async signOut() {
       await sb.auth.signOut();
     },

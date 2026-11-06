@@ -3,7 +3,8 @@ import "./styles.css";
 import { S, G, hooks, $, esc, num, iso, isAdmin, can, toast, notice, totals, nameOf, dealsFor } from "./core.js";
 import { buildGeo } from "./geo.js";
 import { createApi, TABLES } from "./api/index.js";
-import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash } from "./map.js";
+import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus } from "./map.js";
+import { sitePage, SITE_PAGES } from "./site.js";
 import { allView, blockView } from "./panels.js";
 import { loginPage, noAccessPage, salesPage, approvalsPage, teamPage, PERMS } from "./pages.js";
 import * as A from "./actions.js";
@@ -14,7 +15,8 @@ import { openViewer, closeViewer, viewerAction, sendDownloadRequest, refreshView
 hooks.go = go;
 hooks.focusPlot = focusPlot;
 hooks.render = render;
-hooks.refresh = () => refresh(TABLES);
+hooks.refresh = () => refresh(S.me ? TABLES : ["site_settings", "leads"]);
+hooks.siteClick = (id) => { S.sitePlot = id; render(); };
 
 // ---------------------------------------------------------------- data
 const norm = {
@@ -35,6 +37,7 @@ const norm = {
 async function loadTable(t) {
   const api = S.api;
   if (t === "members" && !isAdmin()) { S.members = []; return; }
+  if (!S.me && !["site_settings", "leads"].includes(t)) return; // the public and clients read only the website data
   if (t === "activity") {
     const rows = (await api.select("activity", { order: { col: "id", asc: false }, limit: 80 })).map(norm.activity);
     announce(rows);
@@ -69,6 +72,8 @@ async function loadTable(t) {
     case "documents": S.documents = rows.map(norm.documents); break;
     case "events": S.events = rows.map(norm.events); break;
     case "download_requests": S.downloadRequests = rows.map(norm.download_requests); break;
+    case "site_settings": S.site = Object.fromEntries(rows.map((r) => [r.key, r.value])); break;
+    case "leads": { const l = rows.map((r) => ({ ...r, created_at: iso(r.created_at), assigned_at: iso(r.assigned_at) })); if (S.me) S.leads = l; else S.myLeads = l; break; }
     case "listing_owners": S.owners = Object.fromEntries(rows.map((r) => [r.plot_id, { ...r, owner_demand: num(r.owner_demand) }])); break;
   }
 }
@@ -137,24 +142,43 @@ async function startSession() {
   S.plots = {}; S.clients = {}; S.deals = []; S.requests = []; S.activity = []; S.members = []; S.owners = {};
   S.documents = []; S.events = []; S.fileUrls = {}; S.calAgent = "all"; S.downloadRequests = [];
   closeViewer();
+  S.account = null; S.myLeads = []; S.leads = []; S.siteSent = false; S.sitePlot = null;
   if (S.user) {
     try { S.me = await S.api.rpc("me"); } catch (e) { S.bootErr = e.message; }
     if (S.me) {
       await refresh(TABLES);
       unsub = S.api.subscribe((t) => refresh(t === "*" ? TABLES : DEPS[t] || [t]), (st) => { S.live = st; renderHeader(); });
+    } else {
+      // a client: the website account and their own enquiries
+      try { S.account = await S.api.rpc("my_account"); } catch (e) { S.account = null; }
+      await refresh(["site_settings", "leads"]);
     }
-  }
+  } else await refresh(["site_settings"]);
   S.booting = false;
-  fromHash();
+  route();
   render();
+}
+
+// the website for the public and clients; the sales system for the team
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h === "signin" && S.user) {
+    // after sign-in: the team goes to the sales system, a client to their account
+    if (S.me) { S.area = "app"; setHash(""); fromHash(); return; }
+    S.area = "site"; S.sitePage = "account"; setHash("account"); return;
+  }
+  if (SITE_PAGES.includes(h)) { S.area = "site"; S.sitePage = h; return; }
+  if (!S.me) { S.area = "site"; if (!SITE_PAGES.includes(S.sitePage)) S.sitePage = "home"; if (h && !SITE_PAGES.includes(h)) S.sitePage = "home"; return; }
+  S.area = "app";
+  fromHash();
 }
 
 // ---------------------------------------------------------------- drawing
 function renderHeader() {
   const bar = $("#bar");
-  if (!S.me) { bar.hidden = true; $("#tabs").hidden = true; return; }
+  if (!S.me || S.area === "site") { bar.hidden = true; $("#tabs").hidden = true; return; }
   bar.hidden = false;
-  const pend = S.requests.filter((r) => r.status === "pending").length + (isAdmin() ? S.downloadRequests.filter((r) => r.status === "pending").length : 0);
+  const pend = S.requests.filter((r) => r.status === "pending").length + (isAdmin() ? S.downloadRequests.filter((r) => r.status === "pending").length + S.leads.filter((l) => l.status === "new").length : 0);
   const due = dueCount();
   const tabs = [["map", "Map"], ["sales", isAdmin() ? "Sales" : "My sales"], ["calendar", "Calendar" + (due ? ` <b class="badge">${due}</b>` : "")]];
   if (isAdmin()) tabs.push(["approvals", "Approvals" + (pend ? ` <b class="badge">${pend}</b>` : "")], ["team", "Team"]);
@@ -174,7 +198,7 @@ function renderHeader() {
     ? `<span class="chip"><i style="background:var(--avail)"></i>Available ${t.available}</span><span class="chip"><i style="background:var(--book)"></i>Pre-booked ${t.prebooked}</span><span class="chip"><i style="background:var(--sold)"></i>Sold ${t.sold + t.sold_pending}</span>`
     : "";
   const live = S.mode === "demo" ? "Demo · this browser" : S.mode === "artifact" ? "Test version · live" : S.live === "SUBSCRIBED" ? "Live" : S.live === "connecting" ? "Connecting…" : "Reconnecting…";
-  $("#who").innerHTML = `<span class="sync">${live}</span><span class="me"><span class="av sm" style="background:${S.me.color}">${esc((S.me.full_name || S.me.email)[0].toUpperCase())}</span><span class="mename">${esc(S.me.full_name || S.me.email)}<small>${S.me.role === "admin" ? "Admin" : "Sales agent"}</small></span></span>${S.mode === "artifact" ? "" : `<button class="out" data-act="${S.mode === "demo" ? "switchUser" : "signOut"}">${S.mode === "demo" ? "Switch person" : "Sign out"}</button>`}`;
+  $("#who").innerHTML = `<a class="sync weblink" href="#home">Website</a><span class="sync">${live}</span><span class="me"><span class="av sm" style="background:${S.me.color}">${esc((S.me.full_name || S.me.email)[0].toUpperCase())}</span><span class="mename">${esc(S.me.full_name || S.me.email)}<small>${S.me.role === "admin" ? "Admin" : "Sales agent"}</small></span></span>${S.mode === "artifact" ? "" : `<button class="out" data-act="${S.mode === "demo" ? "switchUser" : "signOut"}">${S.mode === "demo" ? "Switch person" : "Sign out"}</button>`}`;
 }
 
 function render() {
@@ -184,14 +208,13 @@ function render() {
     return;
   }
   renderHeader();
-  document.body.dataset.tab = S.me ? S.tab : "login";
+  document.body.dataset.tab = S.area === "site" ? "site" : S.tab;
   const ae = document.activeElement;
   const focusId = ae && ae.id && app.contains(ae) ? ae.id : null;
   const caret = focusId && ae.selectionStart != null ? [ae.selectionStart, ae.selectionEnd] : null;
   const keepScroll = [...app.querySelectorAll(".scroll,.page")].map((e) => e.scrollTop);
   resetLift();
-  if (!S.user) app.innerHTML = S.mode === "artifact" ? noAccessPage() : loginPage();
-  else if (!S.me) app.innerHTML = noAccessPage();
+  if (S.area === "site" || !S.me) app.innerHTML = sitePage();
   else if (S.tab === "sales") app.innerHTML = salesPage();
   else if (S.tab === "calendar") app.innerHTML = calendarPage();
   else if (S.tab === "approvals" && isAdmin()) app.innerHTML = approvalsPage();
@@ -236,7 +259,12 @@ function setTab(t) {
   render();
   window.scrollTo(0, 0);
 }
-window.addEventListener("hashchange", () => { if (S._hashLock) { S._hashLock = false; return; } if (S.me) fromHash(); });
+window.addEventListener("hashchange", () => {
+  if (S._hashLock) { S._hashLock = false; return; }
+  const h = location.hash.slice(1);
+  if (SITE_PAGES.includes(h) || !S.me) { S.area = "site"; S.sitePage = SITE_PAGES.includes(h) ? h : "home"; S.ui = {}; if (h !== "plan") window.scrollTo(0, 0); render(); return; }
+  S.area = "app"; fromHash();
+});
 
 // ---------------------------------------------------------------- input
 const val = (id) => { const el = document.getElementById(id); return el ? el.value : ""; };
@@ -246,7 +274,7 @@ const focusSoon = (id) => setTimeout(() => { const i = document.getElementById(i
 const selIds = () => [...S.sel].filter((id) => G.geo.plots[id] && G.geo.plots[id].num != null);
 
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("button,[data-agent],[data-calslot]");
+  const t = e.target.closest("button,[data-agent],[data-calslot],a[data-act],a[data-siteplot]");
   if (!t || t.closest("svg")) return;
   const d = t.dataset;
   if (d.tab) return setTab(d.tab);
@@ -302,6 +330,15 @@ document.addEventListener("click", async (e) => {
   if (d.delevent) { S.ui = {}; return A.deleteEvent(d.delevent); }
   if (d.dlapprove) return A.decideDownload(d.dlapprove, true);
   if (d.dlreject) return A.decideDownload(d.dlreject, false);
+  if (d.siteplot) { siteFocus(d.siteplot); return; }
+  if (d.saveplot) {
+    const on = !((S.account && S.account.saved) || []).includes(d.saveplot);
+    try { await S.api.rpc("save_plot_for_later", { p_plot_id: d.saveplot, p_on: on }); S.account = await S.api.rpc("my_account"); toast(on ? "Plot saved" : "Plot removed"); render(); } catch (err) { toast(err.message, "err"); }
+    return;
+  }
+  if (d.assignlead) { const sel = document.getElementById("la_" + d.assignlead); return sel && sel.value ? A.assignLead(d.assignlead, sel.value) : toast("Choose an agent", "err"); }
+  if (d.leadstatus) return A.updateLead(d.lead, d.leadstatus, null);
+  if (d.convertlead) return A.convertLead(d.convertlead);
   if (d.toggleactive) {
     const m = S.members.find((x) => x.id === d.toggleactive);
     if (m) return A.saveMember(m.id, { email: m.email, name: m.full_name, phone: m.phone, role: m.role, active: !m.active });
@@ -342,6 +379,10 @@ document.addEventListener("click", async (e) => {
     case "newMember": ui({ memberEdit: "new", memberRole: null }); focusSoon("me_e"); break;
     case "cancelMember": ui({ memberEdit: null, memberRole: null }); break;
     case "keepDoc": ui({ delDoc: null }); break;
+    case "toApp": S.area = "app"; setHash(S.plot ? "plot-" + S.plot : S.block ? "block-" + S.block : ""); S._resetScroll = true; render(); break;
+    case "siteAgain": S.siteSent = false; render(); break;
+    case "closePlot": S.sitePlot = null; render(); break;
+    case "askPlot": S.siteSent = false; break;
     case "cancelEvent": clearDraft("ev_t", "ev_d", "ev_h", "ev_e", "ev_p", "ev_n"); ui({ eventOpen: null }); break;
     case "calClose": ui({ calItem: null, delEvent: null }); break;
     case "closeViewer": closeViewer(); break;
@@ -382,7 +423,33 @@ document.addEventListener("submit", async (e) => {
       if (matchMedia("(pointer:fine)").matches) S._focusFind = true;
       else if (document.activeElement) document.activeElement.blur(); // phone: close the keyboard so the map shows
       blinkPlot(v);
+      if (S.area === "site") return siteFocus(v);
       return focusPlot(v);
+    }
+    case "enquiryForm": {
+      try {
+        await S.api.rpc("submit_enquiry", { p_name: val("q_name"), p_phone: val("q_phone"), p_email: val("q_email"), p_message: val("q_msg"),
+          p_plot_id: val("q_plot").toUpperCase().replace(/\s+/g, "") || null, p_website: val("q_web") });
+        clearDraft("q_name", "q_phone", "q_email", "q_msg", "q_plot");
+        S.siteSent = true;
+        if (S.user && !S.me) await refresh(["leads"]); else render();
+      } catch (e) { toast(e.message || "The enquiry did not send. Try again.", "err"); }
+      return;
+    }
+    case "emailForm": {
+      try { await S.api.signInEmail(val("si_email")); S.ui.linkSent = true; render(); } catch (e) { toast(e.message, "err"); }
+      return;
+    }
+    case "accountForm": {
+      try { await S.api.rpc("save_my_account", { p_full_name: val("ac_name"), p_phone: val("ac_phone") }); S.account = await S.api.rpc("my_account"); toast("Saved"); render(); }
+      catch (e) { toast(e.message, "err"); }
+      return;
+    }
+    case "leadNoteForm": { const r = await A.updateLead(f.dataset.id, "contacted", val("ln_" + f.dataset.id)); if (r && r.ok) clearDraft("ln_" + f.dataset.id); return; }
+    case "siteSettingsForm": {
+      const v = {};
+      for (const k of ["company", "phone", "whatsapp", "email", "address", "hours", "about"]) v[k] = val("ss_" + k);
+      return A.saveSiteSettings(v);
     }
     case "priceForm": S.ui.editPrice = false; clearDraft("pp"); return A.setPrice([S.plot], val("pp"));
     case "addPlotForm": {

@@ -8,7 +8,7 @@
 // server the database checks all of them.
 import { TABLES } from "./index.js";
 
-const PRIV = ["clients", "deals", "requests", "owners", "docs", "events", "log", "dlreq"];
+const PRIV = ["clients", "deals", "requests", "owners", "docs", "events", "log", "dlreq", "leads"];
 const CHUNK = 180000; // characters of a file in one database document
 const PALETTE = ["#2F6F8F", "#8F4A2F", "#5B7F2F", "#7A3F8F", "#2F8F7A", "#8F7A2F", "#3F4F8F", "#8F2F5B"];
 const STAGES = ["token", "ndc_submitted", "ndc_approved", "transfer_date", "transfer_done", "closed"];
@@ -49,7 +49,7 @@ export async function create() {
   const writeOk = (await user.can("data.write")) !== false;
 
   // ---------------------------------------------------------------- cache of shared data
-  const shared = { plots: {}, fixes: {}, people: {}, perms: {}, pubdeals: {}, activity: [], pings: {} };
+  const shared = { plots: {}, fixes: {}, people: {}, perms: {}, pubdeals: {}, activity: [], pings: {}, settings: {} };
   const ready = {};
   let listener = null;
   const subs = [];
@@ -65,6 +65,7 @@ export async function create() {
     watch("pubdeals", db.collection("pubdeals"), (s) => (shared.pubdeals = asMap(s))),
     watch("activity", db.collection("activity").orderBy("at", "desc").limit(80), (s) => (shared.activity = s.docs.map((d) => ({ id: d.id, ...d.data() })))),
     watch("pings", db.collection("pings"), (s) => (shared.pings = asMap(s))),
+    watch("settings", db.collection("settings"), (s) => (shared.settings = (asMap(s).site) || {})),
   ]);
   await Promise.race([firstLoad, new Promise((r) => setTimeout(r, 8000))]);
 
@@ -167,9 +168,11 @@ export async function create() {
 
   async function select(table) {
     if (!TABLES.includes(table)) fail("Unknown table " + table);
+    if (table === "site_settings") return Object.entries({ company: "WH Ventures", ...shared.settings }).map(([key, value]) => ({ key, value }));
     const m = member();
     if (!m) return [];
     switch (table) {
+      case "leads": return leadsList();
       case "plots": return Object.entries(shared.plots).filter(([id]) => PLOT_RE.test(id)).map(([id, d]) => plotRow(id, d));
       case "plot_fixes": return Object.entries(shared.fixes).map(([key, d]) => ({ key, n: d.n || null, size: d.size || null }));
       case "people": {
@@ -212,6 +215,32 @@ export async function create() {
       case "download_requests": return (await all("dlreq")).map(({ _agent, ...r }) => ({ ...r, requested_by: _agent }));
     }
     return [];
+  }
+
+  // ---------------------------------------------------------------- website enquiries
+  // leads/<sender>/items/<id> holds each enquiry; admins read them all. When an admin assigns one,
+  // a copy goes to agents/<agent>/leads/<id>, which the agent reads and updates.
+  async function leadsAll() {
+    const out = [];
+    const senders = (await db.collection("leads").get().catch(() => ({ docs: [] }))).docs.map((d) => d.id);
+    for (const s of senders) {
+      const snap = await db.collection(`leads/${s}/items`).get().catch(() => ({ docs: [] }));
+      for (const d of snap.docs) out.push({ id: d.id, ...d.data(), _sender: s });
+    }
+    return out;
+  }
+  async function leadsList() {
+    if (admin) {
+      const copies = {};
+      for (const c of await all("leads")) copies[c.id] = c;
+      return (await leadsAll()).map((l) => { const c = copies[l.id]; const { _sender, ...rest } = l; return c ? { ...rest, status: c.status, note: c.note, client_id: c.client_id || null } : rest; });
+    }
+    return (await all("leads")).map(({ _agent, ...r }) => r);
+  }
+  async function leadFind(id) {
+    if (admin) { const l = (await leadsAll()).find((x) => x.id === id); if (l) return l; }
+    const f = await findPriv("leads", id);
+    return f ? { ...f.row, _copy: f.a } : null;
   }
 
   // ---------------------------------------------------------------- server functions
@@ -298,6 +327,68 @@ export async function create() {
 
   const F = {
     me: async () => member(),
+    my_account: async () => null,
+    save_my_account: async () => fail("Client accounts work on the real website."),
+    save_plot_for_later: async () => fail("Client accounts work on the real website."),
+    submit_enquiry: async ({ p_name, p_phone, p_email, p_message, p_plot_id, p_website }) => {
+      if (p_website) return null;
+      if (!uid || !writeOk) fail("On the test page, you need Contributor access to send an enquiry.");
+      if (String(p_name || "").trim().length < 2) fail("Write your name.");
+      const phone = String(p_phone || "").trim(), email = String(p_email || "").trim().toLowerCase();
+      if (!/^[0-9]{7,15}$/.test(phone.replace(/[^0-9]/g, "")) && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) fail("Write a phone number or an e-mail address, so that we can answer you.");
+      if (p_plot_id && !PLOT_RE.test(p_plot_id)) fail("Not a plot number.");
+      const id = rid();
+      await db.doc("leads/" + uid).set({ at: now() });
+      await db.doc(`leads/${uid}/items/${id}`).set({ name: String(p_name).trim().slice(0, 80), phone: phone.slice(0, 40), email: email.slice(0, 120),
+        message: String(p_message || "").trim().slice(0, 1000), plot_id: p_plot_id || null, status: "new", assigned_to: null, note: "", created_at: now() });
+      await logPrivate(uid, p_plot_id, "lead", `New website enquiry: ${String(p_name).trim().slice(0, 80)}${p_plot_id ? " · " + p_plot_id : ""}`);
+      await ping(uid);
+      return id;
+    },
+    assign_lead: async ({ p_id, p_agent }) => {
+      requireAdmin();
+      const l = await leadFind(p_id);
+      if (!l || !l._sender) fail("This enquiry does not exist.");
+      if (!agentIds().includes(p_agent)) fail("Choose an active team member.");
+      const { _sender, ...body } = l;
+      if (l.assigned_to && l.assigned_to !== p_agent) { await pdel(l.assigned_to, "leads", p_id).catch(() => {}); await ping(l.assigned_to); }
+      const upd = { ...strip(body), assigned_to: p_agent, assigned_by: uid, assigned_at: now(), status: l.status === "new" ? "assigned" : l.status };
+      await db.doc(`leads/${_sender}/items/${p_id}`).set(upd);
+      await pset(p_agent, "leads", p_id, upd);
+      await logPrivate(p_agent, l.plot_id, "lead_assigned", `Website enquiry for you: ${l.name}${l.plot_id ? " · " + l.plot_id : ""} · from ${nameOf(uid)}`);
+      await ping(p_agent);
+    },
+    update_lead: async ({ p_id, p_status, p_note }) => {
+      requireMember();
+      if (!["assigned", "contacted", "closed"].includes(p_status)) fail("Unknown status.");
+      const f = await findPriv("leads", p_id);
+      if (!f || !(admin || f.a === uid)) fail("This enquiry is not assigned to you.");
+      await pset(f.a, "leads", p_id, { ...strip(f.row), status: p_status, note: p_note != null ? String(p_note).trim().slice(0, 400) : f.row.note || "" });
+      await ping(f.a);
+    },
+    convert_lead: async ({ p_id }) => {
+      requireMember();
+      const f = await findPriv("leads", p_id);
+      if (!f || !(admin || f.a === uid)) fail("This enquiry is not assigned to you.");
+      if (f.row.client_id) return f.row.client_id;
+      const a = f.a, l = f.row, cid = rid();
+      await pset(a, "clients", cid, { name: l.name, phone: l.phone || l.email || "", cnic: "", note: ("Website enquiry. " + (l.message || "")).slice(0, 400), created_at: now(), updated_at: now() });
+      if (l.plot_id && (await plotGet(l.plot_id))) {
+        const did = rid();
+        await pset(a, "deals", did, { plot_id: l.plot_id, client_id: cid, sold: false, stage: "interested", note: "From a website enquiry", created_at: now(), updated_at: now() });
+        await db.doc("pubdeals/" + did).set({ plot_id: l.plot_id, agent_id: a, active: true });
+      }
+      await pset(a, "leads", p_id, { ...strip(l), status: "converted", client_id: cid });
+      await ping(a);
+      return cid;
+    },
+    save_site_settings: async ({ p_values }) => {
+      requireAdmin();
+      const keys = ["company", "phone", "whatsapp", "email", "address", "hours", "about"];
+      const v = {};
+      for (const k of keys) if (p_values && k in p_values) v[k] = String(p_values[k] || "").slice(0, 600);
+      await db.doc("settings/site").set({ ...shared.settings, ...v });
+    },
 
     save_member: async ({ p_id, p_full_name, p_phone, p_role, p_active, p_perms }) => {
       requireAdmin();
@@ -637,6 +728,8 @@ export async function create() {
   const api = {
     mode: "artifact",
     maxUpload: 2.5 * 1048576,
+    canSubmit: !!(uid && writeOk),
+    async signInEmail() { throw new Error("On the test page, claude.ai knows who you are."); },
     noAccess: !uid ? "Sign in to claude.ai to use this page." : !writeOk ? "You can only view this page. Ask the owner to give you Contributor access in the Share menu." : "An admin turned off your account. Ask an admin.",
     async getUser() { return uid ? { email: meV.email || meV.name || "you" } : null; },
     async signIn() {}, async signOut() {},
@@ -653,7 +746,7 @@ export async function create() {
       } finally { if (listener && name !== "me") setTimeout(() => listener("*"), 0); }
     },
     subscribe(cb, onStatus) {
-      listener = (key) => cb(key === "plots" ? "plots" : key === "fixes" ? "plot_fixes" : key === "activity" ? "activity" : key === "pubdeals" ? "deals" : key === "people" || key === "perms" ? "members" : "*");
+      listener = (key) => cb(key === "plots" ? "plots" : key === "fixes" ? "plot_fixes" : key === "activity" ? "activity" : key === "pubdeals" ? "deals" : key === "people" || key === "perms" ? "members" : key === "settings" ? "site_settings" : "*");
       if (onStatus) onStatus("SUBSCRIBED");
       return () => { listener = null; };
     },

@@ -63,8 +63,11 @@ export function pnText(p, on, big) {
   const fs = Math.max(1.4, Math.min(p.sh * (big ? 0.62 : 0.5), p.ph * 0.3));
   return `<text class="pn${on ? " on" : ""}" x="${p.cx.toFixed(1)}" y="${p.cy.toFixed(1)}" font-size="${fs.toFixed(2)}" dominant-baseline="central" text-anchor="middle">${p.num != null ? p.num : "?"}</text>`;
 }
+// on the public website the map shows no stock: only the plan and the plot that is open
+const siteMode = () => S.area === "site";
+const selId = () => (siteMode() ? S.sitePlot : S.plot);
 function plotCls(p, mode) {
-  const d = S.plots[p.id];
+  const d = siteMode() ? null : S.plots[p.id];
   const st = d ? d.status : null;
   let cls = "p";
   if (st) cls += " " + st + (d.kind === "listing" ? " listing" : "");
@@ -72,7 +75,7 @@ function plotCls(p, mode) {
   if (S.size !== "all" && p.size !== S.size) fade = true;
   if (mode === "block" && S.statusFilter !== "all" && st !== S.statusFilter) fade = true;
   if (fade && st) cls += " fade";
-  if (S.plot === p.id) cls += " sel";
+  if (selId() === p.id) cls += " sel";
   if (S.sel.has(p.id)) cls += " msel";
   if (p.num == null) cls += " unread";
   return { cls, st };
@@ -98,10 +101,10 @@ export function mapSVG(mode) {
     if (b.grey) continue;
     for (const p of b.plots) {
       const { cls, st } = plotCls(p, mode);
-      const hi = st || S.plot === p.id || S.sel.has(p.id);
+      const hi = st || selId() === p.id || S.sel.has(p.id);
       if (p.num != null && !hi) lab += pnText(p, false, false);
       s += `<polygon class="${cls}" data-p="${p.id}" points="${ptsStr(p.pts)}"/>`;
-      if (hi) labOn += pnText(p, !!st, S.plot === p.id);
+      if (hi) labOn += pnText(p, !!st, selId() === p.id);
     }
   }
   s += `<g class="labels">${lab}</g><g class="labels-on">${labOn}</g>`;
@@ -109,9 +112,9 @@ export function mapSVG(mode) {
   return s;
 }
 function fitBox(bb, pad) { return [bb[0] - pad, bb[1] - pad, bb[2] - bb[0] + pad * 2, bb[3] - bb[1] + pad * 2]; }
-function vbKey() { return S.view === "block" ? "block-" + S.block : "all"; }
+function vbKey() { return siteMode() ? "site" : S.view === "block" ? "block-" + S.block : "all"; }
 function defaultVB() {
-  if (S.view === "block") return fitBox(G.geo.blocks[S.block].bbox, 20);
+  if (S.view === "block" && !siteMode()) return fitBox(G.geo.blocks[S.block].bbox, 20);
   const W = G.world[2], H = G.world[3];
   return [-W * 0.07, -H * 0.07, W * 1.14, H * 1.14];
 }
@@ -203,7 +206,7 @@ export function attachMap(wrap) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
       if (moved) { vb = [drag.vb[0] - dx * s, drag.vb[1] - dy * s, drag.vb[2], drag.vb[3]]; apply(); }
-    } else if (S.view === "all" && e.pointerType === "mouse") hoverAt(e, wrap);
+    } else if ((S.view === "all" || siteMode()) && e.pointerType === "mouse") hoverAt(e, wrap);
   });
   const end = (e) => {
     ptrs.delete(e.pointerId);
@@ -219,7 +222,7 @@ export function attachMap(wrap) {
   svg.addEventListener("pointerup", end);
   svg.addEventListener("pointercancel", end);
   svg.addEventListener("pointerleave", () => {
-    if (S.view === "all") { const t = wrap.querySelector(".tip"); if (t) t.hidden = true; setLift(wrap, null); }
+    if (S.view === "all" || siteMode()) { const t = wrap.querySelector(".tip"); if (t) t.hidden = true; setLift(wrap, null); }
   });
 }
 function hoverAt(e, wrap) {
@@ -232,7 +235,12 @@ function hoverAt(e, wrap) {
   if (!b) { tip.hidden = true; return; }
   const s = blockStats(b);
   let html;
-  if (p) {
+  if (p && siteMode()) {
+    const pl = G.geo.plots[p];
+    html = `<span class="k">Block ${b}</span><b>Plot ${esc(p)}</b><span class="meta">${sizeLabel(pl.size)} · tap for details</span>`;
+  } else if (!p && siteMode()) {
+    html = `<span class="k">Block ${b}</span><b>${G.geo.blocks[b].plots.length} plots</b><span class="meta">tap a plot for details</span>`;
+  } else if (p) {
     const d = S.plots[p];
     const n = S.demand[p] || 0;
     html = `<span class="k">Plot ${esc(p)} · ${sizeLabel(G.geo.plots[p].size)}</span><b>${d ? STATUS[d.status].label + " · " + cr(d.price) + " Cr" : "Not in our stock"}</b>${d && d.tags && d.tags.length ? `<span class="tiptags">${esc(d.tags.join(" · "))}</span>` : ""}<span class="meta">${n} interested · tap to open</span>`;
@@ -271,6 +279,7 @@ function setLift(wrap, b) {
 }
 function clickMap(el, ev) {
   const d = el.dataset || {};
+  if (siteMode()) { hooks.siteClick(d.p || null); return; }
   if (S.view === "block" && d.p && d.p.split("-")[0] === S.block && (S.multi || (ev && (ev.shiftKey || ev.ctrlKey || ev.metaKey)))) {
     if (!S.multi) { S.multi = true; if (S.plot && G.geo.plots[S.plot]) S.sel.add(S.plot); }
     if (S.sel.has(d.p)) S.sel.delete(d.p);
@@ -284,4 +293,16 @@ function clickMap(el, ev) {
   if (S.view === "block" && b !== S.block) { go("all"); return; }
   if (d.p) { go("block", b, d.p); return; }
   if (d.b && S.view !== "block") go("block", b, null);
+}
+
+// the public map: zoom smoothly to a plot and open its card
+export function siteFocus(id) {
+  const p = G.geo && G.geo.plots[id];
+  if (!p) return;
+  const from = (S.vb.site || [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14]).slice();
+  const z = Math.max(p.ph * 9, 120);
+  S.vb.site = [p.cx - z / 2, p.cy - z / 2, z, z];
+  S._anim = { from };
+  S.sitePlot = id;
+  hooks.render();
 }

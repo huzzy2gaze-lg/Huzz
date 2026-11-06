@@ -1,11 +1,12 @@
 // End-to-end flow in demo mode: agent asks, admin approves, privacy between agents.
 const { chromium, devices } = require('playwright');
 const OUT = __dirname;
-const URL = 'http://localhost:4173/?demo&fresh';
+const URL = 'http://localhost:4173/?demo&fresh#signin';
 const errors = [];
 function log(...a) { console.log(...a); }
 async function as(page, email) {
   if (await page.locator('[data-act="switchUser"]').count()) await page.click('[data-act="switchUser"]');
+  await page.evaluate(() => { location.hash = 'signin'; }); await page.waitForSelector('[data-demo]');
   await page.click(`[data-demo="${email}"]`);
   await page.waitForSelector('#tabs:not([hidden])');
   await page.waitForTimeout(400);

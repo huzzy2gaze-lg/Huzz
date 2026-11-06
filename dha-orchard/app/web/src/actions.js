@@ -147,3 +147,8 @@ export async function deleteEvent(id) { return call("delete_event", { p_id: id }
 export async function decideDownload(id, approve) {
   return call("decide_download", { p_id: id, p_approve: approve, p_reason: null }, approve ? "Download approved" : "Download not approved");
 }
+
+export async function assignLead(id, agent) { return call("assign_lead", { p_id: id, p_agent: agent }, "Enquiry assigned"); }
+export async function updateLead(id, status, note) { return call("update_lead", { p_id: id, p_status: status, p_note: note }, status === "closed" ? "Enquiry closed" : "Enquiry updated"); }
+export async function convertLead(id) { return call("convert_lead", { p_id: id }, "Added to the clients"); }
+export async function saveSiteSettings(v) { return call("save_site_settings", { p_values: v }, "Website details saved"); }

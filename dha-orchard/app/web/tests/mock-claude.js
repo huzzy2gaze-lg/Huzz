@@ -8,6 +8,7 @@
     "nadeem@demo.pk": { id: "u_nadeem", name: "Mr. Nadeem", canEdit: true, isOwner: false, color: "#8F4A2F" },
     "ali@demo.pk": { id: "u_ali", name: "Ali", canEdit: false, isOwner: false, color: "#2F6F8F" },
     "sara@demo.pk": { id: "u_sara", name: "Sara", canEdit: false, isOwner: false, color: "#7A3F8F" },
+    "viewer@demo.pk": { id: "u_viewer", name: "A viewer", canEdit: false, isOwner: false, color: "#777", viewOnly: true },
   };
   const who = localStorage.getItem("mockUser") || "owner@demo.pk";
   const me = USERS[who];
@@ -15,8 +16,8 @@
   let store = JSON.parse(localStorage.getItem(KEY) || "{}");
   const save = () => localStorage.setItem(KEY, JSON.stringify(store));
   const err = (code, message) => Object.assign(new Error(message), { code });
-  const canRead = (p) => { const s = p.split("/"); if (s[0] === "agents" && s[1]) return me.canEdit || s[1] === me.id; return true; };
-  const canWrite = (p) => { const s = p.split("/"); if (s[0] === "agents" && s[1]) return me.canEdit || s[1] === me.id; if (s[0] === "perms") return me.canEdit; if (s[0] === "people" && s[1]) return me.canEdit || s[1] === me.id; return true; };
+  const canRead = (p) => { const s = p.split("/"); if (me.viewOnly) return s[0] === "settings"; if ((s[0] === "agents" || s[0] === "leads") && s[1]) return me.canEdit || s[1] === me.id; return true; };
+  const canWrite = (p) => { const s = p.split("/"); if (me.viewOnly) return false; if (s[0] === "settings") return me.canEdit; if ((s[0] === "agents" || s[0] === "leads") && s[1]) return me.canEdit || s[1] === me.id; if (s[0] === "perms") return me.canEdit; if (s[0] === "people" && s[1]) return me.canEdit || s[1] === me.id; return true; };
   const listeners = [];
   const parent = (p) => p.split("/").slice(0, -1).join("/");
   const snapDoc = (p) => { const exists = canRead(p) && p in store; return { id: p.split("/").pop(), exists, data: () => (exists ? JSON.parse(JSON.stringify(store[p])) : undefined), metadata: { fromCache: false, hasPendingWrites: false } }; };
@@ -60,7 +61,7 @@
   const db = { doc: docRef, collection: colRef };
   const user = {
     me: async () => ({ id: me.id, name: me.name, email: who, color: me.color, avatarUrl: "", isOwner: me.isOwner, canEdit: me.canEdit }),
-    id: async () => me.id, isOwner: async () => me.isOwner, canEdit: async () => me.canEdit, can: async () => true,
+    id: async () => me.id, isOwner: async () => me.isOwner, canEdit: async () => me.canEdit, can: async (n) => (n === "data.write" ? !me.viewOnly : true),
     profiles: async (ids) => Object.fromEntries([].concat(ids).map((i) => { const u = Object.entries(USERS).find(([, x]) => x.id === i); return [i, { id: i, name: u ? u[1].name : "", email: u ? u[0] : null, color: u ? u[1].color : "#777" }]; })),
   };
   const saved = [];
