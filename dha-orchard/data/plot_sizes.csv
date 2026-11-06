@@ -1,0 +1,6 @@
+size_name,dimensions_ft,area_sq_ft,area_sq_yd,marla_at_225_sqft,marla_at_272_sqft,fgeha_quota_plots,scba_quota_plots,official_total,traced_map_count,fgeha_transfer_fee_pkr,fgeha_urgent_fee_pkr,notes
+1 Kanal,50x90,4500,500,20,16.5,1188,1916,3104,3044,125000,42000,"Nearly two-thirds of all residential plots. Both FGEHA and SCBA hold this size. Land-sharing plots are reported as 1 Kanal"
+14 Marla,40x80,3200,356,14.2,11.8,900,0,900,723,89000,35000,"FGEHA (federal employees) quota only"
+10 Marla,32x70,2240,249,10,8.2,0,777,777,742,68000,30000,"SCBA quota only. FGEHA's table says 32x70; the traced map labels these 35x70 (2,450 sq ft); check on the allotment letter. Transfer fee shown is FGEHA's fee for 35x70"
+Commercial 5 Marla,30x40,1200,133,5.3,4.4,,,,59,,,Margalla Orchards Walk (DHA)
+Commercial 8 Marla,40x45,1800,200,8,6.6,,,,48,,,Margalla Orchards Walk (DHA)
