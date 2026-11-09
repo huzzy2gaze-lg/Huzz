@@ -1,0 +1,12 @@
+where,link (replace YOUR-DOMAIN),utm_source,utm_medium,utm_campaign,notes
+Instagram bio,https://YOUR-DOMAIN/?utm_source=instagram&utm_medium=social_bio&utm_campaign=profile,instagram,social_bio,profile,Bio link and story link stickers
+Instagram stories,https://YOUR-DOMAIN/?utm_source=instagram&utm_medium=social_story&utm_campaign=stories,instagram,social_story,stories,Link sticker on daily stories
+Facebook Page,https://YOUR-DOMAIN/?utm_source=facebook&utm_medium=social_bio&utm_campaign=profile,facebook,social_bio,profile,Page website field and Book button
+TikTok bio,https://YOUR-DOMAIN/?utm_source=tiktok&utm_medium=social_bio&utm_campaign=profile,tiktok,social_bio,profile,
+YouTube channel,https://YOUR-DOMAIN/?utm_source=youtube&utm_medium=social_bio&utm_campaign=profile,youtube,social_bio,profile,Channel links and video descriptions
+LinkedIn page,https://YOUR-DOMAIN/?utm_source=linkedin&utm_medium=social_bio&utm_campaign=profile,linkedin,social_bio,profile,
+Google Business Profile,https://YOUR-DOMAIN/?utm_source=google&utm_medium=business_profile&utm_campaign=profile,google,business_profile,profile,
+WhatsApp Business profile,https://YOUR-DOMAIN/?utm_source=whatsapp&utm_medium=social_bio&utm_campaign=profile,whatsapp,social_bio,profile,
+Meta ads (Facebook + Instagram),https://YOUR-DOMAIN/?utm_source={{site_source_name}}&utm_medium=paid_social&utm_campaign={{campaign.name}}&utm_content={{ad.name}},fb / ig (filled by Meta),paid_social,campaign name,"Paste into the ad's URL parameters field; Meta fills in the names. The website also saves Meta's fbclid."
+TikTok Promote,https://YOUR-DOMAIN/?utm_source=tiktok&utm_medium=paid_social&utm_campaign=promote_<video>,tiktok,paid_social,promote_<video>,Replace <video> with a short name
+Google Search ads,https://YOUR-DOMAIN/?utm_source=google&utm_medium=cpc&utm_campaign=search_margalla_orchard,google,cpc,search_margalla_orchard,Turn on auto-tagging in Google Ads too (the website saves gclid)

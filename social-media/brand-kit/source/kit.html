@@ -6,32 +6,33 @@
 <style>
   /* WH Ventures social media brand kit. Open with ?asset=<name>; render.js screenshots each one at its exact size. */
   :root {
-    --forest: #0E3A2C; --forest-deep: #072019; --forest-mid: #134a39;
-    --gold: #C9A227; --gold-light: #EED38C; --brass: #A87A22; --cream: #F5EFDF; --mist: #A9C2B3;
+    /* Margalla Teal brand standard: see /brand/tokens.css */
+    --teal: #0B3A40; --abyss: #06252A; --gold: #D2A746; --gold-light: #E3C98D;
+    --mist: #EAF1EE; --sage: #A9C4C4; --rose: #B04761;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: var(--forest-deep); }
-  body { font-family: "Albert Sans", sans-serif; color: var(--cream); overflow: hidden; }
+  html, body { background: var(--abyss); }
+  body { font-family: "Albert Sans", sans-serif; color: var(--mist); overflow: hidden; }
   .canvas { position: relative; overflow: hidden;
-    background: radial-gradient(ellipse at 50% 38%, #17533F 0%, var(--forest) 45%, var(--forest-deep) 100%); }
+    background: radial-gradient(ellipse at 50% 38%, #145058 0%, var(--teal) 45%, var(--abyss) 100%); }
   .plan { position: absolute; inset: 0; background: url(plan-bg.jpg) center/cover no-repeat;
     opacity: .085; filter: invert(1); mix-blend-mode: screen; }
   .hills { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; }
-  .glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(238,211,140,.30), rgba(238,211,140,0) 70%); }
+  .glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(227,201,141,.22), rgba(227,201,141,0) 70%); }
   .emblem { display: block; }
-  .word { font-family: "Gloock", serif; letter-spacing: .09em; color: var(--cream); white-space: nowrap; }
-  .word b { color: var(--gold-light); font-weight: 400; }
+  .word { font-family: "Gloock", serif; letter-spacing: .09em; color: var(--mist); white-space: nowrap; }
+  .word b { color: var(--gold); font-weight: 400; }
   .rule { height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
-  .eyebrow { text-transform: uppercase; letter-spacing: .28em; color: var(--gold-light); font-weight: 600; }
-  .headline { font-family: "Gloock", serif; line-height: 1.04; color: #fff; }
-  .headline em { font-style: normal; color: var(--gold-light); }
-  .sub { color: var(--mist); font-weight: 500; }
-  .chip { display: inline-flex; align-items: center; gap: .55em; border: 2px solid rgba(238,211,140,.55); border-radius: 999px;
-    color: var(--cream); font-weight: 600; background: rgba(7,32,25,.55); white-space: nowrap; }
-  .chip i { width: .55em; height: .55em; border-radius: 50%; background: #3DBB78; box-shadow: 0 0 0 .18em rgba(61,187,120,.25); }
+  .eyebrow { text-transform: uppercase; letter-spacing: .28em; color: var(--gold); font-weight: 600; }
+  .headline { font-family: "Gloock", serif; line-height: 1.04; color: var(--mist); }
+  .headline em { font-style: normal; color: var(--gold); }
+  .sub { color: var(--sage); font-weight: 500; }
+  .chip { display: inline-flex; align-items: center; gap: .55em; border-radius: 999px;
+    color: #fff; font-weight: 700; background: var(--rose); white-space: nowrap; box-shadow: 0 .3em 1em rgba(0,0,0,.25); }
+  .chip i { width: .5em; height: .5em; border-radius: 50%; background: #fff; box-shadow: 0 0 0 .2em rgba(255,255,255,.3); }
   .center { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
   .row { display: flex; align-items: center; }
-  .icon { stroke: var(--gold-light); fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .icon { stroke: var(--gold); fill: none; stroke-linecap: round; stroke-linejoin: round; }
 </style>
 </head>
 <body>
@@ -51,9 +52,9 @@ function ridge(w, h, base, amp, seed, steps) {
 }
 function hills(w, h, scale = 1, top = 0.62) {
   const layers = [
-    { base: h * top, amp: h * 0.16 * scale, c: "#1d5a46", o: .55, seed: 7 },
-    { base: h * (top + 0.10), amp: h * 0.13 * scale, c: "#123f31", o: .85, seed: 21 },
-    { base: h * (top + 0.20), amp: h * 0.10 * scale, c: "#0a2a20", o: 1, seed: 45 },
+    { base: h * top, amp: h * 0.16 * scale, c: "#1B5A62", o: .55, seed: 7 },
+    { base: h * (top + 0.10), amp: h * 0.13 * scale, c: "#0E3F45", o: .85, seed: 21 },
+    { base: h * (top + 0.20), amp: h * 0.10 * scale, c: "#06252A", o: 1, seed: 45 },
   ];
   return `<svg class="hills" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="height:${h}px">` +
     layers.map(l => `<path d="${ridge(w, h, l.base, l.amp, l.seed, 90)}" fill="${l.c}" opacity="${l.o}"/>`).join("") + `</svg>`;
@@ -87,7 +88,7 @@ const ASSETS = {
   "profile": () => [1080, 1080, canvas(1080, 1080,
     `<div class="glow" style="width:900px;height:900px;left:90px;top:60px"></div>
      <div class="center" style="inset:0">${emblem(640)}</div>`, { hills: false })],
-  "profile-light": () => [1080, 1080, `<div class="canvas" style="width:1080px;height:1080px;background:radial-gradient(circle at 50% 40%, #FFFDF6, #F1E8D2)">
+  "profile-light": () => [1080, 1080, `<div class="canvas" style="width:1080px;height:1080px;background:radial-gradient(circle at 50% 40%, #FFFFFF, var(--mist))">
      <div class="center" style="inset:0">${emblem(640)}</div></div>`],
 
   // Facebook cover 1640x624. Phones show only the middle ~1110px, and the profile picture covers the bottom-left on computers.
@@ -129,7 +130,7 @@ const ASSETS = {
        ${emblem(170)}
        ${word(58)}
        <div class="rule" style="width:460px"></div>
-       <div class="sub" style="font-size:26px;color:var(--cream)">Plots in DHA Margalla Orchard · Islamabad</div>
+       <div class="sub" style="font-size:26px;color:var(--mist)">Plots in DHA Margalla Orchard · Islamabad</div>
      </div>`, { hillTop: 0.74, hillScale: .7 })],
 
   // Instagram story-highlight covers 1080x1920. Only the middle circle shows.
@@ -137,8 +138,8 @@ const ASSETS = {
     `<div class="canvas" style="width:1080px;height:1920px">
        <div class="glow" style="width:1000px;height:1000px;left:40px;top:460px"></div>
        <div class="center" style="inset:0;gap:34px">
-         <div style="width:560px;height:560px;border-radius:50%;border:4px solid rgba(238,211,140,.6);display:flex;align-items:center;justify-content:center;background:rgba(7,32,25,.45)">
-           <svg viewBox="0 0 100 100" width="300" height="300" class="icon" stroke-width="4.5" style="color:var(--gold-light)">${ICONS[k]}</svg>
+         <div style="width:560px;height:560px;border-radius:50%;border:4px solid rgba(210,167,70,.65);display:flex;align-items:center;justify-content:center;background:rgba(6,37,42,.5)">
+           <svg viewBox="0 0 100 100" width="300" height="300" class="icon" stroke-width="4.5" style="color:var(--gold)">${ICONS[k]}</svg>
          </div>
        </div>
      </div>`]])),
