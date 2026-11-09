@@ -21,11 +21,10 @@ const f2 = (v) => v.toFixed(2), f1 = (v) => v.toFixed(1);
 
 // ---------------------------------------------------------------- the hero tour
 function fullBox() { const W = G.world[2], H = G.world[3]; return [-W * 0.04, -H * 0.04, W * 1.08, H * 1.08]; }
-// on a wide map the card is at the bottom left, so the block goes to the upper right; on a phone the card is below the map
 function blockBox(b) {
   const bb = G.geo.blocks[b].bbox, pad = 50, W = G.world[2], H = G.world[3], ar = W / H;
   const w = bb[2] - bb[0] + pad * 2, h = bb[3] - bb[1] + pad * 2, cx = (bb[0] + bb[2]) / 2, cy = (bb[1] + bb[3]) / 2;
-  const side = innerWidth > 640;
+  const side = false; // the card is below the map on every screen, so the block goes in the middle
   const fx = side ? 0.5 : 1, fy = side ? 0.8 : 0.9; // the part of the map that the block may use
   const vw = Math.max(w / fx, (h / fy) * ar), vh = vw / ar;
   return side ? [cx - 0.71 * vw, cy - 0.44 * vh, vw, vh] : [cx - vw / 2, cy - 0.48 * vh, vw, vh];

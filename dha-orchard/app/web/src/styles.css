@@ -871,7 +871,7 @@ body[data-tab="site"] #app{height:auto}
 .herotour .bmap.whole .bmblock polygon{fill:rgba(201,162,39,.12);stroke-opacity:.9}
 .herotour .bmblock.focus polygon,.growth .bmblock.focus polygon{fill:rgba(201,162,39,.42);stroke:#A87A22;stroke-opacity:1;stroke-width:12}
 .herotour .bmblock.focus .bmlabel circle,.growth .bmblock.focus .bmlabel circle{fill:#C9A227}
-.herocard{position:absolute;left:14px;bottom:50px;z-index:3;max-width:min(350px,calc(100% - 28px));background:rgba(14,58,44,.95);color:#fff;border-radius:16px;padding:14px 16px;display:grid;gap:6px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+.herocard{position:relative;z-index:3;margin:0;background:#0B2F23;color:#fff;border-radius:0;padding:14px 18px;display:grid;gap:6px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
 .herocard.pop{animation:cardIn .55s cubic-bezier(.2,.8,.2,1) both}
 @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 .hc-eyebrow{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#E7CF7A}
@@ -883,15 +883,17 @@ body[data-tab="site"] #app{height:auto}
 .hc-prices b.gold{color:#E7CF7A}
 .hc-fine{font-size:10.5px;color:#A9C4B4}
 .hc-row{margin-top:4px}
+.herocard{grid-template-columns:1fr auto;align-items:end;column-gap:18px}
+.herocard>*{grid-column:1}
+.herocard .hc-row{grid-column:2;grid-row:1 / span 5;align-self:center}
+@media (max-width:900px){.herocard{grid-template-columns:1fr}.herocard .hc-row{grid-column:1;grid-row:auto}}
 .hc-row .sitebtn{padding:8px 14px;font-size:13.5px}
-.herodots{position:absolute;left:0;right:0;bottom:10px;z-index:3;display:flex;justify-content:center;gap:5px;flex-wrap:wrap;padding:0 10px}
-.hdot{min-width:30px;height:28px;border-radius:999px;border:1px solid rgba(14,58,44,.25);background:rgba(255,255,255,.88);color:#0E3A2C;font:700 12px var(--sans,inherit);cursor:pointer;padding:0 8px}
+.herodots{position:relative;padding-block:10px !important;background:#0B2F23;z-index:3;display:flex;justify-content:center;gap:5px;flex-wrap:wrap;padding:0 10px}
+.hdot{min-width:30px;height:28px;border-radius:999px;border:1px solid rgba(14,58,44,.25);background:rgba(255,255,255,.9);color:#0E3A2C;font:700 12px var(--sans,inherit);cursor:pointer;padding:0 8px}
 .hdot.on{background:#C9A227;border-color:#C9A227;color:#1A1405}
 @media (max-width:640px){
   .herotour{order:-1;margin-top:-8px}
   .herogrid{gap:18px}
-  .herocard{position:relative;left:auto;bottom:auto;max-width:none;margin:-6px 10px 10px;border-radius:14px}
-  .herodots{position:relative;bottom:auto;margin:0 0 10px}
   .hc-prices b{font-size:17px}
 }
 
