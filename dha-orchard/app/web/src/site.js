@@ -271,7 +271,7 @@ function home() {
     ${bookSection()}
     <section class="sitesec join"><div class="sitewrap joinbox"><div><div class="eyebrow">Investor list</div><h2>Hear about new plots first</h2>
       <p>Create a free account. We send you news about new plots and investment opportunities in DHA Margalla Orchard, by WhatsApp, SMS or e-mail.</p></div>
-      <a href="#${S.user ? "account" : "signin"}" class="sitebtn solid big">${S.user ? "My account" : "Join the investor list"}</a></div></section>`;
+      <a href="#${S.user ? "account" : "signin"}" class="sitebtn goldbtn big">${S.user ? "My account" : "Join the investor list"}</a></div></section>`;
 }
 
 // "Book a call" stays on the screen on laptops and TVs, with a soft pulse; phones have the bar at the bottom
@@ -369,10 +369,11 @@ export function siteAfterRender() {
   experienceAfterRender();
   if (!window.__headScroll) {
     window.__headScroll = true;
-    const onScroll = () => document.querySelector(".sitehead")?.classList.toggle("small", scrollY > 40);
+    const onScroll = () => { document.querySelector(".sitehead")?.classList.toggle("small", scrollY > 40); document.body.classList.toggle("scrolled", scrollY > innerHeight * 0.6); };
     addEventListener("scroll", onScroll, { passive: true });
   }
   document.querySelector(".sitehead")?.classList.toggle("small", scrollY > 40);
+  document.body.classList.toggle("scrolled", scrollY > innerHeight * 0.6);
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   // numbers count up when they come into view (the final number is already in the page)
   const els = document.querySelectorAll(".site .countup:not([data-done]), .site .reveal:not(.in), .site .draw:not(.in), .site .grow:not(.in)");

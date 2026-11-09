@@ -10,9 +10,9 @@ export const PLOTS = {
   "1K": { label: "1 Kanal", w: 50, d: 90 },
 };
 export const STYLES = {
-  white: { label: "Modern white", wall: 0xf2efe8, accent: 0x2b2f2e, trim: 0xc9a227, stone: 0xd8cfc0 },
+  white: { label: "Modern white", wall: 0xf2efe8, accent: 0x2b2f2e, trim: 0xd2a746, stone: 0xd8cfc0 },
   brick: { label: "Warm brick", wall: 0xb5643f, accent: 0xefe6d6, trim: 0x3a2a20, stone: 0xcbb89c },
-  dark: { label: "Contemporary dark", wall: 0x2e3532, accent: 0xd9c7a3, trim: 0xc9a227, stone: 0x6b6f6a },
+  dark: { label: "Contemporary dark", wall: 0x2e3532, accent: 0xd9c7a3, trim: 0xd2a746, stone: 0x6b6f6a },
 };
 // the build stages, in order; each part of the home belongs to one stage
 export const STAGES = ["Plot", "Foundation", "Ground floor", "First floor", "Roof and terrace", "Windows and lights", "Garden and boundary wall"];
@@ -42,10 +42,10 @@ export function makeHouse({ size = "1K", floors = 2, style = "white" } = {}) {
   const grass = new THREE.Mesh(new THREE.BoxGeometry(W, 0.12, D), mat("grass", 0x6f9a5a, { roughness: 1 }));
   grass.position.y = 0.06; grass.receiveShadow = true; grass.userData.stage = 0; grass.userData.baseY = 0.06; grass.userData.h = 0.12;
   group.add(grass); parts.push(grass);
-  const lineMat = new THREE.LineBasicMaterial({ color: 0xe7cf7a });
+  const lineMat = new THREE.LineBasicMaterial({ color: 0xe3c98d });
   const pl = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([[-W / 2, -D / 2], [W / 2, -D / 2], [W / 2, D / 2], [-W / 2, D / 2]].map(([x, z]) => new THREE.Vector3(x, 0.14, z))), lineMat);
   pl.userData.stage = 0; group.add(pl);
-  for (const [x, z] of [[-W / 2, -D / 2], [W / 2, -D / 2], [W / 2, D / 2], [-W / 2, D / 2]]) add(0.12, 0.9, 0.12, mat("peg", 0xc9a227, { emissive: 0x5a4208 }), x, 0.12, z, 0);
+  for (const [x, z] of [[-W / 2, -D / 2], [W / 2, -D / 2], [W / 2, D / 2], [-W / 2, D / 2]]) add(0.12, 0.9, 0.12, mat("peg", 0xd2a746, { emissive: 0x53451f }), x, 0.12, z, 0);
 
   // the home: setbacks in front (z+) and behind, a little at the sides
   const front = D * 0.22, back = D * 0.08, side = Math.max(1, W * 0.06);

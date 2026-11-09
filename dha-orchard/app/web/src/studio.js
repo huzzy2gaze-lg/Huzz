@@ -20,7 +20,7 @@ function controls() {
     <div class="xs-row"><span class="xs-l">Light</span>${chip("night", 0, "☀ Day", !st.night)}${chip("night", 1, "☾ Night", st.night)}<button type="button" class="xchip" data-studio="rebuild:1">↻ Build again</button></div>
     <div class="xs-stage"><span class="xs-stagename">${esc(STAGES[0])}</span><i><i></i></i></div>
     <p class="xfine">${P.label}: ${P.w} × ${P.d} ft, the standard size on the plan. The home is an illustration only: a real design must follow the building bylaws.</p>
-    <div class="xrow"><a href="#book" class="xbtn" data-studiobook="${P.label}" data-magnet>Book a call about a ${P.label} plot</a>
+    <div class="xrow"><a href="#book" class="xbtn goldbtn" data-studiobook="${P.label}" data-magnet>Book a call about a ${P.label} plot</a>
       <a class="xbtn ghost" target="_blank" rel="noopener" href="${shareLink(`My ${P.label} home in DHA Margalla Orchard (${st.floors} floors, ${STYLES[st.style].label.toLowerCase()}). Plan yours here:`)}">Share on WhatsApp</a></div>`;
 }
 export function studioSection() {
@@ -33,7 +33,7 @@ export function studioSection() {
 }
 
 function light(scene) {
-  const hemi = new THREE.HemisphereLight(0xfff3d6, 0x0b2f23, 1.3);
+  const hemi = new THREE.HemisphereLight(0xfff3d6, 0x0b3a40, 1.3);
   const sun = new THREE.DirectionalLight(0xffe2a8, 2.4); sun.position.set(-25, 40, 25); sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -35, right: 35, top: 35, bottom: -35, near: 1, far: 120 });
   scene.add(hemi, sun); return { hemi, sun };
@@ -43,8 +43,8 @@ function applyNight() {
   R.house.setNight(st.night);
   R.lights.hemi.intensity = st.night ? 0.28 : 1.3; R.lights.hemi.color.set(st.night ? 0x8090c0 : 0xfff3d6);
   R.lights.sun.intensity = st.night ? 0.35 : 2.4; R.lights.sun.color.set(st.night ? 0x8aa0ff : 0xffe2a8);
-  R.ground.material.color.set(st.night ? 0x0a1f18 : 0x163a2d);
-  R.scene.fog.color.set(st.night ? 0x05120e : 0x0b2a20);
+  R.ground.material.color.set(st.night ? 0x071b1d : 0x123f45);
+  R.scene.fog.color.set(st.night ? 0x061414 : 0x0b3a40);
 }
 function newHouse(rebuild) {
   if (R.house) { R.scene.remove(R.house.group); R.house.group.traverse((o) => o.geometry && o.geometry.dispose()); }
@@ -87,8 +87,8 @@ export function studioAfterRender() {
   host.append(renderer.domElement);
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(38, 1, 0.1, 400);
   const lights = light(scene);
-  scene.fog = new THREE.Fog(0x0b2a20, 60, 160);
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(400, 64), new THREE.MeshStandardMaterial({ color: 0x163a2d, roughness: 1 }));
+  scene.fog = new THREE.Fog(0x0b3a40, 60, 160);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(400, 64), new THREE.MeshStandardMaterial({ color: 0x123f45, roughness: 1 }));
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
   const controlsObj = new OrbitControls(camera, renderer.domElement);
   Object.assign(controlsObj, { enableDamping: true, dampingFactor: 0.08, enablePan: false, minDistance: 14, maxDistance: 80, maxPolarAngle: Math.PI * 0.47, autoRotate: !reduce(), autoRotateSpeed: 0.6 });

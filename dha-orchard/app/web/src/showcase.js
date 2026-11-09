@@ -55,7 +55,7 @@ export function heroCard(i) {
   }
   return `<div class="hc-eyebrow">Block ${b}${b === "A" ? " · first possession" : ""}</div><div class="hc-title">Block ${b} · about ${info.plots.toLocaleString("en-IN")} plots</div>
     <div class="hc-line">${esc(info.sizes)}</div>${price}
-    <div class="hc-row"><a href="#book" class="sitebtn solid" data-act="askPlot" data-block="${b}">Book a call about Block ${b}</a></div>`;
+    <div class="hc-row"><a href="#book" class="sitebtn goldbtn" data-act="askPlot" data-block="${b}">Book a call about Block ${b}</a></div>`;
 }
 function heroDots(i) {
   return ["All", ...HERO].map((l, k) => `<button class="hdot${k === i ? " on" : ""}" data-herostep="${k}" aria-label="${k ? "Block " + l : "Whole scheme"}">${l}</button>`).join("");

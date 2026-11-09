@@ -35,7 +35,7 @@ function blockChapter(b, i) {
       <p class="xlead">${esc(info.line)}</p>
       <dl class="xfacts"><div><dt>Plots</dt><dd>about ${info.plots.toLocaleString("en-IN")}</dd></div><div><dt>Sizes</dt><dd>${esc(info.sizes)}</dd></div></dl>
       ${money}
-      <a href="#book" class="xbtn" data-act="askPlot" data-block="${b}" data-magnet>Book a call about Block ${b}</a>
+      <a href="#book" class="xbtn goldbtn" data-act="askPlot" data-block="${b}" data-magnet>Book a call about Block ${b}</a>
     </div></section>`;
 }
 export function experiencePage(c) {
@@ -144,25 +144,25 @@ function build() {
   renderer.setSize(innerWidth, innerHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x071d16, 14, 30);
+  scene.fog = new THREE.Fog(0x061414, 14, 30);
   const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.05, 80);
-  const hemi = new THREE.HemisphereLight(0xfff3d6, 0x0b2f23, 1.4); scene.add(hemi);
+  const hemi = new THREE.HemisphereLight(0xfff3d6, 0x0b3a40, 1.4); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffe2a8, 2.2); sun.position.set(-6, 10, 6); scene.add(sun);
 
   const [pw, ph] = planSize();
   // the official plan
-  const planMat = new THREE.MeshBasicMaterial({ color: 0x8e9d94, transparent: true, opacity: 0 }); // the plan, a little darker, so the gold blocks and the text stand out
+  const planMat = new THREE.MeshBasicMaterial({ color: 0x8fa3a3, transparent: true, opacity: 0 }); // the plan, a little darker, so the gold blocks and the text stand out
   const plan = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), planMat);
   plan.rotation.x = -Math.PI / 2; scene.add(plan);
   // a dark ground with a soft grid of dots around the plan
   const dots = []; for (let x = -16; x <= 16; x += 0.5) for (let z = -12; z <= 12; z += 0.5) { if (Math.abs(x) < pw / 2 + 0.3 && Math.abs(z) < ph / 2 + 0.3) continue; dots.push(x, -0.01, z); }
   const dg = new THREE.BufferGeometry(); dg.setAttribute("position", new THREE.Float32BufferAttribute(dots, 3));
-  scene.add(new THREE.Points(dg, new THREE.PointsMaterial({ color: 0x2f6b55, size: 0.035, sizeAttenuation: true })));
+  scene.add(new THREE.Points(dg, new THREE.PointsMaterial({ color: 0x2e5f65, size: 0.035, sizeAttenuation: true })));
   // fireflies: gold specks that rise slowly over the orchard
   const N = innerWidth < 760 ? 140 : 320, fp = new Float32Array(N * 3), fs = new Float32Array(N);
   for (let i = 0; i < N; i++) { fp[i * 3] = (Math.random() - 0.5) * pw * 1.4; fp[i * 3 + 1] = Math.random() * 3; fp[i * 3 + 2] = (Math.random() - 0.5) * ph * 1.4; fs[i] = 0.2 + Math.random() * 0.6; }
   const fg = new THREE.BufferGeometry(); fg.setAttribute("position", new THREE.BufferAttribute(fp, 3));
-  const flies = new THREE.Points(fg, new THREE.PointsMaterial({ color: 0xe7cf7a, size: 0.05, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const flies = new THREE.Points(fg, new THREE.PointsMaterial({ color: 0xe3c98d, size: 0.05, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending }));
   scene.add(flies);
 
   // the blocks, extruded from the hulls of the official plan
@@ -171,10 +171,10 @@ function build() {
     const shapes = G.geo.blocks[b].hull.map((poly) => new THREE.Shape(poly.map(([x, y]) => { const [wx, wz] = toWorld(x, y); return new THREE.Vector2(wx, -wz); })));
     const geo = new THREE.ExtrudeGeometry(shapes, { depth: 1, bevelEnabled: false });
     geo.rotateX(-Math.PI / 2);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xe0b63a, emissive: 0xc9a227, emissiveIntensity: 0.25, roughness: 0.4, metalness: 0.2, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xd8b25a, emissive: 0xd2a746, emissiveIntensity: 0.25, roughness: 0.4, metalness: 0.2, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(geo, mat); mesh.userData.block = b;
     // a clean gold outline at the base and at the top of the block (the top line goes up with the block)
-    const lineMat = new THREE.LineBasicMaterial({ color: 0xf2d77e, transparent: true, opacity: 0.9 });
+    const lineMat = new THREE.LineBasicMaterial({ color: 0xeedbb8, transparent: true, opacity: 0.9 });
     const group = new THREE.Group(); group.add(mesh);
     for (const poly of G.geo.blocks[b].hull) {
       const pts = poly.map(([x, y]) => { const [wx, wz] = toWorld(x, y); return new THREE.Vector3(wx, 0, wz); });
@@ -195,9 +195,9 @@ function build() {
   const route = new THREE.CatmullRomCurve3(ACTIVE.map((b) => blocks[b].label.clone().setY(0.08)));
   const routeGeo = new THREE.BufferGeometry().setFromPoints(route.getPoints(400));
   routeGeo.setDrawRange(0, 0);
-  const routeLine = new THREE.Line(routeGeo, new THREE.LineBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
+  const routeLine = new THREE.Line(routeGeo, new THREE.LineBasicMaterial({ color: 0xeedbb8, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
   scene.add(routeLine);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), new THREE.MeshBasicMaterial({ color: 0xfff1c4 }));
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), new THREE.MeshBasicMaterial({ color: 0xf4ead3 }));
   scene.add(head);
   const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(-9, -9);
   const st = { renderer, scene, camera, plan, planMat, hemi, sun, comm, route, routeGeo, head, visited: new Set(), routeP: 0, night: 0, flies, fp, fs, blocks, ray, mouse, pointer: [0, 0], cam: camFor("hero"), cur: null, active: "hero", hover: null, loaded: false, t0: performance.now(), raf: 0, alive: true };
@@ -250,7 +250,7 @@ function frame(now) {
   X.night += (nightT - X.night) * (rm ? 1 : 0.05);
   X.hemi.intensity = 1.4 - X.night * 1.05; X.sun.intensity = 2.2 - X.night * 1.9;
   X.dim = (X.dim || 1) + (((ACTIVE.includes(X.active) || X.active === "overview" || X.active === "timeline" || X.active === "enclave") ? 0.88 : 1) - (X.dim || 1)) * 0.06;
-  X.planMat.color.setRGB((0.557 - X.night * 0.27) * X.dim, (0.616 - X.night * 0.29) * X.dim, (0.58 - X.night * 0.24) * X.dim);
+  X.planMat.color.setRGB((0.561 - X.night * 0.27) * X.dim, (0.639 - X.night * 0.29) * X.dim, (0.639 - X.night * 0.26) * X.dim);
   X.comm.setNight(X.night > 0.5);
   // the gold route line grows with the block chapters
   const idx = ACTIVE.indexOf(X.active);

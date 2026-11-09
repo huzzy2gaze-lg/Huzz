@@ -1,3 +1,3 @@
-// The WH Ventures (Pvt.) Ltd. logo: the gold emblem, from the company's ad files. Inlined so the test page has it too.
-import emblem from "./wh-emblem.webp?inline";
+// The WH Ventures (Pvt.) Ltd. logo: the gold emblem as a vector (sharp at any size), from the brand standard.
+import emblem from "./wh-emblem.svg?inline";
 export default emblem;
