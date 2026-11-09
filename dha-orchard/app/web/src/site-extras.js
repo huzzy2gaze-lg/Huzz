@@ -8,7 +8,7 @@ import { BLOCKS, blockCard } from "./site.js";
 const ymd = (d) => d.toISOString().slice(0, 10);
 
 // ---------------------------------------------------------------- guided tour of the blocks
-const TOUR = ["A", "C", "B", "G", "E", "D", "F", "H"];
+const TOUR = ["A", "B", "C", "D", "E", "F", "G", "H"];
 const TOUR_MS = 4200;
 let tourTimer = null, anim = 0;
 

@@ -7,7 +7,7 @@ Mapovis and VisEngine) and lead-generation guides for property ads. Below, every
 
 | Idea | What the visitor sees | Why it helps |
 | --- | --- | --- |
-| Guided block tour | "Tour the blocks": the map zooms to each block in turn (A, C, B, G, E, D, F, H) with a caption and a progress bar. | Interactive masterplans are the main feature of developer sites. A tour shows the whole scheme in 30 seconds, without effort. |
+| Guided block tour | "Tour the blocks": the map zooms to each block in turn (A to H, in order) with a caption and a progress bar. | Interactive masterplans are the main feature of developer sites. A tour shows the whole scheme in 30 seconds, without effort. |
 | Block A beacon | A gold ring pulses on Block A with the tag "First possession". | Draws the eye to the strongest selling point. |
 | Plot sizes to scale | 1 Kanal, 14 Marla and 10 Marla drawn to the same scale, with feet, sq ft and sq yd. | Buyers understand the size at once. |
 | Budget finder | A slider for the budget of one plot; the blocks where the market asked that price or less; "Add to my call". | Qualifies the visitor and moves them to the form. |

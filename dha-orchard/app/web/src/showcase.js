@@ -4,8 +4,8 @@
 // The map is the official plan; the tour only moves the view. Nothing is shifted or made up.
 import { S, G, esc } from "./core.js";
 
-const HERO = ["A", "C", "B", "G", "E", "D", "F", "H"];
-const GROW = ["A", "C", "B", "G", "E"];
+const HERO = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const GROW = ["A", "B", "C", "E", "G"]; // the blocks with market prices, in order
 const HERO_MS = 4800, WHOLE_MS = 3200, GROW_MS = 6500;
 let cfg = null; // { BLOCKS, OUT_2027, OUT_2028 } from site.js
 let heroI = 0, growI = 0, lastHero = 0, lastGrow = 0, started = false, anim = 0;
