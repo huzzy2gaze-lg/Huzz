@@ -1,5 +1,6 @@
 // Pages other than the map: sign in, My sales, Approvals, Team.
 import { S, G, esc, cr, pkr, day, ago, initials, nameOf, colorOf, isAdmin, STAGES, PAYMODES, STATUS } from "./core.js";
+import { SITE_DEFAULTS } from "./site.js";
 import { todayPanel, contactButtons, leadContext, lateBadge } from "./today.js";
 
 export const PERMS = [
@@ -213,7 +214,7 @@ export function leadsForAgent() {
 const SITE_FIELDS = [["company", "Company name"], ["phone", "Phone"], ["whatsapp", "WhatsApp"], ["email", "E-mail"], ["address", "Office address"], ["hours", "Office hours"], ["about", "About the company (home page)"]];
 export function siteSettingsCard() {
   return `<form class="add" id="siteSettingsForm"><div class="k">Website details</div><span class="meta">These show on the public website. Empty fields do not show.</span>
-    <div class="grid2">${SITE_FIELDS.filter(([k]) => k !== "about" && k !== "nearby").map(([k, l]) => `<label class="fl"><span>${l}</span><input id="ss_${k}" value="${esc(S.site[k] || "")}" autocomplete="off"></label>`).join("")}</div>
+    <div class="grid2">${SITE_FIELDS.filter(([k]) => k !== "about" && k !== "nearby").map(([k, l]) => `<label class="fl"><span>${l}</span><input id="ss_${k}" value="${esc(S.site[k] || "")}"${SITE_DEFAULTS[k] ? ` placeholder="${esc(SITE_DEFAULTS[k])} (used now)"` : ""} autocomplete="off"></label>`).join("")}</div>
     <label class="fl"><span>About the company (home page)</span><textarea id="ss_about">${esc(S.site.about || "")}</textarea></label>
     <label class="fl"><span>Nearby places, one per line: place | travel time</span><textarea id="ss_nearby" rows="5" placeholder="COMSATS University | 1 min&#10;Murree Road | 10 min&#10;Islamabad Expressway | 10 min">${esc(S.site.nearby || "")}</textarea></label>
     <button class="btn forest" type="submit">Save website details</button></form>`;

@@ -10,7 +10,9 @@ let introDone = false;
 import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection, shareLink, GOALS, BUDGETS, WANT_SIZES, bookSummary } from "./site-extras.js";
 
 export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook"];
-const set = (k) => (S.site[k] || "").trim();
+// Used until an admin writes other details on the Team page.
+export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726" };
+const set = (k) => ((S.site[k] || "").trim() || SITE_DEFAULTS[k] || "");
 const company = () => set("company") || "WH Ventures";
 const ptsStr = (pts) => pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
 
@@ -67,12 +69,12 @@ function blockMap(animated) {
   let s = `<svg class="bmap${animated ? " drawin" : ""}" viewBox="${(-W * 0.04).toFixed(0)} ${(-H * 0.04).toFixed(0)} ${(W * 1.08).toFixed(0)} ${(H * 1.08).toFixed(0)}" role="img" aria-label="The eight blocks of DHA Margalla Orchard on the official plan">
     <defs><clipPath id="bm-clip">${all}</clipPath></defs>
     <image href="plan.webp" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" clip-path="url(#bm-clip)" class="bmplan"/>`;
-  for (const h of hulls) {
+  hulls.forEach((h, i) => {
     const on = S.siteBlocks.has(h.b), focus = S.siteFocus === h.b;
-    s += `<g class="bmblock${on ? " on" : ""}${focus ? " focus" : ""}" data-sblock="${h.b}" tabindex="0" role="button" aria-label="Block ${h.b}${on ? ", chosen" : ""}">`;
+    s += `<g class="bmblock${on ? " on" : ""}${focus ? " focus" : ""}" style="--i:${i}" data-sblock="${h.b}" tabindex="0" role="button" aria-label="Block ${h.b}${on ? ", chosen" : ""}">`;
     s += h.polys.map((p) => `<polygon points="${ptsStr(p)}"/>`).join("");
     s += `<g transform="translate(${h.label[0].toFixed(0)} ${(h.label[1] + 10).toFixed(0)})">${h.b === "A" ? `<circle class="beaconA" r="46"/><circle class="beaconA b2" r="46"/><g class="atag"><rect x="56" y="-24" width="250" height="48" rx="24"/><text x="181" y="2" text-anchor="middle" dominant-baseline="central">First possession</text></g>` : ""}<g class="bmlabel"><circle r="46"/><text text-anchor="middle" dominant-baseline="central">${h.b}</text></g></g></g>`;
-  }
+  });
   return s + `</svg>`;
 }
 

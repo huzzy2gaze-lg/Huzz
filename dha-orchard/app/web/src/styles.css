@@ -552,10 +552,29 @@ body[data-tab="site"] #app{height:auto}
 .bmlabel text{fill:#fff;font:400 52px "Gloock",Georgia,serif}
 .bmblock.on .bmlabel circle{fill:#C9A227}
 .bmblock.on .bmlabel text{fill:#1A1405}
-.drawin .bmblock polygon{stroke-dasharray:6000;stroke-dashoffset:6000;animation:drawline 2.4s ease forwards}
-.drawin .bmblock:nth-child(odd) polygon{animation-delay:.3s}
-.drawin .bmlabel{animation:pop .5s ease both;animation-delay:1.2s;transform-box:fill-box;transform-origin:center}
+/* The home page map repeats: the lines draw, each block lights up gold in turn, the lines go, and it starts again (12 s). */
+.drawin .bmblock polygon{stroke-dasharray:6000;stroke-dashoffset:6000;animation:drawloop 12s ease-in-out infinite,glowloop 12s ease-in-out infinite;animation-delay:calc(var(--i,0) * .12s),calc(var(--i,0) * .12s)}
+.drawin .bmlabel{animation:poploop 12s ease infinite;animation-delay:calc(var(--i,0) * .12s);transform-box:fill-box;transform-origin:center}
+@keyframes drawloop{0%{stroke-dashoffset:6000}20%{stroke-dashoffset:0}88%{stroke-dashoffset:0}100%{stroke-dashoffset:-6000}}
+@keyframes poploop{0%,8%{opacity:0;transform:scale(.4)}14%,90%{opacity:1;transform:scale(1)}98%,100%{opacity:0;transform:scale(.6)}}
+.drawin .bmblock:nth-of-type(1) polygon{animation-name:drawloop,glow1}
+.drawin .bmblock:nth-of-type(2) polygon{animation-name:drawloop,glow2}
+.drawin .bmblock:nth-of-type(3) polygon{animation-name:drawloop,glow3}
+.drawin .bmblock:nth-of-type(4) polygon{animation-name:drawloop,glow4}
+.drawin .bmblock:nth-of-type(5) polygon{animation-name:drawloop,glow5}
+.drawin .bmblock:nth-of-type(6) polygon{animation-name:drawloop,glow6}
+.drawin .bmblock:nth-of-type(7) polygon{animation-name:drawloop,glow7}
+.drawin .bmblock:nth-of-type(8) polygon{animation-name:drawloop,glow8}
+.drawin .bmblock polygon{animation-delay:0s,0s}
 @keyframes drawline{to{stroke-dashoffset:0}}
+@keyframes glow1{0%,24%,33%,100%{fill:rgba(201,162,39,0);stroke-width:4}27%,29%{fill:rgba(201,162,39,.5);stroke:#A87A22;stroke-opacity:1;stroke-width:9}}
+@keyframes glow2{0%,31%,40%,100%{fill:rgba(201,162,39,0);stroke-width:4}34%,36%{fill:rgba(201,162,39,.5);stroke:#A87A22;stroke-opacity:1;stroke-width:9}}
+@keyframes glow3{0%,38%,47%,100%{fill:rgba(201,162,39,0);stroke-width:4}41%,43%{fill:rgba(201,162,39,.5);stroke:#A87A22;stroke-opacity:1;stroke-width:9}}
+@keyframes glow4{0%,45%,54%,100%{fill:rgba(201,162,39,0);stroke-width:4}48%,50%{fill:rgba(201,162,39,.5);stroke:#A87A22;stroke-opacity:1;stroke-width:9}}
+@keyframes glow5{0%,52%,61%,100%{fill:rgba(201,162,39,0);stroke-width:4}55%,57%{fill:rgba(201,162,39,.5);stroke:#A87A22;stroke-opacity:1;stroke-width:9}}
+@keyframes glow6{0%,59%,68%,100%{fill:rgba(201,162,39,0);stroke-width:4}62%,64%{fill:rgba(201,162,39,.5);stroke:#A87A22;stroke-opacity:1;stroke-width:9}}
+@keyframes glow7{0%,66%,75%,100%{fill:rgba(201,162,39,0);stroke-width:4}69%,71%{fill:rgba(201,162,39,.5);stroke:#A87A22;stroke-opacity:1;stroke-width:9}}
+@keyframes glow8{0%,73%,82%,100%{fill:rgba(201,162,39,0);stroke-width:4}76%,78%{fill:rgba(201,162,39,.5);stroke:#A87A22;stroke-opacity:1;stroke-width:9}}
 @keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
 .numbers{background:var(--surface);border-bottom:1px solid var(--line)}
 .nums4{display:grid;grid-template-columns:repeat(4,1fr)}
