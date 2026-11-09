@@ -12,6 +12,7 @@ async function as(page, email) {
   await page.evaluate((e) => localStorage.setItem('mockUser', e), email);
   await page.goto('about:blank'); await page.goto(URL);
   await page.waitForSelector('#tabs:not([hidden])', { timeout: 20000 });
+  await page.waitForSelector('svg .p', { timeout: 30000 }); // wait until the map is drawn, not a fixed time
   await page.waitForTimeout(700);
 }
 async function find(page, b, n) {
@@ -23,7 +24,8 @@ async function find(page, b, n) {
   const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
   page.on('pageerror', (e) => errors.push('pageerror ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console ' + m.text()); });
-  await page.goto(URL);
+  // load the test data on a blank page of the same site: an open app page would save its own (empty) copy over it
+  await page.goto(URL.replace('_test.html', 'plotdata.json'));
   await page.evaluate((s) => { localStorage.clear(); localStorage.setItem('mockStore', s); }, seed);
   // everyone opens the page once, so they are on the team list
   for (const u of ['sara@demo.pk', 'ali@demo.pk', 'nadeem@demo.pk', 'owner@demo.pk']) await as(page, u);

@@ -88,13 +88,19 @@ function camFor(key) {
   const wide = innerWidth / innerHeight;
   const phone = innerWidth < 760;
   if (ACTIVE.includes(key)) {
+    // fit the whole block into the part of the screen that the card does not cover:
+    // a wide screen: the right 55%; a phone: the top 45% (the card is at the bottom)
     const bb = G.geo.blocks[key].bbox;
     const [x0, z0] = toWorld(bb[0], bb[1]), [x1, z1] = toWorld(bb[2], bb[3]);
-    const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, size = Math.max(x1 - x0, z1 - z0);
-    const d = Math.min(3.4, Math.max(1.5, size * (phone ? 1.6 : 1.2))); // close enough to see the homes on the plots
-    // on a wide screen the card is on the left: look a little to the left of the block, so the block sits on the right
-    const shift = phone ? 0 : size * 0.45 + 0.5;
-    return { pos: [cx - shift * 0.3, d * 1.05, cz + d * 0.75], look: [cx - shift, 0, cz + (phone ? d * 0.22 : 0.1)] };
+    const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, w = x1 - x0, dz = z1 - z0;
+    const el = 0.98; // the camera looks down at about 56 degrees
+    const tanV = Math.tan((42 * Math.PI) / 360), tanH = tanV * wide;
+    const fx = phone ? 0.86 : 0.5, fy = phone ? 0.5 : 0.78;
+    const D = 1.12 * Math.max(w / (2 * tanH * fx), (dz * Math.sin(el) + 0.2) / (2 * tanV * fy), 0.9);
+    const viewW = 2 * D * tanH, viewH = 2 * D * tanV;
+    const lx = phone ? cx : cx - viewW * 0.2;               // the block sits right of centre
+    const lz = phone ? cz + (viewH * 0.24) / Math.sin(el) : cz; // on a phone the block sits in the top part
+    return { pos: [lx, D * Math.sin(el), lz + D * Math.cos(el)], look: [lx, 0, lz], fit: true };
   }
   const D = Math.max(pw, ph) * (phone ? 1.45 : 1.0) / Math.min(1.6, wide);
   if (key === "hero") return { pos: [phone ? 0 : -pw * 0.22, D * 0.8, D * 0.9], look: [phone ? 0 : -pw * 0.3, 0, phone ? 1.2 : 0.2] };
@@ -206,24 +212,29 @@ function frame(now) {
   if (document.hidden) return;
   const rm = reduce(), t = (now - X.t0) / 1000;
   // camera: ease towards the chapter's view, plus a small move with the pointer
-  const k = rm ? 1 : 0.045;
+  const fdt = Math.min(0.25, (now - (X.camT || now)) / 1000); X.camT = now;
+  const k = rm ? 1 : 1 - Math.exp(-fdt * 2.6); // time-based: the camera arrives in about 1.5 s on any device
   const tp = new THREE.Vector3(...X.cam.pos), tl = new THREE.Vector3(...X.cam.look);
-  if (!rm) { tp.x += X.pointer[0] * 0.6; tp.y += X.pointer[1] * 0.35; if (X.active === "overview" || X.active === "book") { tp.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * 0.12) * 0.25); } }
+  const par = X.cam.fit ? 0.12 : 1;
+  if (!rm) { tp.x += X.pointer[0] * 0.6 * par; tp.y += X.pointer[1] * 0.35 * par; if (X.active === "overview" || X.active === "book") { tp.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * 0.12) * 0.25); } }
   X.cur.pos.lerp(tp, k); X.cur.look.lerp(tl, k);
   X.camera.position.copy(X.cur.pos); X.camera.lookAt(X.cur.look);
   // blocks rise; the active one rises highest and glows
   for (const b of ACTIVE) {
     const o = X.blocks[b];
-    const on = X.active === b || X.hover === b;
+    const inBlock = ACTIVE.includes(X.active);
+    const on = X.active === b || (X.hover === b && !inBlock);
+    if (on && o.lit !== true) { o.lit = true; } else if (!on) o.lit = false;
     const here = X.active === b;
     o.target = !X.loaded ? 0.001 : here ? 0.035 : X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 + Math.sin(t * 2) * 0.03 : ACTIVE.includes(X.active) ? 0.05 : 0.14 + 0.04 * Math.sin(t * 1.2 + ACTIVE.indexOf(b));
     o.h += (o.target - o.h) * (rm ? 1 : 0.07);
     o.group.scale.y = Math.max(0.001, o.h);
     const built = X.comm.blocks[b].p > 0.6;
-    o.mesh.material.opacity += ((here ? 0.16 : on ? 0.5 : built ? 0.04 : ACTIVE.includes(X.active) ? 0.12 : 0.26) - o.mesh.material.opacity) * 0.08;
-    o.mesh.material.emissiveIntensity += ((on ? 1.1 : 0.25) - o.mesh.material.emissiveIntensity) * 0.08;
-    o.edge.material.opacity += ((on ? 1 : ACTIVE.includes(X.active) ? 0.3 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
+    o.mesh.material.opacity += ((here ? 0.34 : on ? 0.5 : built ? 0.04 : ACTIVE.includes(X.active) ? 0.12 : 0.26) - o.mesh.material.opacity) * 0.08;
+    o.mesh.material.emissiveIntensity += ((on ? 1.4 : 0.25) - o.mesh.material.emissiveIntensity) * 0.08;
+    o.edge.material.opacity += ((on ? 1 : ACTIVE.includes(X.active) ? 0.15 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
   }
+  document.body.dataset.xlit = ACTIVE.filter((b) => X.blocks[b].lit).join("");
   if (X.loaded) X.planMat.opacity += (1 - X.planMat.opacity) * 0.05;
   // homes: they rise on a block when the camera arrives, and stay; at the end of the page the whole town is built
   if (X.loaded) {
@@ -238,7 +249,8 @@ function frame(now) {
   const nightT = Math.max(0, Math.min(1, (scrollY / scrollMax - 0.6) / 0.22));
   X.night += (nightT - X.night) * (rm ? 1 : 0.05);
   X.hemi.intensity = 1.4 - X.night * 1.05; X.sun.intensity = 2.2 - X.night * 1.9;
-  X.planMat.color.setRGB(0.557 - X.night * 0.27, 0.616 - X.night * 0.29, 0.58 - X.night * 0.24);
+  X.dim = (X.dim || 1) + (((ACTIVE.includes(X.active) || X.active === "overview" || X.active === "timeline" || X.active === "enclave") ? 0.88 : 1) - (X.dim || 1)) * 0.06;
+  X.planMat.color.setRGB((0.557 - X.night * 0.27) * X.dim, (0.616 - X.night * 0.29) * X.dim, (0.58 - X.night * 0.24) * X.dim);
   X.comm.setNight(X.night > 0.5);
   // the gold route line grows with the block chapters
   const idx = ACTIVE.indexOf(X.active);
@@ -280,13 +292,14 @@ function onScroll() {
   const mid = innerHeight * 0.5;
   secs.forEach((s) => { const r = s.getBoundingClientRect(); const d = r.top <= mid && r.bottom >= mid ? 0 : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid)); if (d < bd) { bd = d; best = s; } });
   const key = best ? best.dataset.cam : "hero";
-  if (key !== X.active) { X.active = key; X.cam = camFor(key); }
+  if (key !== X.active) { X.active = key; X.cam = camFor(key); document.body.dataset.xactive = key; }
   const bar = document.querySelector(".xprog i");
   if (bar) bar.style.width = (scrollY / Math.max(1, document.documentElement.scrollHeight - innerHeight)) * 100 + "%";
 }
 function onResize() { if (!X) return; X.renderer.setSize(innerWidth, innerHeight); X.camera.aspect = innerWidth / innerHeight; X.camera.updateProjectionMatrix(); X.cam = camFor(X.active); }
 function onMove(e) {
   if (!X) return;
+  if (e.pointerType && e.pointerType !== "mouse") { X.mouse.set(-9, -9); if (X.hover) { X.hover = null; showTip(null); } return; }
   X.pointer = [(e.clientX / innerWidth - 0.5) * 2, -(e.clientY / innerHeight - 0.5) * 2];
   const over = e.target.closest && e.target.closest(".xcard,.xbook,a,button,input,textarea,header,.floatcta");
   X.mouse.set(over ? -9 : X.pointer[0], over ? -9 : X.pointer[1]);
@@ -303,19 +316,23 @@ function onMove(e) {
 }
 function onClick(e) {
   if (studioClick(e.target)) return;
+  if (matchMedia("(pointer: coarse)").matches) return; // phones: taps are handled by onTouch
   if (!X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,a,button,header"))) return;
   const s = document.getElementById("x-" + X.hover);
   if (s) s.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "center" });
 }
-function onTouch(e) { // a tap on a block flies there
-  if (!X || !e.changedTouches || !e.changedTouches[0]) return;
-  const t = e.changedTouches[0];
-  if (e.target.closest && e.target.closest(".xcard,.xbook,a,button,header,input,textarea")) return;
-  X.mouse.set((t.clientX / innerWidth - 0.5) * 2, -(t.clientY / innerHeight - 0.5) * 2);
-  X.ray.setFromCamera(X.mouse, X.camera);
+let touch0 = null;
+function onTouchStart(e) { const t = e.touches && e.touches[0]; touch0 = t ? { x: t.clientX, y: t.clientY, t: performance.now(), sy: scrollY } : null; }
+function onTouch(e) { // a short tap on a block flies there; a swipe (a scroll) does nothing
+  if (!X || !touch0 || !e.changedTouches || !e.changedTouches[0]) return;
+  const t = e.changedTouches[0], t0 = touch0; touch0 = null;
+  if (Math.hypot(t.clientX - t0.x, t.clientY - t0.y) > 10 || performance.now() - t0.t > 350 || Math.abs(scrollY - t0.sy) > 4) return;
+  if (e.target.closest && e.target.closest(".xcard,.xbook,.xs-view,a,button,header,input,textarea")) return;
+  const m = new THREE.Vector2((t.clientX / innerWidth - 0.5) * 2, -(t.clientY / innerHeight - 0.5) * 2);
+  X.ray.setFromCamera(m, X.camera);
   const hit = X.ray.intersectObjects(ACTIVE.map((b) => X.blocks[b].mesh))[0];
   const s = hit && document.getElementById("x-" + hit.object.userData.block);
-  if (s) s.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "center" });
+  if (s) { e.preventDefault?.(); s.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "center" }); }
 }
 
 function counters(root) {
@@ -344,7 +361,7 @@ export function experienceAfterRender() {
   if (!bound) {
     bound = true;
     addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", onResize);
-    addEventListener("pointermove", onMove, { passive: true }); addEventListener("click", onClick); addEventListener("touchend", onTouch, { passive: true });
+    addEventListener("pointermove", onMove, { passive: true }); addEventListener("click", onClick); addEventListener("touchstart", onTouchStart, { passive: true }); addEventListener("touchend", onTouch, { passive: true });
   }
   studioAfterRender();
   const loader = page.querySelector(".xloader");
@@ -376,7 +393,7 @@ export function stopExperience() {
   if (bound) {
     bound = false;
     removeEventListener("scroll", onScroll); removeEventListener("resize", onResize);
-    removeEventListener("pointermove", onMove); removeEventListener("click", onClick); removeEventListener("touchend", onTouch);
+    removeEventListener("pointermove", onMove); removeEventListener("click", onClick); removeEventListener("touchstart", onTouchStart); removeEventListener("touchend", onTouch);
   }
   if (!X) return;
   X.alive = false; cancelAnimationFrame(X.raf);
