@@ -7,6 +7,8 @@ import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { Sky } from "three/examples/jsm/objects/Sky.js";
+import { Reflector } from "three/examples/jsm/objects/Reflector.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { S, esc } from "./core.js";
@@ -14,7 +16,7 @@ import { makeHouse, PLOTS, STYLES, STAGES } from "./house.js";
 import { TEX, texturedBox } from "./textures.js";
 import { shareLink } from "./site-extras.js";
 
-const st = { size: "1K", floors: 2, style: "white", night: false };
+const st = { size: "1K", floors: 2, style: "white", mood: "dusk" };
 let R = null; // { renderer, scene, camera, controls, house, host, p, raf, visible, io }
 const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -23,8 +25,8 @@ function controls() {
   const P = PLOTS[st.size];
   return `<div class="xs-row"><span class="xs-l">Plot size</span>${Object.entries(PLOTS).map(([k, p]) => chip("size", k, p.label, st.size === k)).join("")}</div>
     <div class="xs-row"><span class="xs-l">Floors</span>${chip("floors", 2, "2 floors", st.floors === 2)}${chip("floors", 3, "3 floors", st.floors === 3)}</div>
-    <div class="xs-row"><span class="xs-l">Style</span>${Object.entries(STYLES).map(([k, s]) => `<button type="button" class="xswatch${st.style === k ? " on" : ""}" data-studio="style:${k}" title="${s.label}" aria-label="${s.label}" style="--c:#${s.wall.toString(16).padStart(6, "0")};--a:#${s.wall2.toString(16).padStart(6, "0")}"></button>`).join("")}<span class="xs-name">${STYLES[st.style].label}</span></div>
-    <div class="xs-row"><span class="xs-l">Light</span>${chip("night", 0, "☀ Day", !st.night)}${chip("night", 1, "☾ Night", st.night)}<button type="button" class="xchip" data-studio="rebuild:1">↻ Build again</button></div>
+    <div class="xs-row"><span class="xs-l">Style</span>${Object.entries(STYLES).map(([k, s]) => `<button type="button" class="xswatch${st.style === k ? " on" : ""}" data-studio="style:${k}" title="${s.label}" aria-label="${s.label}" style="--c:#${s.frame.toString(16).padStart(6, "0")};--a:#${s.lower.toString(16).padStart(6, "0")}"></button>`).join("")}<span class="xs-name">${STYLES[st.style].label}</span></div>
+    <div class="xs-row"><span class="xs-l">Light</span>${chip("mood", "day", "☀ Day", st.mood === "day")}${chip("mood", "dusk", "◐ Dusk", st.mood === "dusk")}${chip("mood", "night", "☾ Night", st.mood === "night")}<button type="button" class="xchip" data-studio="rebuild:1">↻ Build again</button></div>
     <div class="xs-stage"><span class="xs-stagename">${esc(STAGES[0])}</span><i><i></i></i></div>
     <p class="xfine">${P.label}: ${P.w} × ${P.d} ft, the standard size on the plan. The home is an illustration only: a real design must follow the building bylaws.</p>
     <div class="xrow"><a href="#book" class="xbtn goldbtn" data-studiobook="${P.label}" data-magnet>Book a call about a ${P.label} plot</a>
@@ -41,16 +43,16 @@ export function studioSection() {
 
 // ---------------------------------------------------------------- the world around the home
 // the sky is a real sky photo (from Poly Haven, free to use, made into a small WebP image); it also lights the scene
-const SKY = { day: "sky-day.webp", night: "sky-night.webp" };
+const SKY = { night: "sky-night.webp" }; // day and dusk use a physical sky (below)
 function loadSky(kind) {
-  if (R.sky[kind]) return Promise.resolve(R.sky[kind]);
+  if (R.skyPhotos[kind]) return Promise.resolve(R.skyPhotos[kind]);
   return new THREE.TextureLoader().loadAsync(SKY[kind]).then((tex) => {
     if (!R) return null;
     tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace;
     const pm = new THREE.PMREMGenerator(R.renderer);
     const env = pm.fromEquirectangular(tex).texture; pm.dispose();
-    R.sky[kind] = { tex, env };
-    return R.sky[kind];
+    R.skyPhotos[kind] = { tex, env };
+    return R.skyPhotos[kind];
   }).catch(() => null);
 }
 function streetLamp(x, z, mats) {
@@ -82,7 +84,7 @@ function buildContext() {
   for (let x = -L / 2; x < L / 2; x += 6) add(new THREE.BoxGeometry(3, 0.02, 0.15), mats.mark, x, 0.05, roadZ);
   add(texturedBox(L, 0.16, 0.25, 1), mats.kerb, 0, 0, roadZ + 4.6);
   add(texturedBox(L, 0.06, 2.6, TEX.paving.m), mats.path, 0, 0.02, roadZ + 4.5 + 1.4);
-  for (let x = -W * 2.5; x <= W * 2.5; x += 18) group.add(streetLamp(x, D / 2 + 2.2, mats));
+  for (const x of [-W * 1.5, -W / 2, W / 2, W * 1.5]) group.add(streetLamp(x, D / 2 + 2.2, mats)); // at the plot boundaries, out of the main view
   // neighbours: finished homes in calm colours, on plots of the same size (an illustration)
   const homes = [];
   const spots = [[-W, 0, 0, "white", 3], [W, 0, 0, "dark", 2]];
@@ -90,7 +92,7 @@ function buildContext() {
   const across = roadZ + 4.5 + 2.8 + D / 2;
   if (big) spots.push([0, across, Math.PI, "white", 2], [-W, across, Math.PI, "brick", 3], [W, across, Math.PI, "dark", 2]); // phones: only the two side neighbours (faster)
   spots.forEach(([x, z, rot, style, fl], i) => {
-    const h = makeHouse({ size: st.size, floors: fl, style, neighbor: true, seed: i + 3 });
+    const h = makeHouse({ size: st.size, floors: fl, style, neighbor: true, seed: i + 3, rich: big && i < 2 });
     h.group.position.set(x, 0, z); h.group.rotation.y = rot;
     if (!big) h.group.traverse((o) => { if (o.isMesh) o.castShadow = false; });
     group.add(h.group); homes.push(h);
@@ -116,20 +118,41 @@ function light(scene) {
   Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 200 });
   scene.add(hemi, sun, sun.target); return { hemi, sun };
 }
-function applyNight() {
+// the three moods. Day and dusk: a physical sky (sun height, haze) that also lights the scene; night: a night sky photo
+const MOODS = {
+  day: { elev: 38, azi: 135, turb: 5, ray: 1.4, sun: 2.6, sunColor: 0xfff1dc, hemi: 0.3, exp: 0.46, fog: 0xcfdbe0, fogN: 140, fogF: 520, lamps: 0, inside: 0, bloom: [0.06, 0.98] },
+  dusk: { elev: 2.2, azi: 120, turb: 9, ray: 3.2, sun: 1.1, sunColor: 0xffa860, hemi: 0.28, exp: 0.62, fog: 0x8d8fa0, fogN: 110, fogF: 460, lamps: 2.5, inside: 14, bloom: [0.55, 0.82] },
+  night: { sun: 0.3, sunColor: 0x9fb4ff, hemi: 0.22, exp: 0.9, fog: 0x0b1418, fogN: 80, fogF: 330, lamps: 4, inside: 18, bloom: [0.7, 0.78] },
+};
+function applyMood() {
   if (!R) return;
-  const n = st.night;
-  R.house.setNight(n); R.house.setProgress(R.p, 0);
-  if (R.ctx) { R.ctx.homes.forEach((h) => { h.setNight(n); h.setProgress(h.end); }); R.ctx.mats.lampHead.emissiveIntensity = n ? 4 : 0; }
-  R.lights.hemi.intensity = n ? 0.25 : 0.35; R.lights.hemi.color.set(n ? 0x6070a0 : 0xeaf4ff);
-  R.lights.sun.intensity = n ? 0.35 : 3.2; R.lights.sun.color.set(n ? 0x9fb4ff : 0xfff0d8);
-  R.scene.fog.color.set(n ? 0x0b1418 : 0xc9d6da);
-  R.scene.fog.near = n ? 80 : 140; R.scene.fog.far = n ? 330 : 460;
-  R.renderer.toneMappingExposure = n ? 0.9 : 0.75;
-  if (R.bloom) { R.bloom.strength = n ? 0.65 : 0.08; R.bloom.threshold = n ? 0.8 : 0.98; R.bloom.radius = 0.45; }
-  R.ground.material.color.set(n ? 0x55615a : 0xb9c7a6);
-  const kind = n ? "night" : "day";
-  loadSky(kind).then((sk) => { if (!R || !sk || (st.night ? "night" : "day") !== kind) return; R.scene.background = sk.tex; R.scene.environment = sk.env; R.scene.environmentIntensity = n ? 0.9 : 1.6; R.scene.backgroundIntensity = n ? 1.0 : 1.15; });
+  const m = st.mood, c = MOODS[m];
+  R.house.setMood(m); R.house.setProgress(R.p, 0);
+  if (R.ctx) { R.ctx.homes.forEach((h) => { h.setMood(m); h.setProgress(h.end); }); R.ctx.mats.lampHead.emissiveIntensity = c.lamps; }
+  R.lights.hemi.intensity = c.hemi; R.lights.sun.intensity = c.sun; R.lights.sun.color.set(c.sunColor);
+  R.inside.forEach((l) => { l.intensity = c.inside; });
+  R.scene.fog.color.set(c.fog); R.scene.fog.near = c.fogN; R.scene.fog.far = c.fogF;
+  R.renderer.toneMappingExposure = c.exp;
+  if (R.bloom) { R.bloom.strength = c.bloom[0]; R.bloom.threshold = c.bloom[1]; R.bloom.radius = 0.5; }
+  if (m === "night") {
+    R.sky.visible = false;
+    R.lights.sun.position.set(-40, 50, 30);
+    loadSky("night").then((sk) => { if (!R || !sk || st.mood !== "night") return; R.scene.background = sk.tex; R.scene.environment = sk.env; R.scene.environmentIntensity = 0.8; });
+    return;
+  }
+  // the sun: its height and direction set the sky colours, the shadows and the light from the sky
+  const sunDir = new THREE.Vector3().setFromSphericalCoords(1, THREE.MathUtils.degToRad(90 - c.elev), THREE.MathUtils.degToRad(c.azi));
+  const u = R.sky.material.uniforms;
+  u.sunPosition.value.copy(sunDir); u.turbidity.value = c.turb; u.rayleigh.value = c.ray; u.mieCoefficient.value = 0.005; u.mieDirectionalG.value = 0.8;
+  R.sky.visible = true; R.scene.background = null;
+  R.lights.sun.position.copy(sunDir).multiplyScalar(80).setY(Math.max(8, sunDir.y * 80));
+  // light from the sky: render the sky alone into an environment map
+  if (R.skyEnv) R.skyEnv.dispose();
+  const pm = new THREE.PMREMGenerator(R.renderer), sc = new THREE.Scene(), clone = new Sky(); clone.scale.setScalar(1000);
+  Object.keys(u).forEach((k) => { clone.material.uniforms[k].value = u[k].value; });
+  sc.add(clone);
+  R.skyEnv = pm.fromScene(sc).texture; pm.dispose(); clone.geometry.dispose(); clone.material.dispose();
+  R.scene.environment = R.skyEnv; R.scene.environmentIntensity = m === "dusk" ? 0.6 : 0.75;
 }
 function newHouse() {
   if (R.house) { R.scene.remove(R.house.group); R.house.dispose(); }
@@ -138,17 +161,34 @@ function newHouse() {
   buildContext();
   const d = Math.max(R.house.plot.w, R.house.plot.d);
   R.d = d;
-  R.controls.target.set(0, 3.5, 0);
   R.p = 0; R.t0 = performance.now(); R.userMoved = false;
   R.house.setProgress(0, 0);
-  applyNight();
+  // warm lights inside the rooms (they glow at dusk and at night)
+  R.inside.forEach((l) => R.scene.remove(l)); R.inside = [];
+  for (const p of R.house.lights) { const l = new THREE.PointLight(0xffc27a, 0, 10, 2); l.position.copy(p); R.scene.add(l); R.inside.push(l); }
+  // the pool reflects the home and the sky (laptops)
+  if (R.mirror) { R.scene.remove(R.mirror); R.mirror.dispose(); R.mirror = null; }
+  const pool = R.house.pool;
+  if (pool && innerWidth > 760) {
+    const { w, d } = pool.userData.pool;
+    R.mirror = new Reflector(new THREE.PlaneGeometry(w, d), { textureWidth: 512, textureHeight: 512, color: 0x6fa9b3, clipBias: 0.003 });
+    R.mirror.rotation.x = -Math.PI / 2; R.mirror.position.set(pool.position.x, pool.position.y - 0.005, pool.position.z);
+    R.mirror.visible = false; R.scene.add(R.mirror);
+  }
+  applyMood();
   placeCamera(0);
 }
-// the camera starts low, at the street corner, then rises and turns around the home while it is built
+// the camera starts high, over the crane, and comes down to eye level on the street, like an architectural render
 function placeCamera(k) {
-  const e = 1 - Math.pow(1 - k, 2);
-  const ang = 0.95 + e * 0.95, dist = R.d * (2.1 - e * 0.35), h = 2.6 + e * R.d * 0.75;
-  R.camera.position.set(Math.cos(ang) * dist, h, Math.sin(ang) * dist);
+  const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+  const { w: W, d: D } = R.house.plot, eye = R.house.eye;
+  // the end view: eye level, from across the road, far enough to see the whole home and some sky
+  const back = Math.max(17, W * 1.25);
+  const front = eye.z - D * 0.27; // the front of the home
+  const start = new THREE.Vector3(R.d * 1.25, R.d * 1.05, R.d * 1.2), end = new THREE.Vector3(W * 0.16, 1.9, front + back);
+  const t0 = new THREE.Vector3(0, 2, 0), t1 = new THREE.Vector3(-W * 0.02, eye.h * 0.48, front - 3);
+  R.camera.position.lerpVectors(start, end, e);
+  R.controls.target.lerpVectors(t0, t1, e);
 }
 function paintCtrls() { const c = document.querySelector(".xs-ctrls"); if (c) c.innerHTML = controls(); }
 
@@ -157,6 +197,15 @@ function loop() {
   R.raf = requestAnimationFrame(loop);
   if (!R.visible || document.hidden) { R.last = 0; return; }
   const now = performance.now(), dt = Math.min(0.25, (now - (R.last || now)) / 1000); R.last = now;
+  // quality adapts to the device: when frames are slow, the heaviest effects switch off one by one
+  if (dt > 0.045) R.slow = (R.slow || 0) + 1; else R.slow = Math.max(0, (R.slow || 0) - 1);
+  if (R.slow > 20) {
+    R.slow = 0;
+    if (R.ao && R.ao.enabled) R.ao.enabled = false;
+    else if (R.mirror && !R.noMirror) { R.noMirror = true; R.mirror.visible = false; }
+    else if (R.composer) { R.composer = null; }
+    else if (R.renderer.getPixelRatio() > 1) R.renderer.setPixelRatio(1);
+  }
   const t = (now - R.t0) / 1000;
   const end = R.house.end;
   if (R.p < end) {
@@ -169,7 +218,8 @@ function loop() {
   R.house.setProgress(R.p, t);
   // homes across the road hide while the camera is behind them, so they never block the view
   if (R.ctx) for (const h of R.ctx.homes) if (h.acrossZ) h.group.visible = R.camera.position.z < h.acrossZ;
-  R.controls.autoRotate = !reduce() && (R.p >= end || R.userMoved);
+  if (R.mirror && R.house.pool) R.mirror.visible = !R.noMirror && R.house.pool.visible && R.p > 6.6;
+  R.controls.autoRotate = false;
   R.controls.update();
   if (R.composer) R.composer.render(); else R.renderer.render(R.scene, R.camera);
 }
@@ -186,7 +236,7 @@ export function studioAfterRender() {
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.75;
   host.append(renderer.domElement);
-  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(36, 1, 0.3, 1200);
+  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(40, 1, 0.3, 2500);
   scene.background = new THREE.Color(0xc9d6da);
   const lights = light(scene);
   scene.fog = new THREE.Fog(0xc9d6da, 140, 460);
@@ -196,13 +246,14 @@ export function studioAfterRender() {
   ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; ground.receiveShadow = true; scene.add(ground);
   const controlsObj = new OrbitControls(camera, renderer.domElement);
   Object.assign(controlsObj, { enableDamping: true, dampingFactor: 0.08, enablePan: false, minDistance: 10, maxDistance: 140, maxPolarAngle: Math.PI * 0.485, autoRotate: false, autoRotateSpeed: 0.45 });
-  R = { renderer, scene, camera, controls: controlsObj, lights, ground, host, p: 0, visible: false, house: null, sky: {}, gtex };
+  R = { renderer, scene, camera, controls: controlsObj, lights, ground, host, p: 0, visible: false, house: null, sky: {}, gtex, inside: [] };
+  const skyObj = new Sky(); skyObj.scale.setScalar(1000); scene.add(skyObj); R.sky = skyObj; R.skyPhotos = {};
   controlsObj.addEventListener("start", () => { R.userMoved = true; });
   // laptops: soft shading in corners (ambient occlusion), a glow on lights at night, smooth edges
   if (big && !reduce()) {
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const ao = new GTAOPass(scene, camera, 800, 600);
+    const ao = new GTAOPass(scene, camera, 800, 600); R.ao = ao;
     ao.output = GTAOPass.OUTPUT.Default; ao.blendIntensity = 0.9;
     ao.updateGtaoMaterial({ radius: 0.6, distanceExponent: 1.5, thickness: 1.2, scale: 1 });
     composer.addPass(ao);
@@ -226,7 +277,7 @@ export function studioClick(target) {
     if (k === "size") st.size = v;
     if (k === "floors") st.floors = Number(v);
     if (k === "style") st.style = v;
-    if (k === "night") { st.night = v === "1"; paintCtrls(); applyNight(); return true; }
+    if (k === "mood") { st.mood = v; paintCtrls(); applyMood(); return true; }
     paintCtrls();
     if (R) newHouse();
     return true;
@@ -242,7 +293,9 @@ export function stopStudio() {
   R.controls.dispose();
   if (R.house) R.house.dispose();
   if (R.ctx) R.ctx.dispose();
-  for (const k in R.sky) { R.sky[k].tex.dispose(); R.sky[k].env.dispose(); }
+  for (const k in R.skyPhotos) { R.skyPhotos[k].tex.dispose(); R.skyPhotos[k].env.dispose(); }
+  if (R.skyEnv) R.skyEnv.dispose();
+  if (R.mirror) R.mirror.dispose();
   R.gtex.dispose();
   if (R.composer) R.composer.dispose?.();
   R.scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
