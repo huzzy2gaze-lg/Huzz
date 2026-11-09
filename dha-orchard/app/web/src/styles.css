@@ -819,3 +819,44 @@ body[data-tab="site"] #app{height:auto}
   .bmatch span{grid-column:1}
   .bfacts.big dd{font-size:20px}
 }
+
+/* Today panel and one-tap contact */
+.today{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
+.today.calm{display:flex;gap:10px;align-items:center;border-left-color:var(--forest)}
+.today.calm span{color:var(--soft)}
+.tdtop{display:flex;gap:10px;align-items:baseline}
+.tdtop b,.today.calm b{font:400 22px/1 var(--display)}
+.tdtop span{color:var(--soft);font-size:14px}
+.tdgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.tdcol{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.tdh{font-weight:700;font-size:13px;display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.tdh .cnt{min-width:20px;height:20px;border-radius:10px;display:inline-grid;place-items:center;font-size:11px;padding:0 6px;background:var(--line)}
+.tdcol.urgent .cnt,.tdcol.late .cnt{background:var(--sold);color:#fff}
+.tdcol.now .cnt{background:var(--gold);color:#1A1405}
+.tdcol ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.tdcol li{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px}
+.tdname{font-weight:700}
+.tdlink{background:none;border:0;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.tdlink:hover{text-decoration-color:currentColor}
+.contactbtns{display:inline-flex;gap:6px;margin-left:auto}
+.sbtn.call,.sbtn.wa{text-decoration:none;display:inline-flex;align-items:center}
+.sbtn.wa{background:#1F8A4C;border-color:#1F8A4C;color:#fff}
+.waitbadge{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--line);color:var(--soft);white-space:nowrap}
+.waitbadge.late{background:#FBE3E1;color:#8C1D18;animation:latePulse 2s ease-in-out infinite}
+@media (prefers-color-scheme:dark){.waitbadge.late{background:#5C1A16;color:#FFD9D5}}
+@keyframes latePulse{50%{opacity:.6}}
+@media (prefers-reduced-motion:reduce){.waitbadge.late{animation:none}}
+@media (max-width:640px){.contactbtns{margin-left:0}.tdgrid{grid-template-columns:1fr}}
+/* WhatsApp button on laptops and TVs (phones have the bottom bar) */
+.wafloat{position:fixed;right:max(22px,env(safe-area-inset-right,0px));bottom:22px;z-index:30;display:flex;align-items:center;gap:0;background:#1F8A4C;color:#fff;text-decoration:none;font-weight:700;border-radius:999px;padding:12px;box-shadow:0 10px 28px rgba(0,0,0,.25);transition:gap .3s ease,padding .3s ease}
+.wafloat svg{width:30px;height:30px;flex:none}
+.wafloat span{max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .3s ease}
+.wafloat:hover{gap:10px;padding-right:20px}
+.wafloat:hover span{max-width:140px}
+@media (prefers-reduced-motion:no-preference){.wafloat{animation:waIn .6s 2.5s cubic-bezier(.2,.8,.2,1) both}}
+@keyframes waIn{from{opacity:0;transform:translateY(20px) scale(.8)}to{opacity:1;transform:none}}
+@media (max-width:640px){.wafloat{display:none}}
+.page-plan .wafloat{bottom:22px}
+.req.lead .top{flex-wrap:wrap;row-gap:6px}
+.req.lead .top .meta{white-space:nowrap}
+.sbtn.call{color:inherit}

@@ -1,5 +1,6 @@
 // Pages other than the map: sign in, My sales, Approvals, Team.
 import { S, G, esc, cr, pkr, day, ago, initials, nameOf, colorOf, isAdmin, STAGES, PAYMODES, STATUS } from "./core.js";
+import { todayPanel, contactButtons, leadContext, lateBadge } from "./today.js";
 
 export const PERMS = [
   ["can_edit_price", "Change prices"],
@@ -66,6 +67,7 @@ export function salesPage() {
   let h = `<div class="page"><div class="pagehead"><div><div class="k">${admin ? "All agents" : "Only you see this page"}</div><h2>${admin ? "Sales overview" : "My sales"}</h2></div>
     <button class="btn primary" data-act="newClient">+ New client</button></div>`;
   h += `<div class="tiles">${tile(c.clients.size, "Clients")}${tile(c.interested, "Interested", "var(--brass)")}${tile(c.prebooked, "Pre-booked", "var(--book)")}${tile(c.waiting, "Waiting for approval", "var(--pend)")}${tile(c.sold, "Sold")}${tile(cr(c.value), "Sold value (Cr)")}</div>`;
+  h += todayPanel(agentF);
 
   if (admin) {
     const agents = Object.values(S.people).filter((p) => p.active).sort((a, b) => a.name.localeCompare(b.name));
@@ -102,7 +104,7 @@ function clientCard(c) {
   if (S.ui.clientEdit === c.id) return clientForm(c);
   const ds = S.deals.filter((d) => d.client_id === c.id).sort((a, b) => (a.stage === "dropped") - (b.stage === "dropped"));
   return `<div class="cl"><div class="top"><span class="av" style="background:${colorOf(c.agent_id)}">${esc(initials(c.name))}</span><div style="min-width:0;flex:1"><div class="n">${esc(c.name)}</div><div class="s">${esc(c.phone || "No number")}${c.cnic ? " · CNIC " + esc(c.cnic) : ""}${isAdmin() ? " · agent " + esc(nameOf(c.agent_id)) : ""}</div></div>
-    <button class="sbtn" data-editclient="${c.id}">Edit</button></div>
+    ${contactButtons(c.name, c.phone, "", "")}<button class="sbtn" data-editclient="${c.id}">Edit</button></div>
     ${c.note ? `<div class="s">${esc(c.note)}</div>` : ""}
     <div class="deals">${ds.length ? ds.map((d) => { const pend = S.requests.find((r) => r.deal_id === d.id && r.status === "pending"); return `<button class="dealchip ${d.sold ? "sold" : d.stage}" data-opendeal="${d.id}"><b>${esc(d.plot_id)}</b> ${pend ? "Waiting for approval" : d.sold ? (d.stage === "token" ? "Sold · " + cr(d.sale_price) + " Cr" : STAGES[d.stage]) : STAGES[d.stage]}</button>`; }).join("") : `<span class="meta">No plot yet. Open a plot on the map and add this client.</span>`}</div>
     ${S.ui.delClient === c.id ? `<div class="confirm"><b>Delete ${esc(c.name)}?</b><span class="meta">The client and their plot interest are deleted.</span><div class="btns"><button class="btn" data-act="keepClient">Keep</button><button class="btn danger" data-delclient="${c.id}">Delete</button></div></div>` : `<button class="linkbtn danger" style="justify-self:start;padding-left:0" data-askdel="${c.id}">Delete client</button>`}
@@ -184,9 +186,10 @@ function memberForm(m) {
 const LEAD_STATUS = { new: "New", assigned: "Assigned", contacted: "Contacted", converted: "Client", closed: "Closed" };
 function leadCard(l, admin) {
   const agents = Object.values(S.people).filter((p) => p.active).sort((a, b) => a.name.localeCompare(b.name));
-  let h = `<div class="req lead"><div class="top"><span class="rkind">Website</span><b>${esc(l.name)}</b>${l.plot_id ? `<button class="plotlink" data-plot="${esc(l.plot_id)}">${esc(l.plot_id)}</button>` : ""}<span class="meta">${ago(l.created_at)}</span></div>
+  let h = `<div class="req lead"><div class="top"><span class="rkind">Website</span><b>${esc(l.name)}</b>${l.plot_id ? `<button class="plotlink" data-plot="${esc(l.plot_id)}">${esc(l.plot_id)}</button>` : ""}<span class="meta">${ago(l.created_at)}</span>${lateBadge(l)}</div>
     <div class="grid3"><div><span class="meta">Phone</span><b>${esc(l.phone || "—")}</b></div><div><span class="meta">E-mail</span><b style="font-size:13px">${esc(l.email || "—")}</b></div><div><span class="meta">Status</span><b>${LEAD_STATUS[l.status] || l.status}</b><small>${l.assigned_to ? esc(nameOf(l.assigned_to)) : "Not assigned"}</small></div></div>
     <div class="leadtags">${(l.blocks || []).length ? `<span>Block ${esc(l.blocks.join(", "))}</span>` : ""}${l.whatsapp ? `<span>WhatsApp ${esc(l.whatsapp)}</span>` : ""}${l.best_time ? `<span>Call in the ${esc(l.best_time)}</span>` : ""}${l.marketing_opt_in ? `<span class="ok">Wants news</span>` : ""}${l.source ? `<span title="${esc(l.source)}">From ${esc(sourceLabel(l.source))}</span>` : ""}</div>
+    ${["converted", "closed"].includes(l.status) ? "" : `<div class="row">${contactButtons(l.name, l.phone, l.whatsapp, leadContext(l))}</div>`}
     ${l.message ? `<div class="s">${esc(l.message)}</div>` : ""}${l.note ? `<div class="s"><b>Note:</b> ${esc(l.note)}</div>` : ""}`;
   if (admin && ["new", "assigned"].includes(l.status)) {
     h += `<div class="row"><select id="la_${l.id}" aria-label="Agent"><option value="">Assign to…</option>${agents.map((p) => `<option value="${p.id}"${l.assigned_to === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}</select><button class="sbtn primary" data-assignlead="${l.id}">${l.assigned_to ? "Change agent" : "Assign"}</button></div>`;

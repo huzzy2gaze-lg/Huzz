@@ -209,6 +209,7 @@ function render() {
     app.innerHTML = `<div class="center"><div class="empty">${S.bootErr ? esc(S.bootErr) : "Loading the official layout plan…"}</div></div>`;
     return;
   }
+  document.title = S.area === "site" ? `${(S.site && S.site.company) || "WH Ventures"} · Plots in DHA Margalla Orchard, Islamabad` : "Orchard Sales";
   renderHeader();
   document.body.dataset.tab = S.area === "site" ? "site" : S.tab;
   const ae = document.activeElement;
