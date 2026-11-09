@@ -26,5 +26,5 @@ ${js}
 </script>
 `;
 fs.writeFileSync(path.join(dir, "orchard-sales.html"), page);
-for (const f of ["plan.webp", "plotdata.json"]) fs.copyFileSync(path.resolve("public", f), path.join(dir, f));
+for (const f of ["plan.webp", "plotdata.json", "sky-day.webp", "sky-night.webp"]) fs.copyFileSync(path.resolve("public", f), path.join(dir, f));
 console.log("artifact page:", path.join(dir, "orchard-sales.html"), Math.round(page.length / 1024) + " KB");

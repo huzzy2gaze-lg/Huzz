@@ -3,13 +3,15 @@
 // The home is an illustration only. Plot sizes are the standard sizes of the plan.
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { S, esc } from "./core.js";
 import { makeHouse, PLOTS, STYLES, STAGES } from "./house.js";
+import { TEX, texturedBox } from "./textures.js";
 import { shareLink } from "./site-extras.js";
 
 const st = { size: "1K", floors: 2, style: "white", night: false };
@@ -37,57 +39,116 @@ export function studioSection() {
   </div></section>`;
 }
 
-function skyTexture(night) {
-  const c = document.createElement("canvas"); c.width = 16; c.height = 512;
-  const g = c.getContext("2d"), grd = g.createLinearGradient(0, 0, 0, 512);
-  if (night) { grd.addColorStop(0, "#04161a"); grd.addColorStop(0.55, "#0b3a40"); grd.addColorStop(1, "#1d5158"); }
-  else { grd.addColorStop(0, "#6f9fa3"); grd.addColorStop(0.5, "#b7d0cd"); grd.addColorStop(1, "#e3ece8"); }
-  g.fillStyle = grd; g.fillRect(0, 0, 16, 512);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+// ---------------------------------------------------------------- the world around the home
+// the sky is a real sky photo (from Poly Haven, free to use, made into a small WebP image); it also lights the scene
+const SKY = { day: "sky-day.webp", night: "sky-night.webp" };
+function loadSky(kind) {
+  if (R.sky[kind]) return Promise.resolve(R.sky[kind]);
+  return new THREE.TextureLoader().loadAsync(SKY[kind]).then((tex) => {
+    if (!R) return null;
+    tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace;
+    const pm = new THREE.PMREMGenerator(R.renderer);
+    const env = pm.fromEquirectangular(tex).texture; pm.dispose();
+    R.sky[kind] = { tex, env };
+    return R.sky[kind];
+  }).catch(() => null);
 }
-function stars() {
-  const n = 600, pos = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, e = 0.15 + Math.random() * 1.2, r = 300; pos[i * 3] = Math.cos(a) * Math.cos(e) * r; pos[i * 3 + 1] = Math.sin(e) * r; pos[i * 3 + 2] = Math.sin(a) * Math.cos(e) * r; }
-  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  return new THREE.Points(g, new THREE.PointsMaterial({ color: 0xf4ead3, size: 1.4, sizeAttenuation: false, fog: false, transparent: true, opacity: 0.9 }));
+function streetLamp(x, z, mats) {
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, 6.5, 8), mats.pole); pole.position.y = 3.25; pole.castShadow = true; g.add(pole);
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 1.6), mats.pole); arm.position.set(0, 6.4, 0.75); g.add(arm);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.12, 0.7), mats.lampHead); head.position.set(0, 6.3, 1.45); g.add(head);
+  return g;
 }
-function light(scene) {
-  const hemi = new THREE.HemisphereLight(0xfff3d6, 0x2f5d55, 0.7);
-  const sun = new THREE.DirectionalLight(0xffd9a0, 2.0); sun.position.set(-30, 26, 26); sun.castShadow = true;
+// street in front, neighbours on both sides and across the road, hills far away
+function buildContext() {
+  if (R.ctx) { R.scene.remove(R.ctx.group); R.ctx.dispose(); }
   const big = innerWidth > 760;
-  sun.shadow.mapSize.set(big ? 2048 : 1024, big ? 2048 : 1024); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
-  Object.assign(sun.shadow.camera, { left: -32, right: 32, top: 32, bottom: -32, near: 1, far: 140 });
-  // warm light from the windows at night
-  const glow = new THREE.PointLight(0xffb35c, 0, 30, 2); glow.position.set(0, 4, 8);
-  scene.add(hemi, sun, glow); return { hemi, sun, glow };
+  const { w: W, d: D } = R.house.plot;
+  const group = new THREE.Group(), geos = [], mats = {
+    pole: new THREE.MeshStandardMaterial({ color: 0x2a3133, roughness: 0.5, metalness: 0.6 }),
+    lampHead: new THREE.MeshStandardMaterial({ color: 0xf6f0e0, emissive: 0xffc77a, emissiveIntensity: 0 }),
+    road: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.92, map: TEX.asphalt.t() }),
+    path: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, map: TEX.paving.t() }),
+    kerb: new THREE.MeshStandardMaterial({ color: 0xbdb7ab, roughness: 0.9 }),
+    mark: new THREE.MeshStandardMaterial({ color: 0xf2f0e6, roughness: 0.6 }),
+    hill: new THREE.MeshStandardMaterial({ color: 0x4d6b55, roughness: 1, flatShading: true }),
+  };
+  const add = (geo, mat, x, y, z, shadow = false) => { geos.push(geo); const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.receiveShadow = true; m.castShadow = shadow; group.add(m); return m; };
+  const L = 220, roadZ = D / 2 + 2.6 + 4.5;
+  add(texturedBox(L, 0.06, 2.6, TEX.paving.m), mats.path, 0, 0.02, D / 2 + 1.3);
+  add(texturedBox(L, 0.16, 0.25, 1), mats.kerb, 0, 0, D / 2 + 2.6);
+  add(texturedBox(L, 0.04, 9, TEX.asphalt.m), mats.road, 0, 0, roadZ);
+  for (let x = -L / 2; x < L / 2; x += 6) add(new THREE.BoxGeometry(3, 0.02, 0.15), mats.mark, x, 0.05, roadZ);
+  add(texturedBox(L, 0.16, 0.25, 1), mats.kerb, 0, 0, roadZ + 4.6);
+  add(texturedBox(L, 0.06, 2.6, TEX.paving.m), mats.path, 0, 0.02, roadZ + 4.5 + 1.4);
+  for (let x = -W * 2.5; x <= W * 2.5; x += 18) group.add(streetLamp(x, D / 2 + 2.2, mats));
+  // neighbours: finished homes in calm colours, on plots of the same size (an illustration)
+  const homes = [];
+  const spots = [[-W, 0, 0, "white", 3], [W, 0, 0, "dark", 2]];
+  if (big) spots.push([-2 * W, 0, 0, "brick", 2], [2 * W, 0, 0, "white", 2]);
+  const across = roadZ + 4.5 + 2.8 + D / 2;
+  if (big) spots.push([0, across, Math.PI, "white", 2], [-W, across, Math.PI, "brick", 3], [W, across, Math.PI, "dark", 2]); // phones: only the two side neighbours (faster)
+  spots.forEach(([x, z, rot, style, fl], i) => {
+    const h = makeHouse({ size: st.size, floors: fl, style, neighbor: true, seed: i + 3 });
+    h.group.position.set(x, 0, z); h.group.rotation.y = rot;
+    if (!big) h.group.traverse((o) => { if (o.isMesh) o.castShadow = false; });
+    group.add(h.group); homes.push(h);
+    if (rot) h.acrossZ = z - D / 2 - 1; // the front of a home across the road
+  });
+  // far hills, softened by the haze
+  const r = mulberry(7);
+  for (let i = 0; i < 40; i++) {
+    const a = (i / 40) * Math.PI * 2 + r() * 0.15, dist = 330 + r() * 140, hgt = 18 + r() * 38;
+    const hg = new THREE.SphereGeometry(1, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2); geos.push(hg);
+    const m = new THREE.Mesh(hg, mats.hill); m.scale.set(70 + r() * 70, hgt, 50 + r() * 40); m.position.set(Math.cos(a) * dist, -2, Math.sin(a) * dist); m.rotation.y = -a; group.add(m);
+  }
+  R.scene.add(group);
+  R.ctx = { group, homes, mats, dispose() { geos.forEach((g) => g.dispose()); homes.forEach((h) => h.dispose()); Object.values(mats).forEach((m) => m.dispose()); group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); } };
 }
-// day: a soft teal-to-mist sky; night: deep abyss with stars (the sky is CSS behind the transparent canvas)
+function mulberry(a) { return () => { let t = (a += 0x6d2b79f5); t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+function light(scene) {
+  const hemi = new THREE.HemisphereLight(0xeaf4ff, 0x4a5a3a, 0.35);
+  const sun = new THREE.DirectionalLight(0xfff0d8, 3.2); sun.position.set(-40, 55, 30); sun.castShadow = true;
+  const big = innerWidth > 760;
+  sun.shadow.mapSize.set(big ? 4096 : 1024, big ? 4096 : 1024); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.03; sun.shadow.radius = 4;
+  Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 200 });
+  scene.add(hemi, sun, sun.target); return { hemi, sun };
+}
 function applyNight() {
   if (!R) return;
-  R.house.setNight(st.night);
   const n = st.night;
-  R.lights.hemi.intensity = n ? 0.32 : 0.7; R.lights.hemi.color.set(n ? 0x8090c0 : 0xfff3d6);
-  R.lights.sun.intensity = n ? 0.22 : 2.0; R.lights.sun.color.set(n ? 0x9ab0ff : 0xffd9a0);
-  R.lights.glow.intensity = n ? 9 : 0;
-  R.scene.environmentIntensity = n ? 0.14 : 0.35;
-  R.ground.material.color.set(n ? 0x17393d : 0x2f5d55);
-  R.scene.fog.color.set(n ? 0x1d5158 : 0x9db9b6);
-  if (R.bloom) { R.bloom.strength = n ? 0.55 : 0.12; R.bloom.threshold = n ? 0.82 : 0.96; R.bloom.radius = 0.5; }
-  R.scene.background = n ? R.skyNight : R.skyDay; R.stars.visible = n;
-  R.host.closest(".xs-view")?.classList.toggle("night", n);
+  R.house.setNight(n); R.house.setProgress(R.p, 0);
+  if (R.ctx) { R.ctx.homes.forEach((h) => { h.setNight(n); h.setProgress(h.end); }); R.ctx.mats.lampHead.emissiveIntensity = n ? 4 : 0; }
+  R.lights.hemi.intensity = n ? 0.25 : 0.35; R.lights.hemi.color.set(n ? 0x6070a0 : 0xeaf4ff);
+  R.lights.sun.intensity = n ? 0.35 : 3.2; R.lights.sun.color.set(n ? 0x9fb4ff : 0xfff0d8);
+  R.scene.fog.color.set(n ? 0x0b1418 : 0xc9d6da);
+  R.scene.fog.near = n ? 80 : 140; R.scene.fog.far = n ? 330 : 460;
+  R.renderer.toneMappingExposure = n ? 0.9 : 0.75;
+  if (R.bloom) { R.bloom.strength = n ? 0.65 : 0.08; R.bloom.threshold = n ? 0.8 : 0.98; R.bloom.radius = 0.45; }
+  R.ground.material.color.set(n ? 0x55615a : 0xb9c7a6);
+  const kind = n ? "night" : "day";
+  loadSky(kind).then((sk) => { if (!R || !sk || (st.night ? "night" : "day") !== kind) return; R.scene.background = sk.tex; R.scene.environment = sk.env; R.scene.environmentIntensity = n ? 0.9 : 1.6; R.scene.backgroundIntensity = n ? 1.0 : 1.15; });
 }
 function newHouse() {
   if (R.house) { R.scene.remove(R.house.group); R.house.dispose(); }
   R.house = makeHouse({ size: st.size, floors: st.floors, style: st.style });
   R.scene.add(R.house.group);
+  buildContext();
   const d = Math.max(R.house.plot.w, R.house.plot.d);
   R.d = d;
-  R.controls.target.set(0, 4, 0);
-  // the camera starts high and far, then glides in and turns around the home while it is built
-  R.camera.position.set(d * 1.6, d * 1.5, d * 1.8);
+  R.controls.target.set(0, 3.5, 0);
   R.p = 0; R.t0 = performance.now(); R.userMoved = false;
   R.house.setProgress(0, 0);
   applyNight();
+  placeCamera(0);
+}
+// the camera starts low, at the street corner, then rises and turns around the home while it is built
+function placeCamera(k) {
+  const e = 1 - Math.pow(1 - k, 2);
+  const ang = 0.95 + e * 0.95, dist = R.d * (2.1 - e * 0.35), h = 2.6 + e * R.d * 0.75;
+  R.camera.position.set(Math.cos(ang) * dist, h, Math.sin(ang) * dist);
 }
 function paintCtrls() { const c = document.querySelector(".xs-ctrls"); if (c) c.innerHTML = controls(); }
 
@@ -99,18 +160,15 @@ function loop() {
   const t = (now - R.t0) / 1000;
   const end = R.house.end;
   if (R.p < end) {
-    R.p = reduce() ? end : Math.min(end, R.p + dt * 0.95); // about 8.5 seconds for the whole home
+    R.p = reduce() ? end : Math.min(end, R.p + dt * 0.9); // about 9 seconds for the whole home
     const name = document.querySelector(".xs-stagename"), bar = document.querySelector(".xs-stage i i");
     if (name) name.textContent = R.p >= end - 0.15 ? "Your home is ready" : STAGES[Math.min(STAGES.length - 1, Math.floor(R.p))];
     if (bar) bar.style.width = Math.min(100, (R.p / end) * 100) + "%";
-    // camera glide while building (until the visitor drags)
-    if (!R.userMoved && !reduce()) {
-      const k = 1 - Math.pow(1 - Math.min(1, R.p / end), 2);
-      const ang = 0.7 + k * 1.15, dist = R.d * (2.5 - k * 0.85), h = R.d * (1.45 - k * 0.95);
-      R.camera.position.set(Math.cos(ang) * dist, h, Math.sin(ang) * dist);
-    }
+    if (!R.userMoved && !reduce()) placeCamera(Math.min(1, R.p / end));
   }
   R.house.setProgress(R.p, t);
+  // homes across the road hide while the camera is behind them, so they never block the view
+  if (R.ctx) for (const h of R.ctx.homes) if (h.acrossZ) h.group.visible = R.camera.position.z < h.acrossZ;
   R.controls.autoRotate = !reduce() && (R.p >= end || R.userMoved);
   R.controls.update();
   if (R.composer) R.composer.render(); else R.renderer.render(R.scene, R.camera);
@@ -122,35 +180,40 @@ export function studioAfterRender() {
   if (R && R.host === host) return;
   stopStudio();
   let renderer;
-  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch { host.innerHTML = `<p class="xfine" style="padding:20px">3D is not available on this device.</p>`; return; }
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+  const big = innerWidth > 760;
+  try { renderer = new THREE.WebGLRenderer({ antialias: !big, alpha: false, powerPreference: "high-performance" }); } catch { host.innerHTML = `<p class="xfine" style="padding:20px">3D is not available on this device.</p>`; return; }
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, big ? 1.5 : 1.75));
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.85;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.75;
   host.append(renderer.domElement);
-  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(38, 1, 0.1, 400);
+  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(36, 1, 0.3, 1200);
+  scene.background = new THREE.Color(0xc9d6da);
   const lights = light(scene);
-  scene.fog = new THREE.Fog(0x9db9b6, 70, 190);
-  const pmrem = new THREE.PMREMGenerator(renderer); scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; pmrem.dispose();
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(400, 64), new THREE.MeshStandardMaterial({ color: 0x2f5d55, roughness: 1 }));
-  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+  scene.fog = new THREE.Fog(0xc9d6da, 140, 460);
+  // a wide lawn all around (the neighbourhood sits on it)
+  const gtex = TEX.grass.t().clone(); gtex.needsUpdate = true; gtex.repeat.set(260, 260);
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(700, 48), new THREE.MeshStandardMaterial({ color: 0xb9c7a6, roughness: 1, map: gtex }));
+  ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; ground.receiveShadow = true; scene.add(ground);
   const controlsObj = new OrbitControls(camera, renderer.domElement);
-  Object.assign(controlsObj, { enableDamping: true, dampingFactor: 0.08, enablePan: false, minDistance: 14, maxPolarAngle: Math.PI * 0.46, autoRotate: false, autoRotateSpeed: 0.5, maxDistance: 120 });
-  R = { renderer, scene, camera, controls: controlsObj, lights, ground, host, p: 0, visible: false, house: null, skyDay: skyTexture(false), skyNight: skyTexture(true), stars: stars() };
-  scene.add(R.stars);
+  Object.assign(controlsObj, { enableDamping: true, dampingFactor: 0.08, enablePan: false, minDistance: 10, maxDistance: 140, maxPolarAngle: Math.PI * 0.485, autoRotate: false, autoRotateSpeed: 0.45 });
+  R = { renderer, scene, camera, controls: controlsObj, lights, ground, host, p: 0, visible: false, house: null, sky: {}, gtex };
   controlsObj.addEventListener("start", () => { R.userMoved = true; });
-  // a soft glow on lit windows and lamps (laptops and tablets; phones skip it to stay fast)
-  if (innerWidth > 760 && !reduce()) {
+  // laptops: soft shading in corners (ambient occlusion), a glow on lights at night, smooth edges
+  if (big && !reduce()) {
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    R.bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.18, 0.6, 0.92);
-    composer.addPass(R.bloom); composer.addPass(new OutputPass());
+    const ao = new GTAOPass(scene, camera, 800, 600);
+    ao.output = GTAOPass.OUTPUT.Default; ao.blendIntensity = 0.9;
+    ao.updateGtaoMaterial({ radius: 0.6, distanceExponent: 1.5, thickness: 1.2, scale: 1 });
+    composer.addPass(ao);
+    R.bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.08, 0.45, 0.98);
+    composer.addPass(R.bloom); composer.addPass(new OutputPass()); composer.addPass(new SMAAPass(800, 600));
     R.composer = composer;
   }
   const size = () => { const w = host.clientWidth, h = host.clientHeight; renderer.setSize(w, h); if (R.composer) R.composer.setSize(w, h); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); };
   size(); R.onResize = size; addEventListener("resize", size);
   newHouse();
-  // build when the studio comes into view; pause when it is out of view
-  R.io = new IntersectionObserver(([e]) => { R.visible = e.isIntersecting; if (e.isIntersecting && R.p === 0 && !R.started) { R.started = true; } }, { threshold: 0.15 });
+  R.io = new IntersectionObserver(([e]) => { R.visible = e.isIntersecting; }, { threshold: 0.15 });
   R.io.observe(host);
   R.raf = requestAnimationFrame(loop);
 }
@@ -178,7 +241,9 @@ export function stopStudio() {
   cancelAnimationFrame(R.raf); R.io.disconnect(); removeEventListener("resize", R.onResize);
   R.controls.dispose();
   if (R.house) R.house.dispose();
-  R.skyDay.dispose(); R.skyNight.dispose(); if (R.scene.environment) R.scene.environment.dispose();
+  if (R.ctx) R.ctx.dispose();
+  for (const k in R.sky) { R.sky[k].tex.dispose(); R.sky[k].env.dispose(); }
+  R.gtex.dispose();
   if (R.composer) R.composer.dispose?.();
   R.scene.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
   R.renderer.dispose(); R.renderer.domElement.remove();

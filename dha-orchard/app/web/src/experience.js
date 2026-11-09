@@ -138,7 +138,7 @@ function build() {
   const canvas = document.createElement("canvas");
   canvas.className = "xcanvas";
   let renderer;
-  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" }); }
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance", logarithmicDepthBuffer: true }); }
   catch { return null; }
   document.body.prepend(canvas);
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, innerWidth < 760 ? 1.5 : 1.75));
@@ -211,13 +211,15 @@ function frame(now) {
   if (!X || !X.alive) return;
   X.raf = requestAnimationFrame(frame);
   if (document.hidden) return;
+  X.fr = (X.fr || 0) + 1;
+  if (X.active === "studio" && X.fr % 4) return;
   const rm = reduce(), t = (now - X.t0) / 1000;
   // camera: ease towards the chapter's view, plus a small move with the pointer
   const fdt = Math.min(0.25, (now - (X.camT || now)) / 1000); X.camT = now;
   const k = rm ? 1 : 1 - Math.exp(-fdt * 2.6); // time-based: the camera arrives in about 1.5 s on any device
   const tp = new THREE.Vector3(...X.cam.pos), tl = new THREE.Vector3(...X.cam.look);
   const par = X.cam.fit ? 0.12 : 1;
-  if (!rm) { tp.x += X.pointer[0] * 0.6 * par; tp.y += X.pointer[1] * 0.35 * par; if (X.active === "overview" || X.active === "book") { tp.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.sin(t * 0.12) * 0.25); } }
+  if (!rm) { tp.x += X.pointer[0] * 0.6 * par; tp.y += X.pointer[1] * 0.35 * par; }
   X.cur.pos.lerp(tp, k); X.cur.look.lerp(tl, k);
   X.camera.position.copy(X.cur.pos); X.camera.lookAt(X.cur.look);
   // blocks rise; the active one rises highest and glows
@@ -227,7 +229,7 @@ function frame(now) {
     const on = X.active === b || (X.hover === b && !inBlock);
     if (on && o.lit !== true) { o.lit = true; } else if (!on) o.lit = false;
     const here = X.active === b;
-    o.target = !X.loaded ? 0.001 : here ? 0.006 : X.comm.blocks[b] && X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 + Math.sin(t * 2) * 0.03 : ACTIVE.includes(X.active) ? 0.05 : 0.14 + 0.04 * Math.sin(t * 1.2 + ACTIVE.indexOf(b));
+    o.target = !X.loaded ? 0.001 : here ? 0.006 : X.comm.blocks[b] && X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 : ACTIVE.includes(X.active) ? 0.05 : 0.14; // steady heights: no pulsing
     o.h += (o.target - o.h) * (rm ? 1 : 0.07);
     o.group.scale.y = Math.max(0.001, o.h);
     const built = !!(X.comm.blocks[b] && X.comm.blocks[b].p > 0.6);

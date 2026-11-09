@@ -1063,3 +1063,10 @@ body.scrolled .floatcta{animation:none}
 /* second-level actions (a block card, the studio): gold, so only one rose button shows on a screen */
 .sitebtn.goldbtn,.xbtn.goldbtn{background:var(--wh-gold);border-color:var(--wh-gold);color:var(--wh-abyss);box-shadow:none}
 .sitebtn.goldbtn:hover,.xbtn.goldbtn:hover{background:var(--wh-gold-300);border-color:var(--wh-gold-300);color:var(--wh-abyss)}
+/* 3D page: no frosted-glass blur over the moving 3D scene (on phones it makes the page flicker); solid panels instead */
+body.xmode .sitehead,body.xmode .sitehead.small,body.xmode .xcard,body.xmode .xbook .sitesec.book,body.xmode .xtip,body.xmode .xs-hint{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body.xmode .xcard{background:rgba(6,32,36,.93)}
+body.xmode .page-experience .sitehead.small{background:rgba(4,22,25,.97)}
+body.xmode .xbook .sitesec.book{background:rgba(6,32,36,.95)}
+body.xmode .xtip{background:rgba(5,28,32,.96)}
+body.xmode .xbtn{will-change:auto}
