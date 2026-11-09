@@ -40,5 +40,4 @@ The text and layouts are in `brand-kit/source/kit.html`.
 
 ## Still open
 - The **website domain**: replace `YOUR-DOMAIN` in `utm-links.csv` and in the profiles when it works.
-- The **existing ads** say "Sigma Developers" and use the old colours. They need to be re-made as WH Ventures in
-  Margalla Teal before posting.
+- Ads ready to post: `../ads/wh-teal/WH-Teal-Ads/` (4 ads in teal, with voiced videos and captions).

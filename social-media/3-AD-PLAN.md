@@ -124,6 +124,6 @@ After 2 weeks you know your real numbers. Use those, not general guesses.
 - "Limited plots available" only while it is true.
 - One rose "Book a call" button per ad (the brand standard in `../brand/README.md`).
 
-## Next creative to make
-The existing ads say "Sigma Developers" and use the old colours. Before ads start, re-make them as **WH Ventures in
-Margalla Teal** (the images and the videos, with the voice saying "Call WH Ventures today").
+## The ads to test
+`../ads/wh-teal/WH-Teal-Ads/`: the Location, Why Pay Double and Five Reasons videos, and the Margalla Sunrise post
+(English and Urdu), all as WH Ventures in Margalla Teal, with captions.

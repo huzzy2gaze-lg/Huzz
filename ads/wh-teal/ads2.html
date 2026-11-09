@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WH Ventures Ad Set 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* WH Ventures — ad set 2 (Location · Why Pay Double · Five Reasons)
+   Palette = Margalla Teal brand standard (/brand/README.md): 61.8 teal / 23.6 sea mist / 14.6 gold,
+   rose clay only on the "Book now" button. --k scales every size per format. */
+:root{--c:#0B3A40;--c-deep:#06252A;--c-dark:#082F35;--c-light:#1B5A62;--n:#EAF1EE;--n2:#F5F9F7;
+  --a:#D2A746;--a-deep:#B38D33;--a-soft:#E3C98D;--a-ink:#7A5F22;--m1:#A9C4C4;--m2:#3F7F86;--rose:#B04761}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#111}
+.ad{font-synthesis:none;--k:1;--side:calc(var(--k)*60px);position:relative;overflow:hidden;width:1080px;height:1920px;
+  padding:150px var(--side) 0;display:flex;flex-direction:column;font-family:"Albert Sans",sans-serif;color:var(--c)}
+.ad.feed{--k:.8;height:1350px;padding-top:calc(var(--k)*58px)}
+.ad.square{--k:.66;height:1080px;padding-top:calc(var(--k)*52px)}
+.ad > *{position:relative;z-index:1}
+.ad::before{content:"";position:absolute;inset:18px;border:1.5px solid color-mix(in srgb,var(--a) 38%,transparent);border-radius:26px;pointer-events:none;z-index:5}
+.n{font-variant-numeric:tabular-nums}
+
+/* ---------- light / dark grounds ---------- */
+.light{background:radial-gradient(900px 700px at 85% 8%,rgba(227,201,141,.30),transparent 60%),linear-gradient(180deg,var(--n2),var(--n))}
+.dark{color:var(--n);background:radial-gradient(1000px 800px at 50% 0%,#145058 0%,transparent 70%),radial-gradient(700px 600px at 50% 72%,rgba(210,167,70,.16),transparent 70%),linear-gradient(180deg,#0B3A40,#06252A)}
+.dark .grid{position:absolute !important;inset:0;z-index:0 !important;opacity:.07;background-image:linear-gradient(var(--a) 1px,transparent 1px),linear-gradient(90deg,var(--a) 1px,transparent 1px);background-size:calc(var(--k)*90px) calc(var(--k)*90px)}
+
+/* ---------- header ---------- */
+.head{display:flex;align-items:center;gap:calc(var(--k)*20px);padding-bottom:calc(var(--k)*22px);border-bottom:1.5px solid color-mix(in srgb,var(--a) 50%,transparent)}
+.head .logo{height:calc(var(--k)*100px);filter:drop-shadow(0 4px 10px rgba(0,0,0,.25))}
+.head .name{font-family:Gloock,serif;font-weight:400;font-size:calc(var(--k)*44px);letter-spacing:.08em;color:var(--c)}
+.head .name b{font-weight:400;color:var(--a-ink)}
+.dark .head .name b{color:var(--a)}
+.dark .head .name{color:var(--n)}
+.dha{margin-left:auto;text-align:center;border:1.5px solid color-mix(in srgb,var(--a-deep) 70%,transparent);border-radius:calc(var(--k)*16px);padding:calc(var(--k)*10px) calc(var(--k)*22px)}
+.dha small{display:block;font-weight:700;font-size:calc(var(--k)*14px);letter-spacing:.22em;opacity:.75}
+.dha b{display:block;font-family:"Albert Sans",sans-serif;font-weight:900;font-size:calc(var(--k)*44px);letter-spacing:.06em;color:var(--a-ink);line-height:1;margin-top:calc(var(--k)*6px)}
+.dark .dha b{color:var(--a)}
+.eyebrow{margin-top:calc(var(--k)*30px);font-family:"Albert Sans",sans-serif;font-weight:800;font-size:calc(var(--k)*23px);letter-spacing:.2em;text-transform:uppercase;color:color-mix(in srgb,currentColor 70%,transparent)}
+.eyebrow b{color:currentColor}
+
+.body{flex:1;min-height:0;display:flex;flex-direction:column}
+
+/* ---------- footer / CTA ---------- */
+.foot{margin:0 calc(-1*var(--side));padding:calc(var(--k)*30px) var(--side) calc(var(--k)*30px);position:relative}
+.light .foot{background:linear-gradient(180deg,var(--c),var(--c-deep));color:var(--n);margin-top:calc(var(--k)*70px)}
+.light .foot .ridge{position:absolute;left:0;right:0;bottom:calc(100% - 2px);width:100%;height:calc(var(--k)*110px)}
+.ad.story .foot{padding-bottom:230px}
+.bar{display:flex;align-items:center;gap:calc(var(--k)*20px);border:2px solid var(--a);border-radius:calc(var(--k)*22px);padding:calc(var(--k)*12px) calc(var(--k)*12px) calc(var(--k)*12px) calc(var(--k)*22px);color:var(--n)}
+.bar .ph{width:calc(var(--k)*66px);height:calc(var(--k)*66px);border-radius:50%;background:var(--a);display:grid;place-items:center;flex:none}
+.bar .ph svg{width:48%;height:48%;stroke:var(--c-deep);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.bar .lbl{font-weight:800;font-size:calc(var(--k)*17px);letter-spacing:.16em;color:var(--a-soft)}
+.bar .num{font-family:"Albert Sans",sans-serif;font-weight:900;font-size:calc(var(--k)*50px);line-height:1.05}
+.bar .by{margin-left:auto;background:var(--rose);color:#fff;border-radius:calc(var(--k)*14px);padding:calc(var(--k)*16px) calc(var(--k)*24px);text-align:right;font-family:"Albert Sans",sans-serif;font-weight:900;font-size:calc(var(--k)*24px);line-height:1.15}
+.bar .by small{display:block;font-family:"Albert Sans",sans-serif;font-weight:700;font-size:calc(var(--k)*14px);letter-spacing:.16em;opacity:.8;margin-top:4px}
+.disc{margin-top:calc(var(--k)*12px);font-size:calc(var(--k)*15px);text-align:center;color:color-mix(in srgb,var(--n) 55%,transparent)}
+
+/* ================= 1. LOCATION ================= */
+.loc h1{margin-top:calc(var(--k)*16px);font-family:Gloock,serif;font-weight:900;font-size:calc(var(--k)*92px);line-height:1.02;color:var(--c)}
+.loc h1 .l2{display:block;color:var(--a-ink);font-style:italic}
+.square.loc h1 .l2{display:inline}
+.loc .map{flex:1;min-height:0;display:flex;justify-content:center;align-items:center;margin-top:calc(var(--k)*10px)}
+.loc .map svg{height:100%;max-width:100%;overflow:visible}
+.loc .chip{align-self:center;display:flex;align-items:center;gap:calc(var(--k)*22px);background:var(--c);color:var(--n);border-radius:calc(var(--k)*24px);padding:calc(var(--k)*18px) calc(var(--k)*30px);box-shadow:0 14px 34px rgba(6,37,42,.3);margin-top:calc(var(--k)*6px)}
+.loc .chip .p{font-family:"Albert Sans",sans-serif;font-weight:900;font-size:calc(var(--k)*62px);color:var(--a);line-height:1}
+.loc .chip .p small{font-size:.42em;color:var(--n);margin-right:.3em;letter-spacing:.06em}
+.loc .chip .t b{display:block;font-family:"Albert Sans",sans-serif;font-weight:800;font-size:calc(var(--k)*26px)}
+.loc .chip .t span{display:block;font-size:calc(var(--k)*19px);opacity:.8;margin-top:2px}
+.map text{font-family:"Albert Sans",sans-serif}
+
+/* ================= 2. WHY PAY DOUBLE ================= */
+.dbl h1{margin-top:calc(var(--k)*24px);font-family:"Albert Sans",sans-serif;font-weight:900;font-size:calc(var(--k)*150px);line-height:.92;letter-spacing:-.02em;text-transform:uppercase}
+.dbl h1 .l2{display:block;color:var(--a)}
+.square.dbl h1 .l2{display:inline}
+.dbl .sub{margin-top:calc(var(--k)*20px);font-family:Gloock,serif;font-style:italic;font-weight:800;font-size:calc(var(--k)*40px);color:var(--a-soft)}
+.dbl .chart{flex:1;min-height:0;display:flex;align-items:flex-end;justify-content:center;gap:calc(var(--k)*70px);margin-top:calc(var(--k)*150px);padding-bottom:calc(var(--k)*8px);border-bottom:2px solid color-mix(in srgb,var(--n) 30%,transparent)}
+.dbl .col{width:calc(var(--k)*330px);height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch}
+.dbl .fill{position:relative;border-radius:calc(var(--k)*20px) calc(var(--k)*20px) 6px 6px}
+.dbl .them .fill{height:100%;background:linear-gradient(180deg,rgba(234,241,238,.26),rgba(234,241,238,.08));border:2px solid rgba(234,241,238,.28)}
+.dbl .us .fill{height:48%;background:linear-gradient(180deg,var(--a-soft),var(--a) 45%,var(--a-deep));box-shadow:0 0 60px rgba(210,167,70,.35)}
+.dbl .val{position:absolute;bottom:calc(100% + var(--k)*14px);left:0;right:0;text-align:center;font-family:"Albert Sans",sans-serif;font-weight:900;line-height:1;white-space:nowrap}
+.dbl .val small{font-size:calc(var(--k)*24px);letter-spacing:.06em;margin-right:6px;opacity:.8}
+.dbl .val .big{font-size:calc(var(--k)*92px)}
+.dbl .val .u{font-size:calc(var(--k)*34px);margin-left:4px}
+.dbl .them .val{color:rgba(234,241,238,.6)}
+.dbl .them .val .big{position:relative;display:inline-block}
+.dbl .them .val .big::after{content:"";position:absolute;left:-8px;right:-8px;top:52%;height:8px;background:var(--a);border-radius:6px;transform:rotate(-9deg) scaleX(var(--strike,1));transform-origin:left center}
+.dbl .us .val{color:var(--a)}
+.dbl .names{display:flex;justify-content:center;gap:calc(var(--k)*70px);margin-top:calc(var(--k)*16px)}
+.dbl .names div{width:calc(var(--k)*330px);text-align:center;font-family:"Albert Sans",sans-serif;font-weight:800;font-size:calc(var(--k)*25px);letter-spacing:.08em;text-transform:uppercase}
+.dbl .names div span{display:block;font-family:"Albert Sans",sans-serif;font-weight:600;font-size:calc(var(--k)*19px);letter-spacing:.04em;text-transform:none;opacity:.7;margin-top:4px}
+.dbl .names .them{color:rgba(234,241,238,.65)}
+.dbl .names .us{color:var(--a-soft)}
+.dbl .save{align-self:center;margin-top:calc(var(--k)*34px);background:linear-gradient(90deg,var(--a-deep),var(--a) 45%,var(--a-soft));color:var(--c-deep);border-radius:999px;padding:calc(var(--k)*16px) calc(var(--k)*44px);font-family:"Albert Sans",sans-serif;font-weight:900;font-size:calc(var(--k)*44px);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.dbl .save .on{font-weight:700;font-size:calc(var(--k)*24px);letter-spacing:.14em;margin-left:calc(var(--k)*12px)}
+.dbl .foot{margin-top:calc(var(--k)*40px)}
+
+/* ================= 3. FIVE REASONS ================= */
+.rsn h1{margin-top:calc(var(--k)*16px);font-family:Gloock,serif;font-weight:900;font-size:calc(var(--k)*74px);line-height:1.05;color:var(--c)}
+.rsn h1 .five{font-family:"Albert Sans",sans-serif;font-weight:900;color:var(--a)}
+.rsn h1 .l2{display:block;color:var(--a-ink);font-style:italic}
+.rsn .rows{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:calc(var(--k)*22px);margin-top:calc(var(--k)*30px)}
+.rsn .row{display:flex;align-items:center;gap:calc(var(--k)*26px);background:rgba(255,255,255,.62);border:1.5px solid color-mix(in srgb,var(--a) 45%,transparent);border-radius:calc(var(--k)*24px);padding:calc(var(--k)*20px) calc(var(--k)*28px);box-shadow:0 8px 24px rgba(6,37,42,.08)}
+.rsn .badge{flex:none;width:calc(var(--k)*92px);height:calc(var(--k)*92px);border-radius:50%;background:linear-gradient(145deg,var(--a-soft),var(--a) 55%,var(--a-deep));display:grid;place-items:center;font-family:"Albert Sans",sans-serif;font-weight:900;font-size:calc(var(--k)*50px);color:var(--c-deep);box-shadow:0 6px 16px rgba(122,95,34,.35)}
+.rsn .row b{display:block;font-family:"Albert Sans",sans-serif;font-weight:800;font-size:calc(var(--k)*36px);line-height:1.1}
+.rsn .row span{display:block;font-size:calc(var(--k)*22px);margin-top:calc(var(--k)*5px);color:color-mix(in srgb,var(--c) 72%,transparent)}
+.rsn .row.hl{background:linear-gradient(135deg,var(--c),var(--c-deep));color:var(--n);border-color:var(--a)}
+.rsn .row.hl span{color:color-mix(in srgb,var(--n) 80%,transparent)}
+.rsn .row.hl em{font-style:normal;color:var(--a);font-weight:800}
+.square.rsn .row span{display:none}
+.square.rsn .rows{gap:calc(var(--k)*16px);margin-top:calc(var(--k)*20px)}
+.square.rsn .row{padding:calc(var(--k)*14px) calc(var(--k)*24px)}
+.square.rsn .badge{width:calc(var(--k)*80px);height:calc(var(--k)*80px)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const P = new URLSearchParams(location.search);
+const LAYOUT = P.get('layout') || 'loc', FMT = P.get('format') || 'story';
+const PHONE = '0331-5223726';
+const PH = '<svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>';
+const RIDGE = `<svg class="ridge" viewBox="0 0 1080 110" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 70 C120 30 220 40 320 60 C430 82 520 20 640 26 C760 32 840 74 940 58 C1000 48 1040 40 1080 46 L1080 110 L0 110Z" fill="var(--m2)" opacity=".55"/>
+  <path d="M0 92 C160 60 300 80 430 72 C560 64 660 92 800 80 C920 70 1000 84 1080 76 L1080 110 L0 110Z" fill="var(--c)"/></svg>`;
+
+const header = () => `<header class="head">
+  <img class="logo" src="wh-emblem.svg" alt="WH Ventures logo"><div class="name">WH <b>VENTURES</b></div>
+  <div class="dha"><small>DEVELOPED BY</small><b>DHA</b></div></header>`;
+const foot = (disc, ridge) => `<footer class="foot">${ridge ? RIDGE : ''}
+  <div class="bar"><div class="ph">${PH}</div><div><div class="lbl">CALL / WHATSAPP</div><div class="num">${PHONE}</div></div>
+  <div class="by">BOOK NOW<small>LIMITED PLOTS</small></div></div><p class="disc">${disc}</p></footer>`;
+
+/* ---------- 1. Location: schematic travel-time map ---------- */
+const C = [500, 560];
+const DEST = [
+  { id: 'faiz', x: 312, y: 588, name: 'Faizabad', t: '10 min', lx: -1 },
+  { id: 'serena', x: 250, y: 345, name: 'Serena Hotel', t: '10–15 min', lx: -1 },
+  { id: 'sec', x: 400, y: 245, name: 'Secretariat', t: '10–15 min', lx: 1 },
+];
+const mapSVG = () => `<svg viewBox="0 0 1000 1000" aria-label="Travel-time map">
+  <defs><linearGradient id="hf1" x1="0" y1="0" x2="0" y2="1"><stop offset=".45" stop-color="var(--m1)"/><stop offset="1" stop-color="var(--m1)" stop-opacity="0"/></linearGradient>
+    <linearGradient id="hf2" x1="0" y1="0" x2="0" y2="1"><stop offset=".2" stop-color="var(--m2)" stop-opacity=".7"/><stop offset="1" stop-color="var(--m2)" stop-opacity="0"/></linearGradient><radialGradient id="rg"><stop offset="0" stop-color="#3F7F86" stop-opacity=".16"/><stop offset="1" stop-color="#3F7F86" stop-opacity="0"/></radialGradient></defs>
+  <g class="hills" opacity=".9">
+    <path d="M20 200 C140 120 220 100 300 135 C380 170 430 90 520 80 C610 70 660 150 740 128 C820 106 900 80 980 112 L980 250 L20 250Z" fill="url(#hf1)"/>
+    <path d="M20 205 C160 160 260 175 360 160 C470 144 560 180 680 168 C800 156 880 176 980 166 L980 250 L20 250Z" fill="url(#hf2)"/>
+    <text x="500" y="70" text-anchor="middle" font-size="24" font-weight="800" letter-spacing="5" fill="var(--c)" opacity=".55">MARGALLA HILLS</text>
+  </g>
+  <circle cx="${C[0]}" cy="${C[1]}" r="340" fill="url(#rg)"/>
+  <g class="ring r2"><circle cx="${C[0]}" cy="${C[1]}" r="330" fill="none" stroke="var(--c)" stroke-opacity=".28" stroke-width="2" stroke-dasharray="6 10"/>
+    <text x="${C[0]+338}" y="${C[1]-10}" font-size="21" font-weight="800" letter-spacing="3" fill="var(--c)" opacity=".6">15 MIN</text></g>
+  <g class="ring r1"><circle cx="${C[0]}" cy="${C[1]}" r="190" fill="none" stroke="var(--c)" stroke-opacity=".35" stroke-width="2" stroke-dasharray="6 10"/>
+    <text x="${C[0]+198}" y="${C[1]-10}" font-size="21" font-weight="800" letter-spacing="3" fill="var(--c)" opacity=".6">10 MIN</text></g>
+  <g class="road"><path d="M40 770 C300 745 650 720 970 690" fill="none" stroke="var(--a)" stroke-opacity=".6" stroke-width="12" stroke-linecap="round"/>
+    <text transform="translate(80 748) rotate(-2.6)" font-size="20" font-weight="800" letter-spacing="3" fill="var(--a-ink)">MAIN PARK ROAD</text></g>
+  ${DEST.map(d => `<line class="spoke s-${d.id}" x1="${C[0]}" y1="${C[1]}" x2="${d.x}" y2="${d.y}" stroke="var(--c)" stroke-width="5" stroke-linecap="round" pathLength="1" stroke-dasharray="1" style="stroke-dashoffset:var(--draw,0)"/>`).join('')}
+  ${DEST.map(d => `<g class="dest d-${d.id}" style="transform-origin:${d.x}px ${d.y}px">
+    <circle cx="${d.x}" cy="${d.y}" r="17" fill="var(--c)" stroke="#fff" stroke-width="5"/>
+    <g transform="translate(${d.x + d.lx * 28} ${d.y - 40})">
+      <rect x="${d.lx < 0 ? -230 : 0}" y="-34" width="230" height="74" rx="16" fill="#F5F9F7" stroke="var(--a)" stroke-opacity=".6" stroke-width="2"/>
+      <text x="${d.lx < 0 ? -212 : 18}" y="-5" font-size="25" font-weight="900" fill="var(--c)">${d.name}</text>
+      <text x="${d.lx < 0 ? -212 : 18}" y="26" font-size="22" font-weight="800" fill="var(--a-ink)">${d.t}</text></g></g>`).join('')}
+  <g class="comsats" style="transform-origin:700px 810px">
+    <line x1="${C[0]+30}" y1="${C[1]+90}" x2="600" y2="780" stroke="var(--c)" stroke-width="3" stroke-dasharray="5 7"/>
+    <rect x="560" y="770" width="372" height="86" rx="18" fill="var(--c)"/>
+    <text x="584" y="805" font-size="19" font-weight="800" letter-spacing="2" fill="var(--a-soft)">RIGHT OPPOSITE</text>
+    <text x="584" y="838" font-size="28" font-weight="900" fill="#F5F9F7">COMSATS University</text></g>
+  <g class="pin" style="transform-origin:${C[0]}px ${C[1]}px">
+    <ellipse cx="${C[0]}" cy="${C[1]+6}" rx="26" ry="9" fill="#000" opacity=".18"/>
+    <path d="M${C[0]} ${C[1]} C${C[0]-14} ${C[1]-34} ${C[0]-46} ${C[1]-58} ${C[0]-46} ${C[1]-96} A46 46 0 1 1 ${C[0]+46} ${C[1]-96} C${C[0]+46} ${C[1]-58} ${C[0]+14} ${C[1]-34} ${C[0]} ${C[1]}Z" fill="var(--a)" stroke="var(--a-deep)" stroke-width="3"/>
+    <circle cx="${C[0]}" cy="${C[1]-96}" r="18" fill="var(--c-deep)"/>
+    <g class="pinlbl"><rect x="${C[0]-162}" y="${C[1]+22}" width="324" height="56" rx="28" fill="var(--c-deep)"/>
+    <text x="${C[0]}" y="${C[1]+59}" text-anchor="middle" font-size="22" font-weight="900" fill="#F5F9F7">DHA Margalla Orchards</text></g></g>
+  <text x="980" y="990" text-anchor="end" font-size="17" font-weight="600" fill="var(--c)" opacity=".45" font-family="Albert Sans">Schematic, not to scale · travel times approx.</text>
+</svg>`;
+
+const L = {
+  loc: () => `<div class="ad light loc ${FMT}" id="ad">${header()}
+    <div class="eyebrow"><b>DHA Margalla Orchards</b> · Islamabad</div>
+    <h1><span class="l1">Location is </span><span class="l2">everything.</span></h1>
+    <div class="body"><div class="map">${mapSVG()}</div>
+      <div class="chip"><div class="p"><small>PKR</small><span class="n cnt" data-to="3.5">3.5</span> Cr</div>
+      <div class="t"><b>1 Kanal plot</b><span>Less than half of Margalla Enclave (7.3 Cr+)</span></div></div></div>
+    ${foot('Prices indicative &amp; subject to change. Map schematic; travel times approximate.', true)}</div>`,
+  dbl: () => `<div class="ad dark dbl ${FMT}" id="ad"><div class="grid"></div>${header()}
+    <div class="eyebrow"><b>DHA Margalla Orchards</b> · Park Road, Islamabad</div>
+    <h1><span class="l1">Why pay </span><span class="l2">double?</span></h1>
+    <p class="sub">Same prime location. Less than half the price.</p>
+    <div class="body"><div class="chart">
+      <div class="col them"><div class="fill"><div class="val"><small>PKR</small><span class="big n cnt" data-to="7.3">7.3</span><span class="u">Cr+</span></div></div></div>
+      <div class="col us"><div class="fill"><div class="val"><small>PKR</small><span class="big n cnt" data-to="3.5">3.5</span><span class="u">Cr</span></div></div></div></div>
+      <div class="names"><div class="them">Margalla Enclave<span>1 Kanal plot</span></div><div class="us">Margalla Orchards<span>1 Kanal plot · DHA developed</span></div></div>
+      <div class="save">SAVE <span class="n cnt" data-to="3.8">3.8</span> CRORE+<span class="on">ON 1 KANAL</span></div></div>
+    ${foot('Prices indicative &amp; subject to change. Future appreciation is not guaranteed. Enclave price: 3rd-ballot lump sum, 2026.', false)}</div>`,
+  rsn: () => `<div class="ad light rsn ${FMT}" id="ad">${header()}
+    <h1><span class="l1"><span class="five">5</span> reasons to invest in</span><span class="l2">DHA Margalla Orchards</span></h1>
+    <div class="body"><div class="rows">
+      <div class="row"><div class="badge">1</div><div><b>Developed by DHA</b><span>Joint venture: DHA · FGEHA · Supreme Court Bar Assoc.</span></div></div>
+      <div class="row"><div class="badge">2</div><div><b>Opposite COMSATS</b><span>Main Park Road, Zone 4, Islamabad</span></div></div>
+      <div class="row"><div class="badge">3</div><div><b>10 min to Faizabad</b><span>Serena Hotel &amp; Secretariat in 10–15 min</span></div></div>
+      <div class="row hl"><div class="badge">4</div><div><b>Less than half the price</b><span>1 Kanal: <em>PKR 3.5 Cr</em> vs 7.3 Cr+ in Margalla Enclave</span></div></div>
+      <div class="row"><div class="badge">5</div><div><b>Development in full swing</b><span>Early-stage pricing, while it lasts</span></div></div></div></div>
+    ${foot('Prices indicative &amp; subject to change. Future appreciation is not guaranteed. Enclave price: 3rd-ballot lump sum, 2026.', true)}</div>`,
+};
+document.getElementById('root').innerHTML = L[LAYOUT]();
+</script>
+<script src="anim2.js"></script>
+</body>
+</html>
