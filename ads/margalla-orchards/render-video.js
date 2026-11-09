@@ -59,7 +59,7 @@ const FPS = 30, W = 1080, H = 1920;
     if (f % 90 === 0) console.log(`frame ${f}/${total}`);
   }
   await browser.close();
-  const out = path.join(outDir, arg('--out') || `Sigma-Margalla-Sunrise_${lang.toUpperCase()}_Video-9x16_Reels-Status_no-audio.mp4`);
+  const out = path.join(outDir, arg('--out') || `WH-Margalla-Sunrise_${lang.toUpperCase()}_Video-9x16_Reels-Status_no-audio.mp4`);
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', path.join(tmp, 'f%04d.png'),
     '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', out]);
   fs.rmSync(tmp, { recursive: true, force: true });

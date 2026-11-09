@@ -48,3 +48,7 @@ Measured vs approved mix: -12.1 → -16.1 LUFS, sibilance −5.6 dB, voice→gap
 ## Sigma Developers rebrand
 Lines 1-3 unchanged; line 4 regenerated as "Call Sigma Developers today…" (`el3_sigma.py`, same calm v4 settings).
 Built with `build.py sigma`, mastered with `master.py` (starts 0.6,4.84,8.75,15.27; end 24.63).
+
+## Back to WH Ventures (final)
+All videos close with "Call W.H. Ventures today: 0331-5223726. Limited plots available." (`close.py` take B, same calm v4 settings);
+other lines unchanged. Set 1 built with `build.py wh`, set 2 with `build2.py`.
