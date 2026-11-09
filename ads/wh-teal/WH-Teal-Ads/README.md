@@ -4,6 +4,12 @@ The four ads re-made for WH Ventures in the brand colours (`/brand/README.md`): 
 rose "Book now" button. The voice-overs use the owner's cloned voice ("WH Ventures Voice v2", calm settings, as
 before) and end with "Call WH Ventures today: 0331-5223726".
 
+**Sound (v2, broadcast master):** the clone was trained on a phone recording, so its raw sound is boxy (+5 dB at
+100–350 Hz), dull (-13 to -21 dB at 2.5–6 kHz) and has almost nothing above 12 kHz. `voiceover/master_pro.py` fixes
+this: high-pass, cuts at 140/230/430 Hz, presence at 3.2 and 5.6 kHz, a harmonic exciter and air shelf that rebuild
+the highs, de-esser, two-stage compression, no room echo; the music is cut at 3 kHz so the voice sits in front.
+Loudness -14 LUFS, peak -1.6 dBFS (what Instagram, TikTok and YouTube play at).
+
 | Folder | Ad | Images | Video |
 |---|---|---|---|
 | `0-Margalla-Sunrise/` | Same prime location, less than half the price | English **and Urdu**: post, square, story | English, voiced |

@@ -44,8 +44,8 @@ mf = f"{vdir}/music_{tag}.wav"
 with wave.open(mf, "wb") as w:
     w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((mus*32767).astype(np.int16).tobytes())
 
-# ---- mastered mix (master.py: denoise, de-ess, compress, room, ducked music, -16 LUFS) ----
+# ---- broadcast voice master (master_pro.py: see its header) ----
 out = f"{ROOT}/WH-Teal-Ads/0-Margalla-Sunrise/English/{name}.mp4"
-subprocess.run(["python3", f"{HERE}/master.py", vdir, tag, ",".join(f"{x:.3f}" for x in S), str(END), mf, silent, out], check=True)
+subprocess.run(["python3", f"{HERE}/master_pro.py", vdir, tag, ",".join(f"{x:.3f}" for x in S), str(END), mf, silent, out], check=True)
 os.remove(silent)
 print("wrote", out)
