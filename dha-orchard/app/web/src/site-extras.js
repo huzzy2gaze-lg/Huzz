@@ -145,7 +145,7 @@ export function updateBudgetDom() {
 }
 
 // ---------------------------------------------------------------- development timeline
-const MILESTONES = [
+export const MILESTONES = [
   ["2025-09-26", "DHA Islamabad takes on the development", "The tripartite agreement is signed."],
   ["2026-02-18", "Margalla Orchards Walk commercial ballot", "The commercial area in Block A."],
   ["2026-10-01", "50% of the development done", "FGEHA's progress report, October 2026."],

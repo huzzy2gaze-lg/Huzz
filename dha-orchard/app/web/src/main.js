@@ -6,6 +6,7 @@ import { createApi, TABLES } from "./api/index.js";
 import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { heroJump } from "./showcase.js";
+import { stopExperience } from "./experience.js";
 import { sitePage, SITE_PAGES, siteAfterRender, adSource, updateOutlookDom } from "./site.js";
 import { startTour, stopTour, tourOn, resumeTour, updateBudgetDom, bookSummary } from "./site-extras.js";
 import { allView, blockView } from "./panels.js";
@@ -238,7 +239,7 @@ function render() {
     siteAfterRender();
     if (S._startTour && document.querySelector(".explore")) { S._startTour = false; document.querySelector(".explore").scrollIntoView({ block: "center" }); setTimeout(startTour, 400); }
     else resumeTour();
-  }
+  } else stopExperience();
   if (S._focusFind) { S._focusFind = false; const q = $("#q"); if (q) q.focus(); }
 }
 // photos of documents: the address of each file is asked once, then kept

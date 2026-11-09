@@ -7,10 +7,11 @@ import { SIZES, ACTIVE } from "./geo.js";
 import { mapSVG } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { setShowcase, showcaseAfterRender } from "./showcase.js";
+import { experiencePage, experienceAfterRender } from "./experience.js";
 let introDone = false;
 import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection, shareLink, GOALS, BUDGETS, WANT_SIZES, bookSummary } from "./site-extras.js";
 
-export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook"];
+export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook", "experience"];
 // Used until an admin writes other details on the Team page.
 export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726" };
 const set = (k) => ((S.site[k] || "").trim() || SITE_DEFAULTS[k] || "");
@@ -45,7 +46,7 @@ function header() {
   introDone = true;
   const name = esc(company()).split(" ").map((w, i) => `<span style="--i:${i}">${w}</span>`).join(" ");
   return `<header class="sitehead${intro}"><div class="sitewrap"><a href="#home" class="brandlink" aria-label="${esc(company())}, home">${logo()}<span class="wordmark">${name}</span></a>
-    <nav class="sitenav" aria-label="Website">${[["home", "Home"], ["blocks", "Blocks"], ["outlook", "Outlook"], ["plan", "Master plan"]].map(([k, l], i) => link(k, l).replace("<a ", `<a style="--i:${i}" `)).join("")}</nav>
+    <nav class="sitenav" aria-label="Website">${[["home", "Home"], ["experience", "3D"], ["blocks", "Blocks"], ["outlook", "Outlook"], ["plan", "Master plan"]].map(([k, l], i) => link(k, l).replace("<a ", `<a style="--i:${i}" `)).join("")}</nav>
     <div class="siteright">${right}<a href="#book" class="sitebtn solid">Book a call</a></div></div></header>`;
 }
 
@@ -348,6 +349,7 @@ function account() {
 
 export function sitePage() {
   let body;
+  if (S.sitePage === "experience") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo })}</main>${floatCta(waLink())}</div>`;
   if (S.sitePage === "plan") body = plan();
   else if (S.sitePage === "account") body = account();
   else if (S.sitePage === "signin") body = signin();
@@ -364,6 +366,7 @@ export function sitePage() {
 let io = null;
 export function siteAfterRender() {
   showcaseAfterRender();
+  experienceAfterRender();
   if (!window.__headScroll) {
     window.__headScroll = true;
     const onScroll = () => document.querySelector(".sitehead")?.classList.toggle("small", scrollY > 40);
