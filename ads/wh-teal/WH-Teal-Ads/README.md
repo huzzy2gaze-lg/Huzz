@@ -17,6 +17,71 @@ Loudness -14 LUFS, peak -1.6 dBFS (what Instagram, TikTok and YouTube play at).
 | `2-Why-Pay-Double/` | Price bars, Enclave vs Orchard | post, square, story | voiced |
 | `3-Five-Reasons/` | Numbered list | post, square, story | voiced |
 
+## Set 3: five new ideas (beyond price and location)
+| Folder | Ad | Angle | Animation |
+|---|---|---|---|
+| `4-Build-Your-Dream-Home/` | Build your dream home | Emotion: the home, not the plot | 3D: a 1 Kanal (50 × 90 ft) home built stage by stage, to scale: pegs, foundation, columns, brick walls, first floor, roof terrace, plaster, windows, lawn, gate, car, evening lights |
+| `5-How-Big-Is-1-Kanal/` | How big is 1 Kanal, really? | Education | The plot draws to scale, area counts to 4,500 sq ft, a home, lawn and 2 cars fill it; then 1 Kanal, 14 Marla and 10 Marla side by side, to scale |
+| `6-Five-Checks-Before-You-Buy/` | 5 checks before you buy | Trust and safety | Five checks tick off one by one; "Every file checked with you" stamp |
+| `7-How-Buying-Works/` | How buying works, in 5 steps | Process | A gold path through plot → token → NDC → transfer → allotment letter |
+| `8-Buying-From-Abroad/` | Living abroad? Invest at home | Overseas Pakistanis | Flight arcs from Toronto, London, Riyadh and Dubai to Islamabad; a phone with a live video site visit, documents on WhatsApp, and the transfer steps |
+
+Each has a voiced 9:16 video (Reels, TikTok, Shorts, Status) and a 4:5 post. Sources: `../set3/home3d.html` (three.js)
+and `../set3/ads3.html`; voices `../voiceover/gen_set3.py`; build `../voiceover/build3.py <ad> <page> <voice_dir> <out.mp4> [layout=…]`.
+
+**Check before posting:**
+- Ad 4: the home is an illustration (marked on screen). A real design must follow DHA / FGEHA building bylaws.
+- Ad 5: 10 Marla is shown as 32 × 70 ft (FGEHA's table); the traced map labels some as 35 × 70. Check the letter.
+- Ads 6 and 7 are general guidance; confirm fees and steps with FGEHA for each file.
+- Ad 8: we promise video visits, document checks and help through the transfer. Do not promise anything more
+  (for example that the buyer never needs to come), unless you have confirmed it with FGEHA.
+
+### Captions (set 3)
+**Build your dream home**
+```
+Looking for the right place to build your family home? 🏡
+It starts with the plot: 1 Kanal (50 × 90 ft) in DHA Margalla Orchards, Main Park Road.
+Watch a family home rise, from the first peg to the evening lights.
+📞 Book a free call: 0331-5223726 · link in bio
+(Illustration only. Designs must follow the building bylaws.)
+#DHAMargallaOrchard #1KanalHouse #HouseDesign #IslamabadRealEstate #WHVentures
+```
+**How big is 1 Kanal?**
+```
+How big is 1 Kanal, really? 📐
+1 Kanal = 50 × 90 ft = 4,500 sq ft: room for a double-storey home, a lawn and 2 cars.
+14 Marla = 40 × 80 ft. 10 Marla = 32 × 70 ft.
+Not sure which size fits your family? Ask us.
+📞 0331-5223726 · link in bio
+#PlotSizes #Kanal #Marla #DHAMargallaOrchard #IslamabadRealEstate #WHVentures
+```
+**5 checks before you buy**
+```
+Buying a plot? Check these 5 things first ✅
+1. File type: FGEHA, SCBA or land sharing
+2. Block & plot number on the official master plan
+3. Original letter + seller's CNIC
+4. Dues on the official FGEHA portal
+5. Development charges: how much, and who pays
+Save this post. We check every file with you: 📞 0331-5223726
+#PropertyTips #DHAMargallaOrchard #IslamabadRealEstate #WHVentures
+```
+**How buying works**
+```
+Buying a plot is simpler than you think 👇
+1️⃣ Choose your plot  2️⃣ Agreement & token  3️⃣ NDC from FGEHA  4️⃣ Transfer at G-10  5️⃣ Allotment letter in your name
+We're with you at every step. 📞 0331-5223726 · link in bio
+#HowToBuyPlot #DHAMargallaOrchard #IslamabadRealEstate #WHVentures
+```
+**Buying from abroad**
+```
+Living in Dubai, Riyadh, London or Toronto? Invest at home. 🇵🇰
+✔ Live video visit to your plot  ✔ Every document checked, copies on WhatsApp  ✔ With you through the transfer
+DHA Margalla Orchards, Main Park Road, Islamabad.
+WhatsApp: +92 331 5223726
+#OverseasPakistanis #InvestInPakistan #DHAMargallaOrchard #IslamabadRealEstate #WHVentures
+```
+
 ## Where each file goes
 - `Video-9x16_Reels-Shorts-Status` → Instagram Reels and Stories, Facebook Reels and Stories, TikTok, YouTube
   Shorts, WhatsApp Status (all under 60 seconds).

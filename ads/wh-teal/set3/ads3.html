@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WH Ventures · Ad set 3</title>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* WH Ventures, ad set 3: educational and audience ads (How big is 1 Kanal · 5 checks · How buying works · Buying from abroad).
+   Brand: Margalla Teal (/brand/README.md). ?layout=size|checks|steps|abroad &format=story|feed  (&cues, &lens, &dur from the voice-over) */
+:root{--c:#0B3A40;--c-deep:#06252A;--c-light:#1B5A62;--n:#EAF1EE;--n2:#F5F9F7;--a:#D2A746;--a-deep:#B38D33;--a-soft:#E3C98D;--a-ink:#7A5F22;--sage:#A9C4C4;--slate:#4A6B6E;--rose:#B04761;--m2:#3F7F86}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#111}
+#ad{--k:1;position:relative;overflow:hidden;width:1080px;height:1920px;padding:150px 60px 0;display:flex;flex-direction:column;font-family:"Albert Sans",sans-serif;font-synthesis:none}
+#ad.feed{--k:.8;height:1350px;padding-top:48px}
+#ad::before{content:"";position:absolute;inset:18px;border:1.5px solid rgba(210,167,70,.38);border-radius:26px;pointer-events:none;z-index:5}
+#ad > *{position:relative;z-index:1}
+.dark{color:var(--n);background:radial-gradient(1000px 800px at 50% 0%,#145058 0%,transparent 70%),radial-gradient(700px 600px at 50% 75%,rgba(210,167,70,.12),transparent 70%),linear-gradient(180deg,#0B3A40,#06252A)}
+.light{color:var(--c);background:radial-gradient(900px 700px at 85% 8%,rgba(227,201,141,.30),transparent 60%),linear-gradient(180deg,var(--n2),var(--n))}
+.head{display:flex;align-items:center;gap:calc(var(--k)*20px);padding-bottom:calc(var(--k)*22px);border-bottom:1.5px solid rgba(210,167,70,.5)}
+.head img{height:calc(var(--k)*96px)}
+.head .name{font-family:Gloock,serif;font-size:calc(var(--k)*44px);letter-spacing:.08em}
+.head .name b{font-weight:400;color:var(--a)}
+.light .head .name b{color:var(--a-ink)}
+.head .dha{margin-left:auto;text-align:center;border:1.5px solid rgba(179,141,51,.7);border-radius:calc(var(--k)*16px);padding:calc(var(--k)*9px) calc(var(--k)*20px)}
+.head .dha small{display:block;font-weight:700;font-size:calc(var(--k)*13px);letter-spacing:.22em;opacity:.75}
+.head .dha b{display:block;font-weight:900;font-size:calc(var(--k)*40px);letter-spacing:.06em;color:var(--a);line-height:1;margin-top:5px}
+.light .head .dha b{color:var(--a-ink)}
+.eyebrow{margin-top:calc(var(--k)*28px);font-weight:800;font-size:calc(var(--k)*23px);letter-spacing:.2em;text-transform:uppercase;color:var(--a-soft)}
+.light .eyebrow{color:var(--slate)}
+h1{margin-top:calc(var(--k)*14px);font-family:Gloock,serif;font-weight:400;font-size:calc(var(--k)*84px);line-height:1.03}
+h1 em{font-style:normal;color:var(--a)}
+.light h1 em{color:var(--a-ink)}
+.body{flex:1;min-height:0;position:relative;margin-top:calc(var(--k)*20px)}
+.body svg.stage{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+svg text{font-family:"Albert Sans",sans-serif}
+.foot{margin:0 -60px;padding:calc(var(--k)*30px) 60px calc(var(--k)*30px)}
+.light .foot{background:linear-gradient(180deg,var(--c),var(--c-deep));color:var(--n)}
+#ad.story .foot{padding-bottom:230px}
+.bar{display:flex;align-items:center;gap:calc(var(--k)*20px);border:2px solid var(--a);border-radius:calc(var(--k)*22px);padding:calc(var(--k)*12px) calc(var(--k)*12px) calc(var(--k)*12px) calc(var(--k)*22px);color:var(--n)}
+.bar .ph{width:calc(var(--k)*66px);height:calc(var(--k)*66px);border-radius:50%;background:var(--a);display:grid;place-items:center;flex:none}
+.bar .ph svg{width:48%;height:48%;stroke:var(--c-deep);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.bar .lbl{font-weight:800;font-size:calc(var(--k)*17px);letter-spacing:.16em;color:var(--a-soft)}
+.bar .num{font-weight:900;font-size:calc(var(--k)*50px);line-height:1.05}
+.bar .by{margin-left:auto;background:var(--rose);color:#fff;border-radius:calc(var(--k)*14px);padding:calc(var(--k)*16px) calc(var(--k)*24px);text-align:right;font-weight:900;font-size:calc(var(--k)*24px);line-height:1.15}
+.bar .by small{display:block;font-weight:700;font-size:calc(var(--k)*14px);letter-spacing:.16em;opacity:.85;margin-top:4px}
+.disc{margin-top:calc(var(--k)*12px);font-size:calc(var(--k)*15px);text-align:center;color:rgba(234,241,238,.6)}
+.cap{position:absolute;left:0;right:0;text-align:center;font-weight:800;font-size:30px;letter-spacing:.04em}
+</style>
+</head>
+<body>
+<div id="ad"></div>
+<script>
+const P = new URLSearchParams(location.search);
+const LAYOUT = P.get('layout') || 'size', FMT = P.get('format') || 'story';
+const CUES = (P.get('cues') || '').split(',').filter(Boolean).map(Number);
+const LENS = (P.get('lens') || '').split(',').filter(Boolean).map(Number);
+const DUR = Number(P.get('dur') || 34);
+const ANIM = CUES.length > 0;          // without cues, show the finished frame (stills)
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const eo = x => 1 - Math.pow(1 - clamp(x), 3);
+const back = x => { x = clamp(x); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+// u(t,i, a, b): progress through voice line i, optionally only the part [a..b] of it (fractions)
+const u = (t, i, a = 0, b = 1) => !ANIM ? 1 : i >= CUES.length ? 0 : clamp((t - (CUES[i] + a * LENS[i])) / ((b - a) * LENS[i]));
+const at = (t, i, d = .5, off = 0) => !ANIM ? 1 : clamp((t - CUES[i] - off) / d);   // a quick fade/move from the start of line i
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const PH = '<svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>';
+const header = () => `<header class="head"><img src="../wh-emblem.svg" alt="WH Ventures logo"><div class="name">WH <b>VENTURES</b></div><div class="dha"><small>DEVELOPED BY</small><b>DHA</b></div></header>`;
+const foot = (disc, opts = {}) => `<footer class="foot" id="foot"><div class="bar"><div class="ph">${PH}</div><div><div class="lbl">${opts.lbl || 'CALL / WHATSAPP'}</div><div class="num">${opts.num || '0331-5223726'}</div></div>
+  <div class="by">${opts.by || 'BOOK A CALL'}<small>${opts.bySub || 'FREE ADVICE'}</small></div></div><p class="disc">${disc}</p></footer>`;
+// icons (24x24 line icons)
+const IC = {
+  file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+  map: '<path d="M9 3 3 5v16l6-2 6 2 6-2V3l-6 2-6-2z"/><path d="M9 3v16M15 5v16"/>',
+  id: '<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2.5"/><path d="M13 10h5M13 14h4"/>',
+  coin: '<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v2M12 16v2"/>',
+  tools: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>',
+  pen: '<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  bank: '<path d="M3 21h18M5 21V10M19 21V10M9 21v-7M15 21v-7M2 10l10-6 10 6z"/>',
+  award: '<circle cx="12" cy="8" r="6"/><path d="M8.2 13.3 7 22l5-3 5 3-1.2-8.7"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  video: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m22 8-6 4 6 4z"/>',
+  chat: '<path d="M21 11.5a8.4 8.4 0 0 1-12.6 7.3L3 21l2.2-5.4A8.5 8.5 0 1 1 21 11.5z"/>',
+};
+const icon = (k, x, y, s, color, sw = 2) => `<g transform="translate(${x} ${y}) scale(${s / 24})" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${IC[k]}</g>`;
+
+// ======================= LAYOUTS =======================
+const L = {};
+
+/* ---------- 1. How big is 1 Kanal? (light) ---------- */
+L.size = {
+  theme: 'light', eyebrow: 'Plot sizes · DHA Margalla Orchards', title: 'How big is <em>1 Kanal</em>, really?',
+  disc: 'Plan sizes in feet. 14 Marla: FGEHA quota; 10 Marla: SCBA quota. The home layout is an illustration only.',
+  svg: () => {
+    const S = 9, X0 = 540 - 25 * S, Y0 = 70;                  // 1 Kanal 50 × 90 ft at 9 px per foot, centred
+    const car = (id, x, y) => `<g transform="translate(${x} ${y})"><g id="${id}"><rect x="-24" y="-48" width="48" height="96" rx="14" fill="#F5F9F7" stroke="#0B3A40" stroke-width="3"/><rect x="-18" y="-26" width="36" height="22" rx="5" fill="#0B3A40"/><rect x="-18" y="18" width="36" height="16" rx="5" fill="#0B3A40" opacity=".8"/></g></g>`;
+    return `<svg class="stage" viewBox="0 0 1080 1060" preserveAspectRatio="xMidYMid meet">
+      <defs><pattern id="grid" width="${S * 10}" height="${S * 10}" patternUnits="userSpaceOnUse" x="${X0}" y="${Y0}"><path d="M ${S * 10} 0 L 0 0 0 ${S * 10}" fill="none" stroke="#0B3A40" stroke-opacity=".08" stroke-width="2"/></pattern>
+        <pattern id="lawnp" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#7fae6a"/><path d="M4 12l2-6M10 14l2-7" stroke="#6a9a58" stroke-width="2"/></pattern></defs>
+      <g id="one">
+        <rect id="kFill" x="${X0}" y="${Y0}" width="${50 * S}" height="${90 * S}" fill="url(#grid)"/>
+        <rect id="kLine" x="${X0}" y="${Y0}" width="${50 * S}" height="${90 * S}" fill="none" stroke="#B38D33" stroke-width="7" stroke-linejoin="round" pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000"/>
+        <g id="kDimW"><path d="M ${X0} ${Y0 - 34} H ${X0 + 50 * S}" stroke="#0B3A40" stroke-width="3"/><path d="M ${X0} ${Y0 - 46} v 24 M ${X0 + 50 * S} ${Y0 - 46} v 24" stroke="#0B3A40" stroke-width="3"/>
+          <rect x="${540 - 62}" y="${Y0 - 60}" width="124" height="52" rx="12" fill="#D2A746"/><text x="540" y="${Y0 - 24}" text-anchor="middle" font-size="32" font-weight="900" fill="#06252A">50 ft</text></g>
+        <g id="kDimD"><path d="M ${X0 + 50 * S + 34} ${Y0} V ${Y0 + 90 * S}" stroke="#0B3A40" stroke-width="3"/><path d="M ${X0 + 50 * S + 22} ${Y0} h 24 M ${X0 + 50 * S + 22} ${Y0 + 90 * S} h 24" stroke="#0B3A40" stroke-width="3"/>
+          <rect x="${X0 + 50 * S + 6}" y="${Y0 + 45 * S - 26}" width="124" height="52" rx="12" fill="#D2A746"/><text x="${X0 + 50 * S + 68}" y="${Y0 + 45 * S + 11}" text-anchor="middle" font-size="32" font-weight="900" fill="#06252A">90 ft</text></g>
+        <g id="kArea"><rect x="${540 - 190}" y="${Y0 + 45 * S - 90}" width="380" height="180" rx="22" fill="#0B3A40"/>
+          <text id="kNum" x="540" y="${Y0 + 45 * S + 6}" text-anchor="middle" font-family="Gloock" font-size="84" fill="#D2A746">4,500</text>
+          <text x="540" y="${Y0 + 45 * S + 56}" text-anchor="middle" font-size="26" font-weight="800" letter-spacing="3" fill="#EAF1EE">SQ FT · 500 SQ YD</text></g>
+        <g id="kHome">
+          <rect id="hLawn" x="${X0 + 8}" y="${Y0 + 90 * S - 22 * S}" width="${30 * S - 8}" height="${22 * S - 8}" rx="6" fill="url(#lawnp)"/>
+          <rect id="hDrive" x="${X0 + 30 * S + 4}" y="${Y0 + 90 * S - 22 * S}" width="${20 * S - 12}" height="${22 * S - 8}" rx="6" fill="#d9d2c4"/>
+          <g id="hHouse"><rect x="${X0 + 5 * S}" y="${Y0 + 7 * S}" width="${40 * S}" height="${60 * S}" rx="6" fill="#F5F9F7" stroke="#0B3A40" stroke-width="5"/>
+            <path d="M ${X0 + 5 * S} ${Y0 + 30 * S} H ${X0 + 45 * S} M ${X0 + 25 * S} ${Y0 + 7 * S} V ${Y0 + 30 * S} M ${X0 + 22 * S} ${Y0 + 30 * S} V ${Y0 + 67 * S} M ${X0 + 22 * S} ${Y0 + 50 * S} H ${X0 + 45 * S}" stroke="#0B3A40" stroke-width="3" stroke-opacity=".5"/>
+            <text x="${X0 + 25 * S}" y="${Y0 + 36 * S + 30}" text-anchor="middle" font-size="27" font-weight="800" fill="#0B3A40">Double-storey home</text>
+            <text x="${X0 + 25 * S}" y="${Y0 + 36 * S + 64}" text-anchor="middle" font-size="22" font-weight="600" fill="#4A6B6E">(illustration)</text></g>
+          <text id="hLawnT" x="${X0 + 15 * S}" y="${Y0 + 80 * S}" text-anchor="middle" font-size="27" font-weight="900" fill="#F5F9F7">Front lawn</text>
+          ${car('car1', X0 + 35 * S, Y0 + 79 * S)}${car('car2', X0 + 44 * S, Y0 + 79 * S)}
+          <text id="hCarT" x="${X0 + 40 * S}" y="${Y0 + 90 * S + 44}" text-anchor="middle" font-size="27" font-weight="900" fill="#0B3A40">Parking for 2 cars</text></g>
+      </g>
+      <g id="three"></g>
+    </svg>`;
+  },
+  init() {
+    const S = 7.0, base = 950, gap = 40, sizes = [['1 Kanal', 50, 90, '4,500'], ['14 Marla', 40, 80, '3,200'], ['10 Marla', 32, 70, '2,240']];
+    const total = sizes.reduce((a, s) => a + s[1] * S, 0) + gap * 2; let x = 540 - total / 2;
+    $('three').innerHTML = sizes.map(([n, w, d, a], i) => { const g = `<g id="sz${i}"><rect x="${x}" y="${base - d * S}" width="${w * S}" height="${d * S}" rx="6" fill="${i ? '#F5F9F7' : '#0B3A40'}" stroke="${i ? '#0B3A40' : '#D2A746'}" stroke-width="5"/>
+      <text x="${x + w * S / 2}" y="${base - d * S - 92}" text-anchor="middle" font-family="Gloock" font-size="52" fill="#0B3A40">${n}</text>
+      <text x="${x + w * S / 2}" y="${base - d * S - 44}" text-anchor="middle" font-size="32" font-weight="800" fill="#7A5F22">${w} × ${d} ft</text>
+      <text x="${x + w * S / 2}" y="${base - d * S / 2 + 6}" text-anchor="middle" font-size="50" font-weight="900" fill="${i ? '#0B3A40' : '#D2A746'}">${a}</text>
+      <text x="${x + w * S / 2}" y="${base - d * S / 2 + 46}" text-anchor="middle" font-size="25" font-weight="800" letter-spacing="2" fill="${i ? '#4A6B6E' : '#EAF1EE'}">SQ FT</text>
+      <g id="ck${i}">${icon('check', x + w * S / 2 - 26, base + 24, 52, '#B38D33', 3.2)}</g></g>`; x += w * S + gap; return g; }).join('');
+  },
+  update(t) {
+    $('kLine').setAttribute('stroke-dashoffset', 1000 * (1 - eo(u(t, 1, 0, .35))));
+    $('kFill').style.opacity = eo(u(t, 1, .2, .45));
+    $('kDimW').style.opacity = eo(u(t, 1, .3, .45)); $('kDimD').style.opacity = eo(u(t, 1, .35, .5));
+    const ak = u(t, 1, .5, .9); $('kArea').style.opacity = clamp(ak * 4) * (1 - u(t, 2, 0, .15)); $('kNum').textContent = fmt(4500 * eo(ak));
+    const hk = [u(t, 2, 0, .3), u(t, 2, .2, .5), u(t, 2, .45, .8)];
+    $('hHouse').style.opacity = eo(hk[0]); $('hHouse').style.transform = `translateY(${(1 - eo(hk[0])) * 30}px)`;
+    $('hLawn').style.opacity = $('hLawnT').style.opacity = eo(hk[1]); $('hDrive').style.opacity = eo(hk[1]);
+    $('car1').style.transform = `translateY(${(1 - eo(hk[2])) * 260}px)`; $('car2').style.transform = `translateY(${(1 - eo(u(t, 2, .55, .9))) * 260}px)`;
+    $('car1').style.opacity = clamp(hk[2] * 3); $('car2').style.opacity = clamp(u(t, 2, .55, .9) * 3); $('hCarT').style.opacity = eo(u(t, 2, .7, 1));
+    $('kHome').style.opacity = 1;
+    // line 3: the single plot gives way to the three sizes side by side, to the same scale
+    const ck = ease(u(t, 3, 0, .25));
+    $('one').style.opacity = 1 - ck; $('one').style.transform = `scale(${1 - .3 * ck})`; $('one').style.transformOrigin = '540px 500px';
+    [0, 1, 2].forEach(i => { const k = back(u(t, 3, .15 + i * .2, .45 + i * .2)); $('sz' + i).style.opacity = clamp(k); $('sz' + i).style.transform = `translateY(${(1 - k) * 80}px)`;
+      const c = back(u(t, 4, .1 + i * .2, .45 + i * .2)); $('ck' + i).style.opacity = clamp(c); $('ck' + i).style.transform = `scale(${c})`; $('ck' + i).style.transformBox = 'fill-box'; $('ck' + i).style.transformOrigin = 'center'; });
+  },
+};
+
+/* ---------- 2. Five checks before you buy (dark) ---------- */
+L.checks = {
+  theme: 'dark', eyebrow: 'Before you pay a single rupee', title: 'Buying a plot? <em>Check these 5 first.</em>',
+  disc: 'General guidance, not legal advice. Always confirm with the official FGEHA records.',
+  rows: [
+    ['file', 'File type', 'FGEHA · SCBA · land sharing'],
+    ['map', 'Block & plot number', 'Match it on the official master plan'],
+    ['id', 'Original letter', "The seller's CNIC must match"],
+    ['coin', 'All dues paid', 'Check the official FGEHA portal'],
+    ['tools', 'Development charges', 'How much, and who pays?'],
+  ],
+  svg() {
+    const y0 = 6, h = 178, g = 22;
+    return `<svg class="stage" viewBox="0 0 1080 1000" preserveAspectRatio="xMidYMid meet">
+      ${this.rows.map(([ic, b, s], i) => { const y = y0 + i * (h + g); return `<g id="r${i}">
+        <rect x="0" y="${y}" width="1080" height="${h}" rx="26" fill="rgba(234,241,238,.06)" stroke="rgba(210,167,70,.45)" stroke-width="2"/>
+        <rect id="rh${i}" x="0" y="${y}" width="1080" height="${h}" rx="26" fill="#0B3A40" stroke="#D2A746" stroke-width="3" opacity="0"/>
+        <circle cx="90" cy="${y + h / 2}" r="56" fill="none" stroke="#D2A746" stroke-width="3"/>
+        <text x="90" y="${y + h / 2 + 24}" text-anchor="middle" font-family="Gloock" font-size="66" fill="#D2A746">${i + 1}</text>
+        ${icon(ic, 182, y + h / 2 - 32, 64, '#E3C98D', 1.8)}
+        <text x="276" y="${y + 78}" font-size="48" font-weight="800" fill="#EAF1EE">${b}</text>
+        <text x="276" y="${y + 128}" font-size="33" font-weight="500" fill="#A9C4C4">${s}</text>
+        <g id="ok${i}"><circle r="44" fill="#D2A746"/><g transform="translate(-26 -26) scale(2.17)" fill="none" stroke="#06252A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${IC.check}</g></g>
+      </g>`; }).join('')}
+      <rect id="dim" x="-60" y="0" width="1200" height="1000" fill="#06252A" opacity="0"/>
+      <g id="stamp" transform="translate(540 480)">
+        <g id="stampIn"><rect x="-400" y="-100" width="800" height="200" rx="26" fill="#06252A" stroke="#D2A746" stroke-width="8"/>
+        <rect x="-382" y="-82" width="764" height="164" rx="18" fill="none" stroke="#D2A746" stroke-width="2"/>
+        <text y="0" text-anchor="middle" font-size="56" font-weight="900" letter-spacing="7" fill="#D2A746">EVERY FILE CHECKED</text>
+        <text y="52" text-anchor="middle" font-size="30" font-weight="700" letter-spacing="5" fill="#E3C98D">WITH YOU · WH VENTURES</text></g></g>
+    </svg>`;
+  },
+  update(t) {
+    this.rows.forEach((_, i) => {
+      const k = eo(u(t, i + 1, 0, .25)), done = back(u(t, i + 1, .55, .85)), hl = ANIM ? clamp(u(t, i + 1, 0, .2)) * (1 - u(t, i + 2, 0, .2)) : 0;
+      const r = $('r' + i); r.style.opacity = ANIM ? (t < CUES[i + 1] ? 0 : k) : 1; r.style.transform = `translateX(${(1 - k) * 120}px)`;
+      $('rh' + i).style.opacity = hl;
+      const ok = $('ok' + i); ok.style.opacity = clamp(done); ok.style.transform = `translate(990px, ${6 + i * 200 + 89}px) scale(${done})`;
+    });
+    const s = back(u(t, 6, 0, .3)); $('stamp').style.opacity = clamp(s * 1.5); $('stampIn').style.transform = `rotate(${-6 * clamp(s)}deg) scale(${1.7 - .7 * s})`; $('dim').setAttribute('opacity', .55 * eo(u(t, 6, 0, .25)));
+  },
+  init() {},
+};
+
+/* ---------- 3. How buying works: 5 steps (light) ---------- */
+L.steps = {
+  theme: 'light', eyebrow: 'How buying works', title: 'Simpler than <em>you think.</em>',
+  disc: 'Fees and timings vary; we confirm each step with FGEHA for your file.',
+  steps: [
+    ['map', 'Choose your plot', 'Block & plot on the official master plan'],
+    ['pen', 'Agreement & token', 'Sign, and pay the token'],
+    ['shield', 'NDC from FGEHA', 'Confirms there are no dues'],
+    ['bank', 'Transfer', 'At the FGEHA office, G-10'],
+    ['award', 'Allotment letter', 'In your name'],
+  ],
+  svg() {
+    const x = 74, y0 = 84, dy = 200;
+    const path = `M ${x} ${y0} V ${y0 + 4 * dy}`;
+    return `<svg class="stage" viewBox="0 0 1080 1080" preserveAspectRatio="xMidYMid meet">
+      <path d="${path}" stroke="#0B3A40" stroke-opacity=".15" stroke-width="10" stroke-linecap="round"/>
+      <path id="trail" d="${path}" stroke="#B38D33" stroke-width="10" stroke-linecap="round" pathLength="1000" stroke-dasharray="1000" stroke-dashoffset="1000"/>
+      ${this.steps.map(([ic, b, s], i) => { const y = y0 + i * dy; return `<g id="st${i}">
+        <circle cx="${x}" cy="${y}" r="64" fill="#F5F9F7" stroke="#0B3A40" stroke-width="5"/>
+        <circle id="dot${i}" cx="${x}" cy="${y}" r="64" fill="#0B3A40" opacity="0"/>
+        <g id="ic${i}a">${icon(ic, x - 26, y - 26, 52, '#0B3A40', 2)}</g><g id="ic${i}b" opacity="0">${icon(ic, x - 26, y - 26, 52, '#D2A746', 2)}</g>
+        <g id="card${i}"><rect x="${x + 100}" y="${y - 82}" width="${1080 - x - 100}" height="164" rx="26" fill="#FFFFFF" stroke="#0B3A40" stroke-opacity=".12" stroke-width="2"/>
+        <text x="${x + 134}" y="${y - 26}" font-size="24" font-weight="900" letter-spacing="4" fill="#7A5F22">STEP ${i + 1}</text>
+        <text x="${x + 134}" y="${y + 22}" font-family="Gloock" font-size="52" fill="#0B3A40">${b}</text>
+        <text x="${x + 134}" y="${y + 62}" font-size="31" font-weight="600" fill="#4A6B6E">${s}</text></g></g>`; }).join('')}
+      <g id="letter" transform="translate(860 940)"><g id="letterIn">
+        <rect x="-150" y="-110" width="300" height="200" rx="14" fill="#FFFFFF" stroke="#0B3A40" stroke-width="4"/>
+        <path d="M -110 -60 H 60 M -110 -24 H 110 M -110 10 H 80 M -110 44 H 30" stroke="#0B3A40" stroke-opacity=".3" stroke-width="10" stroke-linecap="round"/>
+        <circle cx="96" cy="44" r="40" fill="#D2A746"/><text x="96" y="54" text-anchor="middle" font-size="26" font-weight="900" fill="#06252A">✓</text>
+        <text y="128" text-anchor="middle" font-size="24" font-weight="900" letter-spacing="3" fill="#7A5F22">IN YOUR NAME</text></g></g>
+    </svg>`;
+  },
+  update(t) {
+    const pr = ANIM ? clamp((t < CUES[1] ? 0 : [1, 2, 3, 4, 5].reduce((a, i) => a + (t >= CUES[i] ? (i === 1 ? 0 : 1) : 0), 0) + (t >= CUES[5] ? 0 : 0)) / 4) : 1;
+    // the gold trail grows step by step, reaching each node as its line starts
+    let tr = 0; for (let i = 2; i <= 5; i++) tr += eo(u(t, i, 0, .35)) / 4; $('trail').setAttribute('stroke-dashoffset', 1000 * (1 - (ANIM ? tr : 1)));
+    this.steps.forEach((_, i) => {
+      const k = eo(u(t, i + 1, 0, .3)), on = ANIM ? clamp(u(t, i + 1, 0, .25)) : 1;
+      $('card' + i).style.opacity = k; $('card' + i).style.transform = `translateX(${(1 - k) * 60}px)`;
+      $('st' + i).style.opacity = ANIM ? .25 + .75 * k : 1;
+      $('dot' + i).setAttribute('opacity', on); $('ic' + i + 'b').setAttribute('opacity', on); $('ic' + i + 'a').setAttribute('opacity', 1 - on);
+    });
+    const lk = back(u(t, 5, .35, .8)); $('letter').style.opacity = clamp(lk * 1.4); $('letterIn').style.transform = `scale(${.6 + .4 * lk}) rotate(${(1 - lk) * -8}deg)`;
+  },
+  init() {},
+};
+
+/* ---------- 4. Buying from abroad (dark) ---------- */
+L.abroad = {
+  theme: 'dark', eyebrow: 'For overseas Pakistanis', title: 'Living abroad? <em>Invest at home.</em>',
+  foot: { lbl: 'WHATSAPP / CALL', num: '+92 331 5223726', by: 'WHATSAPP US', bySub: 'ANY TIME ZONE' },
+  disc: 'Schematic map, not to scale. Transfers follow FGEHA rules; we guide you through each step.',
+  cities: [['Toronto', 90, 160], ['London', 330, 70], ['Riyadh', 150, 520], ['Dubai', 380, 640]],
+  svg() {
+    const isb = [820, 360];
+    const arcs = this.cities.map(([n, x, y], i) => { const mx = (x + isb[0]) / 2, my = Math.min(y, isb[1]) - 160; return `<g id="c${i}">
+      <path id="arc${i}" d="M ${x} ${y} Q ${mx} ${my} ${isb[0]} ${isb[1]}" fill="none" stroke="#D2A746" stroke-width="4" stroke-dasharray="1000" stroke-dashoffset="1000" pathLength="1000" stroke-linecap="round"/>
+      <circle cx="${x}" cy="${y}" r="12" fill="#E3C98D"/><text x="${x}" y="${y + 50}" text-anchor="middle" font-size="30" font-weight="800" fill="#EAF1EE">${n}</text></g>`; }).join('');
+    // phone with a live video call of the plot, then WhatsApp documents, then the transfer progress
+    const px = 0, py = 0, pw = 480, ph = 760;
+    return `<svg class="stage" viewBox="0 0 1080 1000" preserveAspectRatio="xMidYMid meet">
+      <defs><clipPath id="scr"><rect x="${px + 20}" y="${py + 70}" width="${pw - 40}" height="${ph - 110}" rx="26"/></clipPath>
+        <linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fb9ba"/><stop offset="1" stop-color="#EAF1EE"/></linearGradient></defs>
+      <g id="map">${[...Array(9)].map((_, r) => [...Array(18)].map((__, c) => `<circle cx="${40 + c * 60}" cy="${20 + r * 64}" r="3" fill="#A9C4C4" opacity=".22"/>`).join('')).join('')}
+        ${arcs}
+        <g id="isb"><circle cx="${isb[0]}" cy="${isb[1]}" r="46" fill="#D2A746" opacity=".25"/><circle cx="${isb[0]}" cy="${isb[1]}" r="18" fill="#D2A746"/>
+          <text x="${isb[0]}" y="${isb[1] - 62}" text-anchor="middle" font-family="Gloock" font-size="44" fill="#EAF1EE">Islamabad</text>
+          <text id="isbSub" x="${isb[0]}" y="${isb[1] + 70}" text-anchor="middle" font-size="26" font-weight="800" letter-spacing="2" fill="#E3C98D">DHA MARGALLA ORCHARDS</text></g></g>
+      <g transform="translate(264 26) scale(1.15)"><g id="phone">
+        <rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="58" fill="#041a1e" stroke="#D2A746" stroke-width="4"/>
+        <rect x="${px + 190}" y="${py + 26}" width="100" height="18" rx="9" fill="#0B3A40"/>
+        <g clip-path="url(#scr)">
+          <rect x="${px + 20}" y="${py + 70}" width="${pw - 40}" height="${ph - 110}" fill="#06252A"/>
+          <g id="scrVideo"><rect x="${px + 20}" y="${py + 70}" width="${pw - 40}" height="${ph - 110}" fill="url(#skyg)"/>
+            <path d="M ${px + 20} ${py + 330} L ${px + 110} ${py + 260} L ${px + 180} ${py + 300} L ${px + 270} ${py + 230} L ${px + 360} ${py + 290} L ${px + 460} ${py + 250} V ${py + 400} H ${px + 20} Z" fill="#3F7F86"/>
+            <rect x="${px + 20}" y="${py + 380}" width="${pw - 40}" height="${ph - 420}" fill="#9a7b58"/>
+            <path d="M ${px + 90} ${py + 610} L ${px + 160} ${py + 450} L ${px + 330} ${py + 450} L ${px + 400} ${py + 610} Z" fill="#b08a62" stroke="#D2A746" stroke-width="5"/>
+            ${[[160, 450], [330, 450], [90, 610], [400, 610]].map(([a, b]) => `<rect x="${px + a - 5}" y="${py + b - 34}" width="10" height="34" fill="#D2A746"/>`).join('')}
+            <rect x="${px + 40}" y="${py + 90}" width="118" height="44" rx="22" fill="#B04761"/><circle cx="${px + 66}" cy="${py + 112}" r="8" fill="#fff"/><text x="${px + 112}" y="${py + 121}" text-anchor="middle" font-size="24" font-weight="900" fill="#fff">LIVE</text>
+            <rect x="${px + 330}" y="${py + 90}" width="110" height="150" rx="16" fill="#0B3A40" stroke="#EAF1EE" stroke-width="3"/><circle cx="${px + 385}" cy="${py + 150}" r="26" fill="#A9C4C4"/><rect x="${px + 350}" y="${py + 182}" width="70" height="40" rx="20" fill="#A9C4C4"/>
+            <text x="${px + pw / 2}" y="${py + 660}" text-anchor="middle" font-size="26" font-weight="800" fill="#EAF1EE">Your plot, live from the site</text></g>
+          <g id="scrChat"><rect x="${px + 20}" y="${py + 70}" width="${pw - 40}" height="${ph - 110}" fill="#0b2d31"/>
+            <rect x="${px + 20}" y="${py + 70}" width="${pw - 40}" height="80" fill="#0B3A40"/><circle cx="${px + 70}" cy="${py + 110}" r="24" fill="#D2A746"/><text x="${px + 110}" y="${py + 104}" font-size="24" font-weight="900" fill="#EAF1EE">WH Ventures</text><text x="${px + 110}" y="${py + 132}" font-size="18" fill="#A9C4C4">online</text>
+            ${[['Allotment letter.pdf', 190], ['NDC.pdf', 300], ['Site photos (12)', 410]].map(([n, y], i) => `<g id="msg${i}"><rect x="${px + 120}" y="${py + y}" width="320" height="90" rx="18" fill="#1B5A62"/>${icon('file', px + 140, py + y + 22, 44, '#E3C98D', 2)}<text x="${px + 196}" y="${py + y + 54}" font-size="23" font-weight="700" fill="#EAF1EE">${n}</text></g>`).join('')}
+            <g id="msg3"><rect x="${px + 60}" y="${py + 520}" width="380" height="96" rx="18" fill="#D2A746"/><text x="${px + 84}" y="${py + 560}" font-size="23" font-weight="900" fill="#06252A">✓ File checked</text><text x="${px + 84}" y="${py + 594}" font-size="21" font-weight="600" fill="#06252A">Dues clear · plot matches the plan</text></g></g>
+          <g id="scrSteps"><rect x="${px + 20}" y="${py + 70}" width="${pw - 40}" height="${ph - 110}" fill="#0b2d31"/>
+            <text x="${px + pw / 2}" y="${py + 160}" text-anchor="middle" font-family="Gloock" font-size="40" fill="#EAF1EE">Your transfer</text>
+            ${['Token', 'NDC', 'Transfer', 'Allotment letter'].map((n, i) => `<g id="tp${i}"><circle cx="${px + 90}" cy="${py + 250 + i * 110}" r="30" fill="none" stroke="#D2A746" stroke-width="4"/><circle id="tpd${i}" cx="${px + 90}" cy="${py + 250 + i * 110}" r="30" fill="#D2A746" opacity="0"/><text x="${px + 140}" y="${py + 260 + i * 110}" font-size="30" font-weight="800" fill="#EAF1EE">${n}</text></g>`).join('')}
+            <text x="${px + pw / 2}" y="${py + 690}" text-anchor="middle" font-size="24" font-weight="700" fill="#E3C98D">We stay with you, step by step</text></g>
+        </g>
+      </g></g>
+      <g id="caps"><text id="capA" x="540" y="985" text-anchor="middle" font-size="34" font-weight="800" fill="#E3C98D">Live video site visit</text>
+        <text id="capB" x="540" y="985" text-anchor="middle" font-size="34" font-weight="800" fill="#E3C98D">Every document checked</text>
+        <text id="capC" x="540" y="985" text-anchor="middle" font-size="34" font-weight="800" fill="#E3C98D">With you through the transfer</text></g>
+    </svg>`;
+  },
+  update(t) {
+    this.cities.forEach((_, i) => { const k = eo(u(t, 0, .1 + i * .15, .55 + i * .15)); $('arc' + i).setAttribute('stroke-dashoffset', 1000 * (1 - k)); $('c' + i).style.opacity = clamp(k * 4); });
+    const ik = back(u(t, 1, 0, .35)); $('isb').style.transform = `scale(${.6 + .4 * ik})`; $('isb').style.transformOrigin = '820px 360px'; $('isb').style.opacity = ANIM ? clamp(u(t, 0, .5, .8) + ik) : 1; $('isbSub').style.opacity = eo(u(t, 1, .2, .5));
+    const pk = eo(u(t, 2, 0, .3)); $('phone').style.opacity = pk; $('phone').style.transform = `translateY(${(1 - pk) * 500}px)`;
+    $('map').style.opacity = ANIM ? 1 - .95 * pk : .05;
+    const chat = ANIM ? eo(u(t, 3, 0, .2)) : 0, steps = eo(u(t, 4, 0, .2));
+    $('scrVideo').style.opacity = 1; $('scrChat').style.opacity = chat * (1 - steps); $('scrSteps').style.opacity = steps;
+    [0, 1, 2, 3].forEach(i => { const k = back(u(t, 3, .1 + i * .18, .35 + i * .18)); $('msg' + i).style.opacity = clamp(k); $('msg' + i).style.transform = `translateY(${(1 - k) * 30}px)`; });
+    [0, 1, 2, 3].forEach(i => $('tpd' + i).setAttribute('opacity', eo(u(t, 4, .15 + i * .2, .3 + i * .2))));
+    const c = [ANIM ? clamp(u(t, 2, 0, .15)) * (1 - clamp(u(t, 3, 0, .15))) : 0, clamp(u(t, 3, 0, .15)) * (1 - clamp(u(t, 4, 0, .15))), clamp(u(t, 4, 0, .15)) * (ANIM ? 1 - clamp(u(t, 5, 0, .15)) : 1)];
+    ['capA', 'capB', 'capC'].forEach((id, i) => $(id).style.opacity = c[i]);
+  },
+  init() {},
+};
+
+// ======================= assemble =======================
+const A = L[LAYOUT];
+const ad = $('ad'); ad.className = `${FMT} ${A.theme}`;
+ad.innerHTML = `${header()}<div class="eyebrow">${A.eyebrow}</div><h1 id="h1">${A.title}</h1><div class="body" id="body">${A.svg()}</div>${foot(A.disc, A.foot)}`;
+A.init();
+function renderAt(t) {
+  const hk = ANIM ? eo((t - .2) / .6) : 1;
+  $('h1').style.opacity = hk; $('h1').style.transform = `translateY(${(1 - hk) * 30}px)`;
+  A.update(t);
+  const last = CUES.length - 1, fk = ANIM ? eo((t - CUES[last] - .3) / .6) : 1;
+  $('foot').style.opacity = fk; $('foot').style.transform = `translateY(${(1 - fk) * 60}px)`;
+  const pulse = ANIM ? Math.max(0, Math.sin((t - CUES[last]) * 3)) * fk : 0;
+  const by = document.querySelector('.bar .by'); by.style.transform = `scale(${1 + .04 * pulse})`; by.style.boxShadow = `0 0 ${20 * pulse}px rgba(176,71,97,.85)`;
+}
+window.renderAt = renderAt; window.ANIM_DURATION = DUR;
+Promise.all([document.fonts.ready, ...[...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; }))]).then(() => { renderAt(ANIM ? 0 : DUR); window.READY = true; });
+</script>
+</body>
+</html>

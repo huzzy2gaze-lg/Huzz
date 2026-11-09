@@ -28,13 +28,13 @@ their allotment letter (with permission). Real videos beat graphics for real est
 |---:|---|---|---|
 | 1 | Post (picture) | **Welcome**: who WH Ventures is | "WH Ventures is now on Instagram. We help you buy a plot in DHA Margalla Orchard, Islamabad, from the first call to the allotment letter." / "Ab hum Instagram par bhi hain." |
 | 2 | Reel | **Location** video (`WH-Teal-Ads/1-…`) | "In real estate, location is everything. Main Park Road, opposite COMSATS. Faizabad 10 minutes." / "Location hi sab kuch hai." |
-| 3 | Carousel (5 slides) | **The 3 plot sizes**: 1 Kanal (50×90), 14 Marla, 10 Marla (35×70) | "Which size fits you? Swipe for the sizes and what each one costs today." / "Aap ke liye kaunsa size?" |
+| 3 | Reel (`WH-Teal-Ads/5-…`) + carousel | **The 3 plot sizes**: 1 Kanal (50×90), 14 Marla, 10 Marla (35×70) | "Which size fits you? Swipe for the sizes and what each one costs today." / "Aap ke liye kaunsa size?" |
 | 4 | Reel (phone) | **Site drive-through**: development work today | "Development work in DHA Margalla Orchard, this week." / "Kaam tezi se jari hai." |
 | 5 | Reel | **Why Pay Double** video (`WH-Teal-Ads/2-…`) | "Margalla Enclave: over 7.3 crore for 1 Kanal. Margalla Orchard: about 3.5." / "Double kyun dein?" |
 | 6 | Carousel | **The blocks A–H** on the master plan (screenshots of the website map) | "8 blocks, one master plan. Which block is best for your budget? Ask us." |
 | 7 | – | Rest day (stories only) | |
 | 8 | Reel | **Five Reasons** video (`WH-Teal-Ads/3-…`) | "5 reasons people are choosing DHA Margalla Orchard." |
-| 9 | Carousel | **How to buy, step by step**: interested → token → NDC → transfer → allotment letter | "Buying a plot is simple when you know the steps. Save this post." / "Plot kharidne ke steps." |
+| 9 | Reel (`WH-Teal-Ads/7-…`) | **How to buy, step by step**: interested → token → NDC → transfer → allotment letter | "Buying a plot is simple when you know the steps. Save this post." / "Plot kharidne ke steps." |
 | 10 | Reel (phone) | **The team**: meet who answers your call | "The people behind your call. Assalam o Alaikum from the WH Ventures team." |
 | 11 | Post | **Price today** for each size (asking prices, with the date) | "Prices this week (asking prices, Nov 2026). They move: ask us for today's price." |
 | 12 | Reel (talking) | **Question:** "What is land sharing?" (explained in 30 seconds) | "Land sharing plots, explained simply." / "Land sharing kya hai?" |
@@ -43,12 +43,12 @@ their allotment letter (with permission). Real videos beat graphics for real est
 | 15 | Reel | **Map tour** of the website (screen recording of the blocks tour) | "See every block on the official master plan, on our website. Link in bio." |
 | 16 | Post | **Margalla Sunrise** ad (`WH-Teal-Ads/0-…`) | "Wake up to the Margalla Hills." |
 | 17 | Reel (phone) | **Site update 2**: roads, electricity, parks | "Week 3 on site." |
-| 18 | Carousel | **For overseas Pakistanis**: how to buy from abroad (power of attorney, video call, payments) | "Living abroad? You can still buy, step by step." / "Bahar reh kar bhi plot lein." |
+| 18 | Reel (`WH-Teal-Ads/8-…`) | **For overseas Pakistanis**: how to buy from abroad (power of attorney, video call, payments) | "Living abroad? You can still buy, step by step." / "Bahar reh kar bhi plot lein." |
 | 19 | Reel (talking) | **Question:** "Transfer fee, how much and who pays?" | "Transfer costs, explained." |
 | 20 | Post | **Client story** (photo with permission, or a quote) | "Mr. ___ chose 1 Kanal in Block __. Congratulations!" |
 | 21 | – | Rest day (stories only) | |
-| 22 | Reel | Best trial reel of the month, shared to everyone | (reuse the winning hook) |
-| 23 | Carousel | **Myths vs facts** about DHA Margalla Orchard | "We hear these every day. Here are the facts." |
+| 22 | Reel (`WH-Teal-Ads/4-…`) | **Build your dream home** (3D): the strongest emotional ad; also test it as a trial reel first | (reuse the winning hook) |
+| 23 | Reel (`WH-Teal-Ads/6-…`) | **5 checks before you buy** (then myths vs facts as a carousel later) | "We hear these every day. Here are the facts." |
 | 24 | Reel (phone) | **A day at the office**: calls, files, a site visit | "Behind the scenes at WH Ventures." |
 | 25 | Post | **Budget finder**: "Your budget → your plot" | "Tell us your budget; we show you the plots that fit." |
 | 26 | Reel (talking) | **Question:** "Which block is best?" (it depends on budget and possession) | "There is no single best block. Here is how to choose." |

@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>WH Ventures · Build your dream home (1 Kanal)</title>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Ad 4 · Build your dream home. A 1 Kanal (50 × 90 ft) home built stage by stage in three.js, to scale (1 unit = 1 m).
+   Brand: Margalla Teal (/brand/README.md). The house is an illustration, not a DHA or FGEHA design. */
+:root{--c:#0B3A40;--c-deep:#06252A;--n:#EAF1EE;--a:#D2A746;--a-soft:#E3C98D;--a-ink:#7A5F22;--sage:#A9C4C4;--rose:#B04761}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#06252A;width:1080px;height:1920px;overflow:hidden}
+#ad{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:"Albert Sans",sans-serif;font-synthesis:none;color:var(--n)}
+#sky{position:absolute;inset:0}
+canvas{position:absolute;inset:0;width:1080px;height:1920px}
+.ui{position:absolute;inset:0;pointer-events:none}
+.ui::before{content:"";position:absolute;inset:18px;border:1.5px solid rgba(210,167,70,.38);border-radius:26px;z-index:5}
+.topfade{position:absolute;left:0;right:0;top:0;height:640px;background:linear-gradient(180deg,rgba(6,37,42,.92) 0%,rgba(6,37,42,.75) 45%,rgba(6,37,42,0) 100%)}
+.head{position:absolute;left:60px;right:60px;top:150px;display:flex;align-items:center;gap:20px;padding-bottom:22px;border-bottom:1.5px solid rgba(210,167,70,.5)}
+.head img{height:96px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3))}
+.head .name{font-family:Gloock,serif;font-size:44px;letter-spacing:.08em}
+.head .name b{font-weight:400;color:var(--a)}
+.head .dha{margin-left:auto;text-align:center;border:1.5px solid rgba(210,167,70,.6);border-radius:16px;padding:9px 20px}
+.head .dha small{display:block;font-weight:700;font-size:13px;letter-spacing:.22em;opacity:.75}
+.head .dha b{display:block;font-weight:900;font-size:40px;letter-spacing:.06em;color:var(--a);line-height:1;margin-top:5px}
+.cap{position:absolute;left:60px;right:60px;top:300px}
+.eyebrow{font-weight:800;font-size:23px;letter-spacing:.22em;text-transform:uppercase;color:var(--a-soft)}
+.titles{position:relative;height:200px;margin-top:14px}
+.title{position:absolute;left:0;right:0;top:0;font-family:Gloock,serif;font-size:86px;line-height:1.02;color:var(--n);text-shadow:0 4px 30px rgba(0,0,0,.35)}
+.title em{font-style:normal;color:var(--a)}
+.title small{display:block;font-family:"Albert Sans",sans-serif;font-weight:700;font-size:32px;letter-spacing:.02em;color:var(--sage);margin-top:14px}
+.stages{position:absolute;left:60px;right:60px;top:560px;display:flex;gap:10px}
+.stages div{flex:1;text-align:center}
+.stages i{display:block;height:6px;border-radius:3px;background:rgba(234,241,238,.22);overflow:hidden}
+.stages i b{display:block;height:100%;width:0;background:var(--a)}
+.stages span{display:block;margin-top:10px;font-weight:800;font-size:17px;letter-spacing:.12em;text-transform:uppercase;color:rgba(234,241,238,.55)}
+.stages div.on span{color:var(--a-soft)}
+.dim{position:absolute;transform:translate(-50%,-50%);font-weight:900;font-size:34px;color:var(--c-deep);background:var(--a);padding:8px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);white-space:nowrap}
+.dim small{font-weight:700;font-size:20px;margin-left:4px}
+.area{position:absolute;transform:translate(-50%,-50%);text-align:center;font-weight:800;font-size:26px;letter-spacing:.06em;color:var(--n);background:rgba(6,37,42,.78);border:2px solid var(--a);padding:12px 22px;border-radius:16px;white-space:nowrap}
+.area b{display:block;font-family:Gloock,serif;font-weight:400;font-size:46px;letter-spacing:0;color:var(--a)}
+.foot{position:absolute;left:0;right:0;bottom:0;padding:40px 60px 230px;background:linear-gradient(180deg,rgba(6,37,42,0),rgba(6,37,42,.9) 35%)}
+.bar{display:flex;align-items:center;gap:20px;border:2px solid var(--a);border-radius:22px;padding:12px 12px 12px 22px;background:rgba(6,37,42,.85)}
+.bar .ph{width:66px;height:66px;border-radius:50%;background:var(--a);display:grid;place-items:center;flex:none}
+.bar .ph svg{width:48%;height:48%;stroke:var(--c-deep);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.bar .lbl{font-weight:800;font-size:17px;letter-spacing:.16em;color:var(--a-soft)}
+.bar .num{font-weight:900;font-size:50px;line-height:1.05}
+.bar .by{margin-left:auto;background:var(--rose);color:#fff;border-radius:14px;padding:16px 24px;text-align:right;font-weight:900;font-size:24px;line-height:1.15}
+.bar .by small{display:block;font-weight:700;font-size:14px;letter-spacing:.16em;opacity:.85;margin-top:4px}
+.disc{margin-top:12px;font-size:15px;text-align:center;color:rgba(234,241,238,.6)}
+.feed#ad,.feed{height:1350px}
+#ad.feed .head{top:48px} #ad.feed .cap{top:196px} #ad.feed .stages{display:none} #ad.feed .foot{padding-bottom:34px} #ad.feed .topfade{height:520px}
+#ad.feed .title{font-size:76px}
+.note{position:absolute;left:60px;right:60px;bottom:200px;text-align:center;font-size:16px;color:rgba(234,241,238,.65)}
+</style>
+</head>
+<body>
+<div id="ad">
+  <div id="sky"></div>
+  <canvas id="c" width="1080" height="1920"></canvas>
+  <div class="ui">
+    <div class="topfade" id="topfade"></div>
+    <header class="head"><img src="../wh-emblem.svg" alt="WH Ventures logo"><div class="name">WH <b>VENTURES</b></div>
+      <div class="dha"><small>DEVELOPED BY</small><b>DHA</b></div></header>
+    <div class="cap">
+      <div class="eyebrow">1 Kanal · DHA Margalla Orchards</div>
+      <div class="titles" id="titles"></div>
+    </div>
+    <div class="stages" id="stages"></div>
+    <div id="labels"></div>
+    <div class="note" id="note">Illustration only. Every design must follow DHA / FGEHA building bylaws.</div>
+    <footer class="foot" id="foot">
+      <div class="bar"><div class="ph"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></div>
+        <div><div class="lbl">CALL / WHATSAPP</div><div class="num">0331-5223726</div></div>
+        <div class="by">BOOK A CALL<small>FREE ADVICE</small></div></div>
+      <p class="disc">Illustration only, not a DHA or FGEHA design. Every design must follow the building bylaws.</p>
+    </footer>
+  </div>
+</div>
+<script type="module">
+import * as THREE from './three.module.min.js';
+
+// ---------- timing: the animation follows the voice-over ----------
+const P = new URLSearchParams(location.search);
+const CUES = (P.get('cues') || '0.6,4.2,10.4,15.6,21.4,27.6').split(',').map(Number);   // start of each voice line
+const LENS = (P.get('lens') || '3.2,5.7,4.8,5.4,5.8,7.0').split(',').map(Number);        // length of each line
+const DUR = Number(P.get('dur') || 37);
+const FEED = P.get('format') === 'feed', H = FEED ? 1350 : 1920;
+if (FEED) { document.getElementById('ad').classList.add('feed'); document.documentElement.style.height = document.body.style.height = H + 'px'; }
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const lerp = (a, b, k) => a + (b - a) * k;
+// u(i): 0..1 progress through voice line i (0 before it starts, 1 after it ends)
+const u = (t, i) => clamp((t - CUES[i]) / LENS[i]);
+// "story" time: i + progress within line i, held between lines
+function story(t) { let s = 0; for (let i = 0; i < CUES.length; i++) if (t >= CUES[i]) s = i + u(t, i); return s; }
+
+// ---------- renderer and scene ----------
+const W = 15.24, D = 27.43;               // 1 Kanal plot: 50 × 90 ft in metres
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setSize(1080, H, false); canvas.style.height = H + 'px'; canvas.height = H; renderer.setPixelRatio(1);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0xbcd3d0, 160, 700);
+const camera = new THREE.PerspectiveCamera(FEED ? 40 : 50, 1080 / H, 0.5, 1200);
+camera.setViewOffset(1080, H, 0, FEED ? -170 : -260, 1080, H);   // push the scene down, below the captions
+
+const hemi = new THREE.HemisphereLight(0xf2f7f4, 0x55624f, 1.1); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff1d6, 2.6);
+sun.position.set(40, 60, 30); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 200 });
+sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
+scene.add(sun); scene.add(sun.target);
+
+const M = {};
+const mat = (k, c, o = {}) => M[k] || (M[k] = new THREE.MeshStandardMaterial({ color: c, roughness: .85, metalness: .02, ...o }));
+function texCanvas(w, h, draw) { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; draw(cv.getContext('2d'), w, h); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; return t; }
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+// brick courses (230 × 75 mm bricks, 10 mm joints): one tile = 1 m × 1 m
+const brickTex = texCanvas(512, 512, (g, w, h) => {
+  g.fillStyle = '#d9c9b4'; g.fillRect(0, 0, w, h);
+  const rows = 12, bh = h / rows, bw = w / 4.2;
+  for (let r = 0; r < rows; r++) for (let x = -(r % 2) * bw / 2; x < w; x += bw) {
+    const s = 0.85 + rnd() * 0.3; g.fillStyle = `rgb(${Math.round(176 * s)},${Math.round(92 * s)},${Math.round(58 * s)})`;
+    g.fillRect(x + 3, r * bh + 3, bw - 6, bh - 6);
+  }
+});
+const grassTex = texCanvas(256, 256, (g, w, h) => { g.fillStyle = '#6e9a57'; g.fillRect(0, 0, w, h); for (let i = 0; i < 2600; i++) { const s = .75 + rnd() * .5; g.fillStyle = `rgba(${Math.round(80 * s)},${Math.round(130 * s)},${Math.round(62 * s)},.55)`; g.fillRect(rnd() * w, rnd() * h, 2, 3 + rnd() * 3); } });
+const soilTex = texCanvas(256, 256, (g, w, h) => { g.fillStyle = '#9a7b58'; g.fillRect(0, 0, w, h); for (let i = 0; i < 3000; i++) { const s = .7 + rnd() * .6; g.fillStyle = `rgba(${Math.round(120 * s)},${Math.round(92 * s)},${Math.round(64 * s)},.6)`; g.fillRect(rnd() * w, rnd() * h, 2, 2); } });
+
+const ROOT = new THREE.Group(); scene.add(ROOT);
+const parts = [];   // { mesh, b0, b1, mode }  mode: 'rise' (grow up from base), 'fade', 'drop', 'grow' (scale from 0)
+function addPart(mesh, b0, b1, mode = 'rise') { mesh.castShadow = true; mesh.receiveShadow = true; mesh.userData.base = mesh.position.clone(); mesh.userData.scale = mesh.scale.clone(); ROOT.add(mesh); parts.push({ mesh, b0, b1, mode }); return mesh; }
+// box with its bottom at y (centre x,z)
+function boxAt(w, h, d, m, x, y, z) { const g = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); g.position.set(x, y + h / 2, z); g.userData.h = h; return g; }
+
+// ---------- ground, roads, neighbouring plots, hills ----------
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(900, 900), mat('ground', 0x8e9a7c, { roughness: 1 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; ground.receiveShadow = true; scene.add(ground);
+const asphalt = mat('road', 0x3c4145, { roughness: .95 });
+const ROADW = 9.1; // 30 ft road in front of the plot
+function road(x, z, w, d) { const r = new THREE.Mesh(new THREE.BoxGeometry(w, .04, d), asphalt); r.position.set(x, 0, z); r.receiveShadow = true; scene.add(r); }
+road(0, D / 2 + ROADW / 2, 400, ROADW);                         // street in front
+road(0, -D * 1.5 - ROADW / 2 - 0.0, 400, ROADW);                 // street behind the back row
+road(W * 4 + 4.5, 0, 9, 400);                                    // cross street
+// kerb + centre line
+const lineM = new THREE.MeshBasicMaterial({ color: 0xe9e2c8 });
+for (let x = -190; x < 190; x += 6) { const m = new THREE.Mesh(new THREE.BoxGeometry(3, .02, .15), lineM); m.position.set(x, .03, D / 2 + ROADW / 2); scene.add(m); }
+// plot outlines on both sides of the street (the master-plan grid)
+const plotLineM = new THREE.LineBasicMaterial({ color: 0xE3C98D, transparent: true, opacity: .55 });
+const plotLines = new THREE.Group(); scene.add(plotLines);
+const rect = (x, z, w, d, y = .06) => new THREE.BufferGeometry().setFromPoints([[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, -d / 2]].map(([a, b]) => new THREE.Vector3(x + a, y, z + b)));
+for (let k = -6; k <= 3; k++) for (const row of [0, -1, 1.5]) {
+  if (k === 0 && row === 0) continue;
+  const z = row === 1.5 ? D / 2 + ROADW + D / 2 : row * D;
+  plotLines.add(new THREE.Line(rect(k * W, z, W - .3, D - .3), plotLineM));
+}
+// empty plots look like bare soil (a new scheme): one patch per plot outline
+const emptyM = mat('empty', 0xffffff, { map: soilTex, roughness: 1, transparent: true, opacity: .55 });
+for (let k = -6; k <= 3; k++) for (const row of [0, -1, 1.5]) {
+  if (k === 0 && row === 0) continue;
+  const z = row === 1.5 ? D / 2 + ROADW + D / 2 : row * D;
+  const e = new THREE.Mesh(new THREE.BoxGeometry(W - .6, .04, D - .6), emptyM); e.position.set(k * W, .02, z); e.receiveShadow = true; scene.add(e);
+}
+// a few finished neighbour homes (simple, low detail) so the street feels real
+const nWall = mat('nwall', 0xe9e6de), nDark = mat('ndark', 0x3a403d), nGlass = mat('nglass', 0x24343a, { roughness: .2, metalness: .5, emissive: 0xffc66b, emissiveIntensity: 0 });
+const neighbourGlass = [];
+function neighbour(x, z, flip) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); if (flip) g.rotation.y = Math.PI;
+  const a = boxAt(10.5, 3.3, 15, nWall, -0.8, 0, -1.5), b = boxAt(11, 3.2, 12, nWall, 0, 3.3, -2.5), c = boxAt(11.4, .3, 12.4, nDark, 0, 6.5, -2.5);
+  const gl = boxAt(5, 2, .1, nGlass, 1.2, 4, 3.55), gl2 = boxAt(4, 1.9, .1, nGlass, -2.6, .7, 6.05);
+  const wall = boxAt(W - .4, 1.5, .2, mat('nbw', 0xcfc6b5), 0, 0, D / 2 - .3);
+  for (const m of [a, b, c, gl, gl2, wall]) { m.castShadow = m.receiveShadow = true; g.add(m); }
+  neighbourGlass.push(gl, gl2); scene.add(g);
+}
+neighbour(-2 * W, 0, false); neighbour(2 * W, 0, false); neighbour(-4 * W, 0, false); neighbour(-W, D / 2 + ROADW + D / 2, true); neighbour(2 * W, D / 2 + ROADW + D / 2, true);
+// trees along the street
+const trunkM = mat('trunk', 0x6b4a2b), leafM = mat('leaf', 0x3f7a4a, { roughness: .9 }), leafM2 = mat('leaf2', 0x2f6a46, { roughness: .9 });
+function tree(x, z, s = 1, m = leafM) { const g = new THREE.Group(); const t = boxAt(.28 * s, 2.2 * s, .28 * s, trunkM, 0, 0, 0); const c = new THREE.Mesh(new THREE.IcosahedronGeometry(1.7 * s, 1), m); c.position.y = 3.3 * s; c.scale.y = 1.15; g.add(t, c); g.position.set(x, 0, z); for (const o of [t, c]) { o.castShadow = o.receiveShadow = true; } scene.add(g); return g; }
+for (let x = -170; x < 170; x += 11) { if (Math.abs(x) < 34) continue; tree(x + 3, D / 2 + .9, .9 + rnd() * .25, rnd() > .5 ? leafM : leafM2); }
+// the Margalla Hills to the north
+function hills() {
+  const geo = new THREE.PlaneGeometry(1200, 260, 120, 26); geo.rotateX(-Math.PI / 2);
+  const pos = geo.attributes.position; const col = [];
+  const c1 = new THREE.Color(0x3F7F86), c2 = new THREE.Color(0x1B5A62), c3 = new THREE.Color(0x0B3A40);
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), z = pos.getZ(i);
+    const k = clamp((z + 130) / 260);               // 0 far .. 1 near
+    const ridge = 0.8 * 70 * Math.sin(x * .011 + 1.3) + 38 * Math.sin(x * .027 + .4) + 18 * Math.sin(x * .061 + 2.2) + 22 * Math.sin(x * .13);
+    const y = Math.max(0, (1 - k) * (95 + ridge) * (0.55 + 0.45 * Math.sin((1 - k) * Math.PI / 2)));
+    pos.setY(i, y);
+    const c = c3.clone().lerp(c1, clamp(y / 160)).lerp(c2, .25);
+    col.push(c.r, c.g, c.b);
+  }
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, flatShading: true }));
+  m.scale.y = .8; m.position.set(0, 0, -520); scene.add(m);
+}
+hills();
+
+// ---------- our plot ----------
+const soil = new THREE.Mesh(new THREE.BoxGeometry(W - .2, .1, D - .2), mat('soil', 0xffffff, { map: soilTex, roughness: 1 }));
+soilTex.repeat.set(3, 5); soil.position.y = .05; soil.receiveShadow = true; ROOT.add(soil);
+const lawn = new THREE.Mesh(new THREE.BoxGeometry(W - .4, .06, 6.6), mat('lawn', 0xffffff, { map: grassTex, roughness: 1 }));
+grassTex.repeat.set(4, 2); lawn.position.set(-1.6, .13, D / 2 - 3.5); lawn.scale.x = .72; lawn.receiveShadow = true; addPart(lawn, 8.25, 8.7, 'fade');
+const glow = new THREE.Line(rect(0, 0, W, D, .14), new THREE.LineBasicMaterial({ color: 0xD2A746, transparent: true, opacity: 1 })); ROOT.add(glow);
+// survey pegs and string lines
+const pegM = mat('peg', 0xD2A746, { emissive: 0x6a4e10 });
+const corners = [[-W / 2, -D / 2], [W / 2, -D / 2], [W / 2, D / 2], [-W / 2, D / 2]];
+corners.forEach(([x, z], i) => addPart(boxAt(.14, 1.0, .14, pegM, x, .1, z), .05 + i * .08, .3 + i * .08));
+
+// ---------- the home (1 Kanal, double storey) ----------
+const HX0 = -W / 2 + 1.5, HX1 = W / 2 - 1.5, HZ0 = -D / 2 + 2.0, HZ1 = D / 2 - 6.6;   // set-backs: front 6.6 m, back 2 m, sides 1.5 m
+const FH = 3.35, SL = .25, G0 = .75;   // floor height, slab, plinth height
+const concrete = mat('concrete', 0x9d9d97, { roughness: .95 });
+const rebarM = mat('rebar', 0x7a4a2a, { metalness: .4, roughness: .6 });
+const brick = mat('brick', 0xffffff, { map: brickTex, roughness: .95 });
+const plaster = mat('plaster', 0xf3f0ea, { roughness: .9, transparent: true, opacity: 0 });
+const stoneM = mat('stone', 0x2f3836, { roughness: .7 });
+const goldM = mat('gold', 0xD2A746, { metalness: .6, roughness: .3 });
+// warm interior glow for the evening: brighter low down, with soft curtain folds
+const glowTex = texCanvas(256, 256, (g, w, h) => {
+  const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#6b3d12'); gr.addColorStop(.55, '#d98d3a'); gr.addColorStop(1, '#ffd08a');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  for (let x = 0; x < w; x += 9) { g.fillStyle = `rgba(80,40,10,${.08 + .1 * Math.abs(Math.sin(x * .2))})`; g.fillRect(x, 0, 4, h); }
+  g.fillStyle = 'rgba(60,30,10,.35)'; g.fillRect(0, 0, w, h * .08);
+});
+const glassM = mat('glass', 0x1d2c31, { roughness: .08, metalness: .65, emissive: 0xffffff, emissiveMap: glowTex, emissiveIntensity: 0 });
+const woodM = mat('wood', 0x8a5a36, { roughness: .6 });
+// 1. excavation and footings
+const pit = new THREE.Mesh(new THREE.BoxGeometry(HX1 - HX0 + 1, .06, HZ1 - HZ0 + 1), mat('pit', 0x6e5238, { roughness: 1 }));
+pit.position.set((HX0 + HX1) / 2, .11, (HZ0 + HZ1) / 2); addPart(pit, 1.0, 1.3, 'fade');
+const colX = [HX0 + .2, -1.4, 3.0, HX1 - .2], colZ = [HZ0 + .2, -6.4, -1.3, 3.2, HZ1 - .2];
+for (const x of colX) for (const z of colZ) addPart(boxAt(1.3, .45, 1.3, concrete, x, .1, z), 1.25 + rnd() * .3, 1.6 + rnd() * .3);
+// plinth (DPC level) beam grid
+addPart(boxAt(HX1 - HX0 + .3, G0 - .1, HZ1 - HZ0 + .3, mat('plinth', 0x8f8f89), (HX0 + HX1) / 2, .1, (HZ0 + HZ1) / 2), 1.6, 2.0);
+// 2-4. columns, slabs and brick walls for each floor
+function floor(level, b0) {
+  const y = G0 + level * (FH + SL);
+  // columns with rebar sticking out of the top while the floor is being built
+  for (const x of colX) for (const z of colZ) {
+    const k = rnd() * .35;
+    addPart(boxAt(.4, FH, .4, concrete, x, y, z), b0 + k, b0 + .45 + k);
+    const rb = addPart(boxAt(.04, 1.0, .04, rebarM, x + .12, y + FH, z + .12), b0 + .4 + k, b0 + .55 + k);
+    rb.userData.hideAt = b0 + 1.55;
+  }
+  // brick walls along the outside (the front wall is set back for the porch on the right)
+  const wy = y, wh = FH, t = .23;
+  const walls = [
+    [HX1 - HX0, HZ0 + t / 2, (HX0 + HX1) / 2, 'x'],          // back
+    [HZ1 - HZ0, HX0 + t / 2, (HZ0 + HZ1) / 2, 'z'],          // left
+    [HZ1 - HZ0 - (level === 0 ? 5.6 : 0), HX1 - t / 2, (HZ0 + HZ1) / 2 - (level === 0 ? 2.8 : 0), 'z'], // right
+    [level === 0 ? 3.0 - HX0 : HX1 - HX0, HZ1 - t / 2, level === 0 ? (HX0 + 3.0) / 2 : (HX0 + HX1) / 2, 'x'], // front
+  ];
+  if (level === 0) walls.push([HX1 - 3.0, HZ1 - 5.6 - t / 2, (3.0 + HX1) / 2, 'x']);   // wall behind the car porch
+  walls.forEach(([len, a, c, ax], i) => {
+    const w = ax === 'x' ? boxAt(len, wh, t, brick, c, wy, a) : boxAt(t, wh, len, brick, a, wy, c);
+    brickTex.repeat.set(1, 1);
+    w.material = brick.clone(); w.material.map = brickTex.clone(); w.material.map.needsUpdate = true;
+    w.material.map.repeat.set(len / 1.0, wh / 1.0);
+    addPart(w, b0 + .55 + i * .07, b0 + .95 + i * .07);
+    const p = (ax === 'x' ? boxAt(len + .04, wh, t + .04, plaster, c, wy, a) : boxAt(t + .04, wh, len + .04, plaster, a, wy, c));
+    addPart(p, 6.0 + i * .05, 6.5 + i * .05, 'plaster');
+  });
+  // slab on top
+  const slab = boxAt(HX1 - HX0 + .5, SL, HZ1 - HZ0 + (level === 0 ? .5 : 1.8), concrete, (HX0 + HX1) / 2, y + FH, (HZ0 + HZ1) / 2 + (level === 0 ? 0 : .65));
+  addPart(slab, b0 + .8, b0 + 1.0, 'drop');
+}
+floor(0, 2.0);   // ground floor: columns 2..2.8, walls 2.55..3.2, slab 2.8..3.0
+floor(1, 3.6);   // first floor
+// slab edges get a dark stone fascia and a gold line when finished
+const topY = G0 + 2 * (FH + SL);
+addPart(boxAt(HX1 - HX0 + .6, .45, .12, stoneM, (HX0 + HX1) / 2, G0 + FH - .1, HZ1 + .3), 6.4, 6.8, 'fade');
+addPart(boxAt(HX1 - HX0 + .6, .45, .12, stoneM, (HX0 + HX1) / 2, topY - .1, HZ1 + 1.2), 6.45, 6.85, 'fade');
+addPart(boxAt(HX1 - HX0 + .6, .05, .14, goldM, (HX0 + HX1) / 2, topY + .32, HZ1 + 1.2), 6.6, 6.9, 'fade');
+// 5. roof: parapet, stair tower (mumty), water tank and pergola
+const roofY = topY + SL;
+addPart(boxAt(HX1 - HX0 + .5, 1.0, .2, mat('parapet', 0xf3f0ea), (HX0 + HX1) / 2, roofY, HZ1 + 1.4), 5.0, 5.35);
+addPart(boxAt(.2, 1.0, HZ1 - HZ0 + 1.6, mat('parapet', 0xf3f0ea), HX0 - .1, roofY, (HZ0 + HZ1) / 2 + .7), 5.05, 5.4);
+addPart(boxAt(.2, 1.0, HZ1 - HZ0 + 1.6, mat('parapet', 0xf3f0ea), HX1 + .1, roofY, (HZ0 + HZ1) / 2 + .7), 5.1, 5.45);
+addPart(boxAt(4.0, 2.7, 5.2, mat('mumty', 0xf3f0ea), HX0 + 2.2, roofY, HZ0 + 3.0), 5.2, 5.6);
+addPart(boxAt(2.0, 1.3, 1.4, mat('tank', 0x30393a), HX0 + 2.0, roofY + 2.7, HZ0 + 2.2), 5.55, 5.8);
+for (const x of [1.5, 3.5, 5.5]) addPart(boxAt(.15, 2.6, .15, goldM, x - .6, roofY, HZ1 - 1.0), 5.45, 5.7);
+addPart(boxAt(5.0, .12, 4.0, goldM, 2.4, roofY + 2.6, HZ1 - 2.6), 5.65, 5.9, 'drop');
+for (let i = 0; i < 8; i++) addPart(boxAt(.08, .1, 4.0, woodM, .2 + i * .62, roofY + 2.72, HZ1 - 2.6), 5.75 + i * .02, 5.9 + i * .02, 'drop');
+// 6. windows, door, porch columns (after plaster)
+const win = (w, h, x, y, z, ax = 'x') => { const g = ax === 'x' ? boxAt(w, h, .08, glassM, x, y, z) : boxAt(.08, h, w, glassM, x, y, z); return g; };
+const frames = (w, h, x, y, z) => { const g = new THREE.Group(); for (const [fw, fh, fx, fy] of [[w + .12, .08, 0, -.04], [w + .12, .08, 0, h - .04], [.08, h, -w / 2, 0], [.08, h, w / 2, 0], [.06, h, 0, 0]]) { const m = boxAt(fw, fh, .1, goldM, x + fx, y + fy, z); g.add(m); } return g; };
+const windows = [
+  [5.6, 2.3, (HX0 + 3.0) / 2 - .4, G0 + .55, HZ1 + .07],            // living room glass front
+  [8.0, 2.1, (HX0 + HX1) / 2, G0 + FH + SL + .7, HZ1 + .07],         // first floor front band
+  [3.2, 1.6, HX0 + 3, G0 + .9, HZ0 - .07], [3.2, 1.6, HX1 - 3, G0 + .9, HZ0 - .07],
+  [3.2, 1.6, HX0 + 3, G0 + FH + SL + .9, HZ0 - .07], [3.2, 1.6, HX1 - 3, G0 + FH + SL + .9, HZ0 - .07],
+];
+windows.forEach(([w, h, x, y, z], i) => { addPart(win(w, h, x, y, z), 7.0 + i * .08, 7.3 + i * .08, 'grow'); const f = frames(w, h, x, y, z + (z > 0 ? .02 : -.02)); f.children.forEach(m => addPart(m, 7.05 + i * .08, 7.35 + i * .08, 'grow')); });
+for (const z of [-8, -3, 2]) for (const lvl of [0, 1]) { addPart(win(2.4, 1.6, HX0 - .07, G0 + .9 + lvl * (FH + SL), z, 'z'), 7.2 + lvl * .1, 7.5 + lvl * .1, 'grow'); }
+addPart(boxAt(1.4, 2.5, .1, woodM, HX0 + 1.5, G0, HZ1 + .08), 7.3, 7.55, 'grow');      // front door
+addPart(boxAt(.3, FH, .3, stoneM, HX1 - .2, G0, HZ1 - .2), 6.6, 6.9);                     // porch column clad in stone
+addPart(boxAt(2.4, .18, 1.2, mat('step', 0xcfc6b5), HX0 + 1.5, .1, HZ1 + .6), 6.7, 6.95);
+// 7. boundary wall, gate, driveway, trees, car
+const bwM = mat('bwall', 0xd7cfc0), bH = 1.8;
+addPart(boxAt(W, bH, .23, bwM, 0, .1, -D / 2 + .12), 8.0, 8.3);
+addPart(boxAt(.23, bH, D, bwM, -W / 2 + .12, .1, 0), 8.05, 8.35);
+addPart(boxAt(.23, bH, D, bwM, W / 2 - .12, .1, 0), 8.1, 8.4);
+addPart(boxAt(W - 6.0, bH, .23, bwM, -3.0, .1, D / 2 - .12), 8.15, 8.45);
+addPart(boxAt(.5, 2.3, .5, stoneM, 3.0 - .25, .1, D / 2 - .12), 8.2, 8.45);
+addPart(boxAt(.5, 2.3, .5, stoneM, W / 2 - .25, .1, D / 2 - .12), 8.2, 8.45);
+const gate = addPart(boxAt(W / 2 - 3.0 - .5, 1.9, .1, mat('gate', 0x22292a, { metalness: .6, roughness: .35 }), (3.0 + W / 2 - .5) / 2, .2, D / 2 - .12), 8.35, 8.6, 'grow');
+for (let i = 0; i < 7; i++) addPart(boxAt(.05, 1.7, .12, goldM, 3.3 + i * .55, .3, D / 2 - .12), 8.4 + i * .01, 8.6 + i * .01, 'grow');
+addPart(boxAt(W / 2 - 3.0, .06, 6.6, mat('drive', 0xc5bcac, { roughness: .9 }), (3.0 + W / 2) / 2 - .1, .1, D / 2 - 3.4), 8.2, 8.5, 'fade');
+addPart(boxAt(1.6, .06, 5.2, mat('path', 0xc5bcac), HX0 + 1.5, .12, HZ1 + 2.9), 8.25, 8.5, 'fade');
+const gTrees = [[-W / 2 + 1.6, D / 2 - 1.6, 1.0], [-W / 2 + 4.2, D / 2 - 1.4, .8], [W / 2 - 1.2, -D / 2 + 1.4, .9], [-W / 2 + 1.4, -D / 2 + 1.3, .8]];
+gTrees.forEach(([x, z, s], i) => { const t = boxAt(.26 * s, 2.1 * s, .26 * s, trunkM, x, .1, z); addPart(t, 8.4 + i * .05, 8.7 + i * .05, 'grow'); const c = new THREE.Mesh(new THREE.IcosahedronGeometry(1.5 * s, 1), i % 2 ? leafM : leafM2); c.position.set(x, 3.1 * s, z); c.scale.y = 1.15; addPart(c, 8.45 + i * .05, 8.8 + i * .05, 'grow'); });
+// hedges along the lawn
+for (let i = 0; i < 6; i++) addPart(boxAt(1.1, .7, .7, leafM2, -W / 2 + 1.0 + i * 1.25, .1, D / 2 - .7), 8.5 + i * .03, 8.75 + i * .03, 'grow');
+// a car in the porch
+const car = new THREE.Group();
+const body = boxAt(1.8, .75, 4.4, mat('car', 0xeaeae6, { metalness: .5, roughness: .3 }), 0, .35, 0), cab = boxAt(1.6, .62, 2.3, mat('carglass', 0x1d2a30, { metalness: .6, roughness: .15 }), 0, 1.1, -.2);
+car.add(body, cab); for (const [x, z] of [[-.85, 1.4], [.85, 1.4], [-.85, -1.4], [.85, -1.4]]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(.36, .36, .26, 16), mat('tyre', 0x1b1b1b)); w.rotation.z = Math.PI / 2; w.position.set(x, .36, z); car.add(w); }
+car.traverse(o => { if (o.isMesh) o.castShadow = o.receiveShadow = true; });
+car.position.set((3.0 + HX1) / 2 + .2, .1, 60); car.visible = false; scene.add(car);
+// evening lights: lamps on the boundary pillars and garden spots
+const lamps = [];
+for (const [x, z] of [[3.0 - .25, D / 2 - .12], [W / 2 - .25, D / 2 - .12]]) { const l = new THREE.PointLight(0xffc46a, 0, 9, 1.6); l.position.set(x, 2.6, z + .3); scene.add(l); lamps.push(l); const bulb = boxAt(.28, .28, .28, mat('bulb', 0xfff0c8, { emissive: 0xffc46a, emissiveIntensity: 0 }), x, 2.3, z); scene.add(bulb); }
+const roomLight = new THREE.PointLight(0xffc46a, 0, 14, 1.4); roomLight.position.set(-2, 2.3, HZ1 - 1.5); scene.add(roomLight);
+const roomLight2 = new THREE.PointLight(0xffc46a, 0, 14, 1.4); roomLight2.position.set(0, G0 + FH + SL + 1.8, HZ1 - 1.2); scene.add(roomLight2);
+
+// ---------- build progress (b) and dusk (n) follow the voice ----------
+function buildAt(t) {
+  // line 1: the plot (0..1) · line 2: foundation 1..2, columns 2..3, ground floor ..3.6 · line 3: first floor 3.6..5, roof 5..6
+  // line 4: finish 6..7, windows 7..8, garden 8..9, dusk · line 5: hold
+  const a1 = u(t, 1), a2 = u(t, 2), a3 = u(t, 3), a4 = u(t, 4);
+  let b = a1 * 1.0;
+  if (t >= CUES[2]) b = 1 + a2 * 2.6;
+  if (t >= CUES[3]) b = 3.6 + a3 * 2.4;
+  if (t >= CUES[4]) b = 6 + clamp(a4 / .72) * 3;
+  const n = t >= CUES[4] ? ease((a4 - .62) / .38) : 0;
+  return { b: Math.min(9, b), n: Math.max(n, t >= CUES[5] ? 1 : 0) };
+}
+function applyBuild(b) {
+  for (const { mesh: m, b0, b1, mode } of parts) {
+    const k = clamp((b - b0) / (b1 - b0)), e = easeOut(k);
+    const base = m.userData.base, sc = m.userData.scale, h = m.userData.h || 1;
+    m.visible = k > .001;
+    if (m.userData.hideAt && b > m.userData.hideAt) m.visible = false;
+    if (mode === 'rise') { m.scale.set(sc.x, Math.max(.001, sc.y * e), sc.z); m.position.set(base.x, base.y - h / 2 * (1 - e), base.z); }
+    else if (mode === 'drop') { m.position.set(base.x, base.y + (1 - e) * 4, base.z); }
+    else if (mode === 'grow') { m.scale.set(sc.x * e || .001, sc.y * e || .001, sc.z * e || .001); }
+    else if (mode === 'fade' || mode === 'plaster') { m.material.transparent = true; m.material.opacity = e; m.visible = e > .01; }
+  }
+}
+// ---------- camera path ----------
+const KEYS = [  // story time s, camera position, look-at (fov 50, the view is shifted down below the captions)
+  [0.0, [46, 120, 120], [0, 0, -4]],
+  [1.0, [30, 58, 64], [0, 0, 0]],
+  [2.0, [32, 26, 44], [0, 2, 0]],
+  [3.0, [10, 22, 46], [0, 3, -1]],
+  [3.7, [-28, 21, 40], [0, 4, -1]],
+  [4.3, [-34, 15, 34], [0, 4, -1]],
+  [4.75, [-12, 11, 44], [0, 4, 1]],
+  [5.0, [27, 10, 52], [0, 4.6, 1]],
+  [6.0, [10, 8, 50], [0, 4.4, 1]],
+];
+function camAt(s) {
+  let i = 0; while (i < KEYS.length - 2 && s > KEYS[i + 1][0]) i++;
+  const [s0, p0, l0] = KEYS[i], [s1, p1, l1] = KEYS[i + 1];
+  const k = ease((s - s0) / (s1 - s0));
+  const pos = p0.map((v, j) => lerp(v, p1[j], k)), look = l0.map((v, j) => lerp(v, l1[j], k));
+  return { pos, look };
+}
+
+// ---------- captions ----------
+const TITLES = [
+  ['Build your <em>family home</em>', 'Looking for the right place?'],
+  ['It starts with <em>the plot</em>', '50 × 90 ft · 4,500 sq ft'],
+  ['<em>Foundation</em>', 'Strong from the ground up'],
+  ['<em>Columns</em>', 'A concrete frame'],
+  ['Ground <em>floor</em>', 'Living, dining, family lounge'],
+  ['First <em>floor</em>', 'Bedrooms with a view'],
+  ['Roof <em>terrace</em>', 'Facing the Margalla Hills'],
+  ['<em>Finishing</em>', 'Plaster, stone and glass'],
+  ['Lawn, drive <em>&amp; gate</em>', 'Room for the family car'],
+  ['Welcome <em>home</em>', 'Your 1 Kanal, built your way'],
+  ['Your home starts with <em>the right plot</em>', 'DHA Margalla Orchards · Islamabad'],
+];
+const titlesEl = document.getElementById('titles');
+titlesEl.innerHTML = TITLES.map(([a, b]) => `<div class="title">${a}<small>${b}</small></div>`).join('');
+const titleEls = [...titlesEl.children];
+const STAGES = ['Plot', 'Foundation', 'Structure', 'Floors', 'Finish', 'Garden'];
+const STB = [[0, 1], [1, 2], [2, 3.6], [3.6, 6], [6, 8], [8, 9]];
+document.getElementById('stages').innerHTML = STAGES.map(s => `<div><i><b></b></i><span>${s}</span></div>`).join('');
+const stageEls = [...document.getElementById('stages').children];
+function titleIndex(t, b, n) {
+  if (t >= CUES[5]) return 10;
+  if (n > .3) return 9;
+  if (b >= 8) return 8; if (b >= 6) return 7; if (b >= 5) return 6; if (b >= 3.6) return 5; if (b >= 3) return 4; if (b >= 2) return 3; if (b >= 1) return 2;
+  if (t >= CUES[1]) return 1; return 0;
+}
+function titleAtTime(t) { const { b, n } = buildAt(t); return titleIndex(t, b, n); }
+const labels = document.getElementById('labels');
+labels.innerHTML = `<div class="dim" id="dW">50 <small>ft</small></div><div class="dim" id="dD">90 <small>ft</small></div><div class="area" id="dA"><b>4,500</b>SQ FT · 1 KANAL</div>`;
+const dW = document.getElementById('dW'), dD = document.getElementById('dD'), dA = document.getElementById('dA');
+function project(x, y, z) { const v = new THREE.Vector3(x, y, z).project(camera); return [(v.x + 1) / 2 * 1080, (1 - v.y) / 2 * H]; }
+
+// ---------- one frame ----------
+const sky = document.getElementById('sky'), foot = document.getElementById('foot'), note = document.getElementById('note');
+const dayTop = new THREE.Color(0x8fb9ba), dayBot = new THREE.Color(0xc9dcd8), duskTop = new THREE.Color(0x0b3a40), duskMid = new THREE.Color(0x2c6a70), duskBot = new THREE.Color(0xe7a065);
+window.renderAt = function (t) {
+  const s = story(t), { b, n } = buildAt(t);
+  applyBuild(b);
+  // light: day to dusk
+  sun.intensity = lerp(2.6, .75, n); sun.color.setHex(0xfff1d6).lerp(new THREE.Color(0xff9a52), n);
+  sun.position.set(lerp(40, 70, n), lerp(60, 14, n), lerp(30, -40, n));
+  hemi.intensity = lerp(1.1, .62, n); hemi.color.setHex(0xf2f7f4).lerp(new THREE.Color(0x6aa2a8), n); hemi.groundColor.setHex(0x55624f).lerp(new THREE.Color(0x3a3a46), n);
+  renderer.toneMappingExposure = lerp(1.0, 1.1, n);
+  const fogC = dayBot.clone().lerp(new THREE.Color(0x5f8a8a), n); scene.fog.color.copy(fogC);
+  const top = dayTop.clone().lerp(duskTop, n), bot = dayBot.clone().lerp(duskBot, n * .85), mid = dayBot.clone().lerp(duskMid, n);
+  sky.style.background = `linear-gradient(180deg, #${top.getHexString()} 0%, #${mid.getHexString()} 55%, #${bot.getHexString()} 78%, #${bot.getHexString()} 100%)`;
+  glassM.emissiveIntensity = n * 1.05; nGlass.emissiveIntensity = clamp(n * 1.6 - .2);
+  M.bulb && (M.bulb.emissiveIntensity = n * 3);
+  lamps.forEach(l => l.intensity = n * 18); roomLight.intensity = n * 22; roomLight2.intensity = n * 18;
+  // plot outline glow (pulses while the plot is introduced)
+  glow.material.opacity = t < CUES[1] ? clamp((t - .3) / 1.2) : .65 + .35 * Math.sin(t * 4) * (1 - clamp((b - 1) / .5));
+  plotLineM.opacity = .55 * (1 - .6 * clamp((s - 2) / 1));
+  // car drives in during the garden stage
+  const ck = clamp((b - 8.55) / .45);
+  car.visible = ck > 0; car.position.z = lerp(D / 2 + 22, HZ1 + 3.4 - 3.0 - .2, easeOut(ck)) ; car.position.x = (3.0 + HX1) / 2 + .2;
+  // camera
+  const { pos, look } = camAt(s); camera.position.set(...pos); camera.lookAt(...look); camera.updateMatrixWorld();
+  renderer.render(scene, camera);
+  // captions
+  const ti = titleIndex(t, b, n);
+  let since = 0; while (since < .4 && t - since - .05 >= 0 && titleAtTime(t - since - .05) === ti) since += .05;
+  const fadeIn = clamp(since / .35);
+  titleEls.forEach((el, i) => { const on = i === ti; el.style.opacity = on ? fadeIn : 0; el.style.transform = `translateY(${on ? (1 - easeOut(fadeIn)) * 24 : 0}px)`; });
+  stageEls.forEach((el, i) => { const [s0, s1] = STB[i]; const k = clamp((b - s0) / (s1 - s0)); el.querySelector('b').style.width = (k * 100) + '%'; el.classList.toggle('on', b >= s0 && (b < s1 || i === 5)); });
+  document.getElementById('stages').style.opacity = clamp((t - CUES[1]) / .6) * (1 - clamp((t - CUES[5]) / .5));
+  // dimension labels while the plot is introduced
+  const dk = t < CUES[1] ? 0 : clamp((t - CUES[1] - .8) / .5) * (1 - clamp((b - 1.25) / .3));
+  const [wx, wy] = project(0, .2, D / 2 + .6), [ax, ay] = project(W / 2 + .9, .2, 0), [cx, cy] = project(0, .2, 0);
+  Object.assign(dW.style, { left: wx + 'px', top: wy + 'px', opacity: dk });
+  Object.assign(dD.style, { left: ax + 'px', top: ay + 'px', opacity: dk });
+  const akk = t < CUES[1] ? 0 : clamp((t - CUES[1] - 2.0) / .5) * (1 - clamp((b - 1.25) / .3));
+  Object.assign(dA.style, { left: cx + 'px', top: cy + 'px', opacity: akk, transform: `translate(-50%,-50%) scale(${.9 + .1 * easeOut(akk)})` });
+  // footer and note
+  const fk = easeOut((t - CUES[5] - .3) / .6);
+  foot.style.opacity = fk; foot.style.transform = `translateY(${(1 - fk) * 60}px)`;
+  note.style.opacity = (1 - fk) * clamp((b - 2) / .5);
+};
+window.ANIM_DURATION = DUR;
+await document.fonts.ready;
+await new Promise(r => { const i = document.querySelector('.head img'); if (i.complete) r(); else i.onload = i.onerror = r; });
+window.renderAt(0);
+window.READY = true;
+</script>
+</body>
+</html>
