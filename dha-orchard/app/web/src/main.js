@@ -5,7 +5,7 @@ import { buildGeo } from "./geo.js";
 import { createApi, TABLES } from "./api/index.js";
 import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus } from "./map.js";
 import { logo } from "./brand/logo.js";
-import { heroJump, growJump } from "./showcase.js";
+import { heroJump } from "./showcase.js";
 import { sitePage, SITE_PAGES, siteAfterRender, adSource, updateOutlookDom } from "./site.js";
 import { startTour, stopTour, tourOn, resumeTour, updateBudgetDom, bookSummary } from "./site-extras.js";
 import { allView, blockView } from "./panels.js";
@@ -352,7 +352,6 @@ document.addEventListener("click", async (e) => {
   if (d.bookans) { const [k, v] = d.bookans.split(":"); S.bookAns = { ...(S.bookAns || {}), [k]: v }; return render(); }
   if (d.bookstep) { S.bookStep = Number(d.bookstep); render(); const fc = document.querySelector(".formcard"); if (fc && fc.getBoundingClientRect().top < 60) fc.scrollIntoView({ block: "start" }); return; }
   if (d.herostep) return heroJump(Number(d.herostep));
-  if (d.growstep) return growJump(Number(d.growstep));
   if (d.togglesblock) { const b = d.togglesblock; if (S.siteBlocks.has(b)) S.siteBlocks.delete(b); else S.siteBlocks.add(b); S.siteFocus = b; S.siteSent = false; return render(); }
   if (d.outlookblock) { S.inv = { ...S.inv, block: d.outlookblock, price: null }; location.hash = "outlook"; return; }
   if (d.invblock) { S.inv = { ...S.inv, block: d.invblock, price: null }; return render(); }

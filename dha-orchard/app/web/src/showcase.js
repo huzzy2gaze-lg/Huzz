@@ -1,14 +1,13 @@
-// Two parts of the home page that play by themselves, again and again:
-// 1. the hero map: it zooms to each block in turn and a card shows its plots, sizes, price today and our outlook;
-// 2. "Where one plot could go": block by block, the price today, at Block A possession (July 2027) and in December 2028.
+// The hero map of the home page plays by itself, again and again: it zooms to each block in turn (A to H), and a card
+// under the map shows the plots and sizes and, for blocks with market prices, three growing bars:
+// the price today, at Block A possession (July 2027) and in December 2028 (our outlook).
 // The map is the official plan; the tour only moves the view. Nothing is shifted or made up.
 import { S, G, esc } from "./core.js";
 
 const HERO = ["A", "B", "C", "D", "E", "F", "G", "H"];
-const GROW = ["A", "B", "C", "E", "G"]; // the blocks with market prices, in order
-const HERO_MS = 4800, WHOLE_MS = 3200, GROW_MS = 6500;
+const HERO_MS = 6000, WHOLE_MS = 3200;
 let cfg = null; // { BLOCKS, OUT_2027, OUT_2028 } from site.js
-let heroI = 0, growI = 0, lastHero = 0, lastGrow = 0, started = false, anim = 0;
+let heroI = 0, lastHero = 0, started = false, anim = 0;
 
 export function setShowcase(c) { cfg = c; }
 const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -47,10 +46,13 @@ export function heroCard(i) {
     <div class="hc-line">1 Kanal, 14 Marla and 10 Marla plots on the official FGEHA master plan.</div>
     <div class="hc-row"><a href="#book" class="sitebtn solid">Book a call</a></div>`;
   const b = HERO[i - 1], info = cfg.BLOCKS[b], o = outlookFor(b);
-  const price = o ? `<div class="hc-prices"><div><span>Today</span><b>${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr</b></div>
-      <div><span>Jul 2027 outlook</span><b>≈ ${f1(o.y27)} Cr</b></div><div><span>Dec 2028 outlook</span><b class="gold">≈ ${f1(o.y28)} Cr</b></div></div>
-      <div class="hc-fine">${esc(info.size)} plot. Today: market asking prices, Oct 2026. Outlook: our team's view, not a promise.</div>`
-    : `<div class="hc-line">Prices change from plot to plot here. Ask us for today's prices.</div>`;
+  let price = `<div class="hc-line">Prices change from plot to plot here. Ask us for today's prices.</div>`;
+  if (o) {
+    const max = o.y28 * 1.04, gain = Math.round(((o.y28 - o.mid) / o.mid) * 100);
+    const row = (label, v, cls) => `<div class="hg-row ${cls}"><span>${label}</span><div class="hg-track"><i style="--w:${((v / max) * 100).toFixed(1)}%"></i></div><b class="hg-val" data-to="${v.toFixed(2)}">${f2(v)}</b><small>Cr</small></div>`;
+    price = `<div class="hc-growth">${row("Today", o.mid, "now")}${row("Jul 2027", o.y27, "mid")}${row("Dec 2028", o.y28, "end")}</div>
+      <div class="hc-fine"><span class="gbadge">+${gain}% by Dec 2028</span> One ${esc(info.size)} plot. July 2027: Block A possession target. Today: market asks ${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr (Oct 2026). Outlook: our team's view, not a promise.</div>`;
+  }
   return `<div class="hc-eyebrow">Block ${b}${b === "A" ? " · first possession" : ""}</div><div class="hc-title">Block ${b} · about ${info.plots.toLocaleString("en-IN")} plots</div>
     <div class="hc-line">${esc(info.sizes)}</div>${price}
     <div class="hc-row"><a href="#book" class="sitebtn solid" data-act="askPlot" data-block="${b}">Book a call about Block ${b}</a></div>`;
@@ -68,63 +70,32 @@ function paintHero(animate) {
   svg.classList.toggle("whole", !b);
   const card = box.querySelector(".herocard");
   card.innerHTML = heroCard(heroI);
-  if (animate && !reduce()) { card.classList.remove("pop"); void card.offsetWidth; card.classList.add("pop"); }
+  if (animate && !reduce()) {
+    card.classList.remove("pop", "barson"); void card.offsetWidth; card.classList.add("pop");
+    requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add("barson")));
+    card.querySelectorAll(".hg-val").forEach((el, k) => {
+      const to = parseFloat(el.dataset.to), t0 = performance.now() + 250 + k * 450;
+      const step = (now) => { const t = Math.max(0, Math.min(1, (now - t0) / 1000)), e = 1 - Math.pow(1 - t, 3); el.textContent = f2(to * e); if (t < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    });
+  } else card.classList.add("barson");
   box.querySelector(".herodots").innerHTML = heroDots(heroI);
   const bar = box.querySelector(".herobar i");
   if (bar) { bar.style.transition = "none"; bar.style.width = "0%"; void bar.offsetWidth; bar.style.transition = `width ${heroI ? HERO_MS : WHOLE_MS}ms linear`; bar.style.width = "100%"; }
 }
 export function heroJump(i) { heroI = Math.max(0, Math.min(HERO.length, i)); lastHero = Date.now(); paintHero(true); }
 
-// ---------------------------------------------------------------- where one plot could go
-export function growthPanel(b) {
-  const o = outlookFor(b), info = cfg.BLOCKS[b];
-  const max = o.y28 * 1.12;
-  const bar = (v, label, sub, cls) => `<div class="gcol ${cls}"><b class="gval" data-to="${v.toFixed(2)}">${f2(v)}</b><span class="gcr">Cr</span>
-    <div class="gtrack"><i style="--h:${((v / max) * 100).toFixed(1)}%"></i></div><span class="glabel">${label}</span><small>${sub}</small></div>`;
-  const gain = Math.round(((o.y28 - o.mid) / o.mid) * 100);
-  return `<div class="gtitle"><span class="eyebrow">Block ${b}</span><h3>One ${esc(info.size)} plot in Block ${b}</h3><span class="gbadge">+${gain}% by Dec 2028</span></div>
-    <div class="gbars">${bar(o.mid, "Today", "market asks " + (o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])) + " Cr", "now")}${bar(o.y27, "July 2027", "Block A possession", "mid")}${bar(o.y28, "December 2028", "our outlook", "end")}</div>`;
-}
-function growthDots(i) { return GROW.map((b, k) => `<button class="hdot${k === i ? " on" : ""}" data-growstep="${k}" aria-label="Block ${b}">${b}</button>`).join(""); }
-function paintGrowth(animate) {
-  const box = document.querySelector(".growth");
-  if (!box) return;
-  const b = GROW[growI];
-  box.querySelectorAll(".gmap .bmblock").forEach((g) => g.classList.toggle("focus", g.dataset.sblock === b));
-  const panel = box.querySelector(".gpanel");
-  panel.innerHTML = growthPanel(b);
-  box.querySelector(".growdots").innerHTML = growthDots(growI);
-  if (!animate || reduce()) { panel.classList.add("in"); return; }
-  panel.classList.remove("in"); void panel.offsetWidth;
-  requestAnimationFrame(() => panel.classList.add("in"));
-  // the numbers count up with the bars
-  panel.querySelectorAll(".gval").forEach((el, k) => {
-    const to = parseFloat(el.dataset.to), t0 = performance.now() + k * 350;
-    const step = (now) => { const t = Math.max(0, Math.min(1, (now - t0) / 1100)), e = 1 - Math.pow(1 - t, 3); el.textContent = f2(to * e); if (t < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
-  });
-}
-export function growJump(i) { growI = Math.max(0, Math.min(GROW.length - 1, i)); lastGrow = Date.now(); paintGrowth(true); }
-
-// ---------------------------------------------------------------- one timer for both
-const inView = (el) => { const r = el.getBoundingClientRect(); return r.bottom > 80 && r.top < innerHeight - 80; };
-let growSeen = false;
+// ---------------------------------------------------------------- the timer
 function tick() {
   if (document.hidden || !cfg) return;
   const now = Date.now();
   const hero = document.querySelector(".herotour");
   if (hero && !hero.matches(":hover") && now - lastHero > (heroI ? HERO_MS : WHOLE_MS)) { heroI = (heroI + 1) % (HERO.length + 1); lastHero = now; paintHero(true); }
-  const grow = document.querySelector(".growth");
-  if (grow) {
-    if (!inView(grow)) { growSeen = false; return; }
-    if (!growSeen) { growSeen = true; lastGrow = now; paintGrowth(true); return; } // start when it comes into view
-    if (!grow.matches(":hover") && now - lastGrow > GROW_MS) { growI = (growI + 1) % GROW.length; lastGrow = now; paintGrowth(true); }
-  }
 }
 // after each drawing of the page: show the current step at once, then the timer moves on
 export function showcaseAfterRender() {
-  if (!document.querySelector(".herotour") && !document.querySelector(".growth")) return;
-  paintHero(false); paintGrowth(false);
+  if (!document.querySelector(".herotour")) return;
+  paintHero(false);
   if (!lastHero) lastHero = Date.now();
   if (!started) { started = true; setInterval(tick, 200); }
 }

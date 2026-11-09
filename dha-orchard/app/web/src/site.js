@@ -264,7 +264,6 @@ function home() {
     ${timelineSection()}
     ${why()}
     ${howItWorks()}
-    ${growthSection()}
     ${nextDoor()}
     ${nearbySection()}
     ${faqSection()}
@@ -289,17 +288,6 @@ function howItWorks() {
         <li class="reveal"><b>Transfer</b><span>You and the seller go to the authority with your CNIC for biometrics.</span></li>
         <li class="reveal"><b>Allotment letter</b><span>The authority gives the receipt, then your allotment letter.</span></li>
       </ol></div></section>`;
-}
-
-// plays by itself, block by block (showcase.js); the full calculator is on the Outlook page
-function growthSection() {
-  return `<section class="sitesec dark" id="growth"><div class="sitewrap">
-    <div class="sechead"><div class="eyebrow">Investment outlook</div><h2>Where one plot could go</h2>
-      <p>Block by block: the price today, at Block A possession in July 2027, and in December 2028.</p></div>
-    <div class="growth"><div class="gmap">${blockMap(false)}</div><div class="gright"><div class="gpanel"></div><div class="growdots"></div></div></div>
-    <p class="fine light">Today: average market asking price, October 2026. DHA sells a 1 Kanal plot in DHA Margalla Enclave, about 4 km away, for ${ENCLAVE_1K} crore (September 2026). Our team expects Orchard to reach about 85% of that price by July 2027 and to close the gap by the end of 2028. This is an outlook, not a promise. Prices can go up or down.</p>
-    <div class="row"><a href="#book" class="sitebtn solid big">Book a call</a><a href="#outlook" class="sitebtn light">Calculate for your plots</a></div>
-  </div></section>`;
 }
 
 function explorer() {
