@@ -1013,3 +1013,30 @@ body.xnogl{background:linear-gradient(rgba(4,18,13,.82),rgba(4,18,13,.92)),url(p
   .xblock .xfine{font-size:11px}
   .xblock .xbtn{padding:12px 18px;font-size:15px}
 }
+/* Build your home (3D studio) */
+.xstudio{align-items:center}
+.xs-grid{display:grid;grid-template-columns:minmax(0,470px) minmax(0,1fr);gap:28px;width:100%;align-items:center}
+.xs-view{position:relative;height:min(72vh,640px);border-radius:26px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,rgba(231,207,122,.12),rgba(5,24,18,.7));border:1px solid rgba(231,207,122,.22);box-shadow:0 30px 80px rgba(0,0,0,.4);pointer-events:auto;opacity:0;transform:scale(.96);transition:opacity 1s ease .2s,transform 1.2s cubic-bezier(.2,.8,.2,1) .2s}
+.xstudio.in .xs-view{opacity:1;transform:none}
+.xs-canvas{position:absolute;inset:0;cursor:grab}
+.xs-canvas:active{cursor:grabbing}
+.xs-canvas canvas{display:block;width:100%!important;height:100%!important;touch-action:none}
+.xs-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:#A9C4B4;background:rgba(5,24,18,.7);padding:6px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
+.xs-ctrls{display:grid;gap:10px}
+.xs-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.xs-l{width:64px;font-size:12px;color:#A9C4B4}
+.xchip{border:1px solid rgba(231,207,122,.35);background:rgba(255,255,255,.04);color:#EAF2EC;border-radius:999px;padding:7px 13px;font-weight:700;font-size:13px;cursor:pointer;transition:background .2s,border-color .2s}
+.xchip:hover{border-color:#E7CF7A}
+.xchip.on{background:#C9A227;border-color:#C9A227;color:#1A1405}
+.xswatch{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.25);background:linear-gradient(135deg,var(--c) 0 55%,var(--a) 55% 100%);cursor:pointer;padding:0}
+.xswatch.on{border-color:#E7CF7A;box-shadow:0 0 0 3px rgba(231,207,122,.3)}
+.xs-name{font-size:12.5px;color:#CFE0D5;margin-left:4px}
+.xs-stage{display:grid;gap:5px;margin-top:2px}
+.xs-stagename{font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#E7CF7A}
+.xs-stage>i{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.xs-stage>i>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8A6A14,#E7CF7A)}
+@media (max-width:900px){
+  .xs-grid{grid-template-columns:1fr}
+  .xs-view{height:58vh;order:-1}
+  .xstudio{padding-top:80px}
+}

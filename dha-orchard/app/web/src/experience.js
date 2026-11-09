@@ -7,6 +7,8 @@ import { S, G, esc } from "./core.js";
 import { ACTIVE } from "./geo.js";
 import { outlookFor } from "./showcase.js";
 import { MILESTONES } from "./site-extras.js";
+import { makeCommunity } from "./community.js";
+import { studioSection, studioAfterRender, studioClick, stopStudio } from "./studio.js";
 
 let cfg = null; // { BLOCKS, bookSection, waLink, company, logo } from site.js
 export function setExperience(c) { cfg = c; }
@@ -60,6 +62,7 @@ export function experiencePage(c) {
       <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Move your mouse over a block, or tap it.</p>
     </div></section>
     ${ACTIVE.map(blockChapter).join("")}
+    ${studioSection()}
     <section class="xch" data-cam="timeline"><div class="xcard wide">
       <div class="xkicker">Progress</div><h2>${words("From development to possession")}</h2>
       <ol class="xtl">${tl}</ol></div></section>
@@ -88,13 +91,14 @@ function camFor(key) {
     const bb = G.geo.blocks[key].bbox;
     const [x0, z0] = toWorld(bb[0], bb[1]), [x1, z1] = toWorld(bb[2], bb[3]);
     const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, size = Math.max(x1 - x0, z1 - z0);
-    const d = Math.max(3.2, size * (phone ? 2.6 : 2.1));
+    const d = Math.min(3.4, Math.max(1.5, size * (phone ? 1.6 : 1.2))); // close enough to see the homes on the plots
     // on a wide screen the card is on the left: look a little to the left of the block, so the block sits on the right
     const shift = phone ? 0 : size * 0.45 + 0.5;
     return { pos: [cx - shift * 0.3, d * 1.05, cz + d * 0.75], look: [cx - shift, 0, cz + (phone ? d * 0.22 : 0.1)] };
   }
   const D = Math.max(pw, ph) * (phone ? 1.45 : 1.0) / Math.min(1.6, wide);
   if (key === "hero") return { pos: [phone ? 0 : -pw * 0.22, D * 0.8, D * 0.9], look: [phone ? 0 : -pw * 0.3, 0, phone ? 1.2 : 0.2] };
+  if (key === "studio") return { pos: [pw * 0.15, D * 1.05, D * 0.35], look: [pw * 0.15, 0, 0] };
   if (key === "timeline") return { pos: [-D * 0.55, D * 0.6, D * 0.7], look: [0, 0, 0] };
   if (key === "enclave") return { pos: [D * 0.6, D * 0.5, D * 0.75], look: [0, 0, 0] };
   if (key === "book") return { pos: [0, D * 1.15, D * 0.2], look: [0, 0, 0] };
@@ -136,7 +140,7 @@ function build() {
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x071d16, 14, 30);
   const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.05, 80);
-  scene.add(new THREE.HemisphereLight(0xfff3d6, 0x0b2f23, 1.4));
+  const hemi = new THREE.HemisphereLight(0xfff3d6, 0x0b2f23, 1.4); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffe2a8, 2.2); sun.position.set(-6, 10, 6); scene.add(sun);
 
   const [pw, ph] = planSize();
@@ -178,8 +182,19 @@ function build() {
     const lb = G.geo.blocks[b].label, [lx, lz] = toWorld(lb[0], lb[1]);
     blocks[b] = { mesh, edge, group, h: 0.001, target: 0.06, label: new THREE.Vector3(lx, 0, lz) };
   }
+  // homes that rise on the real plots of each block (illustrations)
+  const comm = makeCommunity(G.geo, ACTIVE, toWorld, { maxPerBlock: innerWidth < 760 ? 450 : 1200 });
+  comm.meshes.forEach((m) => scene.add(m));
+  // a line of gold light that traces the route from Block A to Block H as the visitor scrolls
+  const route = new THREE.CatmullRomCurve3(ACTIVE.map((b) => blocks[b].label.clone().setY(0.08)));
+  const routeGeo = new THREE.BufferGeometry().setFromPoints(route.getPoints(400));
+  routeGeo.setDrawRange(0, 0);
+  const routeLine = new THREE.Line(routeGeo, new THREE.LineBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
+  scene.add(routeLine);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), new THREE.MeshBasicMaterial({ color: 0xfff1c4 }));
+  scene.add(head);
   const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(-9, -9);
-  const st = { renderer, scene, camera, plan, planMat, flies, fp, fs, blocks, ray, mouse, pointer: [0, 0], cam: camFor("hero"), cur: null, active: "hero", hover: null, loaded: false, t0: performance.now(), raf: 0, alive: true };
+  const st = { renderer, scene, camera, plan, planMat, hemi, sun, comm, route, routeGeo, head, visited: new Set(), routeP: 0, night: 0, flies, fp, fs, blocks, ray, mouse, pointer: [0, 0], cam: camFor("hero"), cur: null, active: "hero", hover: null, loaded: false, t0: performance.now(), raf: 0, alive: true };
   st.cur = { pos: new THREE.Vector3(...st.cam.pos).add(new THREE.Vector3(0, 6, 6)), look: new THREE.Vector3(...st.cam.look) };
   camera.position.copy(st.cur.pos); camera.lookAt(st.cur.look);
   return st;
@@ -200,14 +215,39 @@ function frame(now) {
   for (const b of ACTIVE) {
     const o = X.blocks[b];
     const on = X.active === b || X.hover === b;
-    o.target = !X.loaded ? 0.001 : on ? 0.55 + Math.sin(t * 2) * 0.03 : ACTIVE.includes(X.active) ? 0.05 : 0.14 + 0.04 * Math.sin(t * 1.2 + ACTIVE.indexOf(b));
+    const here = X.active === b;
+    o.target = !X.loaded ? 0.001 : here ? 0.035 : X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 + Math.sin(t * 2) * 0.03 : ACTIVE.includes(X.active) ? 0.05 : 0.14 + 0.04 * Math.sin(t * 1.2 + ACTIVE.indexOf(b));
     o.h += (o.target - o.h) * (rm ? 1 : 0.07);
     o.group.scale.y = Math.max(0.001, o.h);
-    o.mesh.material.opacity += ((on ? 0.5 : ACTIVE.includes(X.active) ? 0.12 : 0.26) - o.mesh.material.opacity) * 0.08;
+    const built = X.comm.blocks[b].p > 0.6;
+    o.mesh.material.opacity += ((here ? 0.16 : on ? 0.5 : built ? 0.04 : ACTIVE.includes(X.active) ? 0.12 : 0.26) - o.mesh.material.opacity) * 0.08;
     o.mesh.material.emissiveIntensity += ((on ? 1.1 : 0.25) - o.mesh.material.emissiveIntensity) * 0.08;
-    o.edge.material.opacity += ((on ? 1 : ACTIVE.includes(X.active) ? 0.3 : 0.85) - o.edge.material.opacity) * 0.08;
+    o.edge.material.opacity += ((on ? 1 : ACTIVE.includes(X.active) ? 0.3 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
   }
   if (X.loaded) X.planMat.opacity += (1 - X.planMat.opacity) * 0.05;
+  // homes: they rise on a block when the camera arrives, and stay; at the end of the page the whole town is built
+  if (X.loaded) {
+    if (ACTIVE.includes(X.active)) X.visited.add(X.active);
+    const all = ["studio", "timeline", "enclave", "book"].includes(X.active) && X.visited.size >= 3;
+    for (const b of ACTIVE) X.comm.blocks[b].target = X.visited.has(b) || all ? 1.3 : 0;
+    const dt = Math.min(0.25, (now - (X.lastT || now)) / 1000); X.lastT = now;
+    X.comm.step(rm ? 2 : dt * 0.55); // a block's homes take about 2.5 s to rise
+  }
+  // day to night down the page: the light falls and the windows light up
+  const scrollMax = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  const nightT = Math.max(0, Math.min(1, (scrollY / scrollMax - 0.6) / 0.22));
+  X.night += (nightT - X.night) * (rm ? 1 : 0.05);
+  X.hemi.intensity = 1.4 - X.night * 1.05; X.sun.intensity = 2.2 - X.night * 1.9;
+  X.planMat.color.setRGB(0.557 - X.night * 0.27, 0.616 - X.night * 0.29, 0.58 - X.night * 0.24);
+  X.comm.setNight(X.night > 0.5);
+  // the gold route line grows with the block chapters
+  const idx = ACTIVE.indexOf(X.active);
+  const routeT = idx >= 0 ? idx / (ACTIVE.length - 1) : ["studio", "timeline", "enclave", "book"].includes(X.active) ? 1 : 0;
+  X.routeP += (routeT - X.routeP) * (rm ? 1 : 0.04);
+  const cnt = Math.round(X.routeP * 400);
+  X.routeGeo.setDrawRange(0, cnt);
+  X.head.visible = cnt > 2 && cnt < 399;
+  if (X.head.visible) { X.head.position.copy(X.route.getPoint(Math.min(1, X.routeP))); X.head.scale.setScalar(1 + Math.sin(t * 6) * 0.25); }
   // fireflies
   if (!rm) { const p = X.fp; for (let i = 0; i < X.fs.length; i++) { p[i * 3 + 1] += X.fs[i] * 0.004; p[i * 3] += Math.sin(t + i) * 0.0015; if (p[i * 3 + 1] > 3.2) p[i * 3 + 1] = 0; } X.flies.geometry.attributes.position.needsUpdate = true; }
   // hover: which block is under the pointer
@@ -262,6 +302,7 @@ function onMove(e) {
   });
 }
 function onClick(e) {
+  if (studioClick(e.target)) return;
   if (!X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,a,button,header"))) return;
   const s = document.getElementById("x-" + X.hover);
   if (s) s.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "center" });
@@ -305,6 +346,7 @@ export function experienceAfterRender() {
     addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", onResize);
     addEventListener("pointermove", onMove, { passive: true }); addEventListener("click", onClick); addEventListener("touchend", onTouch, { passive: true });
   }
+  studioAfterRender();
   const loader = page.querySelector(".xloader");
   if (X) { loader.remove(); onScroll(); return; }
   if (!G.geo) return;
@@ -326,6 +368,7 @@ export function experienceAfterRender() {
 }
 
 export function stopExperience() {
+  stopStudio();
   document.body.classList.remove("xmode", "xnogl");
   document.body.style.cursor = "";
   document.querySelector(".xprog")?.remove();
