@@ -1,8 +1,8 @@
 # Message for the website session
 
 The website and the sales system are built in the other Claude chat ("DHA Orchard land sharing plots dataset",
-branch `claude/eager-newton-3ife5o`). Copy the text below into that chat when you are ready. It is written so that
-chat can do the work without this one.
+branch `claude/eager-newton-3ife5o`). **Sent to that chat on 9 Nov 2026**, with the request to rebuild the website and its 3D version in Margalla Teal.
+The text below is kept for reference.
 
 ---
 
