@@ -23,13 +23,16 @@ async function signIn(page, email) {
   await page.waitForSelector('.site .hero', { timeout: 60000 }); await page.waitForTimeout(2600);
   log('hero:', (await page.locator('.hero h1').innerText()).replace(/\n/g, ' '));
   await page.screenshot({ path: OUT + '/w-hero.png' });
-  // choose blocks on the block map
+  // the home page tours by itself; choose blocks on the Blocks page
+  log('hero tour card:', await page.locator('.herocard .hc-title').innerText());
+  await page.evaluate(() => { location.hash = 'blocks'; }); await page.waitForSelector('.explore');
   await page.locator('.explore [data-sblock="A"]').scrollIntoViewIfNeeded();
   await page.click('.explore [data-sblock="A"] .bmlabel'); await page.waitForTimeout(300);
   await page.click('.explore [data-sblock="C"] .bmlabel'); await page.waitForTimeout(300);
   log('chosen:', await page.locator('.chosen span').innerText(), '| card:', await page.locator('.bcardx h3').innerText());
   await page.screenshot({ path: OUT + '/w-explore.png' });
   // the outlook for Block C, 2 plots
+  await page.evaluate(() => { location.hash = 'outlook'; }); await page.waitForSelector('[data-invblock="C"]');
   await page.click('[data-invblock="C"]'); await page.click('[data-invn="1"]'); await page.waitForTimeout(300);
   await page.locator('.ochart').scrollIntoViewIfNeeded(); await page.waitForTimeout(1900);
   log('outlook:', (await page.locator('.bignums').innerText()).replace(/\n/g, ' | '));
@@ -37,7 +40,7 @@ async function signIn(page, email) {
   log('after price 4.40:', (await page.locator('.bignums').innerText()).replace(/\n/g, ' | '));
   await page.screenshot({ path: OUT + '/w-outlook.png' });
   // book a call
-  await page.locator('.formcard').scrollIntoViewIfNeeded();
+  await page.evaluate(() => { location.hash = 'book'; }); await page.waitForSelector('.formcard');
   await page.click('[data-bookans="goal:invest"]'); await page.click('[data-bookstep="2"]');
   await page.click('[data-bookans="budget:3-4"]'); await page.click('[data-bookans="size:1 Kanal"]'); await page.click('[data-bookstep="3"]');
   log('step 3 blocks on:', await page.locator('.formcard .chip2.on').allInnerTexts());

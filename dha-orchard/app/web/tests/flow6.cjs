@@ -10,8 +10,10 @@ const log = (...a) => console.log(...a);
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console ' + m.text()); });
   await page.goto('http://localhost:4173/?demo&fresh#home'); await page.waitForSelector('.site .hero', { timeout: 60000 }); await page.waitForTimeout(2500);
   log('Block A beacon on the hero map:', await page.locator('.heromap2 .beaconA').count(), '| tag:', await page.locator('.heromap2 .atag text').innerHTML());
-  // the tour, started from the hero button
-  await page.click('.hero [data-act="tour"]'); await page.waitForTimeout(2200);
+  log('hero tour plays by itself:', await page.locator('.herocard .hc-title').innerText());
+  // the tour of the Blocks page, started from its button
+  await page.evaluate(() => { location.hash = 'blocks'; }); await page.waitForSelector('.explore');
+  await page.click('.sechead [data-act="tour"]'); await page.waitForTimeout(2200);
   log('tour step 1:', (await page.locator('.tourcap').innerText()).split('\n')[0], '| zoomed viewBox:', await page.locator('.explore .bmap').getAttribute('viewBox'));
   await page.screenshot({ path: OUT + '/x-tour-1.png' });
   await page.waitForTimeout(4300);
@@ -29,7 +31,8 @@ const log = (...a) => console.log(...a);
   await page.click('.bmatch [data-togglesblock="G"]'); await page.waitForTimeout(300);
   log('G in my call:', await page.locator('.chosen span').innerText());
   await page.screenshot({ path: OUT + '/x-budget.png' });
-  // timeline and countdown
+  // timeline and countdown, on the home page
+  await page.evaluate(() => { location.hash = 'home'; }); await page.waitForSelector('#progress');
   await page.locator('#progress').scrollIntoViewIfNeeded(); await page.waitForTimeout(1800);
   log('timeline:', await page.locator('.tm b').allInnerTexts(), '| countdown', await page.locator('.cdown b').innerText());
   await page.screenshot({ path: OUT + '/x-timeline.png' });
@@ -42,6 +45,7 @@ const log = (...a) => console.log(...a);
   await page.click('#siteSettingsForm button[type=submit]'); await page.waitForTimeout(700);
   await page.click('[data-act="switchUser"]'); await page.evaluate(() => { location.hash = 'home'; }); await page.waitForTimeout(1200);
   log('nearby on the website:', (await page.locator('#nearby .nearby').innerText()).replace(/\n/g, ' | '));
+  await page.evaluate(() => { location.hash = 'blocks'; }); await page.waitForSelector('.bcardx');
   log('WhatsApp button for the block:', await page.locator('.bcardx .sitebtn.wa').getAttribute('href'));
   // share a plot
   await page.evaluate(() => { location.hash = 'plan'; }); await page.waitForTimeout(800);

@@ -6,6 +6,7 @@ import { S, G, esc } from "./core.js";
 import { SIZES, ACTIVE } from "./geo.js";
 import { mapSVG } from "./map.js";
 import { logo } from "./brand/logo.js";
+import { setShowcase, showcaseAfterRender } from "./showcase.js";
 let introDone = false;
 import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection, shareLink, GOALS, BUDGETS, WANT_SIZES, bookSummary } from "./site-extras.js";
 
@@ -32,6 +33,7 @@ export const BLOCKS = {
 // Careful case: about 9% a year, as in the last 12 months.
 const TODAY_1K = 3.8, ENCLAVE_1K = 7.29;
 const OUT_2027 = 6.2 / TODAY_1K, OUT_2028 = 7.3 / TODAY_1K, CAREFUL = 0.09;
+setShowcase({ BLOCKS, OUT_2027, OUT_2028 });
 
 function header() {
   const p = S.sitePage;
@@ -62,11 +64,11 @@ function waLink(msg) {
 }
 
 // ---------------------------------------------------------------- the block map (8 blocks on the plan)
-function blockMap(animated) {
+function blockMap() {
   const geo = G.geo, W = G.world[2], H = G.world[3];
   const hulls = ACTIVE.map((b) => ({ b, polys: geo.blocks[b].hull, label: geo.blocks[b].label }));
   const all = hulls.flatMap((h) => h.polys).map((p) => `<polygon points="${ptsStr(p)}"/>`).join("");
-  let s = `<svg class="bmap${animated ? " drawin" : ""}" viewBox="${(-W * 0.04).toFixed(0)} ${(-H * 0.04).toFixed(0)} ${(W * 1.08).toFixed(0)} ${(H * 1.08).toFixed(0)}" role="img" aria-label="The eight blocks of DHA Margalla Orchard on the official plan">
+  let s = `<svg class="bmap" viewBox="${(-W * 0.04).toFixed(0)} ${(-H * 0.04).toFixed(0)} ${(W * 1.08).toFixed(0)} ${(H * 1.08).toFixed(0)}" role="img" aria-label="The eight blocks of DHA Margalla Orchard on the official plan">
     <defs><clipPath id="bm-clip">${all}</clipPath></defs>
     <image href="plan.webp" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" clip-path="url(#bm-clip)" class="bmplan"/>`;
   hulls.forEach((h, i) => {
@@ -242,15 +244,16 @@ function contactBlock() {
 
 // ---------------------------------------------------------------- pages
 function home() {
+  const wa = waLink();
   return `<section class="hero"><div class="sitewrap herogrid">
       <div class="herotext">
         <div class="eyebrow">DHA Margalla Orchard · Islamabad</div>
         <h1><span class="rise">Your plot in</span> <span class="rise d1">DHA Margalla Orchard.</span></h1>
         <p class="rise d2">${esc(set("about") || "Developed by DHA Islamabad on Main Park Road. 1 Kanal, 14 Marla and 10 Marla plots on the official FGEHA master plan.")}</p>
-        <div class="herobtns rise d3"><a href="#book" class="sitebtn solid big">Book a call</a><button class="sitebtn big light" data-act="tour">▶ Tour the blocks</button></div>
+        <div class="herobtns rise d3"><a href="#book" class="sitebtn solid big">Book a call</a>${wa ? `<a href="${wa}" class="sitebtn big wa" target="_blank" rel="noopener">WhatsApp</a>` : ""}</div>
         <div class="trust rise d3"><span>Block A possession: July 2027 target</span><span>50% of development done</span><span>Source: FGEHA, Oct 2026</span></div>
       </div>
-      <a href="#blocks" class="heromap2" aria-label="Explore the blocks on the master plan">${blockMap(true)}</a>
+      <div class="heromap2 herotour" aria-label="Tour of the blocks on the official master plan"><div class="herobar"><i></i></div>${blockMap(false)}<div class="herocard" aria-live="polite"></div><div class="herodots"></div></div>
     </div></section>
     <section class="numbers"><div class="sitewrap nums4">
       <div><b class="countup" data-to="4781">4,781</b><span>residential plots</span></div>
@@ -258,27 +261,45 @@ function home() {
       <div><b class="countup" data-to="8">8</b><span>blocks, A to H</span></div>
       <div><b><span class="countup" data-to="50">50</span>%</b><span>of development done</span></div>
     </div></section>
-    ${explorer()}
-    ${sizesSection()}
-    ${budgetSection()}
-    ${outlookSection(false)}
-    ${nextDoor()}
     ${timelineSection()}
-    ${nearbySection()}
     ${why()}
-    <section class="sitesec"><div class="sitewrap"><div class="sechead"><div class="eyebrow">How it works</div><h2>From a call to your allotment letter</h2></div>
+    ${howItWorks()}
+    ${growthSection()}
+    ${nextDoor()}
+    ${nearbySection()}
+    ${faqSection()}
+    ${bookSection()}
+    <section class="sitesec join"><div class="sitewrap joinbox"><div><div class="eyebrow">Investor list</div><h2>Hear about new plots first</h2>
+      <p>Create a free account. We send you news about new plots and investment opportunities in DHA Margalla Orchard, by WhatsApp, SMS or e-mail.</p></div>
+      <a href="#${S.user ? "account" : "signin"}" class="sitebtn solid big">${S.user ? "My account" : "Join the investor list"}</a></div></section>`;
+}
+
+// "Book a call" stays on the screen on laptops and TVs, with a soft pulse; phones have the bar at the bottom
+function floatCta(wa) {
+  if (["book", "contact", "signin", "account"].includes(S.sitePage)) return "";
+  return `<div class="floatcta"><a class="fbook" href="#book"><span class="fdot"></span>Book a call</a>${wa ? `<a class="wafloat" href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp us"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.3 19.4L3 29l6.8-1.8A13 13 0 1 0 16 3zm0 23.6a10.6 10.6 0 0 1-5.4-1.5l-.4-.2-4 1 1.1-3.9-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.6 3.6 0 0 0-1.1 2.7 6.3 6.3 0 0 0 1.3 3.3 14.4 14.4 0 0 0 5.5 4.9c2 .9 2.8.9 3.8.8a3.2 3.2 0 0 0 2.1-1.5 2.6 2.6 0 0 0 .2-1.5c-.1-.2-.3-.3-.6-.4z"/></svg></a>` : ""}</div>`;
+}
+
+function howItWorks() {
+  return `<section class="sitesec"><div class="sitewrap"><div class="sechead"><div class="eyebrow">How it works</div><h2>From a call to your allotment letter</h2></div>
       <ol class="steps5">
         <li class="reveal"><b>A call with us</b><span>We answer your questions and help you choose a block and a plot.</span></li>
         <li class="reveal"><b>Token (Bayana)</b><span>Price, time for the transfer, token amount and mode of payment are agreed.</span></li>
         <li class="reveal"><b>NDC</b><span>The No Demand Certificate goes to the authority for approval.</span></li>
         <li class="reveal"><b>Transfer</b><span>You and the seller go to the authority with your CNIC for biometrics.</span></li>
         <li class="reveal"><b>Allotment letter</b><span>The authority gives the receipt, then your allotment letter.</span></li>
-      </ol></div></section>
-    ${bookSection()}
-    ${faqSection()}
-    <section class="sitesec join"><div class="sitewrap joinbox"><div><div class="eyebrow">Investor list</div><h2>Hear about new plots first</h2>
-      <p>Create a free account. We send you news about new plots and investment opportunities in DHA Margalla Orchard, by WhatsApp, SMS or e-mail.</p></div>
-      <a href="#${S.user ? "account" : "signin"}" class="sitebtn solid big">${S.user ? "My account" : "Join the investor list"}</a></div></section>`;
+      </ol></div></section>`;
+}
+
+// plays by itself, block by block (showcase.js); the full calculator is on the Outlook page
+function growthSection() {
+  return `<section class="sitesec dark" id="growth"><div class="sitewrap">
+    <div class="sechead"><div class="eyebrow">Investment outlook</div><h2>Where one plot could go</h2>
+      <p>Block by block: the price today, at Block A possession in July 2027, and in December 2028.</p></div>
+    <div class="growth"><div class="gmap">${blockMap(false)}</div><div class="gright"><div class="gpanel"></div><div class="growdots"></div></div></div>
+    <p class="fine light">Today: average market asking price, October 2026. DHA sells a 1 Kanal plot in DHA Margalla Enclave, about 4 km away, for ${ENCLAVE_1K} crore (September 2026). Our team expects Orchard to reach about 85% of that price by July 2027 and to close the gap by the end of 2028. This is an outlook, not a promise. Prices can go up or down.</p>
+    <div class="row"><a href="#book" class="sitebtn solid big">Book a call</a><a href="#outlook" class="sitebtn light">Calculate for your plots</a></div>
+  </div></section>`;
 }
 
 function explorer() {
@@ -343,17 +364,18 @@ export function sitePage() {
   else if (S.sitePage === "account") body = account();
   else if (S.sitePage === "signin") body = signin();
   else if (S.sitePage === "outlook") body = outlookSection(true) + bookSection();
-  else if (S.sitePage === "blocks") body = explorer() + bookSection();
+  else if (S.sitePage === "blocks") body = explorer() + sizesSection() + budgetSection() + bookSection();
   else if (S.sitePage === "contact" || S.sitePage === "book") body = bookSection();
   else body = home();
   const wa = waLink();
   const sticky = S.sitePage !== "book" && S.sitePage !== "contact" ? `<div class="stickycta"><a href="#book" class="sitebtn solid">Book a call</a>${wa ? `<a href="${wa}" class="sitebtn wa" target="_blank" rel="noopener">WhatsApp</a>` : ""}</div>` : "";
-  return `<div class="site page-${S.sitePage}">${header()}<main>${body}</main>${S.sitePage === "plan" ? "" : footer()}${sticky}${wa ? `<a class="wafloat" href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp us"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.3 19.4L3 29l6.8-1.8A13 13 0 1 0 16 3zm0 23.6a10.6 10.6 0 0 1-5.4-1.5l-.4-.2-4 1 1.1-3.9-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.6 3.6 0 0 0-1.1 2.7 6.3 6.3 0 0 0 1.3 3.3 14.4 14.4 0 0 0 5.5 4.9c2 .9 2.8.9 3.8.8a3.2 3.2 0 0 0 2.1-1.5 2.6 2.6 0 0 0 .2-1.5c-.1-.2-.3-.3-.6-.4z"/></svg><span>WhatsApp us</span></a>` : ""}</div>`;
+  return `<div class="site page-${S.sitePage}">${header()}<main>${body}</main>${S.sitePage === "plan" ? "" : footer()}${sticky}${floatCta(wa)}</div>`;
 }
 
 // ---------------------------------------------------------------- motion after drawing
 let io = null;
 export function siteAfterRender() {
+  showcaseAfterRender();
   if (!window.__headScroll) {
     window.__headScroll = true;
     const onScroll = () => document.querySelector(".sitehead")?.classList.toggle("small", scrollY > 40);
