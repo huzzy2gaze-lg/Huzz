@@ -45,7 +45,7 @@ export function makeCommunity(geo, blocks, toWorld, { maxPerBlock = 1200 } = {})
     });
     const maxD = Math.max(...items.map((t) => t.dist), 1e-6);
     items.forEach((t) => { t.delay = (t.dist / maxD) * 0.8; });
-    for (const m of [body, roof, win]) { m.castShadow = false; m.receiveShadow = false; m.frustumCulled = false; m.visible = false; }
+    for (const m of [body, roof, win]) { m.renderOrder = 1; m.castShadow = false; m.receiveShadow = false; m.frustumCulled = false; m.visible = false; }
     out[b] = { body, roof, win, items, p: 0, target: 0 };
     update(out[b], 0);
   }

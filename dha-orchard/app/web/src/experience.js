@@ -5,6 +5,7 @@
 import * as THREE from "three";
 import { S, G, esc } from "./core.js";
 import { ACTIVE } from "./geo.js";
+const TOUR = ["A", "B", "C"]; // the blocks the page flies to, in order
 import { outlookFor } from "./showcase.js";
 import { MILESTONES } from "./site-extras.js";
 import { makeCommunity } from "./community.js";
@@ -51,7 +52,7 @@ export function experiencePage(c) {
     <section class="xch xhero" data-cam="hero">
       <div class="xkicker">DHA Margalla Orchard · Islamabad</div>
       <h1>${words("Your plot in")}<br>${words("DHA Margalla Orchard.", "gold")}</h1>
-      <p class="xlead">The official FGEHA master plan, in 3D. Scroll to fly over the eight blocks, from A to H.</p>
+      <p class="xlead">The official FGEHA master plan, in 3D. Scroll to fly over Blocks A, B and C, then build your home.</p>
       <div class="xrow"><a href="#book" class="xbtn" data-magnet>Book a call</a>${wa ? `<a href="${wa}" class="xbtn ghost" target="_blank" rel="noopener" data-magnet>WhatsApp</a>` : ""}</div>
       <div class="xscroll"><i></i>Scroll</div>
     </section>
@@ -61,7 +62,7 @@ export function experiencePage(c) {
       <div class="xstats"><div><b data-count="4781">0</b><span>residential plots</span></div><div><b data-count="8432">0</b><span>kanals of land</span></div><div><b data-count="50">0</b><span>% of development done</span></div></div>
       <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Move your mouse over a block, or tap it.</p>
     </div></section>
-    ${ACTIVE.map(blockChapter).join("")}
+    ${TOUR.map(blockChapter).join("")}
     ${studioSection()}
     <section class="xch" data-cam="timeline"><div class="xcard wide">
       <div class="xkicker">Progress</div><h2>${words("From development to possession")}</h2>
@@ -171,7 +172,7 @@ function build() {
     const shapes = G.geo.blocks[b].hull.map((poly) => new THREE.Shape(poly.map(([x, y]) => { const [wx, wz] = toWorld(x, y); return new THREE.Vector2(wx, -wz); })));
     const geo = new THREE.ExtrudeGeometry(shapes, { depth: 1, bevelEnabled: false });
     geo.rotateX(-Math.PI / 2);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xd8b25a, emissive: 0xd2a746, emissiveIntensity: 0.25, roughness: 0.4, metalness: 0.2, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xd8b25a, emissive: 0xd2a746, emissiveIntensity: 0.25, roughness: 0.4, metalness: 0.2, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 });
     const mesh = new THREE.Mesh(geo, mat); mesh.userData.block = b;
     // a clean gold outline at the base and at the top of the block (the top line goes up with the block)
     const lineMat = new THREE.LineBasicMaterial({ color: 0xeedbb8, transparent: true, opacity: 0.9 });
@@ -179,20 +180,20 @@ function build() {
     for (const poly of G.geo.blocks[b].hull) {
       const pts = poly.map(([x, y]) => { const [wx, wz] = toWorld(x, y); return new THREE.Vector3(wx, 0, wz); });
       const lg = new THREE.BufferGeometry().setFromPoints(pts);
-      const base = new THREE.LineLoop(lg, lineMat); base.position.y = 0.004;
-      const top = new THREE.LineLoop(lg, lineMat); top.position.y = 1;
-      group.add(base, top);
+      const base = new THREE.LineLoop(lg, lineMat); base.position.y = 0.006; base.renderOrder = 3;
+      const top = new THREE.LineLoop(lg, lineMat); top.position.y = 1; top.renderOrder = 3;
+      scene.add(base); group.add(top); // the base line is not scaled with the block, so it never sinks into the plan
     }
-    group.scale.y = 0.001; scene.add(group);
+    group.scale.y = 0.001; group.position.y = 0.003; mesh.renderOrder = 2; scene.add(group);
     const edge = { material: lineMat };
     const lb = G.geo.blocks[b].label, [lx, lz] = toWorld(lb[0], lb[1]);
     blocks[b] = { mesh, edge, group, h: 0.001, target: 0.06, label: new THREE.Vector3(lx, 0, lz) };
   }
   // homes that rise on the real plots of each block (illustrations)
-  const comm = makeCommunity(G.geo, ACTIVE, toWorld, { maxPerBlock: innerWidth < 760 ? 450 : 1200 });
+  const comm = makeCommunity(G.geo, TOUR, toWorld, { maxPerBlock: innerWidth < 760 ? 450 : 1200 });
   comm.meshes.forEach((m) => scene.add(m));
   // a line of gold light that traces the route from Block A to Block H as the visitor scrolls
-  const route = new THREE.CatmullRomCurve3(ACTIVE.map((b) => blocks[b].label.clone().setY(0.08)));
+  const route = new THREE.CatmullRomCurve3(TOUR.map((b) => blocks[b].label.clone().setY(0.08)));
   const routeGeo = new THREE.BufferGeometry().setFromPoints(route.getPoints(400));
   routeGeo.setDrawRange(0, 0);
   const routeLine = new THREE.Line(routeGeo, new THREE.LineBasicMaterial({ color: 0xeedbb8, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending, depthWrite: false }));
@@ -226,21 +227,21 @@ function frame(now) {
     const on = X.active === b || (X.hover === b && !inBlock);
     if (on && o.lit !== true) { o.lit = true; } else if (!on) o.lit = false;
     const here = X.active === b;
-    o.target = !X.loaded ? 0.001 : here ? 0.035 : X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 + Math.sin(t * 2) * 0.03 : ACTIVE.includes(X.active) ? 0.05 : 0.14 + 0.04 * Math.sin(t * 1.2 + ACTIVE.indexOf(b));
+    o.target = !X.loaded ? 0.001 : here ? 0.035 : X.comm.blocks[b] && X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 + Math.sin(t * 2) * 0.03 : ACTIVE.includes(X.active) ? 0.05 : 0.14 + 0.04 * Math.sin(t * 1.2 + ACTIVE.indexOf(b));
     o.h += (o.target - o.h) * (rm ? 1 : 0.07);
     o.group.scale.y = Math.max(0.001, o.h);
-    const built = X.comm.blocks[b].p > 0.6;
+    const built = !!(X.comm.blocks[b] && X.comm.blocks[b].p > 0.6);
     o.mesh.material.opacity += ((here ? 0.34 : on ? 0.5 : built ? 0.04 : ACTIVE.includes(X.active) ? 0.12 : 0.26) - o.mesh.material.opacity) * 0.08;
     o.mesh.material.emissiveIntensity += ((on ? 1.4 : 0.25) - o.mesh.material.emissiveIntensity) * 0.08;
     o.edge.material.opacity += ((on ? 1 : ACTIVE.includes(X.active) ? 0.15 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
   }
   document.body.dataset.xlit = ACTIVE.filter((b) => X.blocks[b].lit).join("");
-  if (X.loaded) X.planMat.opacity += (1 - X.planMat.opacity) * 0.05;
+  if (X.loaded && X.planMat.transparent) { X.planMat.opacity += (1 - X.planMat.opacity) * 0.05; if (X.planMat.opacity > 0.985) { X.planMat.opacity = 1; X.planMat.transparent = false; X.planMat.needsUpdate = true; } }
   // homes: they rise on a block when the camera arrives, and stay; at the end of the page the whole town is built
   if (X.loaded) {
     if (ACTIVE.includes(X.active)) X.visited.add(X.active);
-    const all = ["studio", "timeline", "enclave", "book"].includes(X.active) && X.visited.size >= 3;
-    for (const b of ACTIVE) X.comm.blocks[b].target = X.visited.has(b) || all ? 1.3 : 0;
+    const all = ["studio", "timeline", "enclave", "book"].includes(X.active) && X.visited.size >= 2;
+    for (const b of TOUR) X.comm.blocks[b].target = X.visited.has(b) || all ? 1.3 : 0;
     const dt = Math.min(0.25, (now - (X.lastT || now)) / 1000); X.lastT = now;
     X.comm.step(rm ? 2 : dt * 0.55); // a block's homes take about 2.5 s to rise
   }
@@ -253,8 +254,8 @@ function frame(now) {
   X.planMat.color.setRGB((0.561 - X.night * 0.27) * X.dim, (0.639 - X.night * 0.29) * X.dim, (0.639 - X.night * 0.26) * X.dim);
   X.comm.setNight(X.night > 0.5);
   // the gold route line grows with the block chapters
-  const idx = ACTIVE.indexOf(X.active);
-  const routeT = idx >= 0 ? idx / (ACTIVE.length - 1) : ["studio", "timeline", "enclave", "book"].includes(X.active) ? 1 : 0;
+  const idx = TOUR.indexOf(X.active);
+  const routeT = idx >= 0 ? idx / (TOUR.length - 1) : ["studio", "timeline", "enclave", "book"].includes(X.active) ? 1 : 0;
   X.routeP += (routeT - X.routeP) * (rm ? 1 : 0.04);
   const cnt = Math.round(X.routeP * 400);
   X.routeGeo.setDrawRange(0, cnt);
@@ -279,7 +280,7 @@ function showTip(b) {
   if (!tip) return;
   if (!b) { tip.classList.remove("on"); return; }
   const info = cfg.BLOCKS[b], o = outlookFor(b);
-  tip.innerHTML = `<b>Block ${b}</b><span>about ${info.plots.toLocaleString("en-IN")} plots · ${esc(info.sizes)}</span>${o ? `<span>Today ${f2(o.today[0])}${o.today[1] > o.today[0] ? "–" + f2(o.today[1]) : ""} Cr · Dec 2028 ≈ ${f1(o.y28)} Cr</span>` : ""}<i>Click to fly there</i>`;
+  tip.innerHTML = `<b>Block ${b}</b><span>about ${info.plots.toLocaleString("en-IN")} plots · ${esc(info.sizes)}</span>${o ? `<span>Today ${f2(o.today[0])}${o.today[1] > o.today[0] ? "–" + f2(o.today[1]) : ""} Cr · Dec 2028 ≈ ${f1(o.y28)} Cr</span>` : ""}${TOUR.includes(b) ? "<i>Click to fly there</i>" : ""}`;
   tip.classList.add("on");
 }
 
