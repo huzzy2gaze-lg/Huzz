@@ -7,7 +7,7 @@ const WIDTH_FT = { "1K": 50, "14M": 40, "10M": 32, X: 40 };
 const FLOOR_FT = 11; // one floor, about 3.35 m
 
 // toWorld(x, y) -> [wx, wz] in scene units
-export function makeCommunity(geo, blocks, toWorld, { maxPerBlock = 1200 } = {}) {
+export function makeCommunity(geo, blocks, toWorld, { maxPerBlock = Infinity } = {}) {
   const out = {};
   const dummy = new THREE.Object3D();
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.75, metalness: 0.02 });
@@ -55,8 +55,8 @@ export function makeCommunity(geo, blocks, toWorld, { maxPerBlock = 1200 } = {})
       const h = Math.max(1e-4, t.h * e);
       dummy.position.set(t.x, 0.002, t.z); dummy.rotation.set(0, -t.ang, 0);
       dummy.scale.set(t.fl, h, t.fw); dummy.updateMatrix(); c.body.setMatrixAt(i, dummy.matrix);
-      dummy.position.set(t.x, h, t.z); dummy.scale.set(t.fl * 1.04, Math.max(1e-4, t.h * 0.06 * e), t.fw * 1.04); dummy.updateMatrix(); c.roof.setMatrixAt(i, dummy.matrix);
-      dummy.position.set(t.x, h * 0.18, t.z); dummy.scale.set(t.fl * 1.01, Math.max(1e-4, h * 0.6), t.fw * 0.5); dummy.updateMatrix(); c.win.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(t.x, h * 1.001, t.z); dummy.scale.set(t.fl * 1.06, Math.max(1e-4, t.h * 0.06 * e), t.fw * 1.06); dummy.updateMatrix(); c.roof.setMatrixAt(i, dummy.matrix);
+      dummy.position.set(t.x, h * 0.18, t.z); dummy.scale.set(t.fl * 1.08, Math.max(1e-4, h * 0.55), t.fw * 0.5); dummy.updateMatrix(); c.win.setMatrixAt(i, dummy.matrix); // the window strip stands clear of the wall, so the two never fight
     });
     for (const m of [c.body, c.roof, c.win]) { m.instanceMatrix.needsUpdate = true; m.visible = p > 0.001; }
     if (c.body.instanceColor) c.body.instanceColor.needsUpdate = true;

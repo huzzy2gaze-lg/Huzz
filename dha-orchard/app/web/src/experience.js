@@ -146,7 +146,7 @@ function build() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x061414, 14, 30);
-  const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.05, 80);
+  const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.15, 60); // a nearer start gives finer depth, so small homes do not flicker
   const hemi = new THREE.HemisphereLight(0xfff3d6, 0x0b3a40, 1.4); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffe2a8, 2.2); sun.position.set(-6, 10, 6); scene.add(sun);
 
@@ -190,7 +190,7 @@ function build() {
     blocks[b] = { mesh, edge, group, h: 0.001, target: 0.06, label: new THREE.Vector3(lx, 0, lz) };
   }
   // homes that rise on the real plots of each block (illustrations)
-  const comm = makeCommunity(G.geo, TOUR, toWorld, { maxPerBlock: innerWidth < 760 ? 450 : 1200 });
+  const comm = makeCommunity(G.geo, TOUR, toWorld); // a home on every plot of the block (instancing keeps it fast on phones)
   comm.meshes.forEach((m) => scene.add(m));
   // a line of gold light that traces the route from Block A to Block H as the visitor scrolls
   const route = new THREE.CatmullRomCurve3(TOUR.map((b) => blocks[b].label.clone().setY(0.08)));
@@ -227,11 +227,11 @@ function frame(now) {
     const on = X.active === b || (X.hover === b && !inBlock);
     if (on && o.lit !== true) { o.lit = true; } else if (!on) o.lit = false;
     const here = X.active === b;
-    o.target = !X.loaded ? 0.001 : here ? 0.035 : X.comm.blocks[b] && X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 + Math.sin(t * 2) * 0.03 : ACTIVE.includes(X.active) ? 0.05 : 0.14 + 0.04 * Math.sin(t * 1.2 + ACTIVE.indexOf(b));
+    o.target = !X.loaded ? 0.001 : here ? 0.006 : X.comm.blocks[b] && X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 + Math.sin(t * 2) * 0.03 : ACTIVE.includes(X.active) ? 0.05 : 0.14 + 0.04 * Math.sin(t * 1.2 + ACTIVE.indexOf(b));
     o.h += (o.target - o.h) * (rm ? 1 : 0.07);
     o.group.scale.y = Math.max(0.001, o.h);
     const built = !!(X.comm.blocks[b] && X.comm.blocks[b].p > 0.6);
-    o.mesh.material.opacity += ((here ? 0.34 : on ? 0.5 : built ? 0.04 : ACTIVE.includes(X.active) ? 0.12 : 0.26) - o.mesh.material.opacity) * 0.08;
+    o.mesh.material.opacity += ((here ? 0.2 : on ? 0.5 : built ? 0.04 : ACTIVE.includes(X.active) ? 0.12 : 0.26) - o.mesh.material.opacity) * 0.08;
     o.mesh.material.emissiveIntensity += ((on ? 1.4 : 0.25) - o.mesh.material.emissiveIntensity) * 0.08;
     o.edge.material.opacity += ((on ? 1 : ACTIVE.includes(X.active) ? 0.15 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
   }
