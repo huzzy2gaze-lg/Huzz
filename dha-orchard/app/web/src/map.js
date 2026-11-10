@@ -281,7 +281,14 @@ function setLift(wrap, b) {
 }
 function clickMap(el, ev) {
   const d = el.dataset || {};
-  if (siteMode()) { hooks.siteClick(d.p || null); return; }
+  if (siteMode()) {
+    // the public map: a tap on a block (or anywhere in it when the map is far out) zooms into that block;
+    // closer in, the plot numbers show and a tap opens the plot
+    const b = d.p ? d.p.split("-")[0] : d.b || null;
+    const far = el.closest && el.closest("svg") && el.closest("svg").classList.contains("far");
+    if (b && G.geo.blocks[b] && (far || !d.p)) { siteZoomBlock(b); return; }
+    hooks.siteClick(d.p || null); return;
+  }
   if (S.view === "block" && d.p && d.p.split("-")[0] === S.block && (S.multi || (ev && (ev.shiftKey || ev.ctrlKey || ev.metaKey)))) {
     if (!S.multi) { S.multi = true; if (S.plot && G.geo.plots[S.plot]) S.sel.add(S.plot); }
     if (S.sel.has(d.p)) S.sel.delete(d.p);
@@ -297,6 +304,19 @@ function clickMap(el, ev) {
   if (d.b && S.view !== "block") go("block", b, null);
 }
 
+// the public map: the view that shows one whole block
+export function blockVB(b) {
+  const bb = G.geo.blocks[b].bbox, pad = Math.max(bb[2] - bb[0], bb[3] - bb[1]) * 0.06;
+  return fitBox(bb, pad);
+}
+export function siteZoomBlock(b) {
+  if (!G.geo || (b !== "all" && !G.geo.blocks[b])) return;
+  const from = (S.vb.site || [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14]).slice();
+  S.vb.site = b === "all" ? [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14] : blockVB(b);
+  S._anim = { from };
+  S.planZoom = b; S.sitePlot = null;
+  hooks.render();
+}
 // the public map: zoom smoothly to a plot and open its card
 export function siteFocus(id) {
   const p = G.geo && G.geo.plots[id];

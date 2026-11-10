@@ -4,7 +4,7 @@
 // client offer. The outlook is the team's view, shown with a clear note that it is not a promise.
 import { S, G, esc } from "./core.js";
 import { SIZES, ACTIVE } from "./geo.js";
-import { mapSVG } from "./map.js";
+import { mapSVG, blockVB } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { setShowcase, showcaseAfterRender } from "./showcase.js";
 import { experiencePage, experienceAfterRender } from "./experience.js";
@@ -325,11 +325,15 @@ function plan() {
   const p = S.sitePlot && G.geo.plots[S.sitePlot];
   const sz = p ? SIZES[p.size] : null;
   const saved = (S.account && S.account.saved) || [];
-  return `<section class="planpage"><div class="planhead sitewrap"><div><div class="eyebrow">Official FGEHA layout plan</div><h1 class="h2">Master plan</h1></div>
-      <p>Search a plot, or tap a plot on the map.</p></div>
+  // opened from a block on the home page: start on that block
+  if (S.planBlock) { if (G.geo.blocks[S.planBlock]) { S.vb.site = blockVB(S.planBlock); S.planZoom = S.planBlock; } S.planBlock = null; }
+  const z = S.planZoom || "all";
+  return `<section class="planpage"><div class="planhead sitewrap"><div><div class="eyebrow">Official FGEHA layout plan</div><h1 class="h2">Find a plot</h1></div>
+      <p>Tap a block to zoom in. Zoom in more to see the plot numbers, then tap a plot. Or search a plot number.</p>
+      <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${z === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}<a href="#home" class="planback">← 3D view</a></div></div>
     <div class="planmap mapwrap" aria-label="Master plan of DHA Margalla Orchard">
       <svg role="img" aria-label="DHA Margalla Orchard layout plan">${mapSVG("site")}</svg>
-      <form class="mapsearch" id="searchForm" role="search"><select id="qb" aria-label="Block">${ACTIVE.map((b) => `<option value="${b}"${b === (S.findBlock || "A") ? " selected" : ""}>Block ${b}</option>`).join("")}</select><input id="q" type="search" inputmode="numeric" enterkeyhint="search" placeholder="Plot number" autocomplete="off" aria-label="Plot number"><button aria-label="Find plot">Find</button></form>
+      <form class="mapsearch" id="searchForm" role="search"><select id="qb" aria-label="Block">${ACTIVE.map((b) => `<option value="${b}"${b === (S.findBlock || (S.planZoom && S.planZoom !== "all" ? S.planZoom : "A")) ? " selected" : ""}>Block ${b}</option>`).join("")}</select><input id="q" type="search" inputmode="numeric" enterkeyhint="search" placeholder="Plot number" autocomplete="off" aria-label="Plot number"><button aria-label="Find plot">Find</button></form>
       <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit to screen" style="font-size:12px">Fit</button></div>
       <div class="tip" hidden></div>
       ${p ? `<div class="plotcard"><div><div class="eyebrow">Block ${p.block}</div><h3>Plot ${esc(S.sitePlot)}</h3><p>${sz.label} · ${sz.dims}${sz.sqyd ? ` · ${sz.sqyd} sq yd` : ""}</p></div>

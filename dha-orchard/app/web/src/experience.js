@@ -39,7 +39,7 @@ function blockChapter(b, i) {
       <p class="xlead">${esc(info.line)}</p>
       <dl class="xfacts"><div><dt>Plots</dt><dd>about ${info.plots.toLocaleString("en-IN")}</dd></div><div><dt>Sizes</dt><dd>${esc(info.sizes)}</dd></div></dl>
       ${money}
-      <a href="#book" class="xbtn goldbtn" data-act="askPlot" data-block="${b}" data-magnet>Book a call about Block ${b}</a>
+      <div class="xrow"><a href="#book" class="xbtn goldbtn" data-act="askPlot" data-block="${b}" data-magnet>Book a call about Block ${b}</a><a href="#plan" class="xbtn ghost" data-planblock="${b}">See the plots of Block ${b}</a></div>
     </div></section>`;
 }
 const STEPS = [
@@ -71,6 +71,7 @@ export function experiencePage(c) {
       <h2>${words("4,781 plots. 8 blocks. One master plan.")}</h2>
       <div class="xstats"><div><b data-count="4781">0</b><span>residential plots</span></div><div><b data-count="8432">0</b><span>kanals of land</span></div><div><b data-count="50">0</b><span>% of development done</span></div></div>
       <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Move your mouse over a block, or tap it.</p>
+      <a href="#plan" class="xbtn ghost" data-magnet>Find a plot number</a>
     </div></section>
     ${TOUR.map(blockChapter).join("")}
     ${renderSection()}

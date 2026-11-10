@@ -3,7 +3,7 @@ import "./styles.css";
 import { S, G, hooks, $, esc, num, iso, isAdmin, can, toast, notice, totals, nameOf, dealsFor } from "./core.js";
 import { buildGeo } from "./geo.js";
 import { createApi, TABLES } from "./api/index.js";
-import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus } from "./map.js";
+import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus, siteZoomBlock } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { heroJump } from "./showcase.js";
 import { stopExperience } from "./experience.js";
@@ -298,9 +298,11 @@ document.addEventListener("click", async (e) => {
     S.siteFocus = b; S.siteSent = false;
     return render();
   }
-  const t = e.target.closest("button,[data-agent],[data-calslot],a[data-act],a[data-siteplot]");
+  const t = e.target.closest("button,[data-agent],[data-calslot],a[data-act],a[data-siteplot],a[data-planblock]");
   if (!t || t.closest("svg")) return;
   const d = t.dataset;
+  if (d.planblock) { S.planBlock = d.planblock; return; } // the link opens the plot map on that block
+  if (d.planzoom) return siteZoomBlock(d.planzoom);
   if (d.tab) return setTab(d.tab);
   if (d.nav === "all") return go("all");
   if (d.nav === "block") return go("block", d.b);
