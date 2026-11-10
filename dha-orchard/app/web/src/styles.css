@@ -1144,5 +1144,8 @@ body.mapmode .floatcta,body.mapmode .stickycta,body.mapmode .xprog,body.mapmode 
 .xmapback{position:absolute;z-index:3;right:12px;top:calc(var(--hdr,0px) + 66px);background:#0B3A40;color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:9px 16px;font:650 14px var(--body,system-ui);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .xmapback:hover{background:#0E4A52}
 @media (prefers-reduced-motion:reduce){.xmaplayer,.xp{transition:none}}
-/* the zoom view: plain numbers (no outline around each digit: much cheaper to draw, still clear on the light map) */
-.xmaplayer svg .pn{stroke:none;paint-order:normal}
+/* the public plot maps (the zoom on the home page and "Find a plot"): the plan picture is always the light official map,
+   also in dark mode (no darkening filter: it matches the 3D and draws faster), so the plot numbers are always dark ink
+   with a thin light outline: about 14:1 contrast on the plan, and still above 7:1 on a selected (gold) plot */
+.site svg .plan{filter:none}
+.site svg .pn,.site svg .pn.on{fill:#06252A;stroke:#EAF1EE;stroke-width:.45;paint-order:stroke;font-weight:600;font-variant-numeric:tabular-nums}
