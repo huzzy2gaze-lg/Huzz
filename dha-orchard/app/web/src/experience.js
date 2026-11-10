@@ -89,7 +89,7 @@ export function experiencePage(c) {
       <div class="xkicker">Questions</div><h2>${words("What buyers ask us")}</h2>
       <div class="xfaq">${FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></div></section>
     <div class="xbook" data-cam="book" id="book">${cfg.bookSection()}</div>
-    <footer class="xfoot"><div><b>${esc(cfg.company())}</b><span>${cfg.contact ? cfg.contact() : ""}</span></div>
+    <footer class="xfoot"><div><b>${esc(cfg.company())}</b><span>${cfg.contact ? cfg.contact() : ""}</span><span><a href="/privacy">Privacy policy</a></span></div>
       <p class="xfine">Scheme facts: FGEHA, October 2026. Prices: asking prices in October 2026 and DHA's published Margalla Enclave prices. The outlook is our team's view, not a promise: prices can go up or down. The map is the official FGEHA layout plan.</p></footer>
   </div>`;
 }

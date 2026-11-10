@@ -58,7 +58,7 @@ function contactLine() {
 function footer() {
   const bits = [set("phone") && `Phone ${esc(set("phone"))}`, set("whatsapp") && `WhatsApp ${esc(set("whatsapp"))}`, set("email") && esc(set("email")), set("address") && esc(set("address"))].filter(Boolean);
   return `<footer class="sitefoot"><div class="sitewrap"><div><b class="footbrand">${logo()}<span class="wordmark sm">${esc(company())}</span></b><p>${bits.length ? bits.join(" · ") : "Plots in DHA Margalla Orchard, Islamabad."}</p>
-    <p><a href="#home">Home</a> · <a href="#book">Book a call</a>${S.mode === "public" ? "" : ` · <a href="#signin">Join our investor list</a>`}</p></div>
+    <p><a href="#home">Home</a> · <a href="#book">Book a call</a>${S.mode === "public" ? "" : ` · <a href="#signin">Join our investor list</a>`} · <a href="/privacy">Privacy policy</a></p></div>
     <p class="fine">Scheme facts: FGEHA, October 2026. Prices: asking prices in October 2026 and DHA's published Margalla Enclave prices. The outlook is our team's view, not a promise: prices can go up or down. The map is the official FGEHA layout plan.</p></div></footer>`;
 }
 
@@ -350,6 +350,7 @@ function signin() {
       : S.mode === "artifact" ? `<p class="fine">On the test page, claude.ai knows who you are. Client accounts work on the real website.</p>`
       : `${S.api.google ? `<button class="btn google" data-act="signIn">Continue with Google</button>` : ""}
         <form id="emailForm" class="enq"><label><span>${S.api.google ? "Or get a sign-in link by e-mail" : "Get a sign-in link by e-mail"}</span><input id="si_email" type="email" autocomplete="email" required></label><button class="sitebtn" type="submit">Send the link</button></form>
+        <p class="fine">By signing in you agree to our <a href="/privacy">privacy policy</a>.</p>
         ${S.ui.linkSent ? `<p class="sentnote">We sent a link to your e-mail. Open it on this device.</p>` : ""}`}
   </div></section>`;
 }
