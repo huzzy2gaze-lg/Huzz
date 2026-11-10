@@ -307,7 +307,7 @@ function build() {
 function frame(now) {
   if (!X || !X.alive) return;
   X.raf = requestAnimationFrame(frame);
-  if (document.hidden) return;
+  if (document.hidden || document.body.classList.contains("mapopen")) return; // the plot map covers the 3D: it waits
   X.fr = (X.fr || 0) + 1;
   const rm = reduce(), t = (now - X.t0) / 1000;
   // camera: ease towards the chapter's view, plus a small move with the pointer

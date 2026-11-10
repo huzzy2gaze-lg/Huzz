@@ -4,7 +4,7 @@
 // client offer. The outlook is the team's view, shown with a clear note that it is not a promise.
 import { S, G, esc, hooks } from "./core.js";
 import { SIZES, ACTIVE } from "./geo.js";
-import { mapSVG, blockVB, plotsVB } from "./map.js";
+import { mapSVG, blockVB, plotsVB, attachMap } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { setShowcase, showcaseAfterRender } from "./showcase.js";
 import { experiencePage, experienceAfterRender, blockScreenRect } from "./experience.js";
@@ -366,17 +366,29 @@ export function openMap(b, from) {
   S.mapOpen = b; S.planZoom = b; S.sitePlot = null;
   S.vb.site = b === "all" ? [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14] : blockVB(b);
   S.mapFrom = from || null; S.mapGrow = true;
-  hooks.render();
+  renderOverlay();
+}
+// draws only the zoom view (not the whole page under it)
+export function renderOverlay() {
+  const site = document.querySelector(".site.page-experience");
+  if (!site) { hooks.render(); return; }
+  const old = site.querySelector(".xmapov");
+  const tmp = document.createElement("div"); tmp.innerHTML = mapOverlay();
+  const ov = tmp.firstElementChild;
+  if (old) { ov.classList.add("in"); old.replaceWith(ov); } else site.append(ov);
+  attachMap(ov.querySelector(".mapwrap"));
+  mapAfterRender();
 }
 export function closeMap() {
   const ov = document.querySelector(".xmapov");
   if (!ov || ov.dataset.closing) return;
-  const done = () => { S.mapOpen = null; S.sitePlot = null; document.body.classList.remove("mapopen"); hooks.render(); };
+  const done = () => { S.mapOpen = null; S.sitePlot = null; S.planZoom = null; document.querySelector(".xmapov")?.remove(); document.body.classList.remove("mapopen"); };
   if (!motionOK()) return done();
   ov.dataset.closing = 1;
   const panel = ov.querySelector(".xmappanel");
   const to = S.mapOpen !== "all" ? blockScreenRect(S.mapOpen) : null;
   ov.classList.remove("in");
+  panel.style.willChange = "transform,opacity";
   panel.style.transition = "transform .6s cubic-bezier(.6,0,.3,1), opacity .5s ease .1s";
   panel.style.transform = to ? flip(panel.getBoundingClientRect(), to) : "scale(.9)";
   panel.style.opacity = "0";
@@ -395,19 +407,18 @@ function mapAfterRender() {
   // second step: from the block's outline (where it was on the 3D plan), zoom in until all its plots fill the map
   const zoomIn = () => {
     const b = S.mapOpen; if (!b || b === "all") return;
-    const fromVB = S.vb.site.slice();
-    S.vb.site = plotsVB(b); S._anim = motionOK() ? { from: fromVB } : null;
-    hooks.render();
+    const m = ov.querySelector(".mapwrap") && ov.querySelector(".mapwrap").__map;
+    if (m) m.animateTo(plotsVB(b), 700);
   };
   if (!motionOK()) { ov.classList.add("in"); zoomIn(); return; }
-  panel.style.transformOrigin = "0 0";
+  panel.style.transformOrigin = "0 0"; panel.style.willChange = "transform,opacity";
   panel.style.transform = from ? flip(panel.getBoundingClientRect(), from) : "scale(.92)";
   panel.style.opacity = from ? "0.35" : "0";
   requestAnimationFrame(() => requestAnimationFrame(() => {
     ov.classList.add("in");
     panel.style.transition = "transform .75s cubic-bezier(.2,.8,.2,1), opacity .45s ease";
     panel.style.transform = "none"; panel.style.opacity = "1";
-    setTimeout(() => { panel.style.transition = ""; panel.style.transform = ""; zoomIn(); }, 780);
+    setTimeout(() => { panel.style.transition = ""; panel.style.transform = ""; panel.style.willChange = ""; zoomIn(); }, 780);
   }));
 }
 if (typeof window !== "undefined" && !window.__mapKeys) {

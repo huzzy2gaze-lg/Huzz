@@ -7,7 +7,7 @@ import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, site
 import { logo } from "./brand/logo.js";
 import { heroJump } from "./showcase.js";
 import { stopExperience } from "./experience.js";
-import { sitePage, SITE_PAGES, sitePageFor, siteAfterRender, closeMap, adSource, updateOutlookDom } from "./site.js";
+import { sitePage, SITE_PAGES, sitePageFor, siteAfterRender, closeMap, renderOverlay, adSource, updateOutlookDom } from "./site.js";
 import { startTour, stopTour, tourOn, resumeTour, updateBudgetDom, bookSummary } from "./site-extras.js";
 import { allView, blockView } from "./panels.js";
 import { salesPage, approvalsPage, teamPage, PERMS, investorsCsv } from "./pages.js";
@@ -220,6 +220,8 @@ function render() {
   const caret = focusId && ae.selectionStart != null ? [ae.selectionStart, ae.selectionEnd] : null;
   const keepScroll = [...app.querySelectorAll(".scroll,.page")].map((e) => e.scrollTop);
   resetLift();
+  // while the zoom view is open on the home page, only it changes: draw only it
+  if (S.area === "site" && S.mapOpen && ["home", "book"].includes(S.sitePage) && document.querySelector(".xmapov")) { renderOverlay(); return; }
   if (S.area === "site" || !S.me) app.innerHTML = sitePage();
   else if (S.tab === "sales") app.innerHTML = salesPage();
   else if (S.tab === "calendar") app.innerHTML = calendarPage();

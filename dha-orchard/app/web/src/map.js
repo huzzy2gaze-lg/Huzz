@@ -98,9 +98,11 @@ export function mapSVG(mode) {
     for (const h of b.hull) s += `<polygon class="bcard${b.grey ? " grey" : " hit"}" ${b.grey ? "" : `data-b="${id}"`} points="${ptsStr(h)}"/>`;
   }
   let lab = "", labOn = "";
+  // the zoom on the home page draws only the plots of its block (5 times fewer shapes: smooth on phones)
+  const only = siteMode() && S.mapOpen && S.planZoom && S.planZoom !== "all" ? S.planZoom : null;
   for (const id in geo.blocks) {
     const b = geo.blocks[id];
-    if (b.grey) continue;
+    if (b.grey || (only && id !== only)) continue;
     for (const p of b.plots) {
       const { cls, st } = plotCls(p, mode);
       const hi = st || selId() === p.id || S.sel.has(p.id);
@@ -159,8 +161,8 @@ export function attachMap(wrap) {
   };
   if (S._anim && !matchMedia("(prefers-reduced-motion: reduce)").matches) ZA = { key, fr: S._anim.from, to: vb.slice(), t0: performance.now() };
   S._anim = null;
-  if (ZA && ZA.key === key) {
-    const { fr, to, t0 } = ZA, DUR = 650;
+  // a smooth zoom from one view to another: the drawn picture moves (no new drawing) until the end
+  const runAnim = (fr, to, t0, DUR = 650) => {
     const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const fc = [fr[0] + fr[2] / 2, fr[1] + fr[3] / 2], tc = [to[0] + to[2] / 2, to[1] + to[3] / 2];
     const lw = [Math.log(fr[2]), Math.log(to[2])], lh = [Math.log(fr[3]), Math.log(to[3])];
@@ -173,12 +175,24 @@ export function attachMap(wrap) {
       vb = t < 1 ? [cx - w / 2, cy - h / 2, w, h] : to;
       if (t < 1) show(vb, 400); else setVB(vb);
       if (t < 1) animId = requestAnimationFrame(step);
-      else { animId = 0; ZA = null; S.vb[key] = to; }
+      else { animId = 0; if (ZA && ZA.key === key) ZA = null; S.vb[key] = to; }
     };
     S.vb[key] = to;
-    setVB(fr); vb = fr.slice();
     step(performance.now());
+  };
+  if (ZA && ZA.key === key) {
+    const { fr, to, t0 } = ZA;
+    setVB(fr); vb = fr.slice();
+    runAnim(fr, to, t0);
   } else setVB(vb);
+  // other code can zoom this map smoothly without drawing the page again
+  wrap.__map = {
+    animateTo(to, dur) {
+      stopAnim();
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) { vb = to.slice(); S.vb[key] = vb; setVB(vb); return; }
+      runAnim(vb.slice(), to.slice(), performance.now(), dur);
+    },
+  };
   const toWorld = (cx, cy) => {
     const r = box();
     const s = Math.max(vb[2] / r.width, vb[3] / r.height);
@@ -198,7 +212,7 @@ export function attachMap(wrap) {
   wrap.querySelector("[data-z='fit']").onclick = () => { stopAnim(); vb = defaultVB(); apply(); };
   svg.addEventListener("wheel", (e) => { e.preventDefault(); zoomAt(e.deltaY > 0 ? 1.12 : 0.89, e.clientX, e.clientY); }, { passive: false });
   const ptrs = new Map();
-  let drag = null, pinch = null, moved = false;
+  let drag = null, pinch = null, moved = false, hoverEv = null, hoverRaf = 0;
   svg.addEventListener("pointerdown", (e) => {
     stopAnim();
     ptrs.set(e.pointerId, [e.clientX, e.clientY]);
@@ -227,7 +241,11 @@ export function attachMap(wrap) {
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
       if (moved) { vb = [drag.vb[0] - dx * s, drag.vb[1] - dy * s, drag.vb[2], drag.vb[3]]; apply(); }
-    } else if ((S.view === "all" || siteMode()) && e.pointerType === "mouse") hoverAt(e, wrap);
+    } else if ((S.view === "all" || siteMode()) && e.pointerType === "mouse") {
+      // at most once a frame
+      hoverEv = e;
+      if (!hoverRaf) hoverRaf = requestAnimationFrame(() => { hoverRaf = 0; if (svg.isConnected && hoverEv) hoverAt(hoverEv, wrap); });
+    }
   });
   const end = (e) => {
     ptrs.delete(e.pointerId);
