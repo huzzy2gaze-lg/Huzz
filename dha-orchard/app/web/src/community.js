@@ -10,11 +10,11 @@ const FLOOR_FT = 11; // one floor, about 3.35 m
 export function makeCommunity(geo, blocks, toWorld, { maxPerBlock = Infinity } = {}) {
   const out = {};
   const dummy = new THREE.Object3D();
-  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.75, metalness: 0.02 });
-  const roofMat = new THREE.MeshStandardMaterial({ color: 0x2f3532, roughness: 0.6 });
-  const winMat = new THREE.MeshStandardMaterial({ color: 0x1f2a2e, roughness: 0.2, metalness: 0.5, emissive: 0xffc46a, emissiveIntensity: 0 });
+  // every home has the same colours (white walls, light grey roof), so a block reads as one calm, built-up area
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf4f1ea, roughness: 0.75, metalness: 0.02 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0xd3dbd9, roughness: 0.7 });
+  const winMat = new THREE.MeshStandardMaterial({ color: 0x2c4448, roughness: 0.3, metalness: 0.3, emissive: 0xffd9a0, emissiveIntensity: 0 });
   const unit = new THREE.BoxGeometry(1, 1, 1); unit.translate(0, 0.5, 0); // base at y = 0
-  const tints = [0xf3efe6, 0xe9e2d3, 0xf7f4ee, 0xd9cdb8, 0xc98a62, 0xeae6df];
   for (const b of blocks) {
     const plots = geo.blocks[b].plots.slice(0, maxPerBlock);
     const n = plots.length;
@@ -41,7 +41,6 @@ export function makeCommunity(geo, blocks, toWorld, { maxPerBlock = Infinity } =
       const fw = short * 0.72, fl = best * 0.62;
       const dist = Math.hypot(ax - lx, az - lz);
       items.push({ x: ax, z: az, ang, fw, fl, h, dist, k: 0 });
-      body.setColorAt(i, new THREE.Color(tints[(i * 7) % tints.length]));
     });
     const maxD = Math.max(...items.map((t) => t.dist), 1e-6);
     items.forEach((t) => { t.delay = (t.dist / maxD) * 0.8; });
@@ -73,6 +72,6 @@ export function makeCommunity(geo, blocks, toWorld, { maxPerBlock = Infinity } =
         update(c, c.p);
       }
     },
-    setNight(on) { winMat.emissiveIntensity = on ? 1.5 : 0; winMat.color.set(on ? 0x4a3a1e : 0x1f2a2e); },
+    setNight(on) { winMat.emissiveIntensity = on ? 0.7 : 0; winMat.color.set(on ? 0x3a3426 : 0x2c4448); },
   };
 }
