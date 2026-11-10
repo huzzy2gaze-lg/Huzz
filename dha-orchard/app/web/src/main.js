@@ -20,7 +20,7 @@ hooks.go = go;
 hooks.focusPlot = focusPlot;
 hooks.render = render;
 hooks.refresh = () => refresh(S.me ? TABLES : ["site_settings", "leads"]);
-hooks.siteClick = (id) => { S.sitePlot = id; render(); };
+hooks.siteClick = (id) => { if (id) siteFocus(id); else { S.sitePlot = null; render(); } }; // a tap on a plot zooms in close and opens its card
 
 // ---------------------------------------------------------------- data
 const norm = {

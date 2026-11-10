@@ -45,7 +45,7 @@ export function blinkPlot(id) {
 export function focusPlot(id) {
   const p = G.geo && G.geo.plots[id];
   if (!p) return;
-  const z = Math.max(p.ph * 9, 120);
+  const z = Math.max(p.ph * 3.2, 40); // close: the plot, its neighbours and their numbers
   S._focusVB = [p.cx - z / 2, p.cy - z / 2, z, z];
   go("block", p.block, id);
 }
@@ -128,13 +128,30 @@ export function attachMap(wrap) {
   const key = vbKey();
   let vb = S.vb[key] || defaultVB();
   let animId = 0;
+  // Smooth zoom: while a finger, the wheel or an animation moves the map, the drawn picture only moves and
+  // scales (a CSS transform, done by the graphics chip). The map is drawn again, sharp, when the movement stops.
+  // Drawing thousands of plots and numbers on every movement was what made the zoom slow.
+  const box = () => wrap.getBoundingClientRect(); // the svg itself is transformed during a movement
+  let drawn = null, commitT = 0;
+  const fitOf = (v, r) => { const s = Math.min(r.width / v[2], r.height / v[3]); return { s, ox: (r.width - v[2] * s) / 2, oy: (r.height - v[3] * s) / 2 }; };
   const setVB = (v) => {
+    clearTimeout(commitT);
+    svg.style.transform = ""; drawn = v.slice();
     svg.setAttribute("viewBox", v.map((n) => n.toFixed(2)).join(" "));
-    const r = svg.getBoundingClientRect();
-    const sc = Math.min(r.width / v[2], r.height / v[3]);
+    const sc = fitOf(v, box()).s;
     svg.classList.toggle("far", !(sc >= 0.85));
   };
-  const apply = () => { setVB(vb); S.vb[key] = vb; };
+  const show = (v, wait = 140) => {
+    if (!drawn) { setVB(v); return; }
+    const r = box(), a = fitOf(drawn, r), b = fitOf(v, r), k = b.s / a.s;
+    // where the corner of the drawn view is now on the screen
+    const tx = (drawn[0] - v[0]) * b.s + b.ox - k * a.ox, ty = (drawn[1] - v[1]) * b.s + b.oy - k * a.oy;
+    svg.style.transform = `translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${k.toFixed(5)})`;
+    clearTimeout(commitT);
+    commitT = setTimeout(() => { if (svg.isConnected) setVB(vb); }, wait);
+  };
+  svg.style.transformOrigin = "0 0";
+  const apply = () => { show(vb); S.vb[key] = vb; };
   const stopAnim = () => {
     if (animId) { cancelAnimationFrame(animId); animId = 0; }
     if (ZA && ZA.key === key) { S.vb[key] = vb; ZA = null; }
@@ -153,15 +170,16 @@ export function attachMap(wrap) {
       const w = Math.exp(lw[0] + (lw[1] - lw[0]) * e), h = Math.exp(lh[0] + (lh[1] - lh[0]) * e);
       const cx = fc[0] + (tc[0] - fc[0]) * e, cy = fc[1] + (tc[1] - fc[1]) * e;
       vb = t < 1 ? [cx - w / 2, cy - h / 2, w, h] : to;
-      setVB(vb);
+      if (t < 1) show(vb, 400); else setVB(vb);
       if (t < 1) animId = requestAnimationFrame(step);
       else { animId = 0; ZA = null; S.vb[key] = to; }
     };
     S.vb[key] = to;
+    setVB(fr); vb = fr.slice();
     step(performance.now());
-  } else apply();
+  } else setVB(vb);
   const toWorld = (cx, cy) => {
-    const r = svg.getBoundingClientRect();
+    const r = box();
     const s = Math.max(vb[2] / r.width, vb[3] / r.height);
     const ox = (r.width * s - vb[2]) / 2, oy = (r.height * s - vb[3]) / 2;
     return [vb[0] - ox + (cx - r.left) * s, vb[1] - oy + (cy - r.top) * s, s];
@@ -173,7 +191,7 @@ export function attachMap(wrap) {
     vb = [wx - (wx - vb[0]) * k, wy - (wy - vb[1]) * k, nw, vb[3] * k];
     apply();
   };
-  const centre = () => { const r = svg.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+  const centre = () => { const r = box(); return [r.left + r.width / 2, r.top + r.height / 2]; };
   wrap.querySelector("[data-z='in']").onclick = () => zoomAt(0.75, ...centre());
   wrap.querySelector("[data-z='out']").onclick = () => zoomAt(1.33, ...centre());
   wrap.querySelector("[data-z='fit']").onclick = () => { stopAnim(); vb = defaultVB(); apply(); };
@@ -203,7 +221,7 @@ export function attachMap(wrap) {
       return;
     }
     if (drag) {
-      const r = svg.getBoundingClientRect();
+      const r = box();
       const s = Math.max(drag.vb[2] / r.width, drag.vb[3] / r.height);
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
@@ -212,6 +230,7 @@ export function attachMap(wrap) {
   });
   const end = (e) => {
     ptrs.delete(e.pointerId);
+    if (ptrs.size === 0 && moved) { clearTimeout(commitT); commitT = setTimeout(() => { if (svg.isConnected) setVB(vb); }, 60); }
     if (ptrs.size < 2) pinch = null;
     if (ptrs.size === 0) {
       if (!moved && e.type === "pointerup") {
@@ -322,8 +341,8 @@ export function siteFocus(id) {
   const p = G.geo && G.geo.plots[id];
   if (!p) return;
   const from = (S.vb.site || [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14]).slice();
-  const z = Math.max(p.ph * 9, 120);
-  S.vb.site = [p.cx - z / 2, p.cy - z / 2, z, z];
+  const z = Math.max(p.ph * 4.2, 48); // close: the plot, its neighbours and their numbers
+  S.vb.site = [p.cx - z / 2, p.cy - z / 2 + z * 0.16, z, z]; // the plot sits a little high, above its card
   S._anim = { from };
   S.sitePlot = id;
   hooks.render();
