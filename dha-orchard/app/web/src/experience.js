@@ -9,7 +9,7 @@ const TOUR = ["A", "B", "C"]; // the blocks the page flies to, in order
 import { outlookFor } from "./showcase.js";
 import { MILESTONES } from "./site-extras.js";
 import { makeCommunity } from "./community.js";
-import { studioSection, studioAfterRender, studioClick, stopStudio } from "./studio.js";
+import { studioSection, studioAfterRender, studioClick, stopStudio, studioChoice } from "./studio.js";
 
 let cfg = null; // { BLOCKS, bookSection, waLink, company, logo } from site.js
 export function setExperience(c) { cfg = c; }
@@ -80,30 +80,53 @@ export function experiencePage(c) {
 
 // ---------------------------------------------------------------- photo-real renders (made offline with Blender Cycles from the same home)
 const RMOODS = [["dusk", "Dusk"], ["day", "Day"], ["night", "Night"]];
-const RVIEWS = [["cam_hero", "From the street"], ["cam_corner", "Corner view"], ["cam_close", "The entrance"]];
+const RVIEWS = [["cam_hero", "From the street"], ["cam_corner", "Corner view"], ["cam_close", "The entrance"], ["video", "▶ Video"]];
 const rs = { mood: "dusk", view: "cam_hero" };
-const rsrc = () => `renders/${rs.mood}-${rs.view}.webp`;
+// the 1 Kanal modern white home has every view and a video; the other sizes and styles have the street view
+const fullSet = () => { const c = studioChoice(); return c.size === "1K" && c.style === "white"; };
+function rsrc() {
+  const c = studioChoice();
+  if (fullSet()) return `renders/${rs.mood}-${rs.view === "video" ? "cam_hero" : rs.view}.webp`;
+  return `renders/${c.size}-${c.style}-${rs.mood}.webp`;
+}
+function rcaption() { const c = studioChoice(); return `Rendered illustration: ${c.label}, 2 floors, ${c.styleLabel.toLowerCase()}. Not a DHA or FGEHA design; a real design must follow the building bylaws.`; }
+function rmedia() {
+  if (rs.view === "video" && fullSet()) return `<video src="renders/home-dusk.mp4" poster="renders/dusk-cam_hero.webp" autoplay muted loop playsinline preload="metadata"></video>`;
+  return `<img src="${rsrc()}" alt="Rendered illustration of a modern home in DHA Margalla Orchard" loading="lazy" decoding="async">`;
+}
 function renderSection() {
-  const chip = (k, v, l, on) => `<button type="button" class="xchip${on ? " on" : ""}" data-render="${k}:${v}">${l}</button>`;
+  const chip = (k, v, l, on, dis) => `<button type="button" class="xchip${on ? " on" : ""}" data-render="${k}:${v}"${dis ? " disabled" : ""}>${l}</button>`;
+  const full = fullSet(), c = studioChoice();
   return `<section class="xch xrender" data-cam="render" id="x-render"><div class="xr-wrap">
     <div class="xkicker">Rendered like an architect's visual</div>
     <h2>${words("See it rendered")}</h2>
-    <p class="xlead">The same 1 Kanal home, rendered with real light: the sun and the sky, the glass, and the rooms lit from inside.</p>
-    <div class="xr-ctrls"><div class="xs-row">${RMOODS.map(([v, l]) => chip("mood", v, l, rs.mood === v)).join("")}</div><div class="xs-row">${RVIEWS.map(([v, l]) => chip("view", v, l, rs.view === v)).join("")}</div></div>
-    <button type="button" class="xr-frame" data-render="zoom:1" aria-label="Open the picture full screen"><img src="${rsrc()}" alt="Rendered illustration of a modern 1 Kanal home in DHA Margalla Orchard" loading="lazy" decoding="async"></button>
-    <p class="xfine">Rendered illustration: 1 Kanal, 2 floors, modern white. Not a DHA or FGEHA design; a real design must follow the building bylaws.</p>
-    <a href="#book" class="xbtn" data-magnet>Book a call about a 1 Kanal plot</a>
+    <p class="xlead xr-lead">Your ${esc(c.label)} home, rendered with real light: the sun and the sky, the glass, and the rooms lit from inside.</p>
+    <div class="xr-ctrls"><div class="xs-row">${RMOODS.map(([v, l]) => chip("mood", v, l, rs.mood === v)).join("")}</div><div class="xs-row xr-views">${RVIEWS.map(([v, l]) => chip("view", v, l, rs.view === v, !full && v !== "cam_hero")).join("")}</div></div>
+    <button type="button" class="xr-frame" data-render="zoom:1" aria-label="Open full screen">${rmedia()}</button>
+    <p class="xfine xr-cap">${rcaption()}</p>
+    <a href="#book" class="xbtn" data-magnet>Book a call about a ${esc(c.label)} plot</a>
   </div></section>`;
+}
+// after a change in Build your home, the pictures follow the new choice
+export function refreshRender() {
+  const sec = document.getElementById("x-render");
+  if (!sec) return;
+  if (!fullSet()) rs.view = "cam_hero";
+  const tmp = document.createElement("div"); tmp.innerHTML = renderSection();
+  const fresh = tmp.firstElementChild; fresh.classList.add("in");
+  sec.replaceWith(fresh);
 }
 function renderClick(target) {
   const b = target.closest("[data-render]");
-  if (!b) return false;
+  if (!b || b.disabled) return !!b;
   const [k, v] = b.dataset.render.split(":");
   if (k === "zoom") {
-    const o = document.createElement("div"); o.className = "xr-full"; o.innerHTML = `<img src="${rsrc()}" alt=""><button type="button" aria-label="Close">×</button>`;
-    o.addEventListener("click", () => o.remove()); document.body.append(o); return true;
+    const o = document.createElement("div"); o.className = "xr-full";
+    o.innerHTML = rs.view === "video" && fullSet() ? `<video src="renders/home-dusk.mp4" autoplay muted loop playsinline controls></video><button type="button" aria-label="Close">×</button>` : `<img src="${rsrc()}" alt=""><button type="button" aria-label="Close">×</button>`;
+    o.addEventListener("click", (e) => { if (e.target.tagName !== "VIDEO") o.remove(); }); document.body.append(o); return true;
   }
   rs[k] = v;
+  if (k === "view" && (v === "video" || document.querySelector(".xr-frame video"))) { refreshRender(); return true; }
   document.querySelectorAll("[data-render^='" + k + ":']").forEach((c) => c.classList.toggle("on", c.dataset.render === k + ":" + v));
   const img = document.querySelector(".xr-frame img");
   if (img) { const next = new Image(); next.src = rsrc(); img.classList.add("fade"); next.onload = () => { img.src = next.src; img.classList.remove("fade"); }; }
@@ -162,7 +185,7 @@ function loadPlan(renderer, onProgress) {
       onProgress(1); resolve(tex);
     };
     img.onerror = () => resolve(null);
-    img.src = "plan.webp";
+    img.src = "plan-site.webp";
     // the plan is big: show a counter while it loads
     let p = 0; const t = setInterval(() => { if (img.complete) return clearInterval(t); p = Math.min(0.92, p + (0.92 - p) * 0.08); onProgress(p); }, 60);
   });
@@ -186,7 +209,7 @@ function build() {
 
   const [pw, ph] = planSize();
   // the official plan
-  const planMat = new THREE.MeshBasicMaterial({ color: 0x8fa3a3, transparent: true, opacity: 0 }); // the plan, a little darker, so the gold blocks and the text stand out
+  const planMat = new THREE.MeshBasicMaterial({ color: 0xc8d4d2, transparent: true, opacity: 0 }); // the plan, a little darker, so the gold blocks and the text stand out
   const plan = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), planMat);
   plan.rotation.x = -Math.PI / 2; scene.add(plan);
   // a dark ground with a soft grid of dots around the plan
@@ -206,10 +229,10 @@ function build() {
     const shapes = G.geo.blocks[b].hull.map((poly) => new THREE.Shape(poly.map(([x, y]) => { const [wx, wz] = toWorld(x, y); return new THREE.Vector2(wx, -wz); })));
     const geo = new THREE.ExtrudeGeometry(shapes, { depth: 1, bevelEnabled: false });
     geo.rotateX(-Math.PI / 2);
-    const mat = new THREE.MeshStandardMaterial({ color: 0xd8b25a, emissive: 0xd2a746, emissiveIntensity: 0.25, roughness: 0.4, metalness: 0.2, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 });
+    const mat = new THREE.MeshStandardMaterial({ color: 0xc4526f, emissive: 0xb04761, emissiveIntensity: 0.25, roughness: 0.4, metalness: 0.2, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 });
     const mesh = new THREE.Mesh(geo, mat); mesh.userData.block = b;
     // a clean gold outline at the base and at the top of the block (the top line goes up with the block)
-    const lineMat = new THREE.LineBasicMaterial({ color: 0xeedbb8, transparent: true, opacity: 0.9 });
+    const lineMat = new THREE.LineBasicMaterial({ color: 0xf2b8c6, transparent: true, opacity: 0.9 });
     const group = new THREE.Group(); group.add(mesh);
     for (const poly of G.geo.blocks[b].hull) {
       const pts = poly.map(([x, y]) => { const [wx, wz] = toWorld(x, y); return new THREE.Vector3(wx, 0, wz); });
@@ -267,7 +290,7 @@ function frame(now) {
     o.h += (o.target - o.h) * (rm ? 1 : 0.07);
     o.group.scale.y = Math.max(0.001, o.h);
     const built = !!(X.comm.blocks[b] && X.comm.blocks[b].p > 0.6);
-    o.mesh.material.opacity += ((here ? 0.2 : on ? 0.5 : built ? 0.04 : ACTIVE.includes(X.active) ? 0.12 : 0.26) - o.mesh.material.opacity) * 0.08;
+    o.mesh.material.opacity += ((here ? 0.22 : on ? 0.45 : built ? 0.02 : ACTIVE.includes(X.active) ? 0.03 : 0.12) - o.mesh.material.opacity) * 0.08; // only the active block is clearly rose
     o.mesh.material.emissiveIntensity += ((on ? 1.4 : 0.25) - o.mesh.material.emissiveIntensity) * 0.08;
     o.edge.material.opacity += ((on ? 1 : ACTIVE.includes(X.active) ? 0.15 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
   }
@@ -287,7 +310,7 @@ function frame(now) {
   X.night += (nightT - X.night) * (rm ? 1 : 0.05);
   X.hemi.intensity = 1.4 - X.night * 1.05; X.sun.intensity = 2.2 - X.night * 1.9;
   X.dim = (X.dim || 1) + (((ACTIVE.includes(X.active) || X.active === "overview" || X.active === "timeline" || X.active === "enclave") ? 0.88 : 1) - (X.dim || 1)) * 0.06;
-  X.planMat.color.setRGB((0.561 - X.night * 0.27) * X.dim, (0.639 - X.night * 0.29) * X.dim, (0.639 - X.night * 0.26) * X.dim);
+  X.planMat.color.setRGB((0.78 - X.night * 0.4) * X.dim, (0.83 - X.night * 0.41) * X.dim, (0.82 - X.night * 0.38) * X.dim);
   X.comm.setNight(X.night > 0.5);
   // the gold route line grows with the block chapters
   const idx = TOUR.indexOf(X.active);
@@ -352,7 +375,8 @@ function onMove(e) {
   });
 }
 function onClick(e) {
-  if (studioClick(e.target) || renderClick(e.target)) return;
+  if (studioClick(e.target)) { if (e.target.closest("[data-studio^='size'],[data-studio^='style']")) refreshRender(); return; }
+  if (renderClick(e.target)) return;
   if (matchMedia("(pointer: coarse)").matches) return; // phones: taps are handled by onTouch
   if (!X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,a,button,header"))) return;
   const s = document.getElementById("x-" + X.hover);

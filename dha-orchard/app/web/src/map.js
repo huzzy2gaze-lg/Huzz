@@ -3,6 +3,8 @@ import { S, G, hooks, esc, ptsStr, statusOf, blockStats, STATUS, cr, sizeLabel }
 import { ACTIVE } from "./geo.js";
 
 const PLAN = "plan.webp";
+// the website shows a teal version of the same plan (same positions; colours that match the website). The sales system keeps the original.
+const planSrc = () => (siteMode() ? "plan-site.webp" : PLAN);
 
 // ---------------------------------------------------------------- navigation
 export function go(view, block, plot, { push = true } = {}) {
@@ -85,7 +87,7 @@ export function mapSVG(mode) {
   let s = `<rect x="${-W}" y="${-H}" width="${W * 3}" height="${H * 3}" style="fill:var(--ground)"/>`;
   const hulls = Object.values(geo.blocks).flatMap((b) => b.hull).map((h) => ptsStr(h));
   s += `<defs><clipPath id="bclip-${mode}">${hulls.map((h) => `<polygon points="${h}"/>`).join("")}</clipPath></defs>`;
-  s += `<image href="${PLAN}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" clip-path="url(#bclip-${mode})" class="plan${S.show === "ours" && mode === "all" ? " dim" : ""}"/>`;
+  s += `<image href="${planSrc()}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" clip-path="url(#bclip-${mode})" class="plan${S.show === "ours" && mode === "all" ? " dim" : ""}"/>`;
   s += `<g>${hulls.map((h) => `<polygon class="bglow" points="${h}"/>`).join("")}${hulls.map((h) => `<polygon class="bgap" points="${h}"/>`).join("")}</g>`;
   if (mode !== "all" && blk) {
     const hp = geo.blocks[blk].hull.map((h) => `<polygon points="${ptsStr(h)}" fill="black"/>`).join("");
@@ -265,7 +267,7 @@ function setLift(wrap, b) {
   let s = `<g id="lift" class="lift" style="transform-origin:${cx.toFixed(1)}px ${cy.toFixed(1)}px">`;
   s += `<defs><clipPath id="liftclip">${hull.map((h) => `<polygon points="${h}"/>`).join("")}</clipPath><filter id="liftshadow" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="8" stdDeviation="9" flood-opacity=".38"/></filter></defs>`;
   s += `<g filter="url(#liftshadow)">${hull.map((h) => `<polygon class="liftbase" points="${h}"/>`).join("")}</g>`;
-  s += `<image href="${PLAN}" x="0" y="0" width="${G.world[2]}" height="${G.world[3]}" preserveAspectRatio="none" class="plan" clip-path="url(#liftclip)"/>`;
+  s += `<image href="${planSrc()}" x="0" y="0" width="${G.world[2]}" height="${G.world[3]}" preserveAspectRatio="none" class="plan" clip-path="url(#liftclip)"/>`;
   s += hull.map((h) => `<polygon class="lifthit" data-b="${b}" points="${h}"/>`).join("");
   for (const p of blk.plots) {
     const { cls, st } = plotCls(p, "all");

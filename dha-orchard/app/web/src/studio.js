@@ -32,6 +32,8 @@ function controls() {
     <div class="xrow"><a href="#book" class="xbtn goldbtn" data-studiobook="${P.label}" data-magnet>Book a call about a ${P.label} plot</a>
       <a class="xbtn ghost" target="_blank" rel="noopener" href="${shareLink(`My ${P.label} home in DHA Margalla Orchard (${st.floors} floors, ${STYLES[st.style].label.toLowerCase()}). Plan yours here:`)}">Share on WhatsApp</a></div>`;
 }
+// the visitor's choice, so the rendered pictures can follow it
+export function studioChoice() { return { size: st.size, style: st.style, label: PLOTS[st.size].label, styleLabel: STYLES[st.style].label }; }
 export function studioSection() {
   return `<section class="xch xstudio" data-cam="studio" id="x-studio"><div class="xs-grid">
     <div class="xcard"><div class="xkicker">Build your home</div><h2><span class="xw"><span>Your</span></span> <span class="xw"><span style="--d:.06s">plot,</span></span> <span class="xw"><span style="--d:.12s">your</span></span> <span class="xw gold"><span style="--d:.18s">home.</span></span></h2>

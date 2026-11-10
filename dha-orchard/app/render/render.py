@@ -182,14 +182,40 @@ for o in bpy.data.objects:
             poly.use_smooth = True
 
 # camera and render settings
-cam = bpy.data.objects.get(cam_name) or next(o for o in bpy.data.objects if o.type == "CAMERA")
+if cam_name == "orbit":
+    # a video: the camera moves in a slow arc in front of the home, always aimed at it
+    hero = bpy.data.objects["cam_hero"]
+    aim = bpy.data.objects["aim_home"].matrix_world.translation.copy()
+    start = hero.matrix_world.translation.copy()
+    cam_data = bpy.data.cameras.new("orbit")
+    cam_data.lens = 34
+    cam = bpy.data.objects.new("orbit", cam_data)
+    scene.collection.objects.link(cam)
+    track = cam.constraints.new("TRACK_TO")
+    track.target = bpy.data.objects["aim_home"]
+    track.track_axis = "TRACK_NEGATIVE_Z"
+    track.up_axis = "UP_Y"
+    frames = int(sys.argv[7]) if len(sys.argv) > 7 else 192
+    rx, ry = start.x - aim.x, start.y - aim.y
+    radius, a0 = (rx * rx + ry * ry) ** 0.5, math.atan2(ry, rx)
+    for f in range(frames + 1):
+        k = f / frames
+        e = 0.5 - 0.5 * math.cos(math.pi * k)  # gentle start and stop
+        a = a0 - math.radians(20) + math.radians(40) * e
+        r = radius * (1.05 - 0.13 * e)
+        cam.location = (aim.x + r * math.cos(a), aim.y + r * math.sin(a), start.z + 0.8 + 1.2 * e)
+        cam.keyframe_insert("location", frame=f + 1)
+    scene.frame_start, scene.frame_end = 1, frames + 1
+    scene.render.fps = 24
+else:
+    cam = bpy.data.objects.get(cam_name) or next(o for o in bpy.data.objects if o.type == "CAMERA")
 scene.camera = cam
-# a street light right in front of the camera would block the view: leave it out of this picture
+# a street light right in front of the camera would block the view: leave it out of this picture (all of them in the video)
 cp = cam.matrix_world.translation
 for o in bpy.data.objects:
     if o.type == "MESH" and o.active_material and base(o.active_material.name) in ("street_pole", "street_lampHead"):
         p = o.matrix_world.translation
-        if ((p.x - cp.x) ** 2 + (p.y - cp.y) ** 2) ** 0.5 < 14:
+        if cam_name == "orbit" or ((p.x - cp.x) ** 2 + (p.y - cp.y) ** 2) ** 0.5 < 14:
             o.hide_render = True
 if cam_name == "cam_hero":
     cam.location.z += 1.0  # a little above the front wall, so the garden shows
@@ -219,7 +245,13 @@ for look in ("AgX - Medium High Contrast", "Medium High Contrast"):
     except TypeError:
         continue
 vs.exposure = {"day": 0.0, "dusk": 0.9, "night": 1.0}[mood]
-scene.render.image_settings.file_format = "PNG"
-scene.render.filepath = f"{out_dir}/{mood}-{cam_name}.png"
-bpy.ops.render.render(write_still=True)
+if cam_name == "orbit":
+    scene.render.use_persistent_data = True  # keep the scene in memory between frames (much faster)
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.filepath = f"{out_dir}/frames/f_"
+    bpy.ops.render.render(animation=True)
+else:
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.filepath = f"{out_dir}/{mood}-{cam_name}.png"
+    bpy.ops.render.render(write_still=True)
 print("written", scene.render.filepath)

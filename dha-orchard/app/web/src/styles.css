@@ -544,15 +544,15 @@ body[data-tab="site"] #app{height:auto}
 @keyframes floaty{from{transform:translateY(0) rotate(-.4deg)}to{transform:translateY(-8px) rotate(.4deg)}}
 .bmap{display:block;width:100%;height:auto;background:#F1F6F4}
 .bmplan{opacity:.9}
-.bmblock polygon{fill:rgba(11,58,64,.04);stroke:#B4473A;stroke-width:5;stroke-opacity:.55;stroke-linejoin:round;transition:fill .25s,stroke .25s}
+.bmblock polygon{fill:rgba(11,58,64,.04);stroke:#0B3A40;stroke-width:4;stroke-opacity:.5;stroke-linejoin:round;transition:fill .25s,stroke .25s}
 .bmblock{cursor:pointer;outline:none}
-.bmblock:hover polygon,.bmblock:focus-visible polygon{fill:rgba(210,167,70,.28);stroke:#846A2E;stroke-opacity:1}
-.bmblock.on polygon{fill:rgba(210,167,70,.45);stroke:#846A2E;stroke-opacity:1;stroke-width:8}
+.bmblock:hover polygon,.bmblock:focus-visible polygon{fill:rgba(176,71,97,.22);stroke:#B04761;stroke-opacity:1}
+.bmblock.on polygon{fill:rgba(176,71,97,.38);stroke:#B04761;stroke-opacity:1;stroke-width:8}
 .bmblock.focus polygon{stroke:#0B3A40;stroke-width:10;stroke-opacity:1}
 .bmlabel circle{fill:#0B3A40;stroke:#fff;stroke-width:6;transition:transform .2s}
 .bmlabel text{fill:#fff;font:400 52px "Gloock",Georgia,serif}
-.bmblock.on .bmlabel circle{fill:#D2A746}
-.bmblock.on .bmlabel text{fill:#06252A}
+.bmblock.on .bmlabel circle{fill:#B04761}
+.bmblock.on .bmlabel text{fill:#fff}
 @keyframes drawline{to{stroke-dashoffset:0}}
 @keyframes pop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
 .numbers{background:var(--surface);border-bottom:1px solid var(--line)}
@@ -749,7 +749,7 @@ body[data-tab="site"] #app{height:auto}
 /* Website extras: tour, Block A beacon, plot sizes, budget finder, timeline, nearby, questions, booking steps */
 .sechead.row2{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .bmapbox{position:relative}
-.beaconA{fill:none;stroke:#D2A746;stroke-width:8;transform-box:fill-box;transform-origin:center;animation:beaconA 2.2s ease-out infinite}
+.beaconA{fill:none;stroke:#B04761;stroke-width:8;transform-box:fill-box;transform-origin:center;animation:beaconA 2.2s ease-out infinite}
 .beaconA.b2{animation-delay:1.1s}
 @keyframes beaconA{from{transform:scale(1);opacity:.9}to{transform:scale(3.2);opacity:0}}
 .atag rect{fill:#0B3A40;stroke:#D2A746;stroke-width:4}
@@ -760,7 +760,7 @@ body[data-tab="site"] #app{height:auto}
 .tourbar{display:block;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin-top:6px;overflow:hidden}
 .tourbar i{display:block;height:100%;background:var(--gold);transition:width .5s}
 .explore.touring .bmblock:not(.focus) polygon{fill:rgba(11,58,64,.35)}
-.explore.touring .bmblock.focus polygon{fill:rgba(210,167,70,.18);stroke:#D2A746;stroke-width:12}
+.explore.touring .bmblock.focus polygon{fill:rgba(176,71,97,.22);stroke:#B04761;stroke-width:12}
 .sizebox{border:1px solid var(--line);border-radius:20px;background:var(--surface);padding:16px}
 .sizesvg{width:100%;height:auto;display:block;max-height:420px}
 .sizesvg .sz{fill:rgba(11,58,64,.04);stroke:var(--plot-line);stroke-width:2;stroke-dasharray:6 5;transition:all .5s ease}
@@ -869,9 +869,9 @@ body[data-tab="site"] #app{height:auto}
 .herobar{position:absolute;left:0;right:0;top:0;height:4px;z-index:3;background:rgba(11,58,64,.1)}
 .herobar i{display:block;height:100%;width:0;background:var(--gold)}
 .herotour .bmblock polygon{transition:fill .5s,stroke-width .5s}
-.herotour .bmap.whole .bmblock polygon{fill:rgba(210,167,70,.12);stroke-opacity:.9}
-.herotour .bmblock.focus polygon{fill:rgba(210,167,70,.42);stroke:#846A2E;stroke-opacity:1;stroke-width:12}
-.herotour .bmblock.focus .bmlabel circle{fill:#D2A746}
+.herotour .bmap.whole .bmblock polygon{fill:rgba(176,71,97,.1);stroke:#B04761;stroke-opacity:.8}
+.herotour .bmblock.focus polygon{fill:rgba(176,71,97,.34);stroke:#B04761;stroke-opacity:1;stroke-width:12}
+.herotour .bmblock.focus .bmlabel circle{fill:#B04761}
 .herocard{position:relative;z-index:3;margin:0;background:#09272A;color:#fff;border-radius:0;padding:14px 18px;display:grid;gap:6px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
 .herocard.pop{animation:cardIn .55s cubic-bezier(.2,.8,.2,1) both}
 @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
@@ -1084,3 +1084,22 @@ body.xmode .xbtn{will-change:auto}
 .xr-full img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
 .xr-full button{position:absolute;top:14px;right:18px;background:none;border:0;color:#fff;font-size:34px;cursor:pointer}
 @media (max-width:760px){.xr-wrap{padding:18px 14px}.xrender{padding-top:90px}}
+
+/* website master plan: the chosen plot and the plot under the pointer in rose (the sales system keeps its own colours) */
+.site svg .p:hover{stroke:#B04761;stroke-width:1.2;fill:rgba(176,71,97,.18)}
+.site svg .p.sel{stroke:#B04761;stroke-width:1.8;fill:rgba(176,71,97,.45)}
+.heromap2,.gmap,.bmapbox{background:#EEF3F0}
+/* home page: from plot to home (a render) */
+.p2h{background:linear-gradient(180deg,var(--wh-teal),var(--wh-abyss));color:var(--wh-mist)}
+.p2hgrid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:34px;align-items:center}
+.p2h h2{color:#fff}
+.p2h p{color:var(--wh-sage)}
+.p2h .fine{color:var(--wh-sage);opacity:.85}
+.p2himg{display:block;border-radius:18px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.4);aspect-ratio:16/9}
+.p2himg img{display:block;width:100%;height:100%;object-fit:cover;transition:transform 6s ease}
+.p2himg:hover img{transform:scale(1.04)}
+@media (max-width:860px){.p2hgrid{grid-template-columns:1fr}.p2himg{order:-1}}
+.p2h .eyebrow{color:var(--wh-gold)}
+.p2himg video,.xr-frame video{display:block;width:100%;height:100%;object-fit:cover}
+.xr-full video{max-width:100%;max-height:100%;border-radius:10px}
+.xchip:disabled{opacity:.35;cursor:not-allowed}

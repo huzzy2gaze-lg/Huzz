@@ -26,7 +26,7 @@ ${js}
 </script>
 `;
 fs.writeFileSync(path.join(dir, "orchard-sales.html"), page);
-for (const f of ["plan.webp", "plotdata.json", "sky-night.webp"]) fs.copyFileSync(path.resolve("public", f), path.join(dir, f));
+for (const f of ["plan.webp", "plan-site.webp", "plotdata.json", "sky-night.webp"]) fs.copyFileSync(path.resolve("public", f), path.join(dir, f));
 // the photo-real renders (made offline with Blender; see app/render)
 if (fs.existsSync(path.resolve("public/renders"))) { fs.mkdirSync(path.join(dir, "renders"), { recursive: true }); for (const f of fs.readdirSync(path.resolve("public/renders"))) fs.copyFileSync(path.resolve("public/renders", f), path.join(dir, "renders", f)); }
 console.log("artifact page:", path.join(dir, "orchard-sales.html"), Math.round(page.length / 1024) + " KB");

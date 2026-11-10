@@ -71,7 +71,7 @@ function blockMap() {
   const all = hulls.flatMap((h) => h.polys).map((p) => `<polygon points="${ptsStr(p)}"/>`).join("");
   let s = `<svg class="bmap" viewBox="${(-W * 0.04).toFixed(0)} ${(-H * 0.04).toFixed(0)} ${(W * 1.08).toFixed(0)} ${(H * 1.08).toFixed(0)}" role="img" aria-label="The eight blocks of DHA Margalla Orchard on the official plan">
     <defs><clipPath id="bm-clip">${all}</clipPath></defs>
-    <image href="plan.webp" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" clip-path="url(#bm-clip)" class="bmplan"/>`;
+    <image href="plan-site.webp" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" clip-path="url(#bm-clip)" class="bmplan"/>`;
   hulls.forEach((h, i) => {
     const on = S.siteBlocks.has(h.b), focus = S.siteFocus === h.b;
     s += `<g class="bmblock${on ? " on" : ""}${focus ? " focus" : ""}" style="--i:${i}" data-sblock="${h.b}" tabindex="0" role="button" aria-label="Block ${h.b}${on ? ", chosen" : ""}">`;
@@ -264,6 +264,7 @@ function home() {
     </div></section>
     ${timelineSection()}
     ${why()}
+    ${plotToHome()}
     ${howItWorks()}
     ${nextDoor()}
     ${nearbySection()}
@@ -278,6 +279,17 @@ function home() {
 function floatCta(wa) {
   if (["book", "contact", "signin", "account"].includes(S.sitePage)) return "";
   return `<div class="floatcta"><a class="fbook" href="#book"><span class="fdot"></span>Book a call</a>${wa ? `<a class="wafloat" href="${wa}" target="_blank" rel="noopener" aria-label="WhatsApp us"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.3 19.4L3 29l6.8-1.8A13 13 0 1 0 16 3zm0 23.6a10.6 10.6 0 0 1-5.4-1.5l-.4-.2-4 1 1.1-3.9-.3-.4A10.6 10.6 0 1 1 16 26.6zm5.8-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.9.4 3.6 3.6 0 0 0-1.1 2.7 6.3 6.3 0 0 0 1.3 3.3 14.4 14.4 0 0 0 5.5 4.9c2 .9 2.8.9 3.8.8a3.2 3.2 0 0 0 2.1-1.5 2.6 2.6 0 0 0 .2-1.5c-.1-.2-.3-.3-.6-.4z"/></svg></a>` : ""}</div>`;
+}
+
+// a photo-real render of a home you could build (made offline with Blender; see app/render)
+function plotToHome() {
+  return `<section class="sitesec p2h"><div class="sitewrap p2hgrid">
+    <div class="p2htext reveal"><div class="eyebrow">From plot to home</div><h2>Your plot today. Your home tomorrow.</h2>
+      <p>Choose a plot size and watch a home rise on it in 3D, or see it rendered at dusk, by day and at night.</p>
+      <div class="row"><a href="#experience" class="sitebtn goldbtn">See it in 3D</a><a href="#book" class="sitebtn light">Book a call</a></div>
+      <p class="fine">Rendered illustration of a home on a 1 Kanal plot. Not a DHA or FGEHA design.</p></div>
+    <a href="#experience" class="p2himg reveal" aria-label="See the home in 3D"><video src="renders/home-dusk.mp4" poster="renders/dusk-cam_hero.webp" autoplay muted loop playsinline preload="metadata" aria-label="Rendered video of a modern home at dusk"></video></a>
+  </div></section>`;
 }
 
 function howItWorks() {
