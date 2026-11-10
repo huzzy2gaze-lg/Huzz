@@ -1,0 +1,298 @@
+<title>WH Ventures Social Playbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a long-read guide in one column. A teal band on top, a section index, then sections in the order you act on them. */
+:root {
+  --bg: #EAF1EE; --surface: #FFFFFF; --line: #C5D1D2; --fg: #06252A; --muted: #4A6B6E;
+  --accent: #7A5F22; --accent-bg: #F4EAD3; --band: #0B3A40; --band-fg: #EAF1EE; --band-muted: #A9C4C4; --gold: #D2A746;
+  --warn: #9A3B1F; --warn-bg: #F7E3DA; --ok: #2F6E50; --ok-bg: #DCEFE4; --field: #F3F7F5;
+  --display: "Gloock", Georgia, serif; --text: "Albert Sans", system-ui, -apple-system, sans-serif; --r: 13px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #06252A; --surface: #0B3A40; --line: #1E5157; --fg: #EAF1EE; --muted: #A9C4C4;
+  --accent: #D2A746; --accent-bg: #352E16; --band: #071B1D; --band-fg: #EAF1EE; --band-muted: #A9C4C4; --gold: #D2A746;
+  --warn: #F0A487; --warn-bg: #3A2019; --ok: #7FD1A4; --ok-bg: #12382A; --field: #09272A; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #06252A; --surface: #0B3A40; --line: #1E5157; --fg: #EAF1EE; --muted: #A9C4C4;
+  --accent: #D2A746; --accent-bg: #352E16; --band: #071B1D; --band-fg: #EAF1EE; --band-muted: #A9C4C4; --gold: #D2A746;
+  --warn: #F0A487; --warn-bg: #3A2019; --ok: #7FD1A4; --ok-bg: #12382A; --field: #09272A; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--text); font-synthesis: none }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+header { background: var(--band); color: var(--band-fg) }
+header .wrap { padding-block: 34px; display: grid; gap: 13px }
+.eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); font-weight: 600 }
+h1 { font: 400 clamp(34px, 8vw, 55px)/1.05 var(--display); margin: 0; text-wrap: balance }
+header p { margin: 0; color: var(--band-muted); max-width: 62ch }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px }
+nav.toc a { color: var(--band-fg); text-decoration: none; font-size: 14px; border: 1px solid rgba(234,241,238,.25); border-radius: 99px; padding: 4px 13px }
+nav.toc a:hover { border-color: var(--gold) }
+main .wrap { padding-block: 34px 89px; display: grid; gap: 55px }
+section { display: grid; gap: 21px; min-width: 0; scroll-margin-top: 21px }
+h2 { font: 400 34px/1.1 var(--display); margin: 0; text-wrap: balance }
+h2 small { display: block; font: 600 13px var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px }
+h3 { font: 400 21px/1.25 var(--display); margin: 0 }
+p { margin: 0; max-width: 68ch }
+.lead { font-size: 18px; color: var(--muted) }
+ul, ol { margin: 0; padding-left: 21px; display: grid; gap: 8px; max-width: 68ch }
+a { color: var(--accent) }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 21px; display: grid; gap: 13px; min-width: 0 }
+.decisions { display: grid; gap: 13px; counter-reset: d; list-style: none; padding: 0; max-width: none }
+.decisions li { counter-increment: d; display: grid; grid-template-columns: 34px 1fr; gap: 13px; align-items: start }
+.decisions li::before { content: counter(d); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 400 18px var(--display); background: var(--accent-bg); color: var(--accent) }
+.decisions b { display: block }
+.note { border-left: 3px solid var(--warn); background: var(--warn-bg); padding: 13px 21px; border-radius: 0 8px 8px 0; display: grid; gap: 8px }
+.note b { color: var(--warn) }
+.good { border-left-color: var(--ok); background: var(--ok-bg) }
+.good b { color: var(--ok) }
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface) }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; min-width: 560px }
+th, td { text-align: left; vertical-align: top; padding: 10px 13px; border-bottom: 1px solid var(--line) }
+th { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--field) }
+tr:last-child td { border-bottom: 0 }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap }
+tfoot td { font-weight: 700 }
+.platforms { display: grid; gap: 13px }
+details.pf { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r) }
+details.pf summary { cursor: pointer; list-style: none; padding: 21px; display: grid; grid-template-columns: 1fr auto; gap: 13px; align-items: center }
+details.pf summary::-webkit-details-marker { display: none }
+details.pf summary span { font-size: 13px; color: var(--muted) }
+details.pf summary b { font: 400 21px var(--display) }
+.role { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 99px; background: var(--accent-bg); color: var(--accent); white-space: nowrap }
+.pfb { padding: 0 21px 21px; display: grid; gap: 13px }
+.pfb h4 { margin: 8px 0 0; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 13px }
+.two .card h3 { font-size: 21px }
+.src { font-size: 13px; color: var(--muted) }
+.src ul { gap: 5px }
+.src a { color: var(--muted); word-break: break-word }
+summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+code { font-size: 14px; background: var(--field); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px }
+</style>
+
+<header><div class="wrap">
+  <div class="eyebrow">WH Ventures · checked 10 November 2026</div>
+  <h1>Social playbook: Pakistan and overseas</h1>
+  <p>How each platform works, what to set up for buyers in Pakistan and abroad, who to target, and how to spend PKR 50–100k a month. I checked the rules and costs on the web on 10 Nov 2026. Platform rules change, so check each point marked "check" in the app.</p>
+  <nav class="toc">
+    <a href="#short">The short version</a><a href="#first">Before the accounts</a><a href="#markets">Two markets</a>
+    <a href="#platforms">Platform by platform</a><a href="#targeting">Targeting</a><a href="#budget">Budget</a>
+    <a href="#abroad">Overseas buyers</a><a href="#confirm">To confirm</a><a href="#sources">Sources</a>
+  </nav>
+</div></header>
+
+<main><div class="wrap">
+
+<section id="short">
+  <h2><small>Start here</small>The short version</h2>
+  <ol class="decisions">
+    <li><span><b>Say "developed by DHA" as a fact; never look like DHA.</b> DHA develops the project, so <b>WH Ventures | DHA Margalla Orchard</b> and "developed by DHA" in ads are fine. Use no DHA logo, no "Official", and no "DHA" on its own as a name. DHA has acted against people who used its logo, and Meta removes pages that look like another organisation.</span></li>
+    <li><span><b>Register WH Ventures with FBR as a real estate agent (DNFBP) before you run ads.</b> Since 2022, housing authorities may refuse transfers through unregistered agents. Overseas buyers will also ask for it.</span></li>
+    <li><span><b>One Meta ad account (PKR, Asia/Karachi), three separate regions.</b> Pakistan, the Gulf, and the West (UK, Europe, USA, Canada). The West needs Meta's "Housing" category, which limits targeting. Never mix the West into the other two campaigns.</span></li>
+    <li><span><b>WhatsApp is the main goal.</b> Most ads use "Click to WhatsApp". The website and forms come second.</span></li>
+    <li><span><b>Pakistan first, the Gulf second, the West later.</b> A view in the Gulf or the UK costs about 5–10 times a view in Pakistan. Overseas buyers often have bigger budgets, so test them, with Urdu and English versions.</span></li>
+    <li><span><b>Post at 9 pm Pakistan time.</b> That is evening in the Gulf too (7–8 pm). UK and North America see reels later the same day. Answer WhatsApp until about 1 am for the Gulf and the UK.</span></li>
+    <li><span><b>Trust content wins with overseas buyers.</b> Show the official FGEHA updates, video-call site visits, the online power of attorney, bank-only payments, and documents shared on WhatsApp.</span></li>
+  </ol>
+</section>
+
+<section id="first">
+  <h2><small>Week 0</small>Before you open the accounts</h2>
+  <p class="lead">These decisions are hard to change later, and some are legal duties.</p>
+  <div class="card">
+    <h3>1. Names and how to mention DHA</h3>
+    <ul>
+      <li><b>Name everywhere:</b> <code>WH Ventures | DHA Margalla Orchard</code> (Google Business Profile: only <code>WH Ventures</code>, because Google suspends names with extra words). Handle <code>whventurespk</code>.</li>
+      <li><b>The facts you can advertise:</b> DHA Islamabad-Rawalpindi develops the scheme under the agreement with FGEHA and the Supreme Court Bar Association signed on 26 Sep 2025. Its official name is the Margalla Orchard Housing Scheme (formerly the Park Road Housing Scheme); "DHA Margalla Orchards" is what buyers search for.</li>
+      <li><b>The limits:</b> no DHA or FGEHA logo, no "Official", and no "DHA" alone as a page name or handle. A safe line for each About section: <i>"WH Ventures is an independent real estate agency selling plots in DHA Margalla Orchards."</i> Overseas buyers also trust it more when you say clearly who you are.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>2. Registrations</h3>
+    <ul>
+      <li><b>FBR, as a DNFBP</b> (anti-money-laundering), on IRIS. Agents must check each buyer's ID (KYC), keep records, and report cash of PKR 2 million or more. Payments above PKR 5 million must go through a bank. Ask your tax adviser to do the registration.</li>
+      <li><b>Dealer registration with DHA and FGEHA:</b> DHA transfers ask for a registered-dealer card, and FGEHA has its own dealer registration. Ask both offices which one Margalla Orchard transfers need.</li>
+      <li><b>Islamabad RERA</b> (the 2020 real estate act) is <b>not working</b> in Nov 2026. A committee set up in Aug 2026 is designing a new system, so there is no registration number to show in ads yet. Watch for it.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>3. Papers and payments</h3>
+    <ul>
+      <li><b>For Meta business verification:</b> the SECP certificate of incorporation and the FBR NTN certificate, with exactly the same company name. Add a utility bill for the address. These should be less than 12 months old. Review takes up to 14 working days, and verified accounts get fewer blocks.</li>
+      <li><b>A company card</b> (Visa or Mastercard) with international online payments on. PayPak cards do not work.</li>
+      <li><b>Costs on top of the ad spend:</b>
+        <ul>
+          <li>Advance tax on card payments abroad (section 236Y): 0.5% for filers or 1% for non-filers, since 1 Jul 2026.</li>
+          <li>The bank's exchange charge.</li>
+          <li>Google now bills Pakistani accounts through Google Pakistan, and adds 15% sales tax on monthly invoices. Give Google your NTN so you get a tax invoice.</li>
+          <li>The 5% digital tax from 2025 is suspended.</li>
+        </ul>
+        Ask your accountant whether Islamabad's 15% sales tax on services applies to your ad spend.</li>
+      <li><b>Two-factor login and two admins</b> on every account. Meta can limit an ad account until two-factor login is on.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>4. Rules for ad text</h3>
+    <ul>
+      <li>No "guaranteed return", "double your money" or "sure profit". Meta bans these.</li>
+      <li>Prices with a date ("from PKR 3.5 crore for 1 Kanal, Nov 2026"). "Limited plots" only while it is true.</li>
+      <li>Do not claim "CDA NOC approved". It is a government-authority scheme, so link FGEHA's own notices instead.</li>
+      <li>Honest status (FGEHA, Oct 2026): development is about 50% done; the target for Block A possession is July 2027. Say "target", not "guaranteed".</li>
+    </ul>
+  </div>
+</section>
+
+<section id="markets">
+  <h2><small>Who you sell to</small>Two markets, two ways of talking</h2>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>Pakistan</th><th>Gulf (KSA, UAE, Qatar, Oman, Kuwait)</th><th>West (UK, Europe, USA, Canada)</th></tr></thead>
+    <tbody>
+      <tr><td><b>Who buys</b></td><td>Islamabad and Rawalpindi families, investors, government and lawyer allottees selling files</td><td>Professionals and business owners who send money home; about 2.6m Pakistanis in Saudi Arabia and 1.6m in the UAE</td><td>Second-generation families and professionals; 1.66m in the UK, about 300k in Canada, 450–900k in the USA</td></tr>
+      <tr><td><b>Language</b></td><td>Test English vs Urdu</td><td>Urdu first, then English</td><td>English</td></tr>
+      <tr><td><b>What they want to hear</b></td><td>Price, location, block, the steps</td><td>"You don't need to fly home": video call, documents on WhatsApp, online power of attorney</td><td>Safety: official notices, bank-only payments, an independent check of the title</td></tr>
+      <tr><td><b>Best ads</b></td><td>Location, Why Pay Double, How Big Is 1 Kanal, Build Your Home</td><td>Buying From Abroad, Five Checks, How Buying Works</td><td>Buying From Abroad, Five Checks, Build Your Home</td></tr>
+      <tr><td><b>Their evening</b></td><td>8–10 pm PKT</td><td>9 pm–midnight PKT; weekend Fri–Sat (UAE Sat–Sun)</td><td>UK: midnight–2 am PKT; US East: 5–7 am PKT</td></tr>
+      <tr><td><b>Cost of 1,000 views (Meta)</b></td><td>about USD 1–3</td><td>about USD 6–15</td><td>about USD 8–14, with fewer targeting options</td></tr>
+    </tbody>
+  </table></div>
+  <p class="src">Diaspora figures mix years (2020–2024) and sources. View costs are agency estimates; your own numbers after two weeks matter more.</p>
+</section>
+
+<section id="platforms">
+  <h2><small>How they work</small>Platform by platform</h2>
+  <p class="lead">Each platform has one job. Tap a platform to see how it works, what to set up for overseas buyers, and how to pay for reach.</p>
+  <div class="platforms">
+
+  <details class="pf" open><summary><span><b>WhatsApp Business</b><br><span>Where the sale happens</span></span><span class="role">Closes deals</span></summary><div class="pfb">
+    <p>Every ad sends people here. The free WhatsApp Business app is enough to run "Click to WhatsApp" ads; you do not need the paid WhatsApp API until chats become too many to answer by hand.</p>
+    <h4>For overseas buyers</h4>
+    <ul>
+      <li>Write office hours in two time zones: "10 am–10 pm Pakistan (9 am–9 pm Dubai)". The away message promises a reply the next morning.</li>
+      <li>Quick replies for: how to buy from abroad, power of attorney, payment by bank, video-call site visit.</li>
+      <li>Share the link <code>wa.me/923315223726</code>, which works from any country.</li>
+    </ul>
+  </div></details>
+
+  <details class="pf"><summary><span><b>Facebook + Instagram (Meta)</b><br><span>Most of the budget</span></span><span class="role">Main ads</span></summary><div class="pfb">
+    <p><b>How reach works:</b> Meta shows reels to people who don't follow you, based on watch time, shares and saves. The first 3 seconds decide most of it. Facebook reaches older buyers (35+); Instagram reaches younger families and overseas professionals. One Meta Business account runs both, and WhatsApp.</p>
+    <h4>Account setup that matters</h4>
+    <ul>
+      <li>Ad account in <b>PKR</b> and <b>Asia/Karachi</b>; one account serves every country. New accounts start with a daily limit that rises as you pay on time.</li>
+      <li>No VPN when you log in: unusual logins are a common reason for blocks.</li>
+      <li>Meta Pixel on the website, with "Lead" (form sent) and "Contact" (WhatsApp tap) events.</li>
+      <li>Instagram <b>trial reels</b> (shown only to non-followers) test hooks for free.</li>
+    </ul>
+    <h4>Boost or Ads Manager?</h4>
+    <p>The Boost button is quick but has no A/B tests, no region split and weak control of the Housing category. Use <b>Ads Manager</b> for everything in the plan below; use Boost only for a quick push of a post that already does well in Pakistan.</p>
+    <h4>The Housing rule</h4>
+    <p>Ads that reach the <b>UK, Europe, USA or Canada</b> must use the Housing special ad category. It allows ages 18–65+ only, all genders, no postcodes and no lookalike audiences, with a minimum radius of about 15 km. For Pakistan and the Gulf it is not required (check in Ads Manager: if it asks, answer honestly).</p>
+  </div></details>
+
+  <details class="pf"><summary><span><b>TikTok</b><br><span>Cheapest reach in Pakistan</span></span><span class="role">Organic reach</span></summary><div class="pfb">
+    <p><b>How reach works:</b> every video is tested on a small group, then shown to more people if they watch to the end. Followers matter less than on Instagram, so a new account can reach thousands.</p>
+    <ul>
+      <li>Use a <b>Business account</b>: the website link works with no follower minimum. Business accounts can only use the Commercial Music Library, not trending songs; our ads have their own music.</li>
+      <li><b>Ads:</b> TikTok Ads Manager opened to Pakistani businesses in Dec 2025, but it needs about USD 20 a day per ad group, which is too much for now. Try the in-app <b>Promote</b> button (about USD 3 a day) on the best video; check whether Pakistan has it.</li>
+      <li>The country the ad account is registered in decides which countries you can target. Check with Pakistan selected before planning Gulf ads.</li>
+      <li>TikTok is legal in Pakistan; PTA called a "ban notice" fake on 5 Nov 2026. TikTok removes many Pakistani videos, so keep claims factual.</li>
+    </ul>
+  </div></details>
+
+  <details class="pf"><summary><span><b>YouTube</b><br><span>Shorts now, long videos later</span></span><span class="role">Search and trust</span></summary><div class="pfb">
+    <p><b>How reach works:</b> Shorts behave like TikTok. Long videos are found by search ("Margalla Orchard plot price", "DHA Margalla Orchards update") for years, which suits overseas buyers who research before they call.</p>
+    <ul>
+      <li>Links in Shorts descriptions <b>are not clickable</b>. Put the website and WhatsApp in the <b>channel links</b> (shown next to Subscribe), and link each Short to a longer "related video" whose description has the links.</li>
+      <li>Add an Urdu and an English title to each video (Video details → Language and translations), so both audiences find it.</li>
+      <li>Month 2 onward: one longer video a month (a site drive, a block tour, "how to buy from abroad").</li>
+      <li>No YouTube ads yet: Google says Demand Gen campaigns need about USD 100 a day to learn.</li>
+    </ul>
+  </div></details>
+
+  <details class="pf"><summary><span><b>Google: Search ads and Business Profile</b><br><span>People already looking</span></span><span class="role">Ready buyers</span></summary><div class="pfb">
+    <ul>
+      <li><b>Search ads</b> on <code>Margalla Orchard plots</code>, <code>DHA Margalla Orchards price</code>, <code>Park Road housing scheme plots</code>. Target Pakistan, the Gulf and the UK: Google's housing limits apply only to the USA and Canada. Expect about PKR 80–250 a click (agency estimate; check Keyword Planner). Do not use "DHA" in the ad text itself.</li>
+      <li><b>Business Profile:</b> name exactly <code>WH Ventures</code>. Keyword names ("WH Ventures Plots DHA") get profiles suspended. Verification is usually a phone video of the office, the signboard and proof of work. Without an office open to visitors, hide the address and list Islamabad and Rawalpindi as the service area.</li>
+      <li>Reviews from real clients are the strongest trust signal for overseas buyers who can't visit.</li>
+    </ul>
+  </div></details>
+
+  <details class="pf"><summary><span><b>LinkedIn</b><br><span>Overseas professionals</span></span><span class="role">Free only</span></summary><div class="pfb">
+    <p>LinkedIn ads cost about USD 10 a day at the minimum (about PKR 85,000 a month), with clicks around USD 9, so <b>no ads</b>. Post 2–3 times a week for free: project updates, FGEHA notices, answers to overseas buyers' questions. Posts from a founder's personal profile reach more people than the company page; staff should reshare.</p>
+  </div></details>
+  </div>
+</section>
+
+<section id="targeting">
+  <h2><small>Who sees the ads</small>Targeting, campaign by campaign</h2>
+  <p class="lead">Let the video choose the people: keep audiences broad and test one thing at a time. Names follow <code>WH_META_GOAL_REGION_AD_LANG_DATE</code>.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Campaign</th><th>Where</th><th>Who</th><th>Goal and ad</th></tr></thead>
+    <tbody>
+      <tr><td><b>A. Pakistan core</b><br><code>WH_META_WA_PK-ISB</code></td><td>Islamabad and Rawalpindi + 30 km</td><td>Ages 25–65+, Advantage+ audience, no interests</td><td>Click to WhatsApp. Weeks 1–2: 4 ads, one per ad set, to find the winner</td></tr>
+      <tr><td><b>B. Pakistan cities</b><br><code>WH_META_WA_PK-CITIES</code></td><td>Lahore, Karachi, Peshawar, Faisalabad, Multan</td><td>Ages 28–65+, broad</td><td>The winning ad, Urdu version</td></tr>
+      <tr><td><b>C. Gulf</b><br><code>WH_META_WA_GULF</code></td><td>"People living in": Dubai, Abu Dhabi, Sharjah, Riyadh, Jeddah, Dammam, Doha, Muscat, Kuwait City</td><td>Ages 28–60. Add "Lived in Pakistan (formerly Expats – Pakistan)" if Ads Manager still offers it; otherwise test the Urdu language setting</td><td>Click to WhatsApp. "Buying From Abroad", Urdu vs English</td></tr>
+      <tr><td><b>D. West</b> (month 2)<br><code>WH_META_WA_WEST</code></td><td>UK cities with big Pakistani communities (Birmingham, Bradford, Manchester, London), then Toronto, New York, New Jersey</td><td><b>Housing category on</b>: 18–65+, all genders, no lookalikes</td><td>Click to WhatsApp or the website. English "Buying From Abroad" and "Five Checks"</td></tr>
+      <tr><td><b>R. Retargeting</b><br><code>WH_META_RT</code></td><td>Pakistan + Gulf (the West gets its own, with Housing on)</td><td>Website visitors 30 days, video 50% viewers 30 days, people who messaged or engaged 60 days</td><td>"How Buying Works", client stories, "Book your free call"</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note good"><b>When an ad wins</b><p>Judge only after each ad has spent about PKR 2,500. Keep ads with a hook rate (3-second views ÷ impressions) of 25% or more. Then compare the cost per WhatsApp chat, and above all the number of booked calls in the sales system. Raise a winner's budget by no more than 30% a day.</p></div>
+</section>
+
+<section id="budget">
+  <h2><small>Month 1</small>The budget</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Item</th><th>When</th><th class="num">PKR a day</th><th class="num">Month total</th></tr></thead>
+    <tbody>
+      <tr><td>A. Pakistan core: creative test (4 ads)</td><td>Weeks 1–2</td><td class="num">1,600</td><td class="num">22,400</td></tr>
+      <tr><td>A. Pakistan core: the winner</td><td>Weeks 3–4</td><td class="num">700</td><td class="num">9,800</td></tr>
+      <tr><td>B. Pakistan cities</td><td>Weeks 3–4</td><td class="num">400</td><td class="num">5,600</td></tr>
+      <tr><td>C. Gulf (Urdu vs English)</td><td>Weeks 3–4</td><td class="num">700</td><td class="num">9,800</td></tr>
+      <tr><td>R. Retargeting</td><td>Weeks 2–4</td><td class="num">300</td><td class="num">6,300</td></tr>
+      <tr><td>Google Search</td><td>Weeks 2–4</td><td class="num">400</td><td class="num">8,400</td></tr>
+      <tr><td>TikTok Promote, best video</td><td>3 times</td><td class="num">–</td><td class="num">3,000</td></tr>
+    </tbody>
+    <tfoot><tr><td>Planned</td><td></td><td></td><td class="num">65,300</td></tr>
+    <tr><td>Kept for winners (and the West in month 2)</td><td></td><td></td><td class="num">up to 34,700</td></tr></tfoot>
+  </table></div>
+  <p>Add about 1–5% for the advance tax and bank charges on card payments. Month 2: move money to whichever region gives the cheapest <b>booked call</b>, and start campaign D at about PKR 500 a day.</p>
+</section>
+
+<section id="abroad">
+  <h2><small>Content and sales</small>What overseas buyers need to hear</h2>
+  <p class="lead">Their biggest fears are fake files, forged powers of attorney and dealers who disappear. Each post should remove one fear. These are also the answers for your WhatsApp quick replies.</p>
+  <div class="two">
+    <div class="card"><h3>Power of attorney online</h3><p>NADRA's portal (poa.nadra.gov.pk) lets a buyer abroad make a power of attorney without visiting the embassy: upload the papers, an online interview with the mission, fingerprints through the Pak-ID app. A family member or lawyer in Pakistan then acts for them.</p></div>
+    <div class="card"><h3>Paying through a bank</h3><p>Only bank transfers, never cash, with every receipt on WhatsApp. Buyers with a <b>Roshan Digital Account</b> can buy property from it ("Roshan Apna Ghar"). Ask the bank whether Margalla Orchard plots qualify before you advertise this.</p></div>
+    <div class="card"><h3>Tax at the filer rate</h3><p>NICOP and POC holders who spent less than 183 days in Pakistan that year pay the <b>filer</b> rate of advance tax on the purchase (section 236K), even when they are not on the active taxpayer list. That is a big saving to mention. Check the 2026–27 rate with your tax adviser first.</p></div>
+    <div class="card"><h3>Proof, not promises</h3><p>Video-call site visits, copies of every document, the dues check on FGEHA's portal, links to FGEHA's official notices (for example the 7 Oct 2026 warning about a fake affidavit), and Google reviews from real clients.</p></div>
+  </div>
+</section>
+
+<section id="confirm">
+  <h2><small>Before the first rupee</small>To confirm</h2>
+  <ul>
+    <li><b>FGEHA and DHA:</b> who processes Margalla Orchard transfers now (FGEHA in G-10/4, or DHA), whether a buyer who is not a member can take a transfer, whether an attorney can sign for the buyer, and the transfer fees. Ads 7 ("How Buying Works") and 6 ("Five Checks") say the transfer is at FGEHA in G-10; check that this is still true.</li>
+    <li><b>Your tax adviser:</b> the FBR DNFBP registration, the 2026–27 section 236K rates, and Islamabad sales tax on ad spend.</li>
+    <li><b>Your bank:</b> whether Roshan Apna Ghar covers these plots.</li>
+    <li><b>In Ads Manager:</b> whether "Lived in Pakistan (formerly Expats – Pakistan)" still exists; whether TikTok Promote is open in Pakistan.</li>
+    <li><b>Yourselves:</b> "Limited plots available" (in the Five Reasons ad) is true for the plots you hold.</li>
+  </ul>
+</section>
+
+<section id="sources" class="src">
+  <h2 style="font-size:21px">Sources</h2>
+  <ul>
+    <li>Margalla Orchard agreement: <a href="https://www.app.com.pk/national/fgeha-dha-scba-ink-tripartite-agreement-for-development-of-margalla-orchard-housing-scheme/" target="_blank" rel="noopener">APP, 26 Sep 2025</a>; FGEHA progress update, Oct 2026: <a href="https://www.fgeha.gov.pk/margalla-orchards-housing-schema-park-road-development-update/" target="_blank" rel="noopener">fgeha.gov.pk</a>; FGEHA notice on a fake affidavit, 7 Oct 2026: <a href="https://www.fgeha.gov.pk/park-road-public-notice-regarding-unauthorized-document-purporting-to-be-an-affidavit-undertaking-on-behalf-of-fgeha-in-respect-of-park-road-margalla-orchard-housing-scheme/" target="_blank" rel="noopener">fgeha.gov.pk</a></li>
+    <li>FBR rules for real estate agents (DNFBP): <a href="https://download1.fbr.gov.pk/Docs/2021821683014134AML-CFTRealEstateAgentsUpdatedJuly2021.pdf" target="_blank" rel="noopener">FBR guidelines, Jul 2021</a>; Islamabad RERA status: <a href="https://pid.gov.pk/site/press_detail/33529" target="_blank" rel="noopener">PID, 10 Aug 2026</a></li>
+    <li>Meta Housing category: <a href="https://developers.facebook.com/documentation/ads-commerce/marketing-api/audiences/special-ad-category" target="_blank" rel="noopener">Meta developers</a>; banned claims: <a href="https://transparency.meta.com/policies/ad-standards/deceptive-content/prohibited-commercial-practices/" target="_blank" rel="noopener">Meta advertising standards</a></li>
+    <li>TikTok self-serve in Pakistan: <a href="https://www.brecorder.com/news/40398243/smbs-in-pakistan-tiktok-rolls-out-self-serve-advertising-solution" target="_blank" rel="noopener">Business Recorder, 19 Dec 2025</a>; housing policy: <a href="https://ads.tiktok.com/help/article/housing-employment-credit-hec-ad-policy" target="_blank" rel="noopener">TikTok</a>; PTA on the fake ban notice: <a href="https://propakistani.pk/2026/11/05/pta-gives-statement-on-tiktok-ban-in-pakistan/" target="_blank" rel="noopener">ProPakistani, 5 Nov 2026</a></li>
+    <li>Google billing in Pakistan: <a href="https://support.google.com/google-ads/answer/2375370" target="_blank" rel="noopener">Google Ads help</a>; Google housing policy: <a href="https://support.google.com/adspolicy/answer/16701755" target="_blank" rel="noopener">Google Ads policy</a>; Business Profile verification: <a href="https://support.google.com/business/answer/7107242" target="_blank" rel="noopener">Google</a></li>
+    <li>Online power of attorney: <a href="https://poa.nadra.gov.pk/" target="_blank" rel="noopener">NADRA</a>; Roshan Apna Ghar: <a href="https://www.sbp.org.pk/our-operations/roshan-digital-accounts/roshan-apna-ghar" target="_blank" rel="noopener">State Bank of Pakistan</a></li>
+    <li>Card tax 236Y cut to 0.5%: <a href="https://www.dawn.com/news/2007905" target="_blank" rel="noopener">Dawn, Jun 2026</a>; DPPT suspended: <a href="https://profit.pakistantoday.com.pk/2025/07/31/pakistan-scraps-5-digital-tax-on-foreign-tech-firms-to-support-trade-talks" target="_blank" rel="noopener">Profit, 31 Jul 2025</a></li>
+    <li>View costs by country are agency estimates (lebesgue.io, Jul 2026; bimogroup.co, 2026) and should be replaced by your own numbers.</li>
+  </ul>
+</section>
+
+</div></main>

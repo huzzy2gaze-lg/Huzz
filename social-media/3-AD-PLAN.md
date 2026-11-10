@@ -1,5 +1,9 @@
 # Ad plan: small daily budgets, A/B tests, trial reels
 
+> **Updated 10 Nov 2026** after research: the full guide for Pakistan **and overseas** buyers (regions, Housing
+> category, taxes, registrations, budget by region) is `playbook/index.html` (published as "WH Ventures Social
+> Playbook"). Where this file and the playbook differ, follow the playbook.
+
 **Budget:** PKR 50,000–100,000 a month. Start at about **PKR 2,000 a day** (about PKR 60,000–67,000 in month 1). Keep the
 rest to give more money to the ads that win.
 
@@ -45,9 +49,11 @@ After about 24 hours you see the views and the watch time. Then you can share it
 - **Audience for the test:** Islamabad and Rawalpindi + 30 km; age 25–65+; no interests (let Meta find the people;
   the video does the choosing).
 - **Placements:** Advantage+ placements (automatic). The videos are 9:16, so they fit Reels and Stories.
-- **Special ad category:** when Ads Manager asks, choose **Housing** if it says the category is needed for real
-  estate ads in your country. It limits targeting by age, gender and postcode, but the ad runs. Do not avoid this
-  question; Meta can block the ad account.
+- **Special ad category (Housing):** required for ads that reach the **UK, Europe, USA or Canada** (ages 18–65+ only,
+  all genders, no postcodes, no lookalikes). Not required for Pakistan and the Gulf. So run **separate campaigns per
+  region** (Pakistan · Gulf · West) and never mix the West into the others. If Ads Manager asks, answer honestly.
+- **Main goal:** "Click to WhatsApp" (Engagement or Leads objective, WhatsApp as the destination). The free WhatsApp
+  Business app is enough.
 - **Language test (after the video test):** the winning video in English vs in Urdu, PKR 500 a day each, 5 days.
 
 **When to decide:** when each ad has spent at least **PKR 2,500** (about 6 days). Before that, the numbers are luck.
@@ -86,9 +92,13 @@ With the **winning ad**, PKR 1,500 a day in 3 ad sets of PKR 500:
   plot for sale", "Park Road Housing Scheme plots", "DHA Margalla Orchard price" are ready to buy. Send them to the
   website. Google may not allow "DHA" in the ad text, because it is another organisation's name; use it in the
   keywords, and write the ad as "Plots in Margalla Orchard, Main Park Road".
-- **TikTok:** TikTok Ads Manager needs a large minimum daily budget per ad group (about USD 20 a day), too much for
-  this plan. Use the in-app **Promote** button on the best organic TikTok, about PKR 1,000 once a week.
-- **YouTube:** post every video as a **Short** (free). No YouTube ads in month 1.
+- **TikTok:** TikTok Ads Manager opened to Pakistani businesses in Dec 2025, but it needs about USD 20 a day per ad
+  group, too much for this plan. Use the in-app **Promote** button (about USD 3 a day) on the best organic TikTok, about
+  PKR 1,000 once a week, if Pakistan has it.
+- **YouTube:** post every video as a **Short** (free). Links in Shorts can't be clicked: use the channel links and the
+  "related video" link. No YouTube ads in month 1 (Demand Gen needs about USD 100 a day to learn).
+- **Google billing:** since Aug 2026 Google Pakistan bills Pakistani accounts; give your NTN to get a tax invoice
+  (15% sales tax on monthly invoices). Google's housing limits apply only to the USA and Canada.
 - **LinkedIn:** no ads (too expensive per click). Post the same content for free; it is good for overseas
   professionals.
 

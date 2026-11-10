@@ -4,6 +4,8 @@ Everything needed to open the company's social media accounts, post, run small a
 in the chosen brand colours (**Margalla Teal**, see `../brand/README.md`).
 
 ## Start here, in this order
+0. **`playbook/`** (published as "WH Ventures Social Playbook"): how each platform works, Pakistan vs overseas
+   buyers, registrations and taxes, targeting by region, and the month 1 budget. Researched 10 Nov 2026.
 1. **`setup-page/`** (published as a phone checklist with copy buttons) and **`1-ACCOUNT-SETUP.md`**: create the accounts, step by step (WhatsApp Business, Facebook + Instagram through a Meta
    business account, TikTok, YouTube, Google Business Profile, LinkedIn). About 3 hours.
 2. **`2-PROFILE-TEXT.md`**: names, handles, bios and About texts to copy and paste, checked against each platform's

@@ -104,6 +104,8 @@ figcaption { font-size: 12px; color: var(--muted) }
       <li>A bank card with international online payments turned on</li>
       <li>The brand images (sent in the chat as brand-kit.zip; save them to the phone)</li>
       <li>A second admin (a partner) for every account, so the company never loses one</li>
+      <li>The SECP certificate and the FBR NTN certificate (same company name on both), for Meta verification and Google invoices</li>
+      <li>FBR registration as a real estate agent (DNFBP) started with your tax adviser; see the playbook</li>
     </ul>
     <label class="dom" for="domain">Website address</label>
     <input type="text" id="domain" placeholder="for example whventures.pk" autocomplete="off" spellcheck="false">
@@ -142,13 +144,14 @@ const S = [
    tasks:["Install WhatsApp Business on the company phone (+92 331 5223726). It moves existing chats over.",
      "Profile: photo, name WH Ventures, category Real Estate, description and website (below).",
      "Tools → Greeting message (below).",
-     "Tools → Away message for outside office hours.",
+     "Tools → Away message for outside office hours, with the hours in Pakistan and Dubai time (below).",
+     "Tools → Quick replies for overseas buyers: buying from abroad, online power of attorney, payment by bank, video-call site visit.",
      "Tools → Quick replies for prices, location and documents.",
      "Tools → Labels: New lead, Called, Site visit, Token, Closed."],
    fields:[["Business name","WH Ventures"],["Description","Plots in DHA Margalla Orchard, Islamabad. 1 Kanal, 14 Marla, 10 Marla. Book a free call."],
      ["Website","https://{D}/?utm_source=whatsapp&utm_medium=social_bio&utm_campaign=profile"],
      ["Greeting message","Assalam o Alaikum! Thank you for contacting WH Ventures. Which plot size are you looking for: 1 Kanal, 14 Marla or 10 Marla? Our team will reply shortly."],
-     ["Away message","Assalam o Alaikum! Thank you for your message. Our office is closed right now; we will reply first thing tomorrow morning. WH Ventures"]],
+     ["Away message","Assalam o Alaikum! Thank you for your message. We answer from 10 am to 10 pm Pakistan time (9 am to 9 pm Dubai time) and will reply first thing in the morning. Buying from abroad? We can show you the plot on a video call. WH Ventures"]],
    imgs:[["profile","Profile picture","profile.png"]] },
  { id:"meta", title:"Facebook + Instagram (Meta)", time:"45 minutes · on a computer", url:"https://business.facebook.com", urlText:"Open business.facebook.com",
    why:"The business account must own the Page, Instagram and the ad account, so the company owns them, not one person. Log in with a real personal Facebook profile; Meta closes fake ones and everything they own.",
@@ -163,13 +166,14 @@ const S = [
      "Ad account: name WH Ventures - Main, time zone Asia/Karachi, currency PKR. These cannot be changed later.",
      "Add the payment card (Billing → Payment settings).",
      "Business settings → Users → People → invite the second admin with full control.",
-     "Two-factor login on (an authenticator app, not only SMS).",
+     "Two-factor login on (an authenticator app, not only SMS). Never log in through a VPN: it is a common reason for blocked ad accounts.",
+     "Business settings → Security Center → start business verification with the SECP and NTN certificates.",
      "Events Manager → Connect data → Web → name it WH Ventures website → copy the Pixel ID and send it to me.",
      "Post one story per topic and save each as a highlight with its cover (7 highlights)."],
    fields:[["Business name","WH Ventures (Pvt.) Ltd."],["Page name","WH Ventures | DHA Margalla Orchard"],["Username","whventurespk"],
      ["Category","Real Estate Agent","second: Real Estate Investment Firm"],
      ["Facebook bio","Plots in DHA Margalla Orchard, Islamabad. 1 Kanal, 14 Marla, 10 Marla. Book a free call.","88 of 101"],
-     ["Facebook About","WH Ventures sells plots in DHA Margalla Orchard (Park Road Housing Scheme), Islamabad: 1 Kanal, 14 Marla and 10 Marla, on Main Park Road opposite COMSATS University.\n\n✔ Plots on the official FGEHA master plan\n✔ Help with the full transfer: token, NDC, transfer and allotment letter\n✔ Free call to choose the right block for your budget\n\nCall or WhatsApp: +92 331 5223726"],
+     ["Facebook About","WH Ventures is an independent real estate agency selling plots in DHA Margalla Orchard (Park Road Housing Scheme), Islamabad: 1 Kanal, 14 Marla and 10 Marla, on Main Park Road opposite COMSATS University. For buyers in Pakistan and overseas Pakistanis.\n\n✔ Plots on the official FGEHA master plan\n✔ Help with the full transfer: token, NDC, transfer and allotment letter\n✔ Free call to choose the right block for your budget\n\nCall or WhatsApp: +92 331 5223726"],
      ["Facebook website","https://{D}/?utm_source=facebook&utm_medium=social_bio&utm_campaign=profile"],
      ["Instagram bio","Plots in DHA Margalla Orchard, Islamabad 🏡\n1 Kanal · 14 Marla · 10 Marla\nMain Park Road, opp. COMSATS\n📞 Book a free call 👇","122 of 150"],
      ["Instagram link","https://{D}/?utm_source=instagram&utm_medium=social_bio&utm_campaign=profile"],
@@ -180,7 +184,8 @@ const S = [
  { id:"tt", title:"TikTok", time:"20 minutes · on the phone", url:"https://www.tiktok.com/signup", urlText:"Open TikTok sign-up",
    why:"Reels get the cheapest views here. The in-app Promote button is enough for our budget at first.",
    tasks:["Sign up with the company e-mail → handle whventurespk.","Profile picture, name and bio (below).",
-     "Settings → Account → Switch to Business account → Real Estate.","Add the website link when the field appears (sometimes only after some followers)."],
+     "Settings → Account → Switch to Business account → Real Estate.","Add the website link when the field appears (sometimes only after some followers).",
+     "Check whether the Promote button is offered on a posted video (it may not be open in Pakistan yet)."],
    fields:[["Name","WH Ventures"],["Username","whventurespk"],["Bio","DHA Margalla Orchard plots · Islamabad\n📞 +92 331 5223726","56 of 80"],
      ["Website","https://{D}/?utm_source=tiktok&utm_medium=social_bio&utm_campaign=profile"]],
    imgs:[["profile","Profile picture","profile.png"]] },
@@ -188,7 +193,8 @@ const S = [
    why:"Use one company Google account for YouTube, Google Business and Google Ads. With a Zoho e-mail, choose \"Use my current e-mail address instead\" when you create the Google account.",
    tasks:["Profile icon → Create a channel → name and handle below.","Customise channel → Branding: picture and banner.",
      "Basic info: description, links and contact e-mail.","Settings → Permissions → invite the second admin as Manager.",
-     "Verify the phone number (Settings → Channel → Feature eligibility) for thumbnails and longer videos."],
+     "Verify the phone number (Settings → Channel → Feature eligibility) for thumbnails and longer videos.",
+     "For each video, add both an English and an Urdu title (Video details → Language and translations). Links in Shorts can't be clicked, so the channel links carry the website and WhatsApp."],
    fields:[["Channel name","WH Ventures | DHA Margalla Orchard"],["Handle","@whventurespk"],
      ["Description","WH Ventures: plots in DHA Margalla Orchard (Park Road Housing Scheme), Islamabad.\n\nOn this channel: block tours, prices, site development updates, and how the transfer works, step by step.\n\n1 Kanal · 14 Marla · 10 Marla plots on Main Park Road, opposite COMSATS University.\n\nBook a free call: +92 331 5223726 (call or WhatsApp)"],
      ["Link 1: Book a free call","https://{D}/?utm_source=youtube&utm_medium=social_bio&utm_campaign=profile"],["Link 2: WhatsApp","https://wa.me/923315223726"]],

@@ -50,7 +50,7 @@ Plots in DHA Margalla Orchard, Islamabad. 1 Kanal, 14 Marla, 10 Marla. Book a fr
 - **Action button:** "Send WhatsApp message" → +92 331 5223726 (or "Book now" → the Facebook link from `utm-links.csv`)
 - **About / details:**
 ```
-WH Ventures sells plots in DHA Margalla Orchard (Park Road Housing Scheme), Islamabad: 1 Kanal, 14 Marla and 10 Marla, on Main Park Road opposite COMSATS University.
+WH Ventures is an independent real estate agency selling plots in DHA Margalla Orchard (Park Road Housing Scheme), Islamabad: 1 Kanal, 14 Marla and 10 Marla, on Main Park Road opposite COMSATS University. For buyers in Pakistan and overseas Pakistanis.
 
 ✔ Plots on the official FGEHA master plan
 ✔ Help with the full transfer: token, NDC, transfer and allotment letter
