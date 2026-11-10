@@ -208,7 +208,8 @@ function renderHeader() {
 function render() {
   const app = $("#app");
   if (S.booting || !G.geo) {
-    app.innerHTML = `<div class="center"><div class="empty">${S.bootErr ? esc(S.bootErr) : "Loading the official layout plan…"}</div></div>`;
+    // the first screen has the same dark teal as the 3D home, so the opening is one smooth start
+    app.innerHTML = `<div class="bootscreen"><div class="bootlogo">${logo()}</div><span>${S.bootErr ? esc(S.bootErr) : "DHA Margalla Orchard · Loading the official master plan"}</span></div>`;
     return;
   }
   document.title = S.area === "site" ? `${(S.site && S.site.company) || "WH Ventures"} · Plots in DHA Margalla Orchard, Islamabad` : "Orchard Sales";

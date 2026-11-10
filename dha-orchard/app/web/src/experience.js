@@ -198,7 +198,8 @@ function camFor(key) {
     return { pos: [lx, D * Math.sin(el), lz + D * Math.cos(el)], look: [lx, 0, lz], fit: true };
   }
   const D = Math.max(pw, ph) * (phone ? 1.45 : 1.0) / Math.min(1.6, wide);
-  if (key === "hero") return { pos: [phone ? 0 : -pw * 0.22, D * 0.8, D * 0.9], look: [phone ? 0 : -pw * 0.3, 0, phone ? 1.2 : 0.2] };
+  // a phone: the whole plan fills the top half of the screen, above the heading
+  if (key === "hero") return phone ? { pos: [0, D * 0.68, D * 0.56], look: [0, 0, D * 0.14] } : { pos: [-pw * 0.22, D * 0.8, D * 0.9], look: [-pw * 0.3, 0, 0.2] };
   if (key === "render") return { pos: [0, 9, 3], look: [0, 0, 0] };
   if (key === "how") return { pos: [-D * 0.35, D * 0.75, D * 0.6], look: [0, 0, 0] };
   if (key === "faq") return { pos: [D * 0.3, D * 0.85, D * 0.5], look: [0, 0, 0] };
@@ -317,6 +318,12 @@ function frame(now) {
   if (!rm) { tp.x += X.pointer[0] * 0.6 * par; tp.y += X.pointer[1] * 0.35 * par; }
   X.cur.pos.lerp(tp, k); X.cur.look.lerp(tl, k);
   X.camera.position.copy(X.cur.pos); X.camera.lookAt(X.cur.look);
+  // the haze starts behind what the camera looks at: on a narrow phone screen the camera is further away,
+  // and a fixed haze covered the whole plan (it looked black)
+  const dist = X.cur.pos.distanceTo(X.cur.look);
+  X.scene.fog.near = Math.max(14, dist * 0.95); X.scene.fog.far = Math.max(30, dist * 2);
+  const far = Math.max(60, dist * 2.6);
+  if (Math.abs(X.camera.far - far) > 1) { X.camera.far = far; X.camera.updateProjectionMatrix(); }
   // blocks rise; the active one rises highest and glows
   for (const b of ACTIVE) {
     const o = X.blocks[b];
@@ -465,7 +472,7 @@ export function experienceAfterRender() {
   const loader = page.querySelector(".xloader");
   if (X) { loader.remove(); onScroll(); return; }
   if (!G.geo) return;
-  try { X = build(); } catch (e) { console.error(e); document.querySelectorAll(".xcanvas").forEach((c) => c.remove()); X = null; }
+  try { X = build(); if (import.meta.env.DEV) window.__X = X; } catch (e) { console.error(e); document.querySelectorAll(".xcanvas").forEach((c) => c.remove()); X = null; }
   if (!X) { document.body.classList.add("xnogl"); loader.remove(); return; } // no WebGL: the page still works, over a still picture of the plan
   const count = loader.querySelector(".xcount");
   // if the plan is slow, the page opens after 15 s anyway (the plan comes in when it arrives)
