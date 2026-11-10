@@ -13,7 +13,7 @@ import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection
 
 export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook", "experience"];
 // Used until an admin writes other details on the Team page.
-export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726" };
+export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", email: "info@whventures.com.pk", address: "Islamabad, Pakistan" };
 const set = (k) => ((S.site[k] || "").trim() || SITE_DEFAULTS[k] || "");
 const company = () => set("company") || "WH Ventures";
 const ptsStr = (pts) => pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
@@ -40,7 +40,7 @@ function header() {
   const p = S.sitePage;
   const link = (k, l) => `<a href="#${k}" class="${p === k ? "on" : ""}">${l}</a>`;
   const right = S.me ? `<button class="sitebtn" data-act="toApp">Sales system</button>`
-    : S.user ? `<a href="#account" class="sitebtn">My account</a>` : `<a href="#signin" class="sitebtn ghost">Sign in</a>`;
+    : S.user ? `<a href="#account" class="sitebtn">My account</a>` : S.mode === "public" ? "" : `<a href="#signin" class="sitebtn ghost">Sign in</a>`;
   // the entrance animation plays once per visit, not on every page change
   const intro = introDone ? "" : " intro";
   introDone = true;
@@ -197,6 +197,11 @@ function countdown() {
 function bookForm() {
   if (S.siteSent) {
     const s = S.siteSent;
+    if (S.mode === "public") return `<div class="sent"><h3>Thank you${s.name ? ", " + esc(s.name.split(" ")[0]) : ""}. One more step.</h3>
+      <p>WhatsApp opened with your request already written. Press <b>Send</b> in WhatsApp. Then a member of our team will call you on <b>${esc(s.phone)}</b>${s.time ? ` in the ${esc(s.time)}` : ""}.</p>
+      <p>WhatsApp did not open? Use this button.</p><a class="sitebtn solid" target="_blank" rel="noopener" href="${esc(S.api.lastLink || "")}">Send on WhatsApp</a>
+      <p class="fine">Or call us on ${esc(set("phone"))}, or send an e-mail to ${esc(set("email"))}.</p>
+      <button class="sitebtn ghost" data-act="siteAgain">Book another call</button></div>`;
     return `<div class="sent"><h3>Thank you${s.name ? ", " + esc(s.name.split(" ")[0]) : ""}. We will call you.</h3>
       <p>A member of our team will call you on <b>${esc(s.phone)}</b>${s.time ? ` in the ${esc(s.time)}` : ""}${s.blocks && s.blocks.length ? ` about Block ${esc(s.blocks.join(", "))}` : ""}.</p>
       ${!S.user ? `<p>Create a free account to follow your request and to get news about new plots.</p><a href="#signin" class="sitebtn">Create an account</a>` : ""}
@@ -329,6 +334,10 @@ function plan() {
 
 function signin() {
   if (S.user) return account();
+  if (S.mode === "public") return `<section class="sitesec"><div class="sitewrap narrow"><div class="eyebrow">Investor list</div><h1 class="h2">Join our investor list</h1>
+    <p>Get news about new plots and investment opportunities in DHA Margalla Orchard. Send us a message on WhatsApp and we add you to the list.</p>
+    <a class="sitebtn solid big" target="_blank" rel="noopener" href="${waLink("please add me to your investor list for DHA Margalla Orchard.")}">Join on WhatsApp</a>
+    <p class="fine">Online accounts open soon. Team members: the sales system opens when the database is connected.</p></div></section>`;
   const demo = S.mode === "demo";
   return `<section class="sitesec"><div class="sitewrap narrow"><div class="eyebrow">Investor list</div><h1 class="h2">Create your free account</h1>
     <p>Save plots, follow your calls, and get news about new plots and investment opportunities. Team members sign in here too.</p>

@@ -610,7 +610,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && S.
     render();
   }
   adSource(); // keep the ad that brought the visitor
-  if (import.meta.env.PROD && S.mode === "live" && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  if (import.meta.env.PROD && (S.mode === "live" || S.mode === "public") && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 })();
 
 // for tests in the browser console

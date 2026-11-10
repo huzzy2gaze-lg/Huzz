@@ -92,7 +92,7 @@ function rsrc() {
 function rcaption() { const c = studioChoice(); return `Rendered illustration: ${c.label}, 2 floors, ${c.styleLabel.toLowerCase()}. Not a DHA or FGEHA design; a real design must follow the building bylaws.`; }
 function rmedia() {
   if (rs.view === "video" && fullSet()) return `<video src="renders/home-dusk.mp4" poster="renders/dusk-cam_hero.webp" autoplay muted loop playsinline preload="metadata"></video>`;
-  return `<img src="${rsrc()}" alt="Rendered illustration of a modern home in DHA Margalla Orchard" loading="lazy" decoding="async">`;
+  return `<img src="${rsrc()}" alt="Rendered illustration of a modern home in DHA Margalla Orchard" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='renders/${rs.mood}-cam_hero.webp'">`;
 }
 function renderSection() {
   const chip = (k, v, l, on, dis) => `<button type="button" class="xchip${on ? " on" : ""}" data-render="${k}:${v}"${dis ? " disabled" : ""}>${l}</button>`;
@@ -122,7 +122,7 @@ function renderClick(target) {
   const [k, v] = b.dataset.render.split(":");
   if (k === "zoom") {
     const o = document.createElement("div"); o.className = "xr-full";
-    o.innerHTML = rs.view === "video" && fullSet() ? `<video src="renders/home-dusk.mp4" autoplay muted loop playsinline controls></video><button type="button" aria-label="Close">×</button>` : `<img src="${rsrc()}" alt=""><button type="button" aria-label="Close">×</button>`;
+    o.innerHTML = rs.view === "video" && fullSet() ? `<video src="renders/home-dusk.mp4" autoplay muted loop playsinline controls></video><button type="button" aria-label="Close">×</button>` : `<img src="${rsrc()}" alt="" onerror="this.onerror=null;this.src='renders/${rs.mood}-cam_hero.webp'"><button type="button" aria-label="Close">×</button>`;
     o.addEventListener("click", (e) => { if (e.target.tagName !== "VIDEO") o.remove(); }); document.body.append(o); return true;
   }
   rs[k] = v;

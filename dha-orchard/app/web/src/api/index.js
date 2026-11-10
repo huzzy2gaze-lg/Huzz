@@ -5,6 +5,8 @@ export const TABLES = ["plots", "plot_fixes", "people", "plot_demand", "clients"
 export async function createApi() {
   // the claude.ai test build: the artifact's shared database stands in for the server
   if (import.meta.env.VITE_BACKEND === "artifact") return (await import("./artifact.js")).create();
+  // the live website before the database is connected: no accounts, bookings go to WhatsApp
+  if (import.meta.env.VITE_BACKEND === "public" && !new URLSearchParams(location.search).has("demo")) return (await import("./public.js")).create();
   const url = import.meta.env.VITE_SUPABASE_URL;
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
   const q = new URLSearchParams(location.search);

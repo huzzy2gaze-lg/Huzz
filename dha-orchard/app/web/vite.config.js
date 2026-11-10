@@ -1,7 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 
 // Link previews (WhatsApp, Facebook) need the full address of the image, so it is added only when
-// VITE_SITE_URL is set, for example VITE_SITE_URL=https://whventurespk.com in .env.production.
+// VITE_SITE_URL is set, for example VITE_SITE_URL=https://www.whventures.com.pk in .env.production.
 function ogImage(site) {
   return {
     name: "og-image",
