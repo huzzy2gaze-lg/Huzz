@@ -316,12 +316,18 @@ function frame(now) {
   const tp = new THREE.Vector3(...X.cam.pos), tl = new THREE.Vector3(...X.cam.look);
   const par = X.cam.fit ? 0.12 : 1;
   if (!rm) { tp.x += X.pointer[0] * 0.6 * par; tp.y += X.pointer[1] * 0.35 * par; }
-  X.cur.pos.lerp(tp, k); X.cur.look.lerp(tl, k);
+  if (!X.mapMode) { X.cur.pos.lerp(tp, k); X.cur.look.lerp(tl, k); }
+  if (X.fly) { // the flight to (or back from) the numbered map: timed and eased, straight down at the map
+    const f = X.fly, ft = f.dur ? Math.min(1, (now - f.t0) / f.dur) : 1, fe = ft < 0.5 ? 4 * ft * ft * ft : 1 - Math.pow(-2 * ft + 2, 3) / 2;
+    X.cur.pos.lerpVectors(f.fp, f.tp, fe); X.cur.look.lerpVectors(f.fl, f.tl, fe);
+    X.camera.up.lerpVectors(f.fu, f.tu, fe).normalize();
+    if (ft >= 1) { X.fly = null; X.camera.up.copy(f.tu); f.res(); }
+  }
   X.camera.position.copy(X.cur.pos); X.camera.lookAt(X.cur.look);
   // the haze starts behind what the camera looks at: on a narrow phone screen the camera is further away,
   // and a fixed haze covered the whole plan (it looked black)
   const dist = X.cur.pos.distanceTo(X.cur.look);
-  X.scene.fog.near = Math.max(14, dist * 0.95); X.scene.fog.far = Math.max(30, dist * 2);
+  X.scene.fog.near = Math.max(14, dist * (X.mapMode ? 1.4 : 0.95)); X.scene.fog.far = Math.max(30, dist * 2.2);
   const far = Math.max(60, dist * 2.6);
   if (Math.abs(X.camera.far - far) > 1) { X.camera.far = far; X.camera.updateProjectionMatrix(); }
   // blocks rise; the active one rises highest and glows
@@ -331,13 +337,13 @@ function frame(now) {
     const on = X.active === b || (X.hover === b && !inBlock);
     if (on && o.lit !== true) { o.lit = true; } else if (!on) o.lit = false;
     const here = X.active === b;
-    o.target = !X.loaded ? 0.001 : here ? 0.006 : X.comm.blocks[b] && X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 : ACTIVE.includes(X.active) ? 0.05 : 0.14; // steady heights: no pulsing
+    o.target = !X.loaded || X.mapMode ? 0.001 : here ? 0.006 : X.comm.blocks[b] && X.comm.blocks[b].p > 0.6 && !on ? 0.02 : on ? 0.55 : ACTIVE.includes(X.active) ? 0.05 : 0.14; // steady heights: no pulsing
     o.h += (o.target - o.h) * (rm ? 1 : 0.07);
     o.group.scale.y = Math.max(0.001, o.h);
     const built = !!(X.comm.blocks[b] && X.comm.blocks[b].p > 0.6);
-    o.mesh.material.opacity += ((here ? 0.22 : on ? 0.45 : built ? 0.02 : ACTIVE.includes(X.active) ? 0.03 : 0.12) - o.mesh.material.opacity) * 0.08; // only the active block is clearly rose
+    o.mesh.material.opacity += ((X.mapMode ? 0 : here ? 0.22 : on ? 0.45 : built ? 0.02 : ACTIVE.includes(X.active) ? 0.03 : 0.12) - o.mesh.material.opacity) * 0.08; // only the active block is clearly rose
     o.mesh.material.emissiveIntensity += ((on ? 1.4 : 0.25) - o.mesh.material.emissiveIntensity) * 0.08;
-    o.edge.material.opacity += ((on ? 1 : ACTIVE.includes(X.active) ? 0.15 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
+    o.edge.material.opacity += ((X.mapMode ? 0 : on ? 1 : ACTIVE.includes(X.active) ? 0.15 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
   }
   document.body.dataset.xlit = ACTIVE.filter((b) => X.blocks[b].lit).join("");
   if (X.loaded && X.planMat.transparent) { X.planMat.opacity += (1 - X.planMat.opacity) * 0.05; if (X.planMat.opacity > 0.985) { X.planMat.opacity = 1; X.planMat.transparent = false; X.planMat.needsUpdate = true; } }
@@ -345,7 +351,7 @@ function frame(now) {
   if (X.loaded) {
     if (ACTIVE.includes(X.active)) X.visited.add(X.active);
     const all = ["render", "timeline", "enclave", "how", "faq", "book"].includes(X.active) && X.visited.size >= 2;
-    for (const b of TOUR) X.comm.blocks[b].target = X.visited.has(b) || all ? 1.3 : 0;
+    for (const b of TOUR) X.comm.blocks[b].target = !X.mapMode && (X.visited.has(b) || all) ? 1.3 : 0;
     const dt = Math.min(0.25, (now - (X.lastT || now)) / 1000); X.lastT = now;
     X.comm.step(rm ? 2 : dt * 0.55); // a block's homes take about 2.5 s to rise
   }
@@ -363,7 +369,7 @@ function frame(now) {
   X.routeP += (routeT - X.routeP) * (rm ? 1 : 0.04);
   const cnt = Math.round(X.routeP * 400);
   X.routeGeo.setDrawRange(0, cnt);
-  X.head.visible = cnt > 2 && cnt < 399;
+  X.head.visible = !X.mapMode && cnt > 2 && cnt < 399; X.flies.visible = !X.mapMode;
   if (X.head.visible) { X.head.position.copy(X.route.getPoint(Math.min(1, X.routeP))); X.head.scale.setScalar(1 + Math.sin(t * 6) * 0.25); }
   // fireflies
   if (!rm) { const p = X.fp; for (let i = 0; i < X.fs.length; i++) { p[i * 3 + 1] += X.fs[i] * 0.004; p[i * 3] += Math.sin(t + i) * 0.0015; if (p[i * 3 + 1] > 3.2) p[i * 3 + 1] = 0; } X.flies.geometry.attributes.position.needsUpdate = true; }
@@ -391,7 +397,84 @@ export function blockScreenRect(b) {
   if (!isFinite(x0) || x1 - x0 < 4) return null;
   return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
-function openBlockMap(b) { if (cfg && cfg.openMap) cfg.openMap(b, blockScreenRect(b)); }
+function openBlockMap(b, pt) { if (cfg && cfg.openMap) cfg.openMap(b, pt || null); }
+
+// ---------------------------------------------------------------- the fly-in to the numbered map
+// The 3D plan and the numbered map use the same plan coordinates. With the camera straight above the plan, a map
+// view (an SVG viewBox in plan pixels, the shape of the screen) matches the 3D picture exactly, so the numbered
+// map can fade in over it as one continuous zoom.
+const _font = {};
+function blockFont(b) { // the usual height of a plot number in plan pixels
+  if (_font[b]) return _font[b];
+  const fs = G.geo.blocks[b].plots.filter((p) => p.num != null).map((p) => Math.max(1.4, Math.min(p.sh * 0.5, p.ph * 0.3))).sort((a, c) => a - c);
+  return (_font[b] = fs[fs.length >> 1] || 4.45);
+}
+function plotsBox(b) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const p of G.geo.blocks[b].plots) for (const [x, y] of p.pts) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  return [x0, y0, x1, y1];
+}
+const _plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), _hit = new THREE.Vector3();
+function planPointAt(x, y) { // the plan pixel under a point on the screen
+  if (!X) return null;
+  X.ray.setFromCamera(new THREE.Vector2((x / innerWidth) * 2 - 1, -(y / innerHeight) * 2 + 1), X.camera);
+  if (!X.ray.ray.intersectPlane(_plane, _hit)) return null;
+  const W = G.world[2], H = G.world[3];
+  return [_hit.x * (W / SCALE) + W / 2, _hit.z * (W / SCALE) + H / 2];
+}
+// where the numbered map should end: laptop: the block's plots, unless the numbers would be under 10 px;
+// phone: the area around the tap, close enough for numbers of about 11.5 px (a small block fits whole)
+export function mapView(b, pt) {
+  if (!X || !G.geo) return null;
+  const W = G.world[2], H = G.world[3], vw = innerWidth, vh = innerHeight, phone = vw < 760;
+  const hdr = Math.max(0, (document.querySelector(".sitehead") || { getBoundingClientRect: () => ({ bottom: 0 }) }).getBoundingClientRect().bottom);
+  const effH = vh - hdr;
+  let cx, cy, s;
+  if (b === "all") { s = Math.min(vw / (W * 1.04), effH / (H * 1.04)); cx = W / 2; cy = H / 2; }
+  else {
+    const [x0, y0, x1, y1] = plotsBox(b), bw = x1 - x0, bh = y1 - y0, pad = Math.max(bw, bh) * 0.06;
+    const fit = Math.min(vw / (bw + 2 * pad), effH / (bh + 2 * pad)), font = blockFont(b);
+    const need = (phone ? 11.5 : 10) / font;
+    if (fit >= need) { s = fit; cx = (x0 + x1) / 2; cy = (y0 + y1) / 2; }
+    else {
+      s = need;
+      const at = pt ? planPointAt(pt.x, pt.y) : null;
+      cx = at ? at[0] : (x0 + x1) / 2; cy = at ? at[1] : (y0 + y1) / 2;
+      const ex = vw / (2 * s), ey = effH / (2 * s); // the view stays inside the block where it can
+      cx = bw > 2 * ex ? Math.min(Math.max(cx, x0 + ex), x1 - ex) : (x0 + x1) / 2;
+      cy = bh > 2 * ey ? Math.min(Math.max(cy, y0 + ey), y1 - ey) : (y0 + y1) / 2;
+    }
+  }
+  const vcy = cy - hdr / (2 * s); // the header covers the top: the view centre is a little higher
+  const vb = [cx - vw / (2 * s), vcy - vh / (2 * s), vw / s, vh / s];
+  return { vb, cam: camForVB(vb) };
+}
+function camForVB(vb) {
+  const W = G.world[2], H = G.world[3], k = SCALE / W;
+  const wx = (vb[0] + vb[2] / 2 - W / 2) * k, wz = (vb[1] + vb[3] / 2 - H / 2) * k;
+  const h = (vb[3] * k) / (2 * Math.tan(THREE.MathUtils.degToRad(X.camera.fov / 2)));
+  return { pos: [wx, h, wz], look: [wx, 0, wz], up: [0, 0, -1] };
+}
+const V3 = (a) => new THREE.Vector3(...a);
+function fly(cam, dur) {
+  return new Promise((res) => {
+    X.fly = { fp: X.cur.pos.clone(), fl: X.cur.look.clone(), fu: X.camera.up.clone(), tp: V3(cam.pos), tl: V3(cam.look), tu: V3(cam.up), t0: performance.now(), dur: reduce() ? 0 : dur, res };
+  });
+}
+export function flyIn(cam) {
+  if (!X) return Promise.resolve();
+  if (!X.mapMode) X.home = { pos: X.cur.pos.clone(), look: X.cur.look.clone() };
+  X.mapMode = true;
+  return fly(cam, 1050);
+}
+// back out: first the 3D jumps to the view the visitor left the map at (it was hidden), then flies home
+export function flyOut(vb) {
+  if (!X || !X.mapMode) return Promise.resolve();
+  if (vb) { const c = camForVB(vb); X.cur.pos.copy(V3(c.pos)); X.cur.look.copy(V3(c.look)); X.camera.up.set(0, 0, -1); }
+  const home = X.home || { pos: X.cur.pos.clone(), look: X.cur.look.clone() };
+  return fly({ pos: home.pos.toArray(), look: home.look.toArray(), up: [0, 1, 0] }, 950).then(() => { X.mapMode = false; X.home = null; });
+}
+export function mapModeOff() { if (!X) return; X.fly = null; X.mapMode = false; X.camera.up.set(0, 1, 0); if (X.home) { X.cur.pos.copy(X.home.pos); X.cur.look.copy(X.home.look); X.home = null; } }
 function showTip(b) {
   const tip = document.querySelector(".xtip"), cur = document.querySelector(".xcursor");
   if (cur) cur.classList.toggle("big", !!b);
@@ -439,8 +522,8 @@ function onClick(e) {
   const mo = e.target.closest && e.target.closest("[data-mapopen]");
   if (mo) { openBlockMap(mo.dataset.mapopen); return; }
   if (matchMedia("(pointer: coarse)").matches) return; // phones: taps on the plan are handled by onTouch
-  if (S.mapOpen || !X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,.xmapov,a,button,header"))) return;
-  openBlockMap(X.hover); // a click on a block opens its numbered map, in place
+  if (S.mapOpen || !X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,.xmaplayer,a,button,header"))) return;
+  openBlockMap(X.hover, { x: e.clientX, y: e.clientY }); // a click on a block flies into its numbered map
 }
 let touch0 = null;
 function onTouchStart(e) { const t = e.touches && e.touches[0]; touch0 = t ? { x: t.clientX, y: t.clientY, t: performance.now(), sy: scrollY } : null; }
@@ -448,11 +531,11 @@ function onTouch(e) { // a short tap on a block flies there; a swipe (a scroll) 
   if (!X || !touch0 || !e.changedTouches || !e.changedTouches[0]) return;
   const t = e.changedTouches[0], t0 = touch0; touch0 = null;
   if (Math.hypot(t.clientX - t0.x, t.clientY - t0.y) > 10 || performance.now() - t0.t > 350 || Math.abs(scrollY - t0.sy) > 4) return;
-  if (S.mapOpen || (e.target.closest && e.target.closest(".xcard,.xbook,.xs-view,.xmapov,a,button,header,input,textarea"))) return;
+  if (S.mapOpen || (e.target.closest && e.target.closest(".xcard,.xbook,.xs-view,.xmaplayer,a,button,header,input,textarea"))) return;
   const m = new THREE.Vector2((t.clientX / innerWidth - 0.5) * 2, -(t.clientY / innerHeight - 0.5) * 2);
   X.ray.setFromCamera(m, X.camera);
   const hit = X.ray.intersectObjects(ACTIVE.map((b) => X.blocks[b].mesh))[0];
-  if (hit) { e.preventDefault?.(); openBlockMap(hit.object.userData.block); } // a tap on a block opens its numbered map
+  if (hit) { e.preventDefault?.(); openBlockMap(hit.object.userData.block, { x: t.clientX, y: t.clientY }); } // a tap on a block flies into its numbered map
 }
 
 function counters(root) {

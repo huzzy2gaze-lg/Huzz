@@ -7,7 +7,7 @@ import { SIZES, ACTIVE } from "./geo.js";
 import { mapSVG, blockVB, plotsVB, attachMap } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { setShowcase, showcaseAfterRender } from "./showcase.js";
-import { experiencePage, experienceAfterRender, blockScreenRect } from "./experience.js";
+import { experiencePage, experienceAfterRender, mapView, flyIn, flyOut, mapModeOff } from "./experience.js";
 let introDone = false;
 import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection, shareLink, GOALS, BUDGETS, WANT_SIZES, bookSummary } from "./site-extras.js";
 
@@ -347,85 +347,63 @@ function planMap() {
     </div>`;
 }
 
-// ---------------------------------------------------------------- the zoom on the home page: a block opens its numbered map
-// It grows out of the block's place on the 3D plan, then zooms until the plot numbers show.
-// A tap outside the map, Esc, or "Back to the master plan" zooms back out.
+// ---------------------------------------------------------------- the zoom on the home page: the 3D plan flies into the numbered map
+// The page text fades away and the 3D camera flies down to the block, straight above it. The numbered map is drawn at
+// exactly the same place and scale, and fades in: one continuous zoom, in the same place. Back is the reverse.
 const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
-function mapOverlay() {
+const wait = (ms) => new Promise((r) => setTimeout(r, motionOK() ? ms : 0));
+function mapLayer() {
   const z = S.planZoom || S.mapOpen;
-  return `<div class="xmapov" data-mapbackdrop role="dialog" aria-modal="true" aria-label="Plot map">
-    <div class="xmappanel">
-      <div class="xmaptop"><div><div class="eyebrow">Official FGEHA layout plan</div><b>${z === "all" ? "All blocks" : "Block " + z}</b></div>
-        <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${z === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}</div>
-        <button type="button" class="xmapback" data-act="mapClose">← Back to the master plan</button></div>
-      ${planMap()}
-    </div></div>`;
+  return `<div class="xmaplayer" role="region" aria-label="Plot map${z === "all" ? "" : ", Block " + z}">
+    <button type="button" class="xmapback" data-act="mapClose">← Master plan</button>
+    ${planMap()}</div>`;
 }
-export function openMap(b, from) {
-  if (!G.geo || (b !== "all" && !G.geo.blocks[b])) return;
-  S.mapOpen = b; S.planZoom = b; S.sitePlot = null;
-  S.vb.site = b === "all" ? [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14] : blockVB(b);
-  S.mapFrom = from || null; S.mapGrow = true;
-  renderOverlay();
+export async function openMap(b, pt) {
+  if (S.mapOpen || !G.geo || (b !== "all" && !G.geo.blocks[b])) return;
+  const v = mapView(b, pt);
+  if (!v) { S.planBlock = b === "all" ? null : b; location.hash = "plan"; return; } // no 3D (old phone): the plot map page
+  S.mapOpen = b; S.planZoom = b; S.sitePlot = null; S.vb.site = v.vb;
+  const hdr = document.querySelector(".sitehead");
+  document.documentElement.style.setProperty("--hdr", (hdr ? Math.max(0, hdr.getBoundingClientRect().bottom) : 0) + "px");
+  document.body.classList.add("mapmode"); // the page text fades away; the page does not scroll
+  renderLayer();
+  await flyIn(v.cam);
+  const layer = document.querySelector(".xmaplayer");
+  if (!layer || S.mapOpen !== b) return;
+  layer.classList.add("in"); // the numbered map fades in over the 3D, aligned
+  await wait(380);
+  if (S.mapOpen) document.body.classList.add("mapopen"); // the 3D waits while the map is shown
 }
-// draws only the zoom view (not the whole page under it)
-export function renderOverlay() {
+// draws only the map layer (not the whole page under it)
+export function renderLayer() {
   const site = document.querySelector(".site.page-experience");
   if (!site) { hooks.render(); return; }
-  const old = site.querySelector(".xmapov");
-  const tmp = document.createElement("div"); tmp.innerHTML = mapOverlay();
-  const ov = tmp.firstElementChild;
-  if (old) { ov.classList.add("in"); old.replaceWith(ov); } else site.append(ov);
-  attachMap(ov.querySelector(".mapwrap"));
-  mapAfterRender();
+  const old = site.querySelector(".xmaplayer");
+  const tmp = document.createElement("div"); tmp.innerHTML = mapLayer();
+  const layer = tmp.firstElementChild;
+  if (old) { if (old.classList.contains("in")) layer.classList.add("in"); old.replaceWith(layer); } else site.append(layer);
+  attachMap(layer.querySelector(".mapwrap"));
 }
-export function closeMap() {
-  const ov = document.querySelector(".xmapov");
-  if (!ov || ov.dataset.closing) return;
-  const done = () => { S.mapOpen = null; S.sitePlot = null; S.planZoom = null; document.querySelector(".xmapov")?.remove(); document.body.classList.remove("mapopen"); };
-  if (!motionOK()) return done();
-  ov.dataset.closing = 1;
-  const panel = ov.querySelector(".xmappanel");
-  const to = S.mapOpen !== "all" ? blockScreenRect(S.mapOpen) : null;
-  ov.classList.remove("in");
-  panel.style.willChange = "transform,opacity";
-  panel.style.transition = "transform .6s cubic-bezier(.6,0,.3,1), opacity .5s ease .1s";
-  panel.style.transform = to ? flip(panel.getBoundingClientRect(), to) : "scale(.9)";
-  panel.style.opacity = "0";
-  setTimeout(done, 620);
+export async function closeMap() {
+  const layer = document.querySelector(".xmaplayer");
+  if (!S.mapOpen || !layer || layer.dataset.closing) return;
+  layer.dataset.closing = 1;
+  const vb = (S.vb.site || []).slice();
+  document.body.classList.remove("mapopen"); // the 3D draws again, at the view the visitor is looking at
+  const back = flyOut(vb);
+  layer.classList.remove("in"); // the numbered map fades back into the 3D
+  await wait(320);
+  layer.remove();
+  S.mapOpen = null; S.sitePlot = null; S.planZoom = null;
+  await back;
+  if (!S.mapOpen) document.body.classList.remove("mapmode");
 }
-// the transform that puts the panel over a rectangle on the screen
-function flip(r, to) {
-  return `translate(${(to.x - r.left).toFixed(1)}px,${(to.y - r.top).toFixed(1)}px) scale(${Math.max(0.05, to.w / r.width).toFixed(4)},${Math.max(0.05, to.h / r.height).toFixed(4)})`;
-}
-function mapAfterRender() {
-  document.body.classList.toggle("mapopen", !!S.mapOpen);
-  const ov = document.querySelector(".xmapov");
-  if (!ov || !S.mapGrow) { if (ov) ov.classList.add("in"); return; }
-  S.mapGrow = false;
-  const panel = ov.querySelector(".xmappanel"), from = S.mapFrom; S.mapFrom = null;
-  // second step: from the block's outline (where it was on the 3D plan), zoom in until all its plots fill the map
-  const zoomIn = () => {
-    const b = S.mapOpen; if (!b || b === "all") return;
-    const m = ov.querySelector(".mapwrap") && ov.querySelector(".mapwrap").__map;
-    if (m) m.animateTo(plotsVB(b), 700);
-  };
-  if (!motionOK()) { ov.classList.add("in"); zoomIn(); return; }
-  panel.style.transformOrigin = "0 0"; panel.style.willChange = "transform,opacity";
-  panel.style.transform = from ? flip(panel.getBoundingClientRect(), from) : "scale(.92)";
-  panel.style.opacity = from ? "0.35" : "0";
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    ov.classList.add("in");
-    panel.style.transition = "transform .75s cubic-bezier(.2,.8,.2,1), opacity .45s ease";
-    panel.style.transform = "none"; panel.style.opacity = "1";
-    setTimeout(() => { panel.style.transition = ""; panel.style.transform = ""; panel.style.willChange = ""; zoomIn(); }, 780);
-  }));
-}
+// a link from the map (for example "Book a call about this plot") leaves the map at once
+export function leaveMap() { S.mapOpen = null; S.planZoom = null; document.querySelector(".xmaplayer")?.remove(); document.body.classList.remove("mapopen", "mapmode"); mapModeOff(); }
+if (import.meta.env.DEV && typeof window !== "undefined") window.__open = (b, pt) => openMap(b, pt); // for the tests
 if (typeof window !== "undefined" && !window.__mapKeys) {
   window.__mapKeys = true;
   addEventListener("keydown", (e) => { if (e.key === "Escape" && S.mapOpen) closeMap(); });
-  // a tap on the dark area around the map closes it
-  addEventListener("click", (e) => { if (S.mapOpen && e.target.matches && e.target.matches("[data-mapbackdrop]")) closeMap(); });
 }
 
 function signin() {
@@ -468,7 +446,7 @@ function account() {
 export function sitePage() {
   let body;
   // the home page is the 3D master plan; "Book a call" is its last chapter
-  if (S.sitePage === "home" || S.sitePage === "book") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine, openMap })}</main>${floatCta(waLink())}${S.mapOpen ? mapOverlay() : ""}</div>`;
+  if (S.sitePage === "home" || S.sitePage === "book") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine, openMap })}</main>${floatCta(waLink())}${S.mapOpen ? mapLayer() : ""}</div>`;
   if (S.sitePage === "plan") body = plan();
   else if (S.sitePage === "account") body = account();
   else if (S.sitePage === "signin") body = signin();
@@ -483,7 +461,6 @@ let io = null;
 export function siteAfterRender() {
   showcaseAfterRender();
   experienceAfterRender();
-  mapAfterRender();
   if (S.sitePage === "book") {
     const f = document.querySelector(".xbook");
     if (f && !S._bookScrolled) { S._bookScrolled = true; requestAnimationFrame(() => f.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })); }

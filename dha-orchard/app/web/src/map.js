@@ -84,10 +84,12 @@ function plotCls(p, mode) {
 }
 export function mapSVG(mode) {
   const geo = G.geo, blk = S.block, W = G.world[2], H = G.world[3];
-  let s = `<rect x="${-W}" y="${-H}" width="${W * 3}" height="${H * 3}" style="fill:var(--ground)"/>`;
+  let s = `<rect x="${-W}" y="${-H}" width="${W * 3}" height="${H * 3}" style="fill:${siteMode() && S.mapOpen ? "#061414" : "var(--ground)"}"/>`;
   const hulls = Object.values(geo.blocks).flatMap((b) => b.hull).map((h) => ptsStr(h));
   s += `<defs><clipPath id="bclip-${mode}">${hulls.map((h) => `<polygon points="${h}"/>`).join("")}</clipPath></defs>`;
-  s += `<image href="${planSrc()}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none" clip-path="url(#bclip-${mode})" class="plan${S.show === "ours" && mode === "all" ? " dim" : ""}"/>`;
+  // flown into from the 3D home: the whole plan picture, as the 3D shows it (no cut-out: it also draws faster)
+  const flown = siteMode() && S.mapOpen;
+  s += `<image href="${planSrc()}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"${flown ? "" : ` clip-path="url(#bclip-${mode})"`} class="plan${S.show === "ours" && mode === "all" ? " dim" : ""}"/>`;
   s += `<g>${hulls.map((h) => `<polygon class="bglow" points="${h}"/>`).join("")}${hulls.map((h) => `<polygon class="bgap" points="${h}"/>`).join("")}</g>`;
   if (mode !== "all" && blk) {
     const hp = geo.blocks[blk].hull.map((h) => `<polygon points="${ptsStr(h)}" fill="black"/>`).join("");
@@ -326,6 +328,13 @@ function clickMap(el, ev) {
     // closer in, the plot numbers show and a tap opens the plot
     const b = d.p ? d.p.split("-")[0] : d.b || null;
     const far = el.closest && el.closest("svg") && el.closest("svg").classList.contains("far");
+    if (S.mapOpen && S.mapOpen !== "all") {
+      // the map flown into from the 3D home: a tap outside the block goes back to the 3D plan
+      if (!b || b !== S.planZoom) { hooks.mapClose(); return; }
+      if (!d.p) { hooks.siteClick(null); return; }
+      hooks.siteClick(d.p); return;
+    }
+    if (S.mapOpen === "all" && !b) { hooks.mapClose(); return; }
     if (b && G.geo.blocks[b] && (far || !d.p)) { siteZoomBlock(b); return; }
     hooks.siteClick(d.p || null); return;
   }
@@ -374,5 +383,6 @@ export function siteFocus(id) {
   S.vb.site = [p.cx - z / 2, p.cy - z / 2 + z * 0.16, z, z]; // the plot sits a little high, above its card
   S._anim = { from };
   S.sitePlot = id;
+  if (S.mapOpen) S.planZoom = p.block || id.split("-")[0]; // a searched plot in another block: that block's plots are drawn
   hooks.render();
 }

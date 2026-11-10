@@ -19,7 +19,7 @@ export const S = {
 };
 
 // one hook object so that modules can call each other without import cycles at load time
-export const hooks = { render: () => {}, go: () => {}, focusPlot: () => {}, refresh: () => {}, siteClick: () => {} };
+export const hooks = { render: () => {}, go: () => {}, focusPlot: () => {}, refresh: () => {}, siteClick: () => {}, mapClose: () => {} };
 
 export const STATUS = {
   available: { label: "Available", cls: "available", color: "var(--avail)" },

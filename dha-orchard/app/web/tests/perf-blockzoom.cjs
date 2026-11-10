@@ -13,14 +13,12 @@ const stats = (f) => { const s = f.slice().sort((a, b) => a - b), n = s.length; 
   await p.evaluate(() => { window.__fr = []; let last = performance.now(); const tick = (n) => { window.__fr.push(n - last); last = n; if (window.__rec) requestAnimationFrame(tick); }; window.__rec = true; requestAnimationFrame(tick); });
   const t0 = Date.now();
   await p.evaluate(() => document.querySelector('[data-mapopen="B"]').click());
-  // the zoom has ended when the map's viewBox stops changing for 400 ms
-  await p.waitForSelector('.xmapov svg', { timeout: 30000 });
-  let last = '', same = 0;
-  while (same < 4 && Date.now() - t0 < 30000) { await p.waitForTimeout(100); const vb = await p.evaluate(() => { const s = document.querySelector('.xmapov svg'); return s.getAttribute('viewBox') + s.style.transform; }); if (vb === last) same++; else { same = 0; last = vb; } }
-  const openMs = Date.now() - t0 - 400;
+  // the zoom has ended when the numbered map is fully shown (the 3D then waits)
+  await p.waitForFunction(() => document.body.classList.contains('mapopen'), null, { timeout: 30000 });
+  const openMs = Date.now() - t0;
   const open = await p.evaluate(() => { window.__rec = false; return window.__fr.slice(1); });
   // drag and pinch-like zoom inside the map (wheel)
-  const r = await p.$eval('.xmapov .mapwrap', (e) => { const q = e.getBoundingClientRect(); return [q.x + q.width / 2, q.y + q.height / 2]; });
+  const r = await p.$eval('.xmaplayer .mapwrap', (e) => { const q = e.getBoundingClientRect(); return [q.x + q.width / 2, q.y + q.height / 2]; });
   await p.evaluate(() => { window.__fr = []; let last = performance.now(); const tick = (n) => { window.__fr.push(n - last); last = n; if (window.__rec) requestAnimationFrame(tick); }; window.__rec = true; requestAnimationFrame(tick); });
   await p.mouse.move(r[0], r[1]); await p.mouse.down();
   for (let i = 0; i < 20; i++) { await p.mouse.move(r[0] + i * 6, r[1] + i * 4); }
@@ -31,7 +29,7 @@ const stats = (f) => { const s = f.slice().sort((a, b) => a - b), n = s.length; 
   // back out
   await p.evaluate(() => { window.__fr = []; let last = performance.now(); const tick = (n) => { window.__fr.push(n - last); last = n; if (window.__rec) requestAnimationFrame(tick); }; window.__rec = true; requestAnimationFrame(tick); });
   const t1 = Date.now(); await p.evaluate(() => document.querySelector('.xmapback').click());
-  await p.waitForFunction(() => !document.querySelector('.xmapov'), null, { timeout: 20000 }); const closeMs = Date.now() - t1;
+  await p.waitForFunction(() => !document.body.classList.contains('mapmode'), null, { timeout: 20000 }); const closeMs = Date.now() - t1;
   await p.waitForTimeout(300);
   const close = await p.evaluate(() => { window.__rec = false; return window.__fr.slice(1); });
   console.log(JSON.stringify({ tapToZoomEndMs: openMs, open: stats(open), dragAndZoom: stats(move), closeMs, close: stats(close) }));

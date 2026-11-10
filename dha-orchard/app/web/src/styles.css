@@ -1131,29 +1131,18 @@ body.xmode .xbtn{will-change:auto}
 .bootlogo{animation:bootpulse 1.6s ease-in-out infinite}
 @keyframes bootpulse{50%{opacity:.55}}
 @media (prefers-reduced-motion:reduce){.bootlogo{animation:none}}
-/* the zoom on the home page: a block opens its numbered map in place */
-body.mapopen{overflow:hidden}
-body.mapopen .floatcta,body.mapopen .stickycta,body.mapopen .xprog{display:none}
-.xmapov{position:fixed;inset:0;z-index:200;display:grid;padding:clamp(10px,3vw,36px);background:rgba(4,18,20,0);transition:background .5s ease;pointer-events:auto}
-.xmapov.in{background:rgba(4,18,20,.62)}
-.xmappanel{position:relative;display:flex;flex-direction:column;min-height:0;border-radius:20px;overflow:hidden;background:var(--mist,#EAF1EE);box-shadow:0 40px 120px rgba(0,0,0,.55)}
-.xmaptop{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;padding:12px 16px;background:#0B3A40;color:#fff}
-.xmaptop .eyebrow{color:#E3C98D;font-size:11px}
-.xmaptop b{font:400 24px var(--display);display:block;line-height:1.1}
-.xmaptop .planblocks{width:auto;flex:1;min-width:0}
-.xmaptop .chip2{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.2)}
-.xmaptop .chip2.on{background:#B04761;border-color:#B04761;color:#fff}
-.xmapback{margin-left:auto;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:9px 16px;font:650 14px var(--body,system-ui);cursor:pointer;white-space:nowrap}
-.xmapback:hover{background:rgba(255,255,255,.1)}
-.xmappanel .planmap{flex:1;min-height:0;height:auto;border-top:0}
-@media (max-width:640px){
-  .xmapov{padding:8px}
-  .xmaptop{padding:10px 12px;gap:8px}
-  .xmaptop>div:first-child{flex:1}
-  .xmaptop b{font-size:20px}
-  .xmaptop .planblocks{order:3;width:100%;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto}
-  .xmapback{padding:8px 12px;font-size:13px}
-}
-@media (prefers-reduced-motion:reduce){.xmapov{transition:none}}
+/* the zoom on the home page: the 3D plan flies into the numbered map, in the same place */
+body.mapmode{overflow:hidden}
+body.mapmode .xp{opacity:0;pointer-events:none}
+.xp{transition:opacity .45s ease}
+body.mapmode .floatcta,body.mapmode .stickycta,body.mapmode .xprog,body.mapmode .xtip,body.mapmode .xcursor{display:none}
+.xmaplayer{position:fixed;inset:0;z-index:19;opacity:0;pointer-events:none;transition:opacity .35s ease}
+.xmaplayer.in{opacity:1;pointer-events:auto}
+.xmaplayer .mapwrap{position:absolute;inset:0;height:auto;min-height:0;border:0;background:#061414}
+.xmaplayer .mapsearch{top:calc(var(--hdr,0px) + 10px)}
+.xmaplayer .zoom{top:calc(var(--hdr,0px) + 66px)}
+.xmapback{position:absolute;z-index:3;right:12px;top:calc(var(--hdr,0px) + 66px);background:#0B3A40;color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:9px 16px;font:650 14px var(--body,system-ui);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.xmapback:hover{background:#0E4A52}
+@media (prefers-reduced-motion:reduce){.xmaplayer,.xp{transition:none}}
 /* the zoom view: plain numbers (no outline around each digit: much cheaper to draw, still clear on the light map) */
-.xmapov svg .pn{stroke:none;paint-order:normal}
+.xmaplayer svg .pn{stroke:none;paint-order:normal}
