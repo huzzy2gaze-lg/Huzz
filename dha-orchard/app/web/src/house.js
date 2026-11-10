@@ -82,6 +82,7 @@ export function makeHouse({ size = "1K", floors = 2, style = "white", neighbor =
     carGlass: new THREE.MeshPhysicalMaterial({ color: 0x1b2326, roughness: 0.05, metalness: 0.3 }),
     tyre: std({ color: 0x141414, roughness: 0.9 }),
   };
+  for (const k in M) M[k].name = k; // names, so an offline renderer can give each material its real optical properties
   const TILE = new Map([[M.frame, TEX.plaster.m], [M.lower, TEX.plaster.m], [M.stone, TEX.stone.m], [M.wood, TEX.wood.m], [M.deck, TEX.wood.m], [M.floor, TEX.wood.m], [M.lawn, TEX.grass.m], [M.soil, TEX.soil.m], [M.pave, TEX.paving.m], [M.gravel, 1], [M.poolTile, TEX.tile.m]]);
   function box(w, h, d, mat, x, y, z, stage = 0, delay = 0, anim = "grow", round = 0, shadow = true) {
     let g;

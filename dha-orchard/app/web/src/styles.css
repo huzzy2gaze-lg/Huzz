@@ -1070,3 +1070,17 @@ body.xmode .page-experience .sitehead.small{background:rgba(4,22,25,.97)}
 body.xmode .xbook .sitesec.book{background:rgba(6,32,36,.95)}
 body.xmode .xtip{background:rgba(5,28,32,.96)}
 body.xmode .xbtn{will-change:auto}
+/* See it rendered: photo-real pictures made offline */
+.xrender{align-items:center;justify-content:center}
+.xr-wrap{width:min(1180px,100%);display:grid;gap:14px;justify-items:center;text-align:center;background:rgba(6,32,36,.93);border:1px solid rgba(227,201,141,.22);border-radius:26px;padding:28px;opacity:0;transform:translateY(40px);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.8,.2,1)}
+.xrender.in .xr-wrap{opacity:1;transform:none}
+.xr-wrap h2{font:400 clamp(34px,4.2vw,58px)/1 var(--display);margin:0;color:#fff}
+.xr-ctrls{display:grid;gap:8px;justify-items:center}
+.xr-frame{display:block;width:100%;padding:0;border:0;border-radius:18px;overflow:hidden;cursor:zoom-in;background:#0b2226;aspect-ratio:16/9;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.xr-frame img{display:block;width:100%;height:100%;object-fit:cover;transition:opacity .45s ease,transform 6s ease}
+.xr-frame:hover img{transform:scale(1.03)}
+.xr-frame img.fade{opacity:.25}
+.xr-full{position:fixed;inset:0;z-index:200;background:rgba(2,10,12,.94);display:grid;place-items:center;cursor:zoom-out;padding:16px}
+.xr-full img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+.xr-full button{position:absolute;top:14px;right:18px;background:none;border:0;color:#fff;font-size:34px;cursor:pointer}
+@media (max-width:760px){.xr-wrap{padding:18px 14px}.xrender{padding-top:90px}}

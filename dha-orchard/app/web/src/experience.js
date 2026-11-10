@@ -64,6 +64,7 @@ export function experiencePage(c) {
     </div></section>
     ${TOUR.map(blockChapter).join("")}
     ${studioSection()}
+    ${renderSection()}
     <section class="xch" data-cam="timeline"><div class="xcard wide">
       <div class="xkicker">Progress</div><h2>${words("From development to possession")}</h2>
       <ol class="xtl">${tl}</ol></div></section>
@@ -75,6 +76,38 @@ export function experiencePage(c) {
     <div class="xbook" data-cam="book">${cfg.bookSection()}</div>
     <footer class="xfoot"><span>${esc(cfg.company())}</span><a href="#home">Classic website</a><a href="#plan">Master plan with every plot</a></footer>
   </div>`;
+}
+
+// ---------------------------------------------------------------- photo-real renders (made offline with Blender Cycles from the same home)
+const RMOODS = [["dusk", "Dusk"], ["day", "Day"], ["night", "Night"]];
+const RVIEWS = [["cam_hero", "From the street"], ["cam_corner", "Corner view"], ["cam_close", "The entrance"]];
+const rs = { mood: "dusk", view: "cam_hero" };
+const rsrc = () => `renders/${rs.mood}-${rs.view}.webp`;
+function renderSection() {
+  const chip = (k, v, l, on) => `<button type="button" class="xchip${on ? " on" : ""}" data-render="${k}:${v}">${l}</button>`;
+  return `<section class="xch xrender" data-cam="render" id="x-render"><div class="xr-wrap">
+    <div class="xkicker">Rendered like an architect's visual</div>
+    <h2>${words("See it rendered")}</h2>
+    <p class="xlead">The same 1 Kanal home, rendered with real light: the sun and the sky, the glass, and the rooms lit from inside.</p>
+    <div class="xr-ctrls"><div class="xs-row">${RMOODS.map(([v, l]) => chip("mood", v, l, rs.mood === v)).join("")}</div><div class="xs-row">${RVIEWS.map(([v, l]) => chip("view", v, l, rs.view === v)).join("")}</div></div>
+    <button type="button" class="xr-frame" data-render="zoom:1" aria-label="Open the picture full screen"><img src="${rsrc()}" alt="Rendered illustration of a modern 1 Kanal home in DHA Margalla Orchard" loading="lazy" decoding="async"></button>
+    <p class="xfine">Rendered illustration: 1 Kanal, 2 floors, modern white. Not a DHA or FGEHA design; a real design must follow the building bylaws.</p>
+    <a href="#book" class="xbtn" data-magnet>Book a call about a 1 Kanal plot</a>
+  </div></section>`;
+}
+function renderClick(target) {
+  const b = target.closest("[data-render]");
+  if (!b) return false;
+  const [k, v] = b.dataset.render.split(":");
+  if (k === "zoom") {
+    const o = document.createElement("div"); o.className = "xr-full"; o.innerHTML = `<img src="${rsrc()}" alt=""><button type="button" aria-label="Close">×</button>`;
+    o.addEventListener("click", () => o.remove()); document.body.append(o); return true;
+  }
+  rs[k] = v;
+  document.querySelectorAll("[data-render^='" + k + ":']").forEach((c) => c.classList.toggle("on", c.dataset.render === k + ":" + v));
+  const img = document.querySelector(".xr-frame img");
+  if (img) { const next = new Image(); next.src = rsrc(); img.classList.add("fade"); next.onload = () => { img.src = next.src; img.classList.remove("fade"); }; }
+  return true;
 }
 
 // ---------------------------------------------------------------- the 3D scene (lives outside #app, so re-drawing the page keeps it)
@@ -105,6 +138,7 @@ function camFor(key) {
   }
   const D = Math.max(pw, ph) * (phone ? 1.45 : 1.0) / Math.min(1.6, wide);
   if (key === "hero") return { pos: [phone ? 0 : -pw * 0.22, D * 0.8, D * 0.9], look: [phone ? 0 : -pw * 0.3, 0, phone ? 1.2 : 0.2] };
+  if (key === "render") return { pos: [0, 9, 3], look: [0, 0, 0] };
   if (key === "studio") return { pos: [pw * 0.15, D * 1.05, D * 0.35], look: [pw * 0.15, 0, 0] };
   if (key === "timeline") return { pos: [-D * 0.55, D * 0.6, D * 0.7], look: [0, 0, 0] };
   if (key === "enclave") return { pos: [D * 0.6, D * 0.5, D * 0.75], look: [0, 0, 0] };
@@ -242,7 +276,7 @@ function frame(now) {
   // homes: they rise on a block when the camera arrives, and stay; at the end of the page the whole town is built
   if (X.loaded) {
     if (ACTIVE.includes(X.active)) X.visited.add(X.active);
-    const all = ["studio", "timeline", "enclave", "book"].includes(X.active) && X.visited.size >= 2;
+    const all = ["studio", "render", "timeline", "enclave", "book"].includes(X.active) && X.visited.size >= 2;
     for (const b of TOUR) X.comm.blocks[b].target = X.visited.has(b) || all ? 1.3 : 0;
     const dt = Math.min(0.25, (now - (X.lastT || now)) / 1000); X.lastT = now;
     X.comm.step(rm ? 2 : dt * 0.55); // a block's homes take about 2.5 s to rise
@@ -257,7 +291,7 @@ function frame(now) {
   X.comm.setNight(X.night > 0.5);
   // the gold route line grows with the block chapters
   const idx = TOUR.indexOf(X.active);
-  const routeT = idx >= 0 ? idx / (TOUR.length - 1) : ["studio", "timeline", "enclave", "book"].includes(X.active) ? 1 : 0;
+  const routeT = idx >= 0 ? idx / (TOUR.length - 1) : ["studio", "render", "timeline", "enclave", "book"].includes(X.active) ? 1 : 0;
   X.routeP += (routeT - X.routeP) * (rm ? 1 : 0.04);
   const cnt = Math.round(X.routeP * 400);
   X.routeGeo.setDrawRange(0, cnt);
@@ -318,7 +352,7 @@ function onMove(e) {
   });
 }
 function onClick(e) {
-  if (studioClick(e.target)) return;
+  if (studioClick(e.target) || renderClick(e.target)) return;
   if (matchMedia("(pointer: coarse)").matches) return; // phones: taps are handled by onTouch
   if (!X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,a,button,header"))) return;
   const s = document.getElementById("x-" + X.hover);

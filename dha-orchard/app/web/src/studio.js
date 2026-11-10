@@ -65,8 +65,11 @@ function streetLamp(x, z, mats) {
 // street in front, neighbours on both sides and across the road, hills far away
 function buildContext() {
   if (R.ctx) { R.scene.remove(R.ctx.group); R.ctx.dispose(); }
-  const big = innerWidth > 760;
-  const { w: W, d: D } = R.house.plot;
+  R.ctx = makeContext(R.house, st.size, innerWidth > 760);
+  R.scene.add(R.ctx.group);
+}
+export function makeContext(house, size, big) {
+  const { w: W, d: D } = house.plot;
   const group = new THREE.Group(), geos = [], mats = {
     pole: new THREE.MeshStandardMaterial({ color: 0x2a3133, roughness: 0.5, metalness: 0.6 }),
     lampHead: new THREE.MeshStandardMaterial({ color: 0xf6f0e0, emissive: 0xffc77a, emissiveIntensity: 0 }),
@@ -92,7 +95,7 @@ function buildContext() {
   const across = roadZ + 4.5 + 2.8 + D / 2;
   if (big) spots.push([0, across, Math.PI, "white", 2], [-W, across, Math.PI, "brick", 3], [W, across, Math.PI, "dark", 2]); // phones: only the two side neighbours (faster)
   spots.forEach(([x, z, rot, style, fl], i) => {
-    const h = makeHouse({ size: st.size, floors: fl, style, neighbor: true, seed: i + 3, rich: big && i < 2 });
+    const h = makeHouse({ size, floors: fl, style, neighbor: true, seed: i + 3, rich: big && i < 2 });
     h.group.position.set(x, 0, z); h.group.rotation.y = rot;
     if (!big) h.group.traverse((o) => { if (o.isMesh) o.castShadow = false; });
     group.add(h.group); homes.push(h);
@@ -105,8 +108,8 @@ function buildContext() {
     const hg = new THREE.SphereGeometry(1, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2); geos.push(hg);
     const m = new THREE.Mesh(hg, mats.hill); m.scale.set(70 + r() * 70, hgt, 50 + r() * 40); m.position.set(Math.cos(a) * dist, -2, Math.sin(a) * dist); m.rotation.y = -a; group.add(m);
   }
-  R.scene.add(group);
-  R.ctx = { group, homes, mats, dispose() { geos.forEach((g) => g.dispose()); homes.forEach((h) => h.dispose()); Object.values(mats).forEach((m) => m.dispose()); group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); } };
+  for (const k in mats) mats[k].name = "street_" + k;
+  return { group, homes, mats, dispose() { geos.forEach((g) => g.dispose()); homes.forEach((h) => h.dispose()); Object.values(mats).forEach((m) => m.dispose()); group.traverse((o) => { if (o.geometry) o.geometry.dispose(); }); } };
 }
 function mulberry(a) { return () => { let t = (a += 0x6d2b79f5); t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
