@@ -1105,6 +1105,19 @@ body.xmode .xbtn{will-change:auto}
 .xr-full img{max-width:100%;max-height:100%;border-radius:10px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
 .xr-full button{position:absolute;top:14px;right:18px;background:none;border:0;color:#fff;font-size:34px;cursor:pointer}
 @media (max-width:760px){.xr-wrap{padding:18px 14px}.xrender{padding-top:90px}}
+/* "From plot to home": the whole card catches taps (nothing goes through to the 3D plan behind it), and the video
+   fits on the screen together with its buttons: beside them on a wide screen, above them on a phone */
+.xp .xr-wrap{pointer-events:auto}
+.xr-frame{width:min(100%,calc(58vh * 16 / 9));justify-self:center}
+.xr-ctrls .xs-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+@media (min-width:900px){
+  .xr-wrap{grid-template-columns:minmax(300px,380px) minmax(0,1fr);column-gap:32px;row-gap:12px;text-align:left;justify-items:start;align-items:start;padding:30px 32px}
+  .xr-wrap>*{grid-column:1}
+  .xr-wrap>.xr-frame{grid-column:2;grid-row:1 / span 7;align-self:center;width:min(100%,calc(62vh * 16 / 9))}
+  .xr-wrap h2{font-size:clamp(30px,3.2vw,46px)}
+  .xr-ctrls{justify-items:start}.xr-ctrls .xs-row{justify-content:flex-start}
+}
+@media (max-width:760px){.xr-wrap h2{font-size:30px}.xr-wrap{gap:10px}.xr-ctrls{gap:6px}.xr-ctrls .xchip{padding:7px 11px;font-size:13px}}
 
 /* website master plan: the chosen plot and the plot under the pointer in rose (the sales system keeps its own colours) */
 .site svg .p:hover{stroke:#B04761;stroke-width:1.2;fill:rgba(176,71,97,.18)}

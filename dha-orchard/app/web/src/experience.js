@@ -374,7 +374,8 @@ function frame(now) {
   // fireflies
   if (!rm) { const p = X.fp; for (let i = 0; i < X.fs.length; i++) { p[i * 3 + 1] += X.fs[i] * 0.004; p[i * 3] += Math.sin(t + i) * 0.0015; if (p[i * 3 + 1] > 3.2) p[i * 3 + 1] = 0; } X.flies.geometry.attributes.position.needsUpdate = true; }
   // hover: which block is under the pointer
-  if (X.mouse.x > -2) {
+  if (X.mouse.x > -2 && !planClickable() && X.hover) { X.hover = null; showTip(null); }
+  if (X.mouse.x > -2 && planClickable()) {
     X.ray.setFromCamera(X.mouse, X.camera);
     const hit = X.ray.intersectObjects(ACTIVE.map((b) => X.blocks[b].mesh))[0];
     const hb = hit ? hit.object.userData.block : null;
@@ -397,6 +398,9 @@ export function blockScreenRect(b) {
   if (!isFinite(x0) || x1 - x0 < 4) return null;
   return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
 }
+// the 3D plan reacts to clicks and taps only on the first map views (the opening and "the whole scheme");
+// further down the page a tap near a button must never open the plot map by accident
+const planClickable = () => X && (X.active === "hero" || X.active === "overview");
 function openBlockMap(b, pt) { if (cfg && cfg.openMap) cfg.openMap(b, pt || null); }
 
 // ---------------------------------------------------------------- the fly-in to the numbered map
@@ -522,7 +526,7 @@ function onClick(e) {
   const mo = e.target.closest && e.target.closest("[data-mapopen]");
   if (mo) { openBlockMap(mo.dataset.mapopen); return; }
   if (matchMedia("(pointer: coarse)").matches) return; // phones: taps on the plan are handled by onTouch
-  if (S.mapOpen || !X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,.xmaplayer,a,button,header"))) return;
+  if (S.mapOpen || !X || !X.hover || !planClickable() || (e.target.closest && e.target.closest(".xcard,.xbook,.xmaplayer,.xr-wrap,a,button,header"))) return;
   openBlockMap(X.hover, { x: e.clientX, y: e.clientY }); // a click on a block flies into its numbered map
 }
 let touch0 = null;
@@ -531,7 +535,7 @@ function onTouch(e) { // a short tap on a block flies there; a swipe (a scroll) 
   if (!X || !touch0 || !e.changedTouches || !e.changedTouches[0]) return;
   const t = e.changedTouches[0], t0 = touch0; touch0 = null;
   if (Math.hypot(t.clientX - t0.x, t.clientY - t0.y) > 10 || performance.now() - t0.t > 350 || Math.abs(scrollY - t0.sy) > 4) return;
-  if (S.mapOpen || (e.target.closest && e.target.closest(".xcard,.xbook,.xs-view,.xmaplayer,a,button,header,input,textarea"))) return;
+  if (S.mapOpen || !planClickable() || (e.target.closest && e.target.closest(".xcard,.xbook,.xs-view,.xmaplayer,.xr-wrap,a,button,header,input,textarea"))) return;
   const m = new THREE.Vector2((t.clientX / innerWidth - 0.5) * 2, -(t.clientY / innerHeight - 0.5) * 2);
   X.ray.setFromCamera(m, X.camera);
   const hit = X.ray.intersectObjects(ACTIVE.map((b) => X.blocks[b].mesh))[0];
