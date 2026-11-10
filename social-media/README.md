@@ -4,7 +4,7 @@ Everything needed to open the company's social media accounts, post, run small a
 in the chosen brand colours (**Margalla Teal**, see `../brand/README.md`).
 
 ## Start here, in this order
-1. **`1-ACCOUNT-SETUP.md`**: create the accounts, step by step (WhatsApp Business, Facebook + Instagram through a Meta
+1. **`setup-page/`** (published as a phone checklist with copy buttons) and **`1-ACCOUNT-SETUP.md`**: create the accounts, step by step (WhatsApp Business, Facebook + Instagram through a Meta
    business account, TikTok, YouTube, Google Business Profile, LinkedIn). About 3 hours.
 2. **`2-PROFILE-TEXT.md`**: names, handles, bios and About texts to copy and paste, checked against each platform's
    character limits.

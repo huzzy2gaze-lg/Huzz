@@ -1,0 +1,289 @@
+<title>WH Ventures Account Setup</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one narrow column you follow on a phone; each platform is a numbered step (the order matters), with tick boxes and copy buttons. */
+:root {
+  --bg: #EAF1EE; --surface: #FFFFFF; --line: #C5D1D2; --fg: #06252A; --muted: #4A6B6E;
+  --accent: #7A5F22; --accent-bg: #F4EAD3; --band: #0B3A40; --band-fg: #EAF1EE; --band-muted: #A9C4C4; --gold: #D2A746;
+  --cta: #B04761; --ok: #2F7A55; --ok-bg: #DCEFE4; --field: #F3F7F5;
+  --display: "Gloock", Georgia, serif; --text: "Albert Sans", system-ui, -apple-system, sans-serif;
+  --r: 13px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #06252A; --surface: #0B3A40; --line: #1E5157; --fg: #EAF1EE; --muted: #A9C4C4;
+  --accent: #D2A746; --accent-bg: #352E16; --band: #071B1D; --band-fg: #EAF1EE; --band-muted: #A9C4C4; --gold: #D2A746;
+  --cta: #B04761; --ok: #7FD1A4; --ok-bg: #12382A; --field: #09272A; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #06252A; --surface: #0B3A40; --line: #1E5157; --fg: #EAF1EE; --muted: #A9C4C4;
+  --accent: #D2A746; --accent-bg: #352E16; --band: #071B1D; --band-fg: #EAF1EE; --band-muted: #A9C4C4; --gold: #D2A746;
+  --cta: #B04761; --ok: #7FD1A4; --ok-bg: #12382A; --field: #09272A; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 16px/1.55 var(--text); font-synthesis: none }
+.wrap { max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+header { background: var(--band); color: var(--band-fg) }
+header .wrap { padding-block: 34px 21px; display: grid; gap: 13px }
+.eyebrow { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); font-weight: 600 }
+h1 { font: 400 clamp(34px, 8vw, 55px)/1.05 var(--display); margin: 0; text-wrap: balance }
+header p { margin: 0; color: var(--band-muted); max-width: 60ch }
+.progress { display: grid; gap: 8px; margin-top: 8px }
+.bar { height: 8px; border-radius: 8px; background: rgba(234,241,238,.15); overflow: hidden }
+.bar i { display: block; height: 100%; width: 0; background: var(--gold); transition: width .3s }
+.ptext { font-size: 13px; color: var(--band-muted); font-variant-numeric: tabular-nums }
+main .wrap { padding-block: 21px 55px; display: grid; gap: 21px }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 21px; display: grid; gap: 13px; min-width: 0 }
+.card h2 { font: 400 21px/1.2 var(--display); margin: 0 }
+.ready { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none }
+.ready li { display: flex; gap: 8px }
+.ready li::before { content: "•"; color: var(--accent) }
+label.dom { font-weight: 600; font-size: 14px }
+input[type=text] { width: 100%; font: inherit; padding: 10px 13px; border-radius: 8px; border: 1px solid var(--line); background: var(--field); color: var(--fg) }
+input[type=text]:focus-visible, button:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.hint { font-size: 13px; color: var(--muted); margin: 0 }
+.handles { display: flex; flex-wrap: wrap; gap: 8px }
+.handles a { font-size: 14px; color: var(--fg); text-decoration: none; border: 1px solid var(--line); border-radius: 99px; padding: 5px 13px; background: var(--field) }
+.handles a:hover { border-color: var(--accent) }
+
+details.step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); min-width: 0 }
+details.step[data-done="1"] { border-color: var(--ok) }
+summary { list-style: none; cursor: pointer; padding: 21px; display: grid; grid-template-columns: auto 1fr auto; gap: 13px; align-items: center }
+summary::-webkit-details-marker { display: none }
+.num { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 400 18px var(--display); background: var(--accent-bg); color: var(--accent) }
+details[data-done="1"] .num { background: var(--ok-bg); color: var(--ok) }
+.stitle { display: grid; gap: 2px; min-width: 0 }
+.stitle b { font: 400 21px/1.2 var(--display) }
+.stitle span { font-size: 13px; color: var(--muted) }
+.count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap }
+details[data-done="1"] .count { color: var(--ok); font-weight: 600 }
+.body { padding: 0 21px 21px; display: grid; gap: 21px; min-width: 0 }
+.why { margin: 0; color: var(--muted); font-size: 15px }
+.open { justify-self: start; font-size: 14px; font-weight: 600; color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor }
+h3 { margin: 0; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600 }
+.tasks { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none }
+.tasks label { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; cursor: pointer; padding: 8px 10px; border-radius: 8px }
+.tasks label:hover { background: var(--field) }
+.tasks input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--ok) }
+.tasks input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line) }
+.fields { display: grid; gap: 13px }
+.field { display: grid; gap: 5px; min-width: 0 }
+.fhead { display: flex; justify-content: space-between; align-items: center; gap: 8px }
+.fhead b { font-size: 14px; font-weight: 600 }
+.fhead small { color: var(--muted); font-size: 12px; margin-left: 6px; font-weight: 400 }
+.copy { font: 600 13px var(--text); border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 99px; padding: 4px 13px; cursor: pointer; flex: none }
+.copy:hover { border-color: var(--accent) }
+.copy.done { background: var(--ok-bg); color: var(--ok); border-color: var(--ok) }
+.val { margin: 0; white-space: pre-wrap; word-break: break-word; background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 10px 13px; font: 15px/1.5 var(--text); user-select: all }
+.val.warn { border-style: dashed }
+.imgs { display: flex; flex-wrap: wrap; gap: 13px }
+figure { margin: 0; display: grid; gap: 5px; max-width: 100% }
+figure img { display: block; border-radius: 8px; border: 1px solid var(--line); height: 89px; width: auto; max-width: 100% }
+figcaption { font-size: 12px; color: var(--muted) }
+.send { border: 1px solid var(--cta); }
+.send ul { margin: 0; padding-left: 21px; display: grid; gap: 5px }
+.reset { justify-self: start; font: 600 13px var(--text); background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 0 }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none } }
+@media (max-width: 480px) { summary { grid-template-columns: auto 1fr } .count { grid-column: 2 } }
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">WH Ventures · social media</div>
+    <h1>Open the accounts, in this order</h1>
+    <p>Seven steps, about 3 hours. Tick each box as you go (the ticks stay on this device). Every name, bio and link has a copy button.</p>
+    <div class="progress"><div class="bar"><i id="pbar"></i></div><div class="ptext" id="ptext">0 of 0 done</div></div>
+  </div>
+</header>
+
+<main><div class="wrap">
+  <section class="card">
+    <h2>Before you start</h2>
+    <ul class="ready">
+      <li>The company phone, +92 331 5223726, for the codes</li>
+      <li>A company e-mail (the Zoho address), not a personal Gmail</li>
+      <li>A bank card with international online payments turned on</li>
+      <li>The brand images (sent in the chat as brand-kit.zip; save them to the phone)</li>
+      <li>A second admin (a partner) for every account, so the company never loses one</li>
+    </ul>
+    <label class="dom" for="domain">Website address</label>
+    <input type="text" id="domain" placeholder="for example whventures.pk" autocomplete="off" spellcheck="false">
+    <p class="hint">Type it once and every website link below fills in. Leave it empty until the domain works; the links will show "YOUR-DOMAIN".</p>
+    <h3>Is the name free? Open each link. "Page not found" means it is free.</h3>
+    <div class="handles">
+      <a href="https://www.instagram.com/whventurespk/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.facebook.com/whventurespk" target="_blank" rel="noopener">Facebook</a>
+      <a href="https://www.tiktok.com/@whventurespk" target="_blank" rel="noopener">TikTok</a>
+      <a href="https://www.youtube.com/@whventurespk" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://www.linkedin.com/company/whventurespk" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+    <p class="hint">If whventurespk is taken anywhere, use the next free one on every platform: wh.ventures.pk, whventures.isb, whventuresislamabad.</p>
+  </section>
+
+  <div id="steps" style="display:grid;gap:13px"></div>
+
+  <section class="card send">
+    <h2>Send these back to me in the chat</h2>
+    <ul>
+      <li>The <b>handle</b> you got, if it is not whventurespk</li>
+      <li>The <b>website address</b>, when it works</li>
+      <li>The <b>Meta Pixel ID</b> (step 2), so the website can track bookings from ads</li>
+      <li>"Accounts are live", and I will write the first week of posts with captions for each platform</li>
+    </ul>
+    <button class="reset" id="reset" type="button">Clear all ticks on this device</button>
+    <p class="hint" id="resetq" hidden>Tap again to clear every tick.</p>
+  </section>
+</div></main>
+
+<script>
+const PHONE = "+92 331 5223726";
+const S = [
+ { id:"wa", title:"WhatsApp Business", time:"15 minutes · on the company phone", url:"https://play.google.com/store/apps/details?id=com.whatsapp.w4b", urlText:"Get WhatsApp Business",
+   why:"Most buyers will message you here, and the Facebook and Instagram buttons open this chat. Set it up first.",
+   tasks:["Install WhatsApp Business on the company phone (+92 331 5223726). It moves existing chats over.",
+     "Profile: photo, name WH Ventures, category Real Estate, description and website (below).",
+     "Tools → Greeting message (below).",
+     "Tools → Away message for outside office hours.",
+     "Tools → Quick replies for prices, location and documents.",
+     "Tools → Labels: New lead, Called, Site visit, Token, Closed."],
+   fields:[["Business name","WH Ventures"],["Description","Plots in DHA Margalla Orchard, Islamabad. 1 Kanal, 14 Marla, 10 Marla. Book a free call."],
+     ["Website","https://{D}/?utm_source=whatsapp&utm_medium=social_bio&utm_campaign=profile"],
+     ["Greeting message","Assalam o Alaikum! Thank you for contacting WH Ventures. Which plot size are you looking for: 1 Kanal, 14 Marla or 10 Marla? Our team will reply shortly."],
+     ["Away message","Assalam o Alaikum! Thank you for your message. Our office is closed right now; we will reply first thing tomorrow morning. WH Ventures"]],
+   imgs:[["profile","Profile picture","profile.png"]] },
+ { id:"meta", title:"Facebook + Instagram (Meta)", time:"45 minutes · on a computer", url:"https://business.facebook.com", urlText:"Open business.facebook.com",
+   why:"The business account must own the Page, Instagram and the ad account, so the company owns them, not one person. Log in with a real personal Facebook profile; Meta closes fake ones and everything they own.",
+   tasks:["Create the business account (name below, company e-mail).",
+     "Business settings → Accounts → Pages → Add → Create a new Page, with the name, category, bio and About below.",
+     "Page: profile picture and cover; username whventurespk.",
+     "Page → Edit action button → WhatsApp → +92 331 5223726.",
+     "Instagram app → Create new account → whventurespk → Settings → Account type → Switch to professional → Business → Real Estate Agent.",
+     "Instagram: picture, bio and link (below); Call and WhatsApp contact buttons.",
+     "Instagram → Settings → Account Center → connect to the Facebook Page.",
+     "Business settings → Accounts → Instagram accounts → add it, so the business owns it.",
+     "Ad account: name WH Ventures - Main, time zone Asia/Karachi, currency PKR. These cannot be changed later.",
+     "Add the payment card (Billing → Payment settings).",
+     "Business settings → Users → People → invite the second admin with full control.",
+     "Two-factor login on (an authenticator app, not only SMS).",
+     "Events Manager → Connect data → Web → name it WH Ventures website → copy the Pixel ID and send it to me.",
+     "Post one story per topic and save each as a highlight with its cover (7 highlights)."],
+   fields:[["Business name","WH Ventures (Pvt.) Ltd."],["Page name","WH Ventures | DHA Margalla Orchard"],["Username","whventurespk"],
+     ["Category","Real Estate Agent","second: Real Estate Investment Firm"],
+     ["Facebook bio","Plots in DHA Margalla Orchard, Islamabad. 1 Kanal, 14 Marla, 10 Marla. Book a free call.","88 of 101"],
+     ["Facebook About","WH Ventures sells plots in DHA Margalla Orchard (Park Road Housing Scheme), Islamabad: 1 Kanal, 14 Marla and 10 Marla, on Main Park Road opposite COMSATS University.\n\n✔ Plots on the official FGEHA master plan\n✔ Help with the full transfer: token, NDC, transfer and allotment letter\n✔ Free call to choose the right block for your budget\n\nCall or WhatsApp: +92 331 5223726"],
+     ["Facebook website","https://{D}/?utm_source=facebook&utm_medium=social_bio&utm_campaign=profile"],
+     ["Instagram bio","Plots in DHA Margalla Orchard, Islamabad 🏡\n1 Kanal · 14 Marla · 10 Marla\nMain Park Road, opp. COMSATS\n📞 Book a free call 👇","122 of 150"],
+     ["Instagram link","https://{D}/?utm_source=instagram&utm_medium=social_bio&utm_campaign=profile"],
+     ["Highlight names","Prices · Blocks · Location · How to buy · Site updates · FAQ · Site visit"]],
+   imgs:[["profile","Profile picture","profile.png"],["facebook-cover","Facebook cover","facebook-cover.png"],
+     ["highlight-prices","Prices"],["highlight-blocks","Blocks"],["highlight-location","Location"],["highlight-howtobuy","How to buy"],
+     ["highlight-updates","Site updates"],["highlight-faq","FAQ"],["highlight-visit","Site visit"]] },
+ { id:"tt", title:"TikTok", time:"20 minutes · on the phone", url:"https://www.tiktok.com/signup", urlText:"Open TikTok sign-up",
+   why:"Reels get the cheapest views here. The in-app Promote button is enough for our budget at first.",
+   tasks:["Sign up with the company e-mail → handle whventurespk.","Profile picture, name and bio (below).",
+     "Settings → Account → Switch to Business account → Real Estate.","Add the website link when the field appears (sometimes only after some followers)."],
+   fields:[["Name","WH Ventures"],["Username","whventurespk"],["Bio","DHA Margalla Orchard plots · Islamabad\n📞 +92 331 5223726","56 of 80"],
+     ["Website","https://{D}/?utm_source=tiktok&utm_medium=social_bio&utm_campaign=profile"]],
+   imgs:[["profile","Profile picture","profile.png"]] },
+ { id:"yt", title:"YouTube", time:"20 minutes", url:"https://www.youtube.com", urlText:"Open YouTube",
+   why:"Use one company Google account for YouTube, Google Business and Google Ads. With a Zoho e-mail, choose \"Use my current e-mail address instead\" when you create the Google account.",
+   tasks:["Profile icon → Create a channel → name and handle below.","Customise channel → Branding: picture and banner.",
+     "Basic info: description, links and contact e-mail.","Settings → Permissions → invite the second admin as Manager.",
+     "Verify the phone number (Settings → Channel → Feature eligibility) for thumbnails and longer videos."],
+   fields:[["Channel name","WH Ventures | DHA Margalla Orchard"],["Handle","@whventurespk"],
+     ["Description","WH Ventures: plots in DHA Margalla Orchard (Park Road Housing Scheme), Islamabad.\n\nOn this channel: block tours, prices, site development updates, and how the transfer works, step by step.\n\n1 Kanal · 14 Marla · 10 Marla plots on Main Park Road, opposite COMSATS University.\n\nBook a free call: +92 331 5223726 (call or WhatsApp)"],
+     ["Link 1: Book a free call","https://{D}/?utm_source=youtube&utm_medium=social_bio&utm_campaign=profile"],["Link 2: WhatsApp","https://wa.me/923315223726"]],
+   imgs:[["profile","Profile picture","profile.png"],["youtube-banner","Banner","youtube-banner.png"]] },
+ { id:"gbp", title:"Google Business Profile", time:"20 minutes, then verification", url:"https://business.google.com", urlText:"Open business.google.com",
+   why:"This puts WH Ventures on Google Maps and in searches. Use the name WH Ventures only: Google suspends profiles with extra words in the name. Verification (a short video of the office and signboard, or a postcard) takes a few days to two weeks.",
+   tasks:["Add business → WH Ventures, with the company Google account.","Category, phone, website and description (below).",
+     "Address: the real office. With no office open to visitors, choose that you go to your customers, hide the address, and set the area to Islamabad and Rawalpindi.",
+     "Start verification.","Photos: logo, cover, and real photos of the office, team and site.","Real office hours."],
+   fields:[["Business name","WH Ventures"],["Category","Real estate agency","second: Real estate consultant"],["Phone",PHONE],
+     ["Website","https://{D}/?utm_source=google&utm_medium=business_profile&utm_campaign=profile"],
+     ["Description","WH Ventures is an Islamabad real estate company that sells plots in DHA Margalla Orchard (Park Road Housing Scheme). We offer 1 Kanal, 14 Marla and 10 Marla plots on Main Park Road, opposite COMSATS University, and help buyers through every step: choosing the block, checking the file, token, NDC, transfer and the allotment letter. Call or WhatsApp +92 331 5223726 to book a free call, or visit our website to see the blocks on the official master plan.","454 of 750"]],
+   imgs:[["profile","Logo","profile.png"],["google-business-cover","Cover","google-business-cover.png"]] },
+ { id:"li", title:"LinkedIn company page", time:"15 minutes", url:"https://www.linkedin.com/company/setup/new/", urlText:"Open LinkedIn page setup",
+   why:"Overseas Pakistanis and professionals check LinkedIn. Log in with your personal LinkedIn first.",
+   tasks:["For Business → Create a Company Page → Company.","Name, URL, website, industry, size and type (below).",
+     "Logo, cover, tagline and About.","Ask each team member to add WH Ventures as their current job."],
+   fields:[["Name","WH Ventures (Pvt.) Ltd."],["Page URL","whventurespk"],["Website","https://{D}/?utm_source=linkedin&utm_medium=social_bio&utm_campaign=profile"],
+     ["Industry · size · type","Real Estate · 2–10 employees · Privately held"],
+     ["Tagline","Plots in DHA Margalla Orchard, Islamabad: 1 Kanal, 14 Marla and 10 Marla on Main Park Road.","91 of 120"],
+     ["About","WH Ventures (Pvt.) Ltd. is an Islamabad real estate company. We sell plots in DHA Margalla Orchard (Park Road Housing Scheme): 1 Kanal, 14 Marla and 10 Marla, on Main Park Road opposite COMSATS University.\n\nWe help buyers from the first call to the allotment letter: choosing the block, checking the file, token, NDC, transfer at the authority, and the allotment letter. We work with buyers in Pakistan and overseas Pakistanis.\n\nCall or WhatsApp: +92 331 5223726"]],
+   imgs:[["profile","Logo","profile.png"],["linkedin-cover","Cover","linkedin-cover.png"]] },
+ { id:"link", title:"Link everything and post", time:"10 minutes",
+   why:"Each platform gets its own website link, so the sales system shows where every booking came from.",
+   tasks:["Every profile's website field uses its own link (they are in each step above).",
+     "Send me the handles so the website footer links to every profile.",
+     "Post the same welcome post on every platform on the same day (day 1 of the calendar)."],
+   fields:[["Welcome post caption","WH Ventures is now on Instagram. We help you buy a plot in DHA Margalla Orchard, Islamabad, from the first call to the allotment letter. Ab hum Instagram par bhi hain.\n\n📞 Book a free call: +92 331 5223726 · link in bio\n\n#DHAMargallaOrchard #MargallaOrchard #IslamabadRealEstate #ParkRoad #PlotsForSale #InvestInIslamabad #OverseasPakistanis #WHVentures"]],
+   imgs:[] }
+];
+
+const store = { get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v) }catch(e){ return d } },
+                set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)) }catch(e){} } };
+let ticks = store.get("wh-ticks", {});
+let openStep = store.get("wh-open", "wa");
+const dom = document.getElementById("domain");
+dom.value = store.get("wh-domain", "");
+const D = () => (dom.value.trim().replace(/^https?:\/\//,"").replace(/\/+$/,"") || "YOUR-DOMAIN");
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const root = document.getElementById("steps");
+S.forEach((s, i) => {
+  const d = document.createElement("details");
+  d.className = "step"; d.id = "step-" + s.id; if (s.id === openStep) d.open = true;
+  d.innerHTML = `
+    <summary><span class="num">${i+1}</span><span class="stitle"><b>${esc(s.title)}</b><span>${esc(s.time)}</span></span><span class="count"></span></summary>
+    <div class="body">
+      <p class="why">${esc(s.why)}</p>
+      ${s.url ? `<a class="open" href="${s.url}" target="_blank" rel="noopener">${esc(s.urlText)} ↗</a>` : ""}
+      <div><h3>Steps</h3><ul class="tasks">${s.tasks.map((t,j)=>`<li><label><input type="checkbox" id="t-${s.id}-${j}" data-k="${s.id}-${j}"><span>${esc(t)}</span></label></li>`).join("")}</ul></div>
+      <div class="fields"><h3>Copy and paste</h3>${s.fields.map(([l,v,n],j)=>`
+        <div class="field"><div class="fhead"><b>${esc(l)}${n?`<small>${esc(n)}</small>`:""}</b><button class="copy" type="button" data-f="${s.id}-${j}">Copy</button></div>
+        <p class="val" data-tpl="${esc(v)}" id="v-${s.id}-${j}"></p></div>`).join("")}</div>
+      ${s.imgs.length ? `<div><h3>Images (in brand-kit.zip)</h3><div class="imgs">${s.imgs.map(([f,l,file])=>`<figure><img src="img/${f}.jpg" alt="${esc(l)}" loading="lazy"><figcaption>${esc(l)}${file?" · "+file:""}</figcaption></figure>`).join("")}</div></div>` : ""}
+    </div>`;
+  d.addEventListener("toggle", () => { if (d.open) store.set("wh-open", s.id) });
+  root.appendChild(d);
+});
+
+function fillLinks() {
+  const dd = D();
+  document.querySelectorAll(".val").forEach(p => {
+    const t = p.dataset.tpl; p.textContent = t.replaceAll("{D}", dd);
+    p.classList.toggle("warn", t.includes("{D}") && dd === "YOUR-DOMAIN");
+  });
+}
+function refresh() {
+  let all = 0, done = 0;
+  S.forEach(s => {
+    const n = s.tasks.length, k = s.tasks.filter((_,j)=>ticks[s.id+"-"+j]).length;
+    all += n; done += k;
+    const d = document.getElementById("step-"+s.id);
+    d.dataset.done = k === n ? "1" : "0";
+    d.querySelector(".count").textContent = k === n ? "Done" : `${k} of ${n}`;
+  });
+  document.getElementById("pbar").style.width = (all ? done/all*100 : 0) + "%";
+  document.getElementById("ptext").textContent = `${done} of ${all} steps done`;
+}
+document.querySelectorAll(".tasks input").forEach(c => {
+  c.checked = !!ticks[c.dataset.k];
+  c.addEventListener("change", () => { ticks[c.dataset.k] = c.checked; store.set("wh-ticks", ticks); refresh() });
+});
+dom.addEventListener("input", () => { store.set("wh-domain", dom.value); fillLinks() });
+document.addEventListener("click", e => {
+  const b = e.target.closest(".copy"); if (!b) return;
+  const p = document.getElementById("v-" + b.dataset.f), text = p.textContent;
+  const ok = () => { b.textContent = "Copied"; b.classList.add("done"); setTimeout(()=>{ b.textContent="Copy"; b.classList.remove("done") }, 1600) };
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents(p); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Selected: copy it"; setTimeout(()=>{ b.textContent="Copy" }, 2500) };
+  try { navigator.clipboard.writeText(text).then(ok, fallback) } catch (err) { fallback() }
+});
+let armed = false;
+document.getElementById("reset").addEventListener("click", () => {
+  if (!armed) { armed = true; document.getElementById("resetq").hidden = false; setTimeout(()=>{ armed=false; document.getElementById("resetq").hidden = true }, 4000); return }
+  ticks = {}; store.set("wh-ticks", ticks); document.querySelectorAll(".tasks input").forEach(c => c.checked = false); refresh();
+  armed = false; document.getElementById("resetq").hidden = true;
+});
+fillLinks(); refresh();
+</script>
