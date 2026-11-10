@@ -41,5 +41,5 @@ The text and layouts are in `brand-kit/source/kit.html`.
 - **Claude:** graphics, videos, captions, the ad plan and the website changes.
 
 ## Still open
-- The **website domain**: replace `YOUR-DOMAIN` in `utm-links.csv` and in the profiles when it works.
+- The website is live at **www.whventures.com.pk**; the tracked links in `utm-links.csv` use it.
 - Ads ready to post: `../ads/wh-teal/WH-Teal-Ads/` (4 ads in teal, with voiced videos and captions).

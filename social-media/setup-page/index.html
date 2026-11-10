@@ -231,7 +231,7 @@ const store = { get(k,d){ try{ const v=localStorage.getItem(k); return v==null?d
 let ticks = store.get("wh-ticks", {});
 let openStep = store.get("wh-open", "wa");
 const dom = document.getElementById("domain");
-dom.value = store.get("wh-domain", "");
+dom.value = store.get("wh-domain", "") || "www.whventures.com.pk";
 const D = () => (dom.value.trim().replace(/^https?:\/\//,"").replace(/\/+$/,"") || "YOUR-DOMAIN");
 const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 

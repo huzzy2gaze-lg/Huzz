@@ -24,7 +24,13 @@ SAME DETAILS EVERYWHERE
 - Phone and WhatsApp: +92 331 5223726 (country Pakistan)
 - Country: Pakistan · City: Islamabad · Time zone: Asia/Karachi · Currency: PKR
 - E-mail: ask me which company e-mail to use (not a personal Gmail).
-- Website: ask me for the domain. If there is none yet, leave the website field empty.
+- Website (use the exact link for each platform; it tells us where visitors came from):
+  Facebook: https://www.whventures.com.pk/?utm_source=facebook&utm_medium=social_bio&utm_campaign=profile
+  Instagram: https://www.whventures.com.pk/?utm_source=instagram&utm_medium=social_bio&utm_campaign=profile
+  YouTube: https://www.whventures.com.pk/?utm_source=youtube&utm_medium=social_bio&utm_campaign=profile
+  Google Business Profile: https://www.whventures.com.pk/?utm_source=google&utm_medium=business_profile&utm_campaign=profile
+  LinkedIn: https://www.whventures.com.pk/?utm_source=linkedin&utm_medium=social_bio&utm_campaign=profile
+  TikTok: https://www.whventures.com.pk/?utm_source=tiktok&utm_medium=social_bio&utm_campaign=profile
 - Never put "Official" in a name, never use the DHA logo, and never use "DHA" alone as a name.
 
 ORDER AND TEXT
@@ -71,7 +77,7 @@ ORDER AND TEXT
      1 Kanal · 14 Marla · 10 Marla plots on Main Park Road, opposite COMSATS University.
 
      Book a free call: +92 331 5223726 (call or WhatsApp)
-   - Links: "WhatsApp" → https://wa.me/923315223726 (and "Book a free call" → the website, if I give you the domain)
+   - Links: "WhatsApp" → https://wa.me/923315223726 and "Book a free call" → the YouTube website link above
    - Country: Pakistan.
 
 4. GOOGLE BUSINESS PROFILE — https://business.google.com (same Google account)

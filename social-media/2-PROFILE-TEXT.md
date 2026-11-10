@@ -1,6 +1,6 @@
 # Profile text: copy and paste
 
-Every text below fits the platform's limit. Replace `YOUR-DOMAIN` with the website address when the domain is live.
+Every text below fits the platform's limit. The website is https://www.whventures.com.pk (links with tracking for each platform are in `utm-links.csv`).
 
 ## Name and handle (use the same everywhere)
 
@@ -17,7 +17,7 @@ legal trouble. "WH Ventures | DHA Margalla Orchard" is fine: it says who you are
 
 ## Contact details (the same everywhere)
 - Phone and WhatsApp: **+92 331 5223726**
-- E-mail: the Zoho company address (for example `info@YOUR-DOMAIN`) when it works. Until then, leave e-mail empty
+- E-mail: the Zoho company address (for example `info@whventures.com.pk`) when it works. Until then, leave e-mail empty
   rather than putting a personal Gmail.
 - Area: Islamabad, Pakistan
 - Website link: see `utm-links.csv` (a different link for each platform, so the website knows where each visitor came
