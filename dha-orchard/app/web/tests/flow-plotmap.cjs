@@ -1,11 +1,10 @@
-// The plot map on the website: from a block on the 3D home, zoom into the block, see plot numbers, open a plot.
+// The plot map page (#plan): zoom into a block, see plot numbers, open a plot.
 const { chromium } = require('playwright');
 (async () => { const b = await chromium.launch({ args: ['--use-gl=swiftshader','--enable-unsafe-swiftshader'] });
  for (const [name, vp] of [['phone', { width: 390, height: 844 }], ['desk', { width: 1440, height: 900 }]]) {
   const p = await b.newPage({ viewport: vp }); const errs = []; p.on('pageerror', e => errs.push(e.message));
-  await p.goto('http://localhost:4173/?demo#home'); await p.waitForSelector('#x-B', { timeout: 60000 }); await p.waitForTimeout(3000);
-  await p.$eval('#x-B', e => e.scrollIntoView()); await p.waitForTimeout(1200);
-  await p.click('#x-B [data-planblock="B"]'); await p.waitForSelector('.planmap svg'); await p.waitForTimeout(1500);
+  await p.goto('http://localhost:4173/?demo#plan'); await p.waitForSelector('.planmap svg', { timeout: 60000 }); await p.waitForTimeout(2000);
+  await p.click('[data-planzoom="B"]'); await p.waitForTimeout(1500);
   const far1 = await p.$eval('.planmap svg', s => s.classList.contains('far'));
   await p.screenshot({ path: `/tmp/claude-0/pm-${name}-1.png` });
   // zoom in more, the numbers show

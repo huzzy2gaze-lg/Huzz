@@ -7,7 +7,7 @@ import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, site
 import { logo } from "./brand/logo.js";
 import { heroJump } from "./showcase.js";
 import { stopExperience } from "./experience.js";
-import { sitePage, SITE_PAGES, sitePageFor, siteAfterRender, adSource, updateOutlookDom } from "./site.js";
+import { sitePage, SITE_PAGES, sitePageFor, siteAfterRender, closeMap, adSource, updateOutlookDom } from "./site.js";
 import { startTour, stopTour, tourOn, resumeTour, updateBudgetDom, bookSummary } from "./site-extras.js";
 import { allView, blockView } from "./panels.js";
 import { salesPage, approvalsPage, teamPage, PERMS, investorsCsv } from "./pages.js";
@@ -276,6 +276,7 @@ window.addEventListener("hashchange", () => {
   if (tourOn()) stopTour(false);
   if (SITE_PAGES.includes(h) || !S.me) {
     const was = S.sitePage;
+    S.mapOpen = null; document.body.classList.remove("mapopen"); // a link from the plot map (for example "Book a call") closes it
     S.area = "site"; S.sitePage = SITE_PAGES.includes(h) ? sitePageFor(h) : "home"; S.ui = {};
     // "Book a call" stays on the home page and moves down to the form; other pages open at the top
     if (!(S.sitePage === "book" && ["home", "book"].includes(was))) window.scrollTo(0, 0);
@@ -426,6 +427,7 @@ document.addEventListener("click", async (e) => {
       setTimeout(startTour, 500);
       break;
     }
+    case "mapClose": closeMap(); break;
     case "toApp": S.area = "app"; setHash(S.plot ? "plot-" + S.plot : S.block ? "block-" + S.block : ""); S._resetScroll = true; render(); break;
     case "siteAgain": S.siteSent = false; render(); break;
     case "closePlot": S.sitePlot = null; render(); break;

@@ -2,12 +2,12 @@
 // It shows the whole master plan and the blocks, never our stock or our clients.
 // Market figures: asking prices of late October 2026 and DHA's own Margalla Enclave prices, as in the
 // client offer. The outlook is the team's view, shown with a clear note that it is not a promise.
-import { S, G, esc } from "./core.js";
+import { S, G, esc, hooks } from "./core.js";
 import { SIZES, ACTIVE } from "./geo.js";
 import { mapSVG, blockVB } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { setShowcase, showcaseAfterRender } from "./showcase.js";
-import { experiencePage, experienceAfterRender } from "./experience.js";
+import { experiencePage, experienceAfterRender, blockScreenRect } from "./experience.js";
 let introDone = false;
 import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection, shareLink, GOALS, BUDGETS, WANT_SIZES, bookSummary } from "./site-extras.js";
 
@@ -322,23 +322,102 @@ function explorer() {
 }
 
 function plan() {
-  const p = S.sitePlot && G.geo.plots[S.sitePlot];
-  const sz = p ? SIZES[p.size] : null;
-  const saved = (S.account && S.account.saved) || [];
   // opened from a block on the home page: start on that block
   if (S.planBlock) { if (G.geo.blocks[S.planBlock]) { S.vb.site = blockVB(S.planBlock); S.planZoom = S.planBlock; } S.planBlock = null; }
   const z = S.planZoom || "all";
   return `<section class="planpage"><div class="planhead sitewrap"><div><div class="eyebrow">Official FGEHA layout plan</div><h1 class="h2">Find a plot</h1></div>
       <p>Tap a block to zoom in. Zoom in more to see the plot numbers, then tap a plot. Or search a plot number.</p>
       <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${z === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}<a href="#home" class="planback">← 3D view</a></div></div>
-    <div class="planmap mapwrap" aria-label="Master plan of DHA Margalla Orchard">
+${planMap()}
+  </section>`;
+}
+
+// the numbered plot map (the page "Find a plot" and the zoom on the home page)
+function planMap() {
+  const p = S.sitePlot && G.geo.plots[S.sitePlot];
+  const sz = p ? SIZES[p.size] : null;
+  const saved = (S.account && S.account.saved) || [];
+  return `<div class="planmap mapwrap" aria-label="Master plan of DHA Margalla Orchard">
       <svg role="img" aria-label="DHA Margalla Orchard layout plan">${mapSVG("site")}</svg>
       <form class="mapsearch" id="searchForm" role="search"><select id="qb" aria-label="Block">${ACTIVE.map((b) => `<option value="${b}"${b === (S.findBlock || (S.planZoom && S.planZoom !== "all" ? S.planZoom : "A")) ? " selected" : ""}>Block ${b}</option>`).join("")}</select><input id="q" type="search" inputmode="numeric" enterkeyhint="search" placeholder="Plot number" autocomplete="off" aria-label="Plot number"><button aria-label="Find plot">Find</button></form>
       <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit to screen" style="font-size:12px">Fit</button></div>
       <div class="tip" hidden></div>
       ${p ? `<div class="plotcard"><div><div class="eyebrow">Block ${p.block}</div><h3>Plot ${esc(S.sitePlot)}</h3><p>${sz.label} · ${sz.dims}${sz.sqyd ? ` · ${sz.sqyd} sq yd` : ""}</p></div>
         <div class="row"><a href="#book" class="sitebtn solid" data-act="askPlot" data-block="${p.block}">Book a call about this plot</a>${S.user && !S.me && S.mode !== "artifact" ? `<button class="sitebtn" data-saveplot="${esc(S.sitePlot)}">${saved.includes(S.sitePlot) ? "Saved ✓" : "Save plot"}</button>` : ""}<a class="sitebtn" target="_blank" rel="noopener" href="${shareLink("Plot " + S.sitePlot + " (" + sz.label + ") in DHA Margalla Orchard, on the official master plan:")}">Share</a><button class="sitebtn" data-act="closePlot" aria-label="Close">×</button></div></div>` : ""}
-    </div></section>`;
+    </div>`;
+}
+
+// ---------------------------------------------------------------- the zoom on the home page: a block opens its numbered map
+// It grows out of the block's place on the 3D plan, then zooms until the plot numbers show.
+// A tap outside the map, Esc, or "Back to the master plan" zooms back out.
+const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
+function mapOverlay() {
+  const z = S.mapOpen;
+  return `<div class="xmapov" data-mapbackdrop role="dialog" aria-modal="true" aria-label="Plot map">
+    <div class="xmappanel">
+      <div class="xmaptop"><div><div class="eyebrow">Official FGEHA layout plan</div><b>${z === "all" ? "All blocks" : "Block " + z}</b></div>
+        <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${(S.planZoom || z) === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}</div>
+        <button type="button" class="xmapback" data-act="mapClose">← Back to the master plan</button></div>
+      ${planMap()}
+    </div></div>`;
+}
+export function openMap(b, from) {
+  if (!G.geo || (b !== "all" && !G.geo.blocks[b])) return;
+  S.mapOpen = b; S.planZoom = b; S.sitePlot = null;
+  S.vb.site = b === "all" ? [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14] : blockVB(b);
+  S.mapFrom = from || null; S.mapGrow = true;
+  hooks.render();
+}
+export function closeMap() {
+  const ov = document.querySelector(".xmapov");
+  if (!ov || ov.dataset.closing) return;
+  const done = () => { S.mapOpen = null; S.sitePlot = null; document.body.classList.remove("mapopen"); hooks.render(); };
+  if (!motionOK()) return done();
+  ov.dataset.closing = 1;
+  const panel = ov.querySelector(".xmappanel");
+  const to = S.mapOpen !== "all" ? blockScreenRect(S.mapOpen) : null;
+  ov.classList.remove("in");
+  panel.style.transition = "transform .6s cubic-bezier(.6,0,.3,1), opacity .5s ease .1s";
+  panel.style.transform = to ? flip(panel.getBoundingClientRect(), to) : "scale(.9)";
+  panel.style.opacity = "0";
+  setTimeout(done, 620);
+}
+// the transform that puts the panel over a rectangle on the screen
+function flip(r, to) {
+  return `translate(${(to.x - r.left).toFixed(1)}px,${(to.y - r.top).toFixed(1)}px) scale(${Math.max(0.05, to.w / r.width).toFixed(4)},${Math.max(0.05, to.h / r.height).toFixed(4)})`;
+}
+function mapAfterRender() {
+  document.body.classList.toggle("mapopen", !!S.mapOpen);
+  const ov = document.querySelector(".xmapov");
+  if (!ov || !S.mapGrow) { if (ov) ov.classList.add("in"); return; }
+  S.mapGrow = false;
+  const panel = ov.querySelector(".xmappanel"), from = S.mapFrom; S.mapFrom = null;
+  // second step: from the whole block, zoom in until the plot numbers show
+  const zoomIn = () => {
+    const b = S.mapOpen; if (!b || b === "all") return;
+    const w = ov.querySelector(".mapwrap").getBoundingClientRect(), bb = G.geo.blocks[b].bbox;
+    const cx = (bb[0] + bb[2]) / 2, cy = (bb[1] + bb[3]) / 2, k = 1 / 0.95; // 0.95 screen px for each map unit: the numbers show
+    const vw = w.width * k, vh = w.height * k; // a small block fits whole; a big one shows its middle (drag to see more)
+    const fromVB = S.vb.site.slice();
+    S.vb.site = [cx - vw / 2, cy - vh / 2, vw, vh]; S._anim = { from: fromVB };
+    hooks.render();
+  };
+  if (!motionOK()) { ov.classList.add("in"); zoomIn(); return; }
+  panel.style.transformOrigin = "0 0";
+  panel.style.transform = from ? flip(panel.getBoundingClientRect(), from) : "scale(.92)";
+  panel.style.opacity = from ? "0.35" : "0";
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    ov.classList.add("in");
+    panel.style.transition = "transform .75s cubic-bezier(.2,.8,.2,1), opacity .45s ease";
+    panel.style.transform = "none"; panel.style.opacity = "1";
+    setTimeout(() => { panel.style.transition = ""; panel.style.transform = ""; zoomIn(); }, 780);
+  }));
+}
+if (typeof window !== "undefined" && !window.__mapKeys) {
+  window.__mapKeys = true;
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && S.mapOpen) closeMap(); });
+  // a tap on the dark area around the map closes it
+  addEventListener("click", (e) => { if (S.mapOpen && e.target.matches && e.target.matches("[data-mapbackdrop]")) closeMap(); });
 }
 
 function signin() {
@@ -381,7 +460,7 @@ function account() {
 export function sitePage() {
   let body;
   // the home page is the 3D master plan; "Book a call" is its last chapter
-  if (S.sitePage === "home" || S.sitePage === "book") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine })}</main>${floatCta(waLink())}</div>`;
+  if (S.sitePage === "home" || S.sitePage === "book") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine, openMap })}</main>${floatCta(waLink())}${S.mapOpen ? mapOverlay() : ""}</div>`;
   if (S.sitePage === "plan") body = plan();
   else if (S.sitePage === "account") body = account();
   else if (S.sitePage === "signin") body = signin();
@@ -396,6 +475,7 @@ let io = null;
 export function siteAfterRender() {
   showcaseAfterRender();
   experienceAfterRender();
+  mapAfterRender();
   if (S.sitePage === "book") {
     const f = document.querySelector(".xbook");
     if (f && !S._bookScrolled) { S._bookScrolled = true; requestAnimationFrame(() => f.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })); }

@@ -39,7 +39,7 @@ function blockChapter(b, i) {
       <p class="xlead">${esc(info.line)}</p>
       <dl class="xfacts"><div><dt>Plots</dt><dd>about ${info.plots.toLocaleString("en-IN")}</dd></div><div><dt>Sizes</dt><dd>${esc(info.sizes)}</dd></div></dl>
       ${money}
-      <div class="xrow"><a href="#book" class="xbtn goldbtn" data-act="askPlot" data-block="${b}" data-magnet>Book a call about Block ${b}</a><a href="#plan" class="xbtn ghost" data-planblock="${b}">See the plots of Block ${b}</a></div>
+      <div class="xrow"><a href="#book" class="xbtn goldbtn" data-act="askPlot" data-block="${b}" data-magnet>Book a call about Block ${b}</a><button type="button" class="xbtn ghost" data-mapopen="${b}">See the plots of Block ${b}</button></div>
     </div></section>`;
 }
 const STEPS = [
@@ -70,8 +70,8 @@ export function experiencePage(c) {
       <div class="xkicker">The whole scheme</div>
       <h2>${words("4,781 plots. 8 blocks. One master plan.")}</h2>
       <div class="xstats"><div><b data-count="4781">0</b><span>residential plots</span></div><div><b data-count="8432">0</b><span>kanals of land</span></div><div><b data-count="50">0</b><span>% of development done</span></div></div>
-      <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Move your mouse over a block, or tap it.</p>
-      <a href="#plan" class="xbtn ghost" data-magnet>Find a plot number</a>
+      <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Tap a block on the plan to see its plots and their numbers.</p>
+      <button type="button" class="xbtn ghost" data-mapopen="all">Find a plot number</button>
     </div></section>
     ${TOUR.map(blockChapter).join("")}
     ${renderSection()}
@@ -377,6 +377,21 @@ function frame(now) {
   X.renderer.render(X.scene, X.camera);
 }
 
+// where a block is on the screen now (for the zoom into its numbered map)
+const _box = new THREE.Box3(), _v = new THREE.Vector3();
+export function blockScreenRect(b) {
+  if (!X || !X.blocks[b]) return null;
+  _box.setFromObject(X.blocks[b].mesh);
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (let i = 0; i < 8; i++) {
+    _v.set(i & 1 ? _box.max.x : _box.min.x, i & 2 ? _box.max.y : _box.min.y, i & 4 ? _box.max.z : _box.min.z).project(X.camera);
+    const sx = (_v.x + 1) / 2 * innerWidth, sy = (1 - _v.y) / 2 * innerHeight;
+    x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy);
+  }
+  if (!isFinite(x0) || x1 - x0 < 4) return null;
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+}
+function openBlockMap(b) { if (cfg && cfg.openMap) cfg.openMap(b, blockScreenRect(b)); }
 function showTip(b) {
   const tip = document.querySelector(".xtip"), cur = document.querySelector(".xcursor");
   if (cur) cur.classList.toggle("big", !!b);
@@ -421,10 +436,11 @@ function onMove(e) {
 }
 function onClick(e) {
   if (renderClick(e.target)) return;
-  if (matchMedia("(pointer: coarse)").matches) return; // phones: taps are handled by onTouch
-  if (!X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,a,button,header"))) return;
-  const s = document.getElementById("x-" + X.hover);
-  if (s) s.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "center" });
+  const mo = e.target.closest && e.target.closest("[data-mapopen]");
+  if (mo) { openBlockMap(mo.dataset.mapopen); return; }
+  if (matchMedia("(pointer: coarse)").matches) return; // phones: taps on the plan are handled by onTouch
+  if (S.mapOpen || !X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,.xmapov,a,button,header"))) return;
+  openBlockMap(X.hover); // a click on a block opens its numbered map, in place
 }
 let touch0 = null;
 function onTouchStart(e) { const t = e.touches && e.touches[0]; touch0 = t ? { x: t.clientX, y: t.clientY, t: performance.now(), sy: scrollY } : null; }
@@ -432,12 +448,11 @@ function onTouch(e) { // a short tap on a block flies there; a swipe (a scroll) 
   if (!X || !touch0 || !e.changedTouches || !e.changedTouches[0]) return;
   const t = e.changedTouches[0], t0 = touch0; touch0 = null;
   if (Math.hypot(t.clientX - t0.x, t.clientY - t0.y) > 10 || performance.now() - t0.t > 350 || Math.abs(scrollY - t0.sy) > 4) return;
-  if (e.target.closest && e.target.closest(".xcard,.xbook,.xs-view,a,button,header,input,textarea")) return;
+  if (S.mapOpen || (e.target.closest && e.target.closest(".xcard,.xbook,.xs-view,.xmapov,a,button,header,input,textarea"))) return;
   const m = new THREE.Vector2((t.clientX / innerWidth - 0.5) * 2, -(t.clientY / innerHeight - 0.5) * 2);
   X.ray.setFromCamera(m, X.camera);
   const hit = X.ray.intersectObjects(ACTIVE.map((b) => X.blocks[b].mesh))[0];
-  const s = hit && document.getElementById("x-" + hit.object.userData.block);
-  if (s) { e.preventDefault?.(); s.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "center" }); }
+  if (hit) { e.preventDefault?.(); openBlockMap(hit.object.userData.block); } // a tap on a block opens its numbered map
 }
 
 function counters(root) {
