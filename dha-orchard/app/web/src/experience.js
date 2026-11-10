@@ -111,7 +111,7 @@ function rcaption() {
 }
 const fallback = `onerror="this.onerror=null;this.src='renders/dusk-cam_hero.webp'"`;
 function rmedia() {
-  if (rs.video) return `<video class="xr-build" src="renders/home-build.mp4" poster="renders/dusk-cam_hero.webp" muted playsinline preload="none" aria-label="Rendered film of a home being built"></video>`;
+  if (rs.video) return `<video class="xr-build" src="renders/home-build.mp4" poster="renders/build-poster.webp" muted playsinline preload="none" aria-label="Rendered film of a home being built"></video>`;
   return `<img src="${rsrc()}" alt="Rendered illustration of a home in DHA Margalla Orchard" loading="lazy" decoding="async" ${fallback}>`;
 }
 function renderSection() {
