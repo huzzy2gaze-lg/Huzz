@@ -1,3 +1,4 @@
+// Run against a build with no Supabase keys (the WhatsApp backup mode).
 // The live website before the database: no Sign in, "Book a call" opens WhatsApp with the details.
 const { chromium } = require('playwright');
 (async () => {

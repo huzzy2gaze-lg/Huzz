@@ -343,8 +343,8 @@ function signin() {
     <p>Save plots, follow your calls, and get news about new plots and investment opportunities. Team members sign in here too.</p>
     ${demo ? `<div class="demo-note"><b>Demo.</b> Choose a person.</div><div class="who demo-who">${S.api.demoUsers.map((u) => `<button class="whobtn" data-demo="${esc(u.email)}"><span><b>${esc(u.name)}</b><small>${esc(u.note)}</small></span></button>`).join("")}</div>`
       : S.mode === "artifact" ? `<p class="fine">On the test page, claude.ai knows who you are. Client accounts work on the real website.</p>`
-      : `<button class="btn google" data-act="signIn">Continue with Google</button>
-        <form id="emailForm" class="enq"><label><span>Or get a sign-in link by e-mail</span><input id="si_email" type="email" autocomplete="email" required></label><button class="sitebtn" type="submit">Send the link</button></form>
+      : `${S.api.google ? `<button class="btn google" data-act="signIn">Continue with Google</button>` : ""}
+        <form id="emailForm" class="enq"><label><span>${S.api.google ? "Or get a sign-in link by e-mail" : "Get a sign-in link by e-mail"}</span><input id="si_email" type="email" autocomplete="email" required></label><button class="sitebtn" type="submit">Send the link</button></form>
         ${S.ui.linkSent ? `<p class="sentnote">We sent a link to your e-mail. Open it on this device.</p>` : ""}`}
   </div></section>`;
 }

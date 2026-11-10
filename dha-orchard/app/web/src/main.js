@@ -601,6 +601,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && S.
   try {
     S.api = await createApi();
     S.mode = S.api.mode;
+    S.api.onSettings = () => { if (S.area === "site" && S.sitePage === "signin") render(); };
     document.body.classList.toggle("demo", S.mode === "demo");
     S.api.onAuthChange(() => startSession());
     await startSession();

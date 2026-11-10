@@ -14,6 +14,7 @@ export function create({ url, key }) {
       const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
     },
     mode: "live",
+    google: false, // true when Google sign-in is turned on in Supabase
     maxUpload: 10 * 1048576,
     // files go to the private "documents" bucket, in the folder of the agent who owns them
     async upload(blob, { owner, name, mime }) {
@@ -88,5 +89,6 @@ export function create({ url, key }) {
       return () => sb.removeChannel(ch);
     },
   };
+  fetch(`${url}/auth/v1/settings`, { headers: { apikey: key } }).then((r) => r.json()).then((d) => { api.google = !!(d.external && d.external.google); api.onSettings && api.onSettings(); }).catch(() => {});
   return api;
 }
