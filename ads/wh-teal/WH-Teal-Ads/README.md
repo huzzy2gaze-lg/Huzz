@@ -1,8 +1,7 @@
 # WH Ventures ads: Margalla Teal
 
 The four ads re-made for WH Ventures in the brand colours (`/brand/README.md`): deep teal, sea mist, gold, and one
-rose "Book now" button. The voice-overs use the owner's cloned voice ("WH Ventures Voice v2", calm settings, as
-before) and end with "Call WH Ventures today: 0331-5223726".
+rose "Book now" button. The voice-overs (since 10 Nov 2026) use Asad and Huda in English and Reva in Urdu: see **Voices** below.
 
 **Sound (v2, broadcast master):** the clone was trained on a phone recording, so its raw sound is boxy (+5 dB at
 100–350 Hz), dull (-13 to -21 dB at 2.5–6 kHz) and has almost nothing above 12 kHz. `voiceover/master_pro.py` fixes
@@ -80,6 +79,73 @@ Living in Dubai, Riyadh, London or Toronto? Invest at home. 🇵🇰
 DHA Margalla Orchards, Main Park Road, Islamabad.
 WhatsApp: +92 331 5223726
 #OverseasPakistanis #InvestInPakistan #DHAMargallaOrchard #IslamabadRealEstate #WHVentures
+```
+
+## Voices (10 Nov 2026)
+Chosen from the voice audition (`../voice-audition/`). All on ElevenLabs Eleven v4, mastered with `master_pro.py`.
+- **English:** Asad Raza (Pakistani English, Lahore; male) and Huda (Pakistani English; female).
+  Asad: ads 0, 2, 5, 6, 8. Huda: ads 1, 3, 4, 7. (Change `EN_VOICE` in `../voiceover/scripts.py` to swap.)
+- **Urdu:** Reva (warm female Urdu narrator) on every ad: the files ending `_UR_Video-…`.
+  Margalla Sunrise has Urdu on-screen text; the other Urdu videos keep the English on-screen text with the Urdu voice.
+- Scripts for both languages: `../voiceover/scripts.py`; generate with `../voiceover/gen_voice.py <ad> <en|ur> <dir>`.
+  Every line was checked with speech-to-text. "D.H.A. Margalla Orchards" and "G-10" are written in English letters
+  inside the Urdu text, because in Urdu script the voice said "Archards", "Marghazar" and "G-3".
+
+### Urdu captions (ready to paste)
+**0 · Margalla Sunrise**
+```
+وہی پرائم لوکیشن، آدھی سے بھی کم قیمت 🏔️
+ڈی ایچ اے مارگلہ آرچرڈز میں ایک کنال صرف ساڑھے تین کروڑ میں۔ مارگلہ انکلیو: سات کروڑ تیس لاکھ سے زیادہ۔
+📞 مفت مشورے کے لیے کال کریں: 0331-5223726
+```
+**1 · Location**
+```
+رئیل اسٹیٹ میں سب سے اہم چیز: لوکیشن 📍
+مین پارک روڈ، کامسیٹس یونیورسٹی کے بالکل سامنے۔ فیض آباد صرف 10 منٹ۔
+📞 0331-5223726
+```
+**2 · Why Pay Double**
+```
+دگنی قیمت کیوں دیں؟
+مارگلہ انکلیو: ایک کنال 7.3 کروڑ سے زیادہ۔ ڈی ایچ اے مارگلہ آرچرڈز: صرف 3.5 کروڑ۔
+📞 0331-5223726
+```
+**3 · Five Reasons**
+```
+ڈی ایچ اے مارگلہ آرچرڈز میں سرمایہ کاری کی 5 وجوہات 👇
+1️⃣ ڈی ایچ اے ڈیولپ کر رہا ہے 2️⃣ کامسیٹس کے سامنے 3️⃣ فیض آباد 10 منٹ 4️⃣ انکلیو کی آدھی قیمت سے کم 5️⃣ ترقیاتی کام جاری
+📞 0331-5223726
+```
+**4 · Build Your Dream Home**
+```
+اپنی فیملی کا گھر بنانے کے لیے صحیح جگہ ڈھونڈ رہے ہیں؟ 🏡
+سب کچھ پلاٹ سے شروع ہوتا ہے: ایک کنال (50 × 90 فٹ)، ڈی ایچ اے مارگلہ آرچرڈز۔
+📞 0331-5223726
+(صرف خاکہ۔ ہر ڈیزائن بلڈنگ قوانین کے مطابق ہونا چاہیے۔)
+```
+**5 · How Big Is 1 Kanal**
+```
+ایک کنال اصل میں کتنا بڑا ہوتا ہے؟ 📐
+1 کنال = 50 × 90 فٹ = 4,500 مربع فٹ۔ 14 مرلہ = 40 × 80 فٹ۔ 10 مرلہ = 32 × 70 فٹ۔
+📞 0331-5223726
+```
+**6 · 5 Checks Before You Buy**
+```
+پلاٹ خرید رہے ہیں؟ پہلے یہ 5 چیزیں چیک کریں ✅
+فائل کی قسم · ماسٹر پلان پر پلاٹ نمبر · اصل لیٹر اور شناختی کارڈ · واجبات · ترقیاتی چارجز
+ہم ہر فائل آپ کے ساتھ چیک کرتے ہیں۔ 📞 0331-5223726
+```
+**7 · How Buying Works**
+```
+پلاٹ خریدنا آپ کی سوچ سے آسان ہے 👇
+1️⃣ پلاٹ کا انتخاب 2️⃣ ایگریمنٹ اور ٹوکن 3️⃣ ایف جی ای ایچ اے سے این ڈی سی 4️⃣ G-10 میں ٹرانسفر 5️⃣ آپ کے نام الاٹمنٹ لیٹر
+📞 0331-5223726
+```
+**8 · Buying From Abroad**
+```
+بیرونِ ملک رہتے ہیں؟ اپنے وطن میں سرمایہ کاری کریں 🇵🇰
+✔ پلاٹ کی لائیو ویڈیو کال ✔ ہر دستاویز کی جانچ، کاپیاں واٹس ایپ پر ✔ ٹرانسفر کے ہر مرحلے پر ساتھ
+واٹس ایپ: +92 331 5223726
 ```
 
 ## Where each file goes

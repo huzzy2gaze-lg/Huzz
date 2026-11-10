@@ -2,6 +2,7 @@
 # Usage: python3 build.py <tag> <voice_dir>   (expects <voice_dir>/<tag>_0..3.wav, silence-trimmed)
 import sys, subprocess, numpy as np, wave, os, json
 tag, vdir = sys.argv[1], sys.argv[2]
+lang = sys.argv[3] if len(sys.argv) > 3 else "en"   # en | ur (the Urdu version has Urdu on-screen text)
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
 dur_of = lambda f: float(subprocess.run(["ffprobe","-v","error","-show_entries","format=duration","-of","csv=p=0",f],capture_output=True,text=True).stdout)
 L = [dur_of(f"{vdir}/{tag}_{i}.wav") for i in range(4)]
@@ -14,9 +15,9 @@ MAP = [(0,0), (S[1],3.75), (S[1]+0.55*L[1],5.4), (S[2],6.9), (S[2]+0.5*L[2],8.0)
 inv = lambda a: next(r0+(r1-r0)*(a-a0)/(a1-a0) for (r0,a0),(r1,a1) in zip(MAP,MAP[1:]) if a0 <= a <= a1)
 print("lines", [round(x,2) for x in L], "starts", [round(x,2) for x in S], "end", END)
 
-name = "WH-0-Margalla-Sunrise_EN_Video-9x16_Reels-Shorts-Status"
-silent = f"{ROOT}/video/_silent-{tag}.mp4"
-subprocess.run(["node", f"{ROOT}/render-video.js", "en", "--dur", str(END), "--out", os.path.basename(silent),
+name = f"WH-0-Margalla-Sunrise_{lang.upper()}_Video-9x16_Reels-Shorts-Status"
+silent = f"{ROOT}/video/_silent-{tag}-{lang}.mp4"
+subprocess.run(["node", f"{ROOT}/render-video.js", lang, "--dur", str(END), "--out", os.path.basename(silent),
     "--map", ",".join(f"{r:.3f}:{a}" for r, a in MAP)], check=True, env={**os.environ})
 
 # ---- music bed sized to END, chimes on the gold drop and the call bar ----
@@ -45,7 +46,7 @@ with wave.open(mf, "wb") as w:
     w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((mus*32767).astype(np.int16).tobytes())
 
 # ---- broadcast voice master (master_pro.py: see its header) ----
-out = f"{ROOT}/WH-Teal-Ads/0-Margalla-Sunrise/English/{name}.mp4"
+out = f"{ROOT}/WH-Teal-Ads/0-Margalla-Sunrise/{'English' if lang == 'en' else 'Urdu'}/{name}.mp4"
 subprocess.run(["python3", f"{HERE}/master_pro.py", vdir, tag, ",".join(f"{x:.3f}" for x in S), str(END), mf, silent, out], check=True)
 os.remove(silent)
 print("wrote", out)
