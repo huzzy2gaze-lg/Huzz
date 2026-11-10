@@ -14,6 +14,8 @@ import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection
 export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook", "experience"];
 // Used until an admin writes other details on the Team page.
 export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", email: "info@whventures.com.pk", address: "Islamabad, Pakistan" };
+// one home page (the 3D master plan); the old page names still work, so old links and ads keep working
+export const sitePageFor = (h) => (["experience", "blocks", "outlook"].includes(h) ? "home" : h === "contact" ? "book" : h);
 const set = (k) => ((S.site[k] || "").trim() || SITE_DEFAULTS[k] || "");
 const company = () => set("company") || "WH Ventures";
 const ptsStr = (pts) => pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
@@ -40,20 +42,23 @@ function header() {
   const p = S.sitePage;
   const link = (k, l) => `<a href="#${k}" class="${p === k ? "on" : ""}">${l}</a>`;
   const right = S.me ? `<button class="sitebtn" data-act="toApp">Sales system</button>`
-    : S.user ? `<a href="#account" class="sitebtn">My account</a>` : S.mode === "public" ? "" : `<a href="#signin" class="sitebtn ghost">Sign in</a>`;
+    : S.user ? `<a href="#account" class="sitebtn ghost">My account</a>` : S.mode === "public" ? "" : `<a href="#signin" class="sitebtn ghost">Sign in</a>`;
   // the entrance animation plays once per visit, not on every page change
   const intro = introDone ? "" : " intro";
   introDone = true;
   const name = esc(company()).split(" ").map((w, i) => `<span style="--i:${i}">${w}</span>`).join(" ");
   return `<header class="sitehead${intro}"><div class="sitewrap"><a href="#home" class="brandlink" aria-label="${esc(company())}, home">${logo()}<span class="wordmark">${name}</span></a>
-    <nav class="sitenav" aria-label="Website">${[["home", "Home"], ["experience", "3D"], ["blocks", "Blocks"], ["outlook", "Outlook"], ["plan", "Master plan"]].map(([k, l], i) => link(k, l).replace("<a ", `<a style="--i:${i}" `)).join("")}</nav>
+
     <div class="siteright">${right}<a href="#book" class="sitebtn solid">Book a call</a></div></div></header>`;
 }
 
+function contactLine() {
+  return [set("phone") && `Phone ${esc(set("phone"))}`, set("whatsapp") && `WhatsApp ${esc(set("whatsapp"))}`, set("email") && `<a href="mailto:${esc(set("email"))}">${esc(set("email"))}</a>`, set("address") && esc(set("address"))].filter(Boolean).join(" · ");
+}
 function footer() {
   const bits = [set("phone") && `Phone ${esc(set("phone"))}`, set("whatsapp") && `WhatsApp ${esc(set("whatsapp"))}`, set("email") && esc(set("email")), set("address") && esc(set("address"))].filter(Boolean);
   return `<footer class="sitefoot"><div class="sitewrap"><div><b class="footbrand">${logo()}<span class="wordmark sm">${esc(company())}</span></b><p>${bits.length ? bits.join(" · ") : "Plots in DHA Margalla Orchard, Islamabad."}</p>
-    <p><a href="#book">Book a call</a> · <a href="#signin">Join our investor list</a> · <a href="#plan">Master plan</a></p></div>
+    <p><a href="#home">Home</a> · <a href="#book">Book a call</a>${S.mode === "public" ? "" : ` · <a href="#signin">Join our investor list</a>`}</p></div>
     <p class="fine">Scheme facts: FGEHA, October 2026. Prices: asking prices in October 2026 and DHA's published Margalla Enclave prices. The outlook is our team's view, not a promise: prices can go up or down. The map is the official FGEHA layout plan.</p></div></footer>`;
 }
 
@@ -370,13 +375,11 @@ function account() {
 
 export function sitePage() {
   let body;
-  if (S.sitePage === "experience") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo })}</main>${floatCta(waLink())}</div>`;
+  // the home page is the 3D master plan; "Book a call" is its last chapter
+  if (S.sitePage === "home" || S.sitePage === "book") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine })}</main>${floatCta(waLink())}</div>`;
   if (S.sitePage === "plan") body = plan();
   else if (S.sitePage === "account") body = account();
   else if (S.sitePage === "signin") body = signin();
-  else if (S.sitePage === "outlook") body = outlookSection(true) + bookSection();
-  else if (S.sitePage === "blocks") body = explorer() + sizesSection() + budgetSection() + bookSection();
-  else if (S.sitePage === "contact" || S.sitePage === "book") body = bookSection();
   else body = home();
   const wa = waLink();
   const sticky = S.sitePage !== "book" && S.sitePage !== "contact" ? `<div class="stickycta"><a href="#book" class="sitebtn solid">Book a call</a>${wa ? `<a href="${wa}" class="sitebtn wa" target="_blank" rel="noopener">WhatsApp</a>` : ""}</div>` : "";
@@ -388,6 +391,10 @@ let io = null;
 export function siteAfterRender() {
   showcaseAfterRender();
   experienceAfterRender();
+  if (S.sitePage === "book") {
+    const f = document.querySelector(".xbook");
+    if (f && !S._bookScrolled) { S._bookScrolled = true; requestAnimationFrame(() => f.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })); }
+  } else S._bookScrolled = false;
   if (!window.__headScroll) {
     window.__headScroll = true;
     const onScroll = () => { document.querySelector(".sitehead")?.classList.toggle("small", scrollY > 40); document.body.classList.toggle("scrolled", scrollY > innerHeight * 0.6); };

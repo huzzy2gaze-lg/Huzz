@@ -7,9 +7,12 @@ import { S, G, esc } from "./core.js";
 import { ACTIVE } from "./geo.js";
 const TOUR = ["A", "B", "C"]; // the blocks the page flies to, in order
 import { outlookFor } from "./showcase.js";
-import { MILESTONES } from "./site-extras.js";
+import { MILESTONES, FAQ } from "./site-extras.js";
 import { makeCommunity } from "./community.js";
-import { studioSection, studioAfterRender, studioClick, stopStudio, studioChoice } from "./studio.js";
+// the home on a plot is shown with videos and pictures made offline (Blender Cycles), not drawn live: smooth on every phone
+const SIZES = { "1K": "1 Kanal", "14M": "14 Marla", "10M": "10 Marla" };
+const STYLES = { white: "Modern white", brick: "Warm brick", dark: "Contemporary dark" };
+const studioChoice = () => ({ size: rs.size, style: rs.style, label: SIZES[rs.size], styleLabel: STYLES[rs.style] });
 
 let cfg = null; // { BLOCKS, bookSection, waLink, company, logo } from site.js
 export function setExperience(c) { cfg = c; }
@@ -39,6 +42,13 @@ function blockChapter(b, i) {
       <a href="#book" class="xbtn goldbtn" data-act="askPlot" data-block="${b}" data-magnet>Book a call about Block ${b}</a>
     </div></section>`;
 }
+const STEPS = [
+  ["A call with us", "We answer your questions and help you choose a block and a plot."],
+  ["Token (Bayana)", "Price, transfer time, token amount and mode of payment are agreed."],
+  ["NDC", "The No Demand Certificate goes to the authority for approval."],
+  ["Transfer", "You and the seller go to the authority with your CNICs for biometrics."],
+  ["Allotment letter", "The authority gives the receipt, then your allotment letter."],
+];
 export function experiencePage(c) {
   if (c) cfg = c;
   const now = Date.now();
@@ -52,7 +62,7 @@ export function experiencePage(c) {
     <section class="xch xhero" data-cam="hero">
       <div class="xkicker">DHA Margalla Orchard · Islamabad</div>
       <h1>${words("Your plot in")}<br>${words("DHA Margalla Orchard.", "gold")}</h1>
-      <p class="xlead">The official FGEHA master plan, in 3D. Scroll to fly over Blocks A, B and C, then build your home.</p>
+      <p class="xlead">The official FGEHA master plan, in 3D. Scroll to fly over the blocks, then watch a home rise on a plot.</p>
       <div class="xrow"><a href="#book" class="xbtn" data-magnet>Book a call</a>${wa ? `<a href="${wa}" class="xbtn ghost" target="_blank" rel="noopener" data-magnet>WhatsApp</a>` : ""}</div>
       <div class="xscroll"><i></i>Scroll</div>
     </section>
@@ -63,7 +73,6 @@ export function experiencePage(c) {
       <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Move your mouse over a block, or tap it.</p>
     </div></section>
     ${TOUR.map(blockChapter).join("")}
-    ${studioSection()}
     ${renderSection()}
     <section class="xch" data-cam="timeline"><div class="xcard wide">
       <div class="xkicker">Progress</div><h2>${words("From development to possession")}</h2>
@@ -73,48 +82,71 @@ export function experiencePage(c) {
       <div class="xbars">${enc.map(([l, v], i) => `<div class="${i === 3 ? "orc" : ""}"><span>${l}</span><div class="xgt"><i style="--w:${((v / 7.29) * 100).toFixed(1)}%"></i></div><b>${v.toFixed(2)} Cr</b></div>`).join("")}</div>
       <p class="xfine">DHA Margalla Enclave, about 4 km away: DHA's published prices. Margalla Orchard: average asking price, October 2026. <b>The gap is the opportunity.</b></p>
     </div></section>
-    <div class="xbook" data-cam="book">${cfg.bookSection()}</div>
-    <footer class="xfoot"><span>${esc(cfg.company())}</span><a href="#home">Classic website</a><a href="#plan">Master plan with every plot</a></footer>
+    <section class="xch" data-cam="how"><div class="xcard wide">
+      <div class="xkicker">How it works</div><h2>${words("From a call to your allotment letter")}</h2>
+      <ol class="xsteps">${STEPS.map(([t, d], i) => `<li><span>${i + 1}</span><b>${t}</b><small>${d}</small></li>`).join("")}</ol></div></section>
+    <section class="xch" data-cam="faq"><div class="xcard wide">
+      <div class="xkicker">Questions</div><h2>${words("What buyers ask us")}</h2>
+      <div class="xfaq">${FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></div></section>
+    <div class="xbook" data-cam="book" id="book">${cfg.bookSection()}</div>
+    <footer class="xfoot"><div><b>${esc(cfg.company())}</b><span>${cfg.contact ? cfg.contact() : ""}</span></div>
+      <p class="xfine">Scheme facts: FGEHA, October 2026. Prices: asking prices in October 2026 and DHA's published Margalla Enclave prices. The outlook is our team's view, not a promise: prices can go up or down. The map is the official FGEHA layout plan.</p></footer>
   </div>`;
 }
 
-// ---------------------------------------------------------------- photo-real renders (made offline with Blender Cycles from the same home)
+// ---------------------------------------------------------------- from plot to home: videos and photo-real renders (Blender Cycles)
+// The video: the 1 Kanal home is built on its plot by day, then the finished home at dusk (it loops).
+// The pictures: every plot size and style, by day, at dusk and at night.
 const RMOODS = [["dusk", "Dusk"], ["day", "Day"], ["night", "Night"]];
-const RVIEWS = [["cam_hero", "From the street"], ["cam_corner", "Corner view"], ["cam_close", "The entrance"], ["video", "▶ Video"]];
-const rs = { mood: "dusk", view: "cam_hero" };
-// the 1 Kanal modern white home has every view and a video; the other sizes and styles have the street view
-const fullSet = () => { const c = studioChoice(); return c.size === "1K" && c.style === "white"; };
+const rs = { size: "1K", style: "white", mood: "dusk", video: true };
 function rsrc() {
-  const c = studioChoice();
-  if (fullSet()) return `renders/${rs.mood}-${rs.view === "video" ? "cam_hero" : rs.view}.webp`;
-  return `renders/${c.size}-${c.style}-${rs.mood}.webp`;
+  if (rs.size === "1K" && rs.style === "white") return `renders/${rs.mood}-cam_hero.webp`;
+  return `renders/${rs.size}-${rs.style}-${rs.mood}.webp`;
 }
-function rcaption() { const c = studioChoice(); return `Rendered illustration: ${c.label}, 2 floors, ${c.styleLabel.toLowerCase()}. Not a DHA or FGEHA design; a real design must follow the building bylaws.`; }
+function rcaption() {
+  const c = studioChoice();
+  return rs.video ? `Rendered film: a 1 Kanal home is built on its plot, then the finished home at dusk. Not a DHA or FGEHA design; a real design must follow the building bylaws.`
+    : `Rendered illustration: ${c.label}, 2 floors, ${c.styleLabel.toLowerCase()}. Not a DHA or FGEHA design; a real design must follow the building bylaws.`;
+}
+const fallback = `onerror="this.onerror=null;this.src='renders/dusk-cam_hero.webp'"`;
 function rmedia() {
-  if (rs.view === "video" && fullSet()) return `<video src="renders/home-dusk.mp4" poster="renders/dusk-cam_hero.webp" autoplay muted loop playsinline preload="metadata"></video>`;
-  return `<img src="${rsrc()}" alt="Rendered illustration of a modern home in DHA Margalla Orchard" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='renders/${rs.mood}-cam_hero.webp'">`;
+  if (rs.video) return `<video class="xr-build" src="renders/home-build.mp4" poster="renders/dusk-cam_hero.webp" muted playsinline preload="none" aria-label="Rendered film of a home being built"></video>`;
+  return `<img src="${rsrc()}" alt="Rendered illustration of a home in DHA Margalla Orchard" loading="lazy" decoding="async" ${fallback}>`;
 }
 function renderSection() {
-  const chip = (k, v, l, on, dis) => `<button type="button" class="xchip${on ? " on" : ""}" data-render="${k}:${v}"${dis ? " disabled" : ""}>${l}</button>`;
-  const full = fullSet(), c = studioChoice();
+  const chip = (k, v, l, on) => `<button type="button" class="xchip${on ? " on" : ""}" data-render="${k}:${v}">${l}</button>`;
+  const c = studioChoice();
   return `<section class="xch xrender" data-cam="render" id="x-render"><div class="xr-wrap">
-    <div class="xkicker">Rendered like an architect's visual</div>
-    <h2>${words("See it rendered")}</h2>
-    <p class="xlead xr-lead">Your ${esc(c.label)} home, rendered with real light: the sun and the sky, the glass, and the rooms lit from inside.</p>
-    <div class="xr-ctrls"><div class="xs-row">${RMOODS.map(([v, l]) => chip("mood", v, l, rs.mood === v)).join("")}</div><div class="xs-row xr-views">${RVIEWS.map(([v, l]) => chip("view", v, l, rs.view === v, !full && v !== "cam_hero")).join("")}</div></div>
+    <div class="xkicker">From plot to home</div>
+    <h2>${words("Your plot today.")} ${words("Your home tomorrow.", "gold")}</h2>
+    <p class="xlead xr-lead">Watch a home rise on a 1 Kanal plot. Then choose a plot size, a style and the time of day.</p>
     <button type="button" class="xr-frame" data-render="zoom:1" aria-label="Open full screen">${rmedia()}</button>
+    <div class="xr-ctrls">
+      <div class="xs-row">${chip("play", "1", "▶ Watch it built", rs.video)}</div>
+      <div class="xs-row">${Object.entries(SIZES).map(([v, l]) => chip("size", v, l, !rs.video && rs.size === v)).join("")}</div>
+      <div class="xs-row">${Object.entries(STYLES).map(([v, l]) => chip("style", v, l, !rs.video && rs.style === v)).join("")}</div>
+      <div class="xs-row">${RMOODS.map(([v, l]) => chip("mood", v, l, !rs.video && rs.mood === v)).join("")}</div></div>
     <p class="xfine xr-cap">${rcaption()}</p>
     <a href="#book" class="xbtn" data-magnet>Book a call about a ${esc(c.label)} plot</a>
   </div></section>`;
 }
-// after a change in Build your home, the pictures follow the new choice
+// the build film plays when it comes into view; at its end, the finished home at dusk loops
+function wireVideo() {
+  const v = document.querySelector(".xr-build");
+  if (!v || v.dataset.wired) return;
+  v.dataset.wired = 1;
+  v.addEventListener("error", () => { if (v.dataset.stage) return; v.dataset.stage = "dusk"; v.src = "renders/home-dusk.mp4"; v.loop = true; v.play().catch(() => {}); });
+  v.addEventListener("ended", () => { if (v.dataset.stage === "dusk") return; v.dataset.stage = "dusk"; v.poster = "renders/dusk-cam_hero.webp"; v.src = "renders/home-dusk.mp4"; v.loop = true; v.play().catch(() => {}); });
+  const vio = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.35 });
+  vio.observe(v);
+}
 export function refreshRender() {
   const sec = document.getElementById("x-render");
   if (!sec) return;
-  if (!fullSet()) rs.view = "cam_hero";
   const tmp = document.createElement("div"); tmp.innerHTML = renderSection();
   const fresh = tmp.firstElementChild; fresh.classList.add("in");
   sec.replaceWith(fresh);
+  wireVideo();
 }
 function renderClick(target) {
   const b = target.closest("[data-render]");
@@ -122,14 +154,19 @@ function renderClick(target) {
   const [k, v] = b.dataset.render.split(":");
   if (k === "zoom") {
     const o = document.createElement("div"); o.className = "xr-full";
-    o.innerHTML = rs.view === "video" && fullSet() ? `<video src="renders/home-dusk.mp4" autoplay muted loop playsinline controls></video><button type="button" aria-label="Close">×</button>` : `<img src="${rsrc()}" alt="" onerror="this.onerror=null;this.src='renders/${rs.mood}-cam_hero.webp'"><button type="button" aria-label="Close">×</button>`;
+    const cur = document.querySelector(".xr-build");
+    o.innerHTML = rs.video ? `<video src="${cur ? cur.currentSrc || cur.src : "renders/home-build.mp4"}" autoplay muted loop playsinline controls></video><button type="button" aria-label="Close">×</button>` : `<img src="${rsrc()}" alt="" ${fallback}><button type="button" aria-label="Close">×</button>`;
     o.addEventListener("click", (e) => { if (e.target.tagName !== "VIDEO") o.remove(); }); document.body.append(o); return true;
   }
-  rs[k] = v;
-  if (k === "view" && (v === "video" || document.querySelector(".xr-frame video"))) { refreshRender(); return true; }
+  if (k === "play") { rs.video = true; refreshRender(); document.querySelector(".xr-build")?.play().catch(() => {}); return true; }
+  const wasVideo = rs.video;
+  rs[k] = v; rs.video = false;
+  if (wasVideo) { refreshRender(); return true; }
   document.querySelectorAll("[data-render^='" + k + ":']").forEach((c) => c.classList.toggle("on", c.dataset.render === k + ":" + v));
+  document.querySelector(".xr-cap").textContent = rcaption();
+  const cta = document.querySelector(".xrender .xbtn"); if (cta) cta.textContent = `Book a call about a ${SIZES[rs.size]} plot`;
   const img = document.querySelector(".xr-frame img");
-  if (img) { const next = new Image(); next.src = rsrc(); img.classList.add("fade"); next.onload = () => { img.src = next.src; img.classList.remove("fade"); }; }
+  if (img) { const next = new Image(); next.src = rsrc(); img.classList.add("fade"); next.onload = () => { img.src = next.src; img.classList.remove("fade"); }; next.onerror = () => img.classList.remove("fade"); }
   return true;
 }
 
@@ -162,7 +199,8 @@ function camFor(key) {
   const D = Math.max(pw, ph) * (phone ? 1.45 : 1.0) / Math.min(1.6, wide);
   if (key === "hero") return { pos: [phone ? 0 : -pw * 0.22, D * 0.8, D * 0.9], look: [phone ? 0 : -pw * 0.3, 0, phone ? 1.2 : 0.2] };
   if (key === "render") return { pos: [0, 9, 3], look: [0, 0, 0] };
-  if (key === "studio") return { pos: [pw * 0.15, D * 1.05, D * 0.35], look: [pw * 0.15, 0, 0] };
+  if (key === "how") return { pos: [-D * 0.35, D * 0.75, D * 0.6], look: [0, 0, 0] };
+  if (key === "faq") return { pos: [D * 0.3, D * 0.85, D * 0.5], look: [0, 0, 0] };
   if (key === "timeline") return { pos: [-D * 0.55, D * 0.6, D * 0.7], look: [0, 0, 0] };
   if (key === "enclave") return { pos: [D * 0.6, D * 0.5, D * 0.75], look: [0, 0, 0] };
   if (key === "book") return { pos: [0, D * 1.15, D * 0.2], look: [0, 0, 0] };
@@ -269,7 +307,6 @@ function frame(now) {
   X.raf = requestAnimationFrame(frame);
   if (document.hidden) return;
   X.fr = (X.fr || 0) + 1;
-  if (X.active === "studio" && X.fr % 4) return;
   const rm = reduce(), t = (now - X.t0) / 1000;
   // camera: ease towards the chapter's view, plus a small move with the pointer
   const fdt = Math.min(0.25, (now - (X.camT || now)) / 1000); X.camT = now;
@@ -299,7 +336,7 @@ function frame(now) {
   // homes: they rise on a block when the camera arrives, and stay; at the end of the page the whole town is built
   if (X.loaded) {
     if (ACTIVE.includes(X.active)) X.visited.add(X.active);
-    const all = ["studio", "render", "timeline", "enclave", "book"].includes(X.active) && X.visited.size >= 2;
+    const all = ["render", "timeline", "enclave", "how", "faq", "book"].includes(X.active) && X.visited.size >= 2;
     for (const b of TOUR) X.comm.blocks[b].target = X.visited.has(b) || all ? 1.3 : 0;
     const dt = Math.min(0.25, (now - (X.lastT || now)) / 1000); X.lastT = now;
     X.comm.step(rm ? 2 : dt * 0.55); // a block's homes take about 2.5 s to rise
@@ -314,7 +351,7 @@ function frame(now) {
   X.comm.setNight(X.night > 0.5);
   // the gold route line grows with the block chapters
   const idx = TOUR.indexOf(X.active);
-  const routeT = idx >= 0 ? idx / (TOUR.length - 1) : ["studio", "render", "timeline", "enclave", "book"].includes(X.active) ? 1 : 0;
+  const routeT = idx >= 0 ? idx / (TOUR.length - 1) : ["render", "timeline", "enclave", "how", "faq", "book"].includes(X.active) ? 1 : 0;
   X.routeP += (routeT - X.routeP) * (rm ? 1 : 0.04);
   const cnt = Math.round(X.routeP * 400);
   X.routeGeo.setDrawRange(0, cnt);
@@ -375,7 +412,6 @@ function onMove(e) {
   });
 }
 function onClick(e) {
-  if (studioClick(e.target)) { if (e.target.closest("[data-studio^='size'],[data-studio^='style']")) refreshRender(); return; }
   if (renderClick(e.target)) return;
   if (matchMedia("(pointer: coarse)").matches) return; // phones: taps are handled by onTouch
   if (!X || !X.hover || (e.target.closest && e.target.closest(".xcard,.xbook,a,button,header"))) return;
@@ -424,7 +460,7 @@ export function experienceAfterRender() {
     addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", onResize);
     addEventListener("pointermove", onMove, { passive: true }); addEventListener("click", onClick); addEventListener("touchstart", onTouchStart, { passive: true }); addEventListener("touchend", onTouch, { passive: true });
   }
-  studioAfterRender();
+  wireVideo();
   const loader = page.querySelector(".xloader");
   if (X) { loader.remove(); onScroll(); return; }
   if (!G.geo) return;
@@ -446,7 +482,6 @@ export function experienceAfterRender() {
 }
 
 export function stopExperience() {
-  stopStudio();
   document.body.classList.remove("xmode", "xnogl");
   document.body.style.cursor = "";
   document.querySelector(".xprog")?.remove();

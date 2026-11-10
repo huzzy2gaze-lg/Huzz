@@ -182,7 +182,29 @@ for o in bpy.data.objects:
             poly.use_smooth = True
 
 # camera and render settings
-if cam_name == "orbit":
+if cam_name == "build":
+    # one frame of the build video: <frame> of <frames>; the camera comes down from a high view to eye level
+    hero = bpy.data.objects["cam_hero"]
+    aim_o = bpy.data.objects["aim_home"]
+    aim = aim_o.matrix_world.translation.copy()
+    start = hero.matrix_world.translation.copy()
+    frame, frames = int(sys.argv[7]), int(sys.argv[8])
+    cam_data = bpy.data.cameras.new("build")
+    cam_data.lens = 30
+    cam = bpy.data.objects.new("build", cam_data)
+    scene.collection.objects.link(cam)
+    track = cam.constraints.new("TRACK_TO")
+    track.target = aim_o
+    track.track_axis = "TRACK_NEGATIVE_Z"
+    track.up_axis = "UP_Y"
+    k = frame / frames
+    e = 0.5 - 0.5 * math.cos(math.pi * k)
+    rx, ry = start.x - aim.x, start.y - aim.y
+    radius, a0 = (rx * rx + ry * ry) ** 0.5, math.atan2(ry, rx)
+    a = a0 + math.radians(28) - math.radians(34) * e
+    r = radius * (1.18 - 0.2 * e)
+    cam.location = (aim.x + r * math.cos(a), aim.y + r * math.sin(a), start.z + 0.8 + 7.5 * (1 - e) ** 1.5)
+elif cam_name == "orbit":
     # a video: the camera moves in a slow arc in front of the home, always aimed at it
     hero = bpy.data.objects["cam_hero"]
     aim = bpy.data.objects["aim_home"].matrix_world.translation.copy()
@@ -215,7 +237,7 @@ cp = cam.matrix_world.translation
 for o in bpy.data.objects:
     if o.type == "MESH" and o.active_material and base(o.active_material.name) in ("street_pole", "street_lampHead"):
         p = o.matrix_world.translation
-        if cam_name == "orbit" or ((p.x - cp.x) ** 2 + (p.y - cp.y) ** 2) ** 0.5 < 14:
+        if cam_name in ("orbit", "build") or ((p.x - cp.x) ** 2 + (p.y - cp.y) ** 2) ** 0.5 < 14:
             o.hide_render = True
 if cam_name == "cam_hero":
     cam.location.z += 1.0  # a little above the front wall, so the garden shows
@@ -245,7 +267,11 @@ for look in ("AgX - Medium High Contrast", "Medium High Contrast"):
     except TypeError:
         continue
 vs.exposure = {"day": 0.0, "dusk": 0.9, "night": 1.0}[mood]
-if cam_name == "orbit":
+if cam_name == "build":
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.filepath = f"{out_dir}/f_{frame:04d}.png"
+    bpy.ops.render.render(write_still=True)
+elif cam_name == "orbit":
     scene.render.use_persistent_data = True  # keep the scene in memory between frames (much faster)
     scene.render.image_settings.file_format = "PNG"
     scene.render.filepath = f"{out_dir}/frames/f_"

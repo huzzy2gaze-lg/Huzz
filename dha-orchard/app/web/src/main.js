@@ -7,7 +7,7 @@ import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, site
 import { logo } from "./brand/logo.js";
 import { heroJump } from "./showcase.js";
 import { stopExperience } from "./experience.js";
-import { sitePage, SITE_PAGES, siteAfterRender, adSource, updateOutlookDom } from "./site.js";
+import { sitePage, SITE_PAGES, sitePageFor, siteAfterRender, adSource, updateOutlookDom } from "./site.js";
 import { startTour, stopTour, tourOn, resumeTour, updateBudgetDom, bookSummary } from "./site-extras.js";
 import { allView, blockView } from "./panels.js";
 import { salesPage, approvalsPage, teamPage, PERMS, investorsCsv } from "./pages.js";
@@ -171,7 +171,7 @@ function route() {
     if (S.me) { S.area = "app"; setHash(""); fromHash(); return; }
     S.area = "site"; S.sitePage = "account"; setHash("account"); return;
   }
-  if (SITE_PAGES.includes(h)) { S.area = "site"; S.sitePage = h; return; }
+  if (SITE_PAGES.includes(h)) { S.area = "site"; S.sitePage = sitePageFor(h); return; }
   if (!S.me) { S.area = "site"; if (!SITE_PAGES.includes(S.sitePage)) S.sitePage = "home"; if (h && !SITE_PAGES.includes(h)) S.sitePage = "home"; return; }
   S.area = "app";
   fromHash();
@@ -273,7 +273,13 @@ window.addEventListener("hashchange", () => {
   if (S._hashLock) { S._hashLock = false; return; }
   const h = location.hash.slice(1);
   if (tourOn()) stopTour(false);
-  if (SITE_PAGES.includes(h) || !S.me) { S.area = "site"; S.sitePage = SITE_PAGES.includes(h) ? h : "home"; S.ui = {}; window.scrollTo(0, 0); render(); return; }
+  if (SITE_PAGES.includes(h) || !S.me) {
+    const was = S.sitePage;
+    S.area = "site"; S.sitePage = SITE_PAGES.includes(h) ? sitePageFor(h) : "home"; S.ui = {};
+    // "Book a call" stays on the home page and moves down to the form; other pages open at the top
+    if (!(S.sitePage === "book" && ["home", "book"].includes(was))) window.scrollTo(0, 0);
+    render(); return;
+  }
   S.area = "app"; fromHash();
 });
 

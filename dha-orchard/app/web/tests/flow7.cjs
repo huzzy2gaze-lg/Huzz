@@ -66,7 +66,7 @@ async function signIn(page, email) {
   await page.locator('.today').screenshot({ path: OUT + '24-today-admin.png' });
   // the website: title and WhatsApp button
   const w = page;
-  await w.evaluate(() => { location.hash = 'home'; }); await w.waitForSelector('.site .hero', { timeout: 60000 }); await w.waitForTimeout(3500);
+  await w.evaluate(() => { location.hash = 'home'; }); await w.waitForSelector('.site .xhero', { timeout: 60000 }); await w.waitForTimeout(3500);
   log('site title:', await w.title(), '| WhatsApp button:', await w.locator('.wafloat').count());
   await w.screenshot({ path: OUT + '23-site-whatsapp.png' });
   log('ERRORS', errors);

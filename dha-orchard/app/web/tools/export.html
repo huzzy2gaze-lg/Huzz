@@ -7,9 +7,12 @@ import { makeHouse } from "../src/house.js";
 import { makeContext } from "../src/studio.js";
 const q = new URLSearchParams(location.search);
 const size = q.get("size") || "1K", floors = Number(q.get("floors") || 2), style = q.get("style") || "white";
+// p: how far the build is (0 = empty plot, the end = finished); t: seconds, for the crane's movement (the build video)
+const mood = q.get("mood") || "dusk", T = Number(q.get("t") || 0);
 const scene = new THREE.Scene();
 const house = makeHouse({ size, floors, style });
-house.setMood("dusk"); house.setProgress(house.end, 0);
+const P = q.has("p") ? Math.min(Number(q.get("p")), house.end) : house.end;
+house.setMood(mood); house.setProgress(P, T);
 scene.add(house.group);
 const ctx = makeContext(house, size, true);
 ctx.homes.forEach((h) => { h.setProgress(h.end); });

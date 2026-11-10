@@ -174,7 +174,7 @@ export function nearbySection() {
 }
 
 // ---------------------------------------------------------------- questions and answers
-const FAQ = [
+export const FAQ = [
   ["Who develops DHA Margalla Orchard?", "FGEHA (the Federal Government Employees Housing Authority) owns the scheme. DHA Islamabad carries out the development under the agreement of September 2025."],
   ["Which plot sizes are there?", "1 Kanal (50 × 90 ft, 500 sq yd), 14 Marla (40 × 80 ft, 356 sq yd) and 10 Marla (32 × 70 ft, 249 sq yd)."],
   ["When can I get possession?", "Block A is the first block for possession. FGEHA's target is July 2027. The other blocks follow."],

@@ -19,7 +19,7 @@ async function as(page, email, hash) {
   await page.evaluate((s) => { localStorage.clear(); localStorage.setItem('mockStore', s); }, fs.readFileSync(__dirname + '/seed-store.json', 'utf8'));
   for (const u of ['sara@demo.pk', 'ali@demo.pk', 'owner@demo.pk']) await as(page, u);
   await as(page, 'viewer@demo.pk');
-  log('viewer sees website', await page.locator('.site .hero').count(), '| sales tabs', await page.locator('#tabs:not([hidden])').count());
+  log('viewer sees website', await page.locator('.site .xhero').count(), '| sales tabs', await page.locator('#tabs:not([hidden])').count());
   await page.evaluate(() => { location.hash = 'book'; }); await page.waitForTimeout(400);
   log('viewer book:', (await page.locator('.formcard .sent p').innerText()).slice(0, 60));
   await as(page, 'ali@demo.pk', '#book');
