@@ -276,7 +276,7 @@ function home() {
     ${faqSection()}
     ${bookSection()}
     <section class="sitesec join"><div class="sitewrap joinbox"><div><div class="eyebrow">Investor list</div><h2>Hear about new plots first</h2>
-      <p>Create a free account. We send you news about new plots and investment opportunities in DHA Margalla Orchard, by WhatsApp, SMS or e-mail.</p></div>
+      <p>${S.mode === "public" ? "Send us a message on WhatsApp to join." : "Create a free account."} We send you news about new plots and investment opportunities in DHA Margalla Orchard, by WhatsApp, SMS or e-mail.</p></div>
       <a href="#${S.user ? "account" : "signin"}" class="sitebtn goldbtn big">${S.user ? "My account" : "Join the investor list"}</a></div></section>`;
 }
 
