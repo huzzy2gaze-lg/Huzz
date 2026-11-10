@@ -139,7 +139,8 @@ export function attachMap(wrap) {
     svg.style.transform = ""; drawn = v.slice();
     svg.setAttribute("viewBox", v.map((n) => n.toFixed(2)).join(" "));
     const sc = fitOf(v, box()).s;
-    svg.classList.toggle("far", !(sc >= 0.85));
+    // the plot numbers show from this scale; the public map shows them sooner, so a whole block shows them
+    svg.classList.toggle("far", !(sc >= (siteMode() ? 0.4 : 0.85)));
   };
   const show = (v, wait = 140) => {
     if (!drawn) { setVB(v); return; }
@@ -252,7 +253,9 @@ function hoverAt(e, wrap) {
   if (!tip) return;
   let b = null, p = null;
   if (el && el.dataset) { if (el.dataset.p) { p = el.dataset.p; b = p.split("-")[0]; } else if (el.dataset.b) b = el.dataset.b; }
-  setLift(wrap, b && G.geo.blocks[b] && !G.geo.blocks[b].grey ? b : null);
+  // the raised block (hover) only on the far-out view: closer in it covered the plot numbers
+  const farOut = wrap.querySelector("svg")?.classList.contains("far");
+  setLift(wrap, farOut && b && G.geo.blocks[b] && !G.geo.blocks[b].grey ? b : null);
   if (!b) { tip.hidden = true; return; }
   const s = blockStats(b);
   let html;
@@ -328,10 +331,18 @@ export function blockVB(b) {
   const bb = G.geo.blocks[b].bbox, pad = Math.max(bb[2] - bb[0], bb[3] - bb[1]) * 0.06;
   return fitBox(bb, pad);
 }
+// the view that fits all the plots of one block (not its parks and empty land), with a 6% margin
+export function plotsVB(b) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const p of G.geo.blocks[b].plots) for (const [x, y] of p.pts) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  if (!isFinite(x0)) return blockVB(b);
+  const pad = Math.max(x1 - x0, y1 - y0) * 0.06;
+  return fitBox([x0, y0, x1, y1], pad);
+}
 export function siteZoomBlock(b) {
   if (!G.geo || (b !== "all" && !G.geo.blocks[b])) return;
   const from = (S.vb.site || [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14]).slice();
-  S.vb.site = b === "all" ? [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14] : blockVB(b);
+  S.vb.site = b === "all" ? [-G.world[2] * 0.07, -G.world[3] * 0.07, G.world[2] * 1.14, G.world[3] * 1.14] : plotsVB(b);
   S._anim = { from };
   S.planZoom = b; S.sitePlot = null;
   hooks.render();

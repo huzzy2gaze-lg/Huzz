@@ -4,7 +4,7 @@
 // client offer. The outlook is the team's view, shown with a clear note that it is not a promise.
 import { S, G, esc, hooks } from "./core.js";
 import { SIZES, ACTIVE } from "./geo.js";
-import { mapSVG, blockVB } from "./map.js";
+import { mapSVG, blockVB, plotsVB } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { setShowcase, showcaseAfterRender } from "./showcase.js";
 import { experiencePage, experienceAfterRender, blockScreenRect } from "./experience.js";
@@ -323,7 +323,7 @@ function explorer() {
 
 function plan() {
   // opened from a block on the home page: start on that block
-  if (S.planBlock) { if (G.geo.blocks[S.planBlock]) { S.vb.site = blockVB(S.planBlock); S.planZoom = S.planBlock; } S.planBlock = null; }
+  if (S.planBlock) { if (G.geo.blocks[S.planBlock]) { S.vb.site = plotsVB(S.planBlock); S.planZoom = S.planBlock; } S.planBlock = null; }
   const z = S.planZoom || "all";
   return `<section class="planpage"><div class="planhead sitewrap"><div><div class="eyebrow">Official FGEHA layout plan</div><h1 class="h2">Find a plot</h1></div>
       <p>Tap a block to zoom in. Zoom in more to see the plot numbers, then tap a plot. Or search a plot number.</p>
@@ -352,11 +352,11 @@ function planMap() {
 // A tap outside the map, Esc, or "Back to the master plan" zooms back out.
 const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
 function mapOverlay() {
-  const z = S.mapOpen;
+  const z = S.planZoom || S.mapOpen;
   return `<div class="xmapov" data-mapbackdrop role="dialog" aria-modal="true" aria-label="Plot map">
     <div class="xmappanel">
       <div class="xmaptop"><div><div class="eyebrow">Official FGEHA layout plan</div><b>${z === "all" ? "All blocks" : "Block " + z}</b></div>
-        <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${(S.planZoom || z) === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}</div>
+        <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${z === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}</div>
         <button type="button" class="xmapback" data-act="mapClose">← Back to the master plan</button></div>
       ${planMap()}
     </div></div>`;
@@ -392,14 +392,11 @@ function mapAfterRender() {
   if (!ov || !S.mapGrow) { if (ov) ov.classList.add("in"); return; }
   S.mapGrow = false;
   const panel = ov.querySelector(".xmappanel"), from = S.mapFrom; S.mapFrom = null;
-  // second step: from the whole block, zoom in until the plot numbers show
+  // second step: from the block's outline (where it was on the 3D plan), zoom in until all its plots fill the map
   const zoomIn = () => {
     const b = S.mapOpen; if (!b || b === "all") return;
-    const w = ov.querySelector(".mapwrap").getBoundingClientRect(), bb = G.geo.blocks[b].bbox;
-    const cx = (bb[0] + bb[2]) / 2, cy = (bb[1] + bb[3]) / 2, k = 1 / 0.95; // 0.95 screen px for each map unit: the numbers show
-    const vw = w.width * k, vh = w.height * k; // a small block fits whole; a big one shows its middle (drag to see more)
     const fromVB = S.vb.site.slice();
-    S.vb.site = [cx - vw / 2, cy - vh / 2, vw, vh]; S._anim = { from: fromVB };
+    S.vb.site = plotsVB(b); S._anim = motionOK() ? { from: fromVB } : null;
     hooks.render();
   };
   if (!motionOK()) { ov.classList.add("in"); zoomIn(); return; }
