@@ -57,7 +57,7 @@ function homeText() {
 <p><a href="/buying-guide">The buying guide</a></p>
 <h2>Questions</h2><dl>${FAQ.map(([q, a]) => `<dt>${esc(q)}</dt><dd>${esc(a)}</dd>`).join("")}</dl>
 <h2>Contact WH Ventures</h2>
-<p>Phone: <a href="${tel()}">${esc(SITE_DEFAULTS.phone)}</a> · WhatsApp: <a href="${wa("I want to know about plots in DHA Margalla Orchard.")}">${esc(SITE_DEFAULTS.whatsapp)}</a> · E-mail: <a href="mailto:${esc(SITE_DEFAULTS.email)}">${esc(SITE_DEFAULTS.email)}</a> · ${esc(SITE_DEFAULTS.address)}</p>
+<p>Phone: <a href="${tel()}">${esc(SITE_DEFAULTS.phone)}</a> · WhatsApp: <a href="${wa("I want to know about plots in DHA Margalla Orchard.")}">${esc(SITE_DEFAULTS.whatsapp)}</a> · E-mail: <a href="mailto:${esc(SITE_DEFAULTS.email)}">${esc(SITE_DEFAULTS.email)}</a> · ${esc(SITE_DEFAULTS.address)} · Hours: ${esc(SITE_DEFAULTS.hours)}</p>
 <p><a href="/privacy">Privacy policy</a></p>
 </div>`;
 }
@@ -150,6 +150,7 @@ ${PAGES_BLOCKS.map((b) => `- [Block ${b}](${site}/block-${b.toLowerCase()}): ${B
 - Phone and WhatsApp: ${SITE_DEFAULTS.phone}
 - E-mail: ${SITE_DEFAULTS.email}
 - Office: ${SITE_DEFAULTS.address}
+- Hours: ${SITE_DEFAULTS.hours}
 `;
 }
 

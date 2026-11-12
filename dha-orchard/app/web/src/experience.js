@@ -31,7 +31,7 @@ function blockChapter(b, i) {
     const max = o.y28 * 1.04, gain = Math.round(((o.y28 - o.mid) / o.mid) * 100);
     const row = (l, v, cls) => `<div class="xg ${cls}"><span>${l}</span><div class="xgt"><i style="--w:${((v / max) * 100).toFixed(1)}%"></i></div><b data-to="${v.toFixed(2)}">${f2(v)}</b><small>Cr</small></div>`;
     money = `<div class="xgrow">${row("Today", o.mid, "now")}${row("Jul 2027", o.y27, "mid")}${row("Dec 2028", o.y28, "end")}</div>
-      <p class="xfine"><span class="xbadge">+${gain}% by Dec 2028</span> One ${esc(info.size)} plot. Today: market asks ${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr (Oct 2026). July 2027: Block A possession target. Outlook: our team's view, not a promise.</p>`;
+      <p class="xfine"><span class="xbadge">Up to +${gain}% by Dec 2028</span> One ${esc(info.size)} plot. Today: market asks ${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr (Oct 2026). July 2027: Block A possession target. Outlook: our team's view, not a promise.</p>`;
   }
   return `<section class="xch xblock" data-cam="${b}" id="x-${b}"><div class="xcard">
       <div class="xkicker"><span class="xnum">0${i + 1}</span> Block ${b}${b === "A" ? " · first possession" : ""}</div>

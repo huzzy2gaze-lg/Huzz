@@ -51,7 +51,7 @@ export function heroCard(i) {
     const max = o.y28 * 1.04, gain = Math.round(((o.y28 - o.mid) / o.mid) * 100);
     const row = (label, v, cls) => `<div class="hg-row ${cls}"><span>${label}</span><div class="hg-track"><i style="--w:${((v / max) * 100).toFixed(1)}%"></i></div><b class="hg-val" data-to="${v.toFixed(2)}">${f2(v)}</b><small>Cr</small></div>`;
     price = `<div class="hc-growth">${row("Today", o.mid, "now")}${row("Jul 2027", o.y27, "mid")}${row("Dec 2028", o.y28, "end")}</div>
-      <div class="hc-fine"><span class="gbadge">+${gain}% by Dec 2028</span> One ${esc(info.size)} plot. July 2027: Block A possession target. Today: market asks ${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr (Oct 2026). Outlook: our team's view, not a promise.</div>`;
+      <div class="hc-fine"><span class="gbadge">Up to +${gain}% by Dec 2028</span> One ${esc(info.size)} plot. July 2027: Block A possession target. Today: market asks ${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr (Oct 2026). Outlook: our team's view, not a promise.</div>`;
   }
   return `<div class="hc-eyebrow">Block ${b}${b === "A" ? " · first possession" : ""}</div><div class="hc-title">Block ${b} · about ${info.plots.toLocaleString("en-IN")} plots</div>
     <div class="hc-line">${esc(info.sizes)}</div>${price}

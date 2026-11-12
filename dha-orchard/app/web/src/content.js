@@ -1,7 +1,7 @@
 // The facts of the website in one place: contact details, the blocks, the timeline, the steps of a purchase and the
 // questions. The 3D home page uses them, and the build (vite.config.js) uses the same facts for the static pages that
 // search engines and AI tools read (block pages, buying guide, structured data, llms.txt). No browser code here.
-export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", email: "info@whventures.com.pk", address: "Islamabad, Pakistan", meet_link: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3fJrpSQrbjtCjWar9-Euh_bRuAiqhFrJla9YK5Il5KtPk8GtRNPnyUEXdUvjzdnYFPcoqnH6rM" };
+export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", email: "info@whventures.com.pk", address: "Islamabad, Pakistan", hours: "9 am to 9 pm (Pakistan time)", meet_link: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3fJrpSQrbjtCjWar9-Euh_bRuAiqhFrJla9YK5Il5KtPk8GtRNPnyUEXdUvjzdnYFPcoqnH6rM" };
 
 export const BLOCKS = {
   A: { plots: 906, sizes: "1 Kanal · 14 Marla", line: "The first block for possession, target July 2027. Next to the Margalla Orchards Walk commercial area, near the main entrance.", price: [3.65, 4.0], size: "1 Kanal" },
