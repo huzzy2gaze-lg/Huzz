@@ -5,5 +5,23 @@
       "maxFindings": 5,
       "maxChars": 8000
     }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "caslon fallback",
+        "createdAt": "2026-11-12T23:18:50.112Z",
+        "reason": "Claude (lead): metric-matched local() fallback face for Libre Caslon Display, prevents layout shift (CLS 0.11 -> 0); not a visible design font"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "schibsted fallback",
+        "createdAt": "2026-11-12T23:18:50.119Z",
+        "reason": "Claude (lead): metric-matched local() fallback face for Schibsted Grotesk, prevents layout shift; not a visible design font"
+      }
+    ]
   }
 }
