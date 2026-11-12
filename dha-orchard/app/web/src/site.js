@@ -13,7 +13,7 @@ import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection
 
 export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook", "experience"];
 // Used until an admin writes other details on the Team page.
-export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", email: "info@whventures.com.pk", address: "Islamabad, Pakistan" };
+export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", email: "info@whventures.com.pk", address: "Islamabad, Pakistan", meet_link: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3fJrpSQrbjtCjWar9-Euh_bRuAiqhFrJla9YK5Il5KtPk8GtRNPnyUEXdUvjzdnYFPcoqnH6rM" };
 // one home page (the 3D master plan); the old page names still work, so old links and ads keep working
 export const sitePageFor = (h) => (["experience", "blocks", "outlook"].includes(h) ? "home" : h === "contact" ? "book" : h);
 const set = (k) => ((S.site[k] || "").trim() || SITE_DEFAULTS[k] || "");
@@ -206,6 +206,7 @@ function bookForm() {
       <p>WhatsApp opened with your request already written. Press <b>Send</b> in WhatsApp. Then a member of our team will call you on <b>${esc(s.phone)}</b>${s.time ? ` in the ${esc(s.time)}` : ""}.</p>
       <p>WhatsApp did not open? Use this button.</p><a class="sitebtn solid" target="_blank" rel="noopener" href="${esc(S.api.lastLink || "")}">Send on WhatsApp</a>
       <p class="fine">Or call us on ${esc(set("phone"))}, or send an e-mail to ${esc(set("email"))}.</p>
+      ${set("meet_link") ? `<p>Do you want a video call? Choose a time that suits you.</p>${meetBtn("sitebtn ghost")}` : ""}
       <button class="sitebtn ghost" data-act="siteAgain">Book another call</button></div>`;
     return `<div class="sent"><h3>Thank you${s.name ? ", " + esc(s.name.split(" ")[0]) : ""}. We will call you.</h3>
       <p>A member of our team will call you on <b>${esc(s.phone)}</b>${s.time ? ` in the ${esc(s.time)}` : ""}${s.blocks && s.blocks.length ? ` about Block ${esc(s.blocks.join(", "))}` : ""}.</p>
@@ -245,8 +246,14 @@ function bookSection() {
       <p>Choose the blocks you like and leave your number. An agent calls you, answers your questions and helps you choose a plot.</p>
       <ul class="ticks"><li>No cost and no commitment</li><li>Advice on blocks, sizes and prices</li><li>Help with the token, NDC and transfer</li></ul>
       ${wa ? `<a class="sitebtn wa" href="${wa}" target="_blank" rel="noopener">Message us on WhatsApp</a>` : ""}
+      ${meetBtn()}
       ${contactBlock()}</div>
     <div class="formcard">${bookForm()}</div></div></section>`;
+}
+// a 30-minute Google Meet video call, booked in Google Calendar
+function meetBtn(cls = "sitebtn") {
+  const u = set("meet_link");
+  return u ? `<a class="${cls} meet" href="${esc(u)}" target="_blank" rel="noopener">Pick a time for a video call (Google Meet)</a>` : "";
 }
 function contactBlock() {
   const rows = [["Phone", set("phone")], ["WhatsApp", set("whatsapp")], ["E-mail", set("email")], ["Office", set("address")], ["Hours", set("hours")]].filter((r) => r[1]);

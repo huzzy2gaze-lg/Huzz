@@ -1162,3 +1162,4 @@ body.mapmode .floatcta,body.mapmode .stickycta,body.mapmode .xprog,body.mapmode 
    with a thin light outline: about 14:1 contrast on the plan, and still above 7:1 on a selected (gold) plot */
 .site svg .plan{filter:none}
 .site svg .pn,.site svg .pn.on{fill:#06252A;stroke:#EAF1EE;stroke-width:.45;paint-order:stroke;font-weight:600;font-variant-numeric:tabular-nums}
+.sitebtn.meet{white-space:normal;text-align:center;margin-top:10px}
