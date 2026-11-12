@@ -238,7 +238,7 @@ function bookForm() {
 function bookSection() {
   const wa = waLink();
   return `<section class="sitesec book" id="booksec"><div class="sitewrap two">
-    <div><div class="eyebrow">Book a call</div><h2>Talk to our team. It takes one minute.</h2>
+    <div><h2>Talk to our team. It takes one minute.</h2>
       <p>Choose the blocks you like and leave your number. An agent calls you, answers your questions and helps you choose a plot.</p>
       <ul class="ticks"><li>No cost and no commitment</li><li>Advice on blocks, sizes and prices</li><li>Help with the token, NDC and transfer</li></ul>
       ${wa ? `<a class="sitebtn wa" href="${wa}" target="_blank" rel="noopener">Message us on WhatsApp</a>` : ""}
@@ -335,8 +335,8 @@ function plan() {
   // opened from a block on the home page: start on that block
   if (S.planBlock) { if (G.geo.blocks[S.planBlock]) { S.vb.site = plotsVB(S.planBlock); S.planZoom = S.planBlock; } S.planBlock = null; }
   const z = S.planZoom || "all";
-  return `<section class="planpage"><div class="planhead sitewrap"><div><div class="eyebrow">Official FGEHA layout plan</div><h1 class="h2">Find a plot</h1></div>
-      <p>Tap a block to zoom in. Zoom in more to see the plot numbers, then tap a plot. Or search a plot number.</p>
+  return `<section class="planpage"><div class="planhead sitewrap"><div><h1 class="h2">Find a plot</h1></div>
+      <p>The official FGEHA layout plan. Tap a block to zoom in. Zoom in more to see the plot numbers, then tap a plot. Or search a plot number.</p>
       <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${z === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}<a href="#home" class="planback">← 3D view</a></div></div>
 ${planMap()}
   </section>`;
@@ -352,7 +352,7 @@ function planMap() {
       <form class="mapsearch" id="searchForm" role="search"><select id="qb" aria-label="Block">${ACTIVE.map((b) => `<option value="${b}"${b === (S.findBlock || (S.planZoom && S.planZoom !== "all" ? S.planZoom : "A")) ? " selected" : ""}>Block ${b}</option>`).join("")}</select><input id="q" type="search" inputmode="numeric" enterkeyhint="search" placeholder="Plot number" autocomplete="off" aria-label="Plot number"><button aria-label="Find plot">Find</button></form>
       <div class="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit to screen" style="font-size:12px">Fit</button></div>
       <div class="tip" hidden></div>
-      ${p ? `<div class="plotcard"><div><div class="eyebrow">Block ${p.block}</div><h3>Plot ${esc(S.sitePlot)}</h3><p>${sz.label} · ${sz.dims}${sz.sqyd ? ` · ${sz.sqyd} sq yd` : ""}</p></div>
+      ${p ? `<div class="plotcard"><div><h3>Plot ${esc(S.sitePlot)}</h3><p>${sz.label} · ${sz.dims}${sz.sqyd ? ` · ${sz.sqyd} sq yd` : ""}</p></div>
         <div class="row"><a href="#book" class="sitebtn solid" data-act="askPlot" data-block="${p.block}">Book a call about this plot</a>${S.user && !S.me && S.mode !== "artifact" ? `<button class="sitebtn" data-saveplot="${esc(S.sitePlot)}">${saved.includes(S.sitePlot) ? "Saved ✓" : "Save plot"}</button>` : ""}<a class="sitebtn" target="_blank" rel="noopener" href="${shareLink("Plot " + S.sitePlot + " (" + sz.label + ") in DHA Margalla Orchard, on the official master plan:")}">Share</a><button class="sitebtn" data-act="closePlot" aria-label="Close">×</button></div></div>` : ""}
     </div>`;
 }

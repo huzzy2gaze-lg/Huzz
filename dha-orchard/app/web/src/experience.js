@@ -34,7 +34,7 @@ function blockChapter(b, i) {
       <p class="xfine"><span class="xbadge">Up to +${gain}% by Dec 2028</span> One ${esc(info.size)} plot. Today: market asks ${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr (Oct 2026). July 2027: Block A possession target. Outlook: our team's view, not a promise.</p>`;
   }
   return `<section class="xch xblock" data-cam="${b}" id="x-${b}"><div class="xcard">
-      <div class="xkicker"><span class="xnum">0${i + 1}</span> Block ${b}${b === "A" ? " · first possession" : ""}</div>
+      ${b === "A" ? `<span class="xpill">First block for possession</span>` : ""}
       <h2>${words("Block " + b)}</h2>
       <p class="xlead">${esc(info.line)}</p>
       <dl class="xfacts"><div><dt>Plots</dt><dd>about ${info.plots.toLocaleString("en-IN")}</dd></div><div><dt>Sizes</dt><dd>${esc(info.sizes)}</dd></div></dl>
@@ -59,14 +59,12 @@ export function experiencePage(c) {
     <div class="xcursor" aria-hidden="true"><span></span></div>
     <div class="xtip" aria-hidden="true"></div>
     <section class="xch xhero" data-cam="hero">
-      <div class="xkicker">DHA Margalla Orchard · Islamabad</div>
       <h1>${words("Your plot in")}<br>${words("DHA Margalla Orchard.", "gold")}</h1>
       <p class="xlead">${heroFacts()} We help you choose, buy and transfer your plot.</p>
       <div class="xrow"><a href="#book" class="xbtn" data-magnet>Book a call</a>${wa ? `<a href="${wa}" class="xbtn ghost" target="_blank" rel="noopener" data-magnet>WhatsApp</a>` : ""}</div>
       <div class="xscroll"><i></i>Scroll</div>
     </section>
     <section class="xch xnumbers" data-cam="overview"><div class="xcard wide">
-      <div class="xkicker">The whole scheme</div>
       <h2>${words("4,781 plots. 8 blocks. One master plan.")}</h2>
       <div class="xstats"><div><b data-count="4781">4,781</b><span>residential plots</span></div><div><b data-count="8432">8,432</b><span>kanals of land</span></div><div><b data-count="50" data-suffix="%">50%</b><span>of development done</span></div></div>
       <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Tap a block on the plan to see its plots and their numbers.</p>
@@ -75,18 +73,18 @@ export function experiencePage(c) {
     ${TOUR.map(blockChapter).join("")}
     ${renderSection()}
     <section class="xch" data-cam="timeline"><div class="xcard wide">
-      <div class="xkicker">Progress</div><h2>${words("From development to possession")}</h2>
+      <h2>${words("From development to possession")}</h2>
       <ol class="xtl">${tl}</ol></div></section>
     <section class="xch" data-cam="enclave"><div class="xcard wide">
-      <div class="xkicker">Next door</div><h2>${words("DHA's price for 1 Kanal next door rose 65% in 18 months")}</h2>
+      <h2>${words("DHA's price for 1 Kanal next door rose 65% in 18 months")}</h2>
       <div class="xbars">${enc.map(([l, v], i) => `<div class="${i === 3 ? "orc" : ""}"><span>${l}</span><div class="xgt"><i style="--w:${((v / 7.29) * 100).toFixed(1)}%"></i></div><b>${v.toFixed(2)} Cr</b></div>`).join("")}</div>
       <p class="xfine">DHA Margalla Enclave, about 4 km away: DHA's published prices. Margalla Orchard: average asking price, October 2026. <b>The gap is the opportunity.</b></p>
     </div></section>
     <section class="xch" data-cam="how"><div class="xcard wide">
-      <div class="xkicker">How it works</div><h2>${words("From a call to your allotment letter")}</h2>
+      <h2>${words("From a call to your allotment letter")}</h2>
       <ol class="xsteps">${STEPS.map(([t, d], i) => `<li><span>${i + 1}</span><b>${t}</b><small>${d}</small></li>`).join("")}</ol></div></section>
     <section class="xch" data-cam="faq"><div class="xcard wide">
-      <div class="xkicker">Questions</div><h2>${words("What buyers ask us")}</h2>
+      <h2>${words("What buyers ask us")}</h2>
       <div class="xfaq">${FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></div></section>
     <div class="xbook" data-cam="book" id="book">${cfg.bookSection()}</div>
     <footer class="xfoot"><div><b>${esc(cfg.company())}</b><span>${cfg.contact ? cfg.contact() : ""}</span><span><a href="/privacy">Privacy policy</a>${cfg.signin ? ` · ${cfg.signin}` : ""}</span></div>
@@ -117,7 +115,6 @@ function renderSection() {
   const chip = (k, v, l, on) => `<button type="button" class="xchip${on ? " on" : ""}" data-render="${k}:${v}">${l}</button>`;
   const c = studioChoice();
   return `<section class="xch xrender" data-cam="render" id="x-render"><div class="xr-wrap">
-    <div class="xkicker">From plot to home</div>
     <h2>${words("Your plot today.")} ${words("Your home tomorrow.", "gold")}</h2>
     <p class="xlead xr-lead">Watch a home rise on a 1 Kanal plot. Then choose a plot size, a style and the time of day.</p>
     <button type="button" class="xr-frame" data-render="zoom:1" aria-label="Open full screen">${rmedia()}</button>
@@ -340,9 +337,11 @@ function frame(now) {
     o.h += (o.target - o.h) * (rm ? 1 : 0.07);
     o.group.scale.y = Math.max(0.001, o.h);
     const built = !!(X.comm.blocks[b] && X.comm.blocks[b].p > 0.6);
-    o.mesh.material.opacity += ((X.mapMode ? 0 : here ? 0.22 : on ? 0.45 : built ? 0.02 : ACTIVE.includes(X.active) ? 0.03 : 0.12) - o.mesh.material.opacity) * 0.08; // only the active block is clearly rose
+    // the plan stays calm and neutral; rose (the brand's call-to-action colour) marks only the block in focus
+    o.mesh.material.opacity += ((X.mapMode ? 0 : here ? 0.22 : on ? 0.45 : built ? 0.02 : ACTIVE.includes(X.active) ? 0.02 : 0.035) - o.mesh.material.opacity) * 0.08;
     o.mesh.material.emissiveIntensity += ((on ? 1.4 : 0.25) - o.mesh.material.emissiveIntensity) * 0.08;
-    o.edge.material.opacity += ((X.mapMode ? 0 : on ? 1 : ACTIVE.includes(X.active) ? 0.15 : built ? 0.45 : 0.85) - o.edge.material.opacity) * 0.08;
+    o.edge.material.opacity += ((X.mapMode ? 0 : on ? 1 : ACTIVE.includes(X.active) ? 0.15 : built ? 0.35 : 0.55) - o.edge.material.opacity) * 0.08;
+    o.edge.material.color.lerp(on || here ? EDGE_ON : EDGE_OFF, 0.08); // a quiet mist outline; rose when in focus
   }
   document.body.dataset.xlit = ACTIVE.filter((b) => X.blocks[b].lit).join("");
   if (X.loaded && X.planMat.transparent) { X.planMat.opacity += (1 - X.planMat.opacity) * 0.05; if (X.planMat.opacity > 0.985) { X.planMat.opacity = 1; X.planMat.transparent = false; X.planMat.needsUpdate = true; } }
@@ -406,6 +405,7 @@ function openBlockMap(b, pt) { if (cfg && cfg.openMap) cfg.openMap(b, pt || null
 // The 3D plan and the numbered map use the same plan coordinates. With the camera straight above the plan, a map
 // view (an SVG viewBox in plan pixels, the shape of the screen) matches the 3D picture exactly, so the numbered
 // map can fade in over it as one continuous zoom.
+const EDGE_ON = new THREE.Color(0xf2b8c6), EDGE_OFF = new THREE.Color(0xd5e3e0);
 const _font = {};
 function blockFont(b) { // the usual height of a plot number in plan pixels
   if (_font[b]) return _font[b];
