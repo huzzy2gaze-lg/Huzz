@@ -9,14 +9,18 @@ import { SIZES, ACTIVE } from "./geo.js";
 import { mapSVG, blockVB, plotsVB, attachMap } from "./map.js";
 import { logo } from "./brand/logo.js";
 import { setShowcase, showcaseAfterRender } from "./showcase.js";
-import { experiencePage, experienceAfterRender, mapView, flyIn, flyOut, mapModeOff } from "./experience.js";
+import { homePage, homeAfterRender } from "./home.js";
+// the 3D page (three.js) loads only when a visitor opens it (#3d), so the home page stays light and fast
+let XP = null, xpLoading = null;
+function loadXP() { return xpLoading || (xpLoading = import("./experience.js").then((m) => { XP = m; return m; })); }
+export function stopXP() { if (XP) XP.stopExperience(); }
 let introDone = false;
 import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection, shareLink, GOALS, BUDGETS, WANT_SIZES, bookSummary } from "./site-extras.js";
 
-export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook", "experience"];
-// Used until an admin writes other details on the Team page.
-// one home page (the 3D master plan); the old page names still work, so old links and ads keep working
-export const sitePageFor = (h) => (["experience", "blocks", "outlook"].includes(h) ? "home" : h === "contact" ? "book" : h);
+export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook", "experience", "3d"];
+// the home page (the light "Daylight Survey" page) and the 3D master plan (#3d); the old page names still work,
+// so old links and ads keep working: experience -> 3d, blocks and outlook -> home, contact -> book
+export const sitePageFor = (h) => (h === "experience" || h === "3d" ? "3d" : ["blocks", "outlook"].includes(h) ? "home" : h === "contact" ? "book" : h);
 const set = (k) => ((S.site[k] || "").trim() || SITE_DEFAULTS[k] || "");
 const company = () => set("company") || "WH Ventures";
 const ptsStr = (pts) => pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
@@ -235,7 +239,7 @@ function bookForm() {
     <div class="stepnav"><button type="button" class="sitebtn ghost" data-bookstep="3">Back</button><button class="sitebtn solid big" type="submit">Book my call</button></div>
     <p class="fine">We use your details to call you, and for news only if you agree above.</p></form>`;
 }
-function bookSection() {
+function bookSection(form) {
   const wa = waLink();
   return `<section class="sitesec book" id="booksec"><div class="sitewrap two">
     <div><h2>Talk to our team. It takes one minute.</h2>
@@ -244,7 +248,7 @@ function bookSection() {
       ${wa ? `<a class="sitebtn wa" href="${wa}" target="_blank" rel="noopener">Message us on WhatsApp</a>` : ""}
       ${meetBtn()}
       ${contactBlock()}</div>
-    <div class="formcard">${bookForm()}</div></div></section>`;
+    <div class="formcard">${form == null ? bookForm() : form}</div></div></section>`;
 }
 // a 30-minute Google Meet video call, booked in Google Calendar
 function meetBtn(cls = "sitebtn") {
@@ -306,9 +310,9 @@ function plotToHome() {
   return `<section class="sitesec p2h"><div class="sitewrap p2hgrid">
     <div class="p2htext reveal"><div class="eyebrow">From plot to home</div><h2>Your plot today. Your home tomorrow.</h2>
       <p>Choose a plot size and watch a home rise on it in 3D, or see it rendered at dusk, by day and at night.</p>
-      <div class="row"><a href="#experience" class="sitebtn goldbtn">See it in 3D</a><a href="#book" class="sitebtn light">Book a call</a></div>
+      <div class="row"><a href="#3d" class="sitebtn goldbtn">See it in 3D</a><a href="#book" class="sitebtn light">Book a call</a></div>
       <p class="fine">Rendered illustration of a home on a 1 Kanal plot. Not a DHA or FGEHA design.</p></div>
-    <a href="#experience" class="p2himg reveal" aria-label="See the home in 3D"><video src="renders/home-dusk.mp4" poster="renders/dusk-cam_hero.webp" autoplay muted loop playsinline preload="metadata" aria-label="Rendered video of a modern home at dusk"></video></a>
+    <a href="#3d" class="p2himg reveal" aria-label="See the home in 3D"><video src="renders/home-dusk.mp4" poster="renders/dusk-cam_hero.webp" autoplay muted loop playsinline preload="metadata" aria-label="Rendered video of a modern home at dusk"></video></a>
   </div></section>`;
 }
 
@@ -337,7 +341,7 @@ function plan() {
   const z = S.planZoom || "all";
   return `<section class="planpage"><div class="planhead sitewrap"><div><h1 class="h2">Find a plot</h1></div>
       <p>The official FGEHA layout plan. Tap a block to zoom in. Zoom in more to see the plot numbers, then tap a plot. Or search a plot number.</p>
-      <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${z === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}<a href="#home" class="planback">← 3D view</a></div></div>
+      <div class="planblocks" role="group" aria-label="Zoom to a block">${["all", ...ACTIVE].map((b) => `<button type="button" class="chip2${z === b ? " on" : ""}" data-planzoom="${b}">${b === "all" ? "All" : b}</button>`).join("")}<a href="#home" class="planback">← Home</a></div></div>
 ${planMap()}
   </section>`;
 }
@@ -370,14 +374,14 @@ function mapLayer() {
 }
 export async function openMap(b, pt) {
   if (S.mapOpen || !G.geo || (b !== "all" && !G.geo.blocks[b])) return;
-  const v = mapView(b, pt);
+  const v = XP ? XP.mapView(b, pt) : null;
   if (!v) { S.planBlock = b === "all" ? null : b; location.hash = "plan"; return; } // no 3D (old phone): the plot map page
   S.mapOpen = b; S.planZoom = b; S.sitePlot = null; S.vb.site = v.vb;
   const hdr = document.querySelector(".sitehead");
   document.documentElement.style.setProperty("--hdr", (hdr ? Math.max(0, hdr.getBoundingClientRect().bottom) : 0) + "px");
   document.body.classList.add("mapmode"); // the page text fades away; the page does not scroll
   renderLayer();
-  await flyIn(v.cam);
+  await XP.flyIn(v.cam);
   const layer = document.querySelector(".xmaplayer");
   if (!layer || S.mapOpen !== b) return;
   layer.classList.add("in"); // the numbered map fades in over the 3D, aligned
@@ -400,7 +404,7 @@ export async function closeMap() {
   layer.dataset.closing = 1;
   const vb = (S.vb.site || []).slice();
   document.body.classList.remove("mapopen"); // the 3D draws again, at the view the visitor is looking at
-  const back = flyOut(vb);
+  const back = XP ? XP.flyOut(vb) : Promise.resolve();
   layer.classList.remove("in"); // the numbered map fades back into the 3D
   await wait(320);
   layer.remove();
@@ -409,7 +413,7 @@ export async function closeMap() {
   if (!S.mapOpen) document.body.classList.remove("mapmode");
 }
 // a link from the map (for example "Book a call about this plot") leaves the map at once
-export function leaveMap() { S.mapOpen = null; S.planZoom = null; document.querySelector(".xmaplayer")?.remove(); document.body.classList.remove("mapopen", "mapmode"); mapModeOff(); }
+export function leaveMap() { S.mapOpen = null; S.planZoom = null; document.querySelector(".xmaplayer")?.remove(); document.body.classList.remove("mapopen", "mapmode"); if (XP) XP.mapModeOff(); }
 if (import.meta.env.DEV && typeof window !== "undefined") window.__open = (b, pt) => openMap(b, pt); // for the tests
 if (typeof window !== "undefined" && !window.__mapKeys) {
   window.__mapKeys = true;
@@ -453,10 +457,33 @@ function account() {
       <h2>My calls and enquiries</h2>${S.myLeads.length ? `<ul class="myleads">${S.myLeads.map((l) => `<li><b>${l.blocks && l.blocks.length ? "Block " + esc(l.blocks.join(", ")) + " · " : ""}${l.plot_id ? esc(l.plot_id) + " · " : ""}${esc(new Date(l.created_at).toLocaleDateString("en-GB"))}</b><span>${statusText[l.status] || l.status}</span>${l.message ? `<small>${esc(l.message)}</small>` : ""}</li>`).join("")}</ul>` : `<p class="fine">No calls booked yet. <a href="#book">Book a call</a>.</p>`}</div></div></section>`;
 }
 
+// the home page without the booking form (its place is marked); the form is drawn into it
+const FORM_SLOT = "<!--dsv-form-->";
+function homeShell() {
+  return `<div class="site page-home dsv-site">${homePage({ set, waLink, telHref, company, logo, bookSection: () => bookSection(FORM_SLOT), signin: S.mode !== "public" })}${callBar()}</div>`;
+}
+let lastShell = "";
+// a change in the booking form (a step, an answer) redraws only the form: the films, the chosen block and the page stay
+export function homePatch() {
+  if (S.area !== "site" || !["home", "book"].includes(S.sitePage)) return false;
+  const fc = document.querySelector("#app .dsv .formcard");
+  if (!fc || homeShell() !== lastShell) return false;
+  fc.innerHTML = bookForm();
+  return true;
+}
+
 export function sitePage() {
   let body;
-  // the home page is the 3D master plan; "Book a call" is its last chapter
-  if (S.sitePage === "home" || S.sitePage === "book") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine, openMap, signin: S.mode === "public" || S.user ? "" : `<a href="#signin">Sign in</a>` })}</main>${floatCta(waLink())}${callBar()}${S.mapOpen ? mapLayer() : ""}</div>`;
+  // the home page: the light survey sheet of the official plan; "Book a call" (#book) is the same page, at the form
+  if (S.sitePage === "home" || S.sitePage === "book") { lastShell = homeShell(); return lastShell.replace(FORM_SLOT, bookForm()); }
+  // the 3D master plan; its "Book a call" goes to the form on the home page
+  if (S.sitePage === "3d") {
+    if (!XP) {
+      loadXP().then(() => { if (S.area === "site" && S.sitePage === "3d") hooks.render(); }).catch((e) => console.error(e));
+      return `<div class="site page-experience">${header()}<main><div class="xp"><div class="xloader" aria-hidden="true"><div class="xlogo">${logo()}</div><span>Loading the official master plan</span></div></div></main>${callBar()}</div>`;
+    }
+    return `<div class="site page-experience">${header()}<main>${XP.experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine, openMap, signin: S.mode === "public" || S.user ? "" : `<a href="#signin">Sign in</a>` })}</main>${floatCta(waLink())}${callBar()}${S.mapOpen ? mapLayer() : ""}</div>`;
+  }
   if (S.sitePage === "plan") body = plan();
   else if (S.sitePage === "account") body = account();
   else if (S.sitePage === "signin") body = signin();
@@ -470,9 +497,12 @@ export function sitePage() {
 let io = null;
 export function siteAfterRender() {
   showcaseAfterRender();
-  experienceAfterRender();
+  // the 3D runs only on its own page: on every other page its loop stops and its canvas goes
+  if (XP) { if (S.sitePage === "3d") XP.experienceAfterRender(); else XP.stopExperience(); }
+  homeAfterRender();
+  document.body.classList.toggle("dsvmode", !!document.querySelector(".dsv"));
   if (S.sitePage === "book") {
-    const f = document.querySelector(".xbook");
+    const f = document.querySelector(".dsv #book");
     if (f && !S._bookScrolled) { S._bookScrolled = true; requestAnimationFrame(() => f.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })); }
   } else S._bookScrolled = false;
   if (!window.__headScroll) {

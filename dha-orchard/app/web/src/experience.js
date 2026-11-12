@@ -18,7 +18,8 @@ let cfg = null; // { BLOCKS, bookSection, waLink, company, logo } from site.js
 export function setExperience(c) { cfg = c; }
 
 const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-const f2 = (v) => v.toFixed(2), f1 = (v) => v.toFixed(1);
+// round half up, the same as the home page (3.825 shows 3.83 everywhere)
+const f2 = (v) => (Math.round(v * 100 + 1e-6) / 100).toFixed(2), f1 = (v) => v.toFixed(1);
 
 // ---------------------------------------------------------------- the page (HTML over the 3D scene)
 function words(text, cls = "") {

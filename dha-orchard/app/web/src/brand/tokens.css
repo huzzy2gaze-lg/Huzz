@@ -13,6 +13,12 @@
   --wh-gold-ink:  #7A5F22;  /* gold-coloured text on mist (plain gold is too light there) */
   --wh-white:     #FFFFFF;
 
+  /* Daylight Survey (the light home page): the drawing sheet, its ruled lines and a deeper rose for hover */
+  --wh-sheet:     #F3F5F5;
+  --wh-line:      #C9D8D3;
+  --wh-line-strong: #9DB5AF;
+  --wh-rose-deep: #9C3D55;
+
   /* Golden-ratio tints and shades (each step closes 0.618 of the gap to white / black) */
   --wh-teal-100: #C5D1D2; --wh-teal-200: #A2B4B6; --wh-teal-300: #688589;
   --wh-teal-700: #09272A; --wh-teal-800: #071B1D; --wh-teal-900: #061414;

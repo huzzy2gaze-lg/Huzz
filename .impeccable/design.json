@@ -1,31 +1,135 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-12T11:30:00Z",
+  "generatedAt": "2026-11-12T23:00:00Z",
   "title": "Design System: Margalla Teal Estate",
   "extensions": {
     "colorMeta": {
-      "margalla-teal": { "role": "primary", "displayName": "Margalla Teal", "tonalRamp": ["#C5D1D2", "#A2B4B6", "#688589", "#0B3A40", "#09272A", "#071B1D", "#061414"] },
-      "orchard-gold": { "role": "tertiary", "displayName": "Orchard Gold", "tonalRamp": ["#F4EAD3", "#EEDDB8", "#E3C98D", "#D2A746", "#846A2E", "#53451F", "#352E16"] },
-      "call-rose": { "role": "tertiary", "displayName": "Call Rose" },
-      "mist": { "role": "secondary", "displayName": "Mist" }
+      "margalla-teal": {
+        "role": "primary",
+        "displayName": "Margalla Teal",
+        "tonalRamp": [
+          "#C5D1D2",
+          "#A2B4B6",
+          "#688589",
+          "#0B3A40",
+          "#09272A",
+          "#071B1D",
+          "#061414"
+        ]
+      },
+      "orchard-gold": {
+        "role": "tertiary",
+        "displayName": "Orchard Gold",
+        "tonalRamp": [
+          "#F4EAD3",
+          "#EEDDB8",
+          "#E3C98D",
+          "#D2A746",
+          "#846A2E",
+          "#53451F",
+          "#352E16"
+        ]
+      },
+      "call-rose": {
+        "role": "tertiary",
+        "displayName": "Call Rose"
+      },
+      "mist": {
+        "role": "secondary",
+        "displayName": "Mist"
+      },
+      "sheet": {
+        "role": "secondary",
+        "displayName": "Sheet",
+        "purpose": "The survey sheet, title block and chart panels on the light home page."
+      },
+      "rule-line": {
+        "role": "secondary",
+        "displayName": "Rule line"
+      },
+      "rule-line-strong": {
+        "role": "secondary",
+        "displayName": "Rule line strong"
+      },
+      "call-rose-deep": {
+        "role": "tertiary",
+        "displayName": "Call Rose Deep",
+        "purpose": "Hover of the rose button on light surfaces."
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "The first-screen heading only." },
-      "headline": { "displayName": "Headline", "purpose": "One heading per card or section." },
-      "data": { "displayName": "Data", "purpose": "Dates and figures only; never decoration." }
+      "display": {
+        "displayName": "Display",
+        "purpose": "The first-screen heading only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "One heading per card or section."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Dates and figures only; never decoration."
+      },
+      "home-display": {
+        "displayName": "Home display",
+        "purpose": "Libre Caslon Display: the first-screen heading and section headings of the light home page."
+      },
+      "home-price": {
+        "displayName": "Home price",
+        "purpose": "The 1 Kanal asking range on the first screen."
+      },
+      "home-text": {
+        "displayName": "Home text",
+        "purpose": "Schibsted Grotesk: all running text, labels and buttons of the home page."
+      }
     },
     "shadows": [
-      { "name": "card-on-plan", "value": "0 30px 80px rgba(0,0,0,.45)", "purpose": "The dark card over the 3D plan." },
-      { "name": "form-card", "value": "0 24px 60px rgba(0,0,0,.1)", "purpose": "The light booking form card." }
+      {
+        "name": "sheet",
+        "value": "0 24px 50px -30px rgba(6,37,42,.35)",
+        "purpose": "The survey sheet on the home page."
+      },
+      {
+        "name": "form-card-on-teal",
+        "value": "0 30px 60px -30px rgba(0,0,0,.55)",
+        "purpose": "The light booking card on the teal band."
+      },
+      {
+        "name": "card-on-plan",
+        "value": "0 30px 80px rgba(0,0,0,.45)",
+        "purpose": "The dark card over the 3D plan (#3d)."
+      }
     ],
     "motion": [
-      { "name": "camera-ease", "value": "1 - exp(-t * 2.6)", "purpose": "The 3D camera arrives at each chapter in about 1.5 s." },
-      { "name": "fly-in", "value": "cubic in-out, 1.05 s", "purpose": "The flight from the 3D plan into the numbered map." }
+      {
+        "name": "survey-sweep",
+        "value": "cubic-bezier(.77,0,.175,1), 1.4 s, then pins ease-out .5 s, 70 ms apart",
+        "purpose": "Once per visit: a gold survey line crosses the sheet and the plan is drawn behind it; reduced motion shows it at once."
+      },
+      {
+        "name": "camera-ease",
+        "value": "1 - exp(-t * 2.6)",
+        "purpose": "The 3D camera arrives at each chapter (#3d)."
+      },
+      {
+        "name": "fly-in",
+        "value": "cubic in-out, 1.05 s",
+        "purpose": "The flight from the 3D plan into the numbered map (#3d)."
+      }
     ],
     "breakpoints": [
-      { "name": "phone", "value": "640px" },
-      { "name": "tablet", "value": "760px" },
-      { "name": "wide", "value": "900px" }
+      {
+        "name": "phone",
+        "value": "760px"
+      },
+      {
+        "name": "one-column",
+        "value": "980px"
+      },
+      {
+        "name": "wide-menu",
+        "value": "1180px"
+      }
     ]
   },
   "components": [
@@ -33,29 +137,80 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The main action of a screen: Book a call.",
+      "description": "The main action: Book a call (rose).",
       "html": "<a class=\"ds-btn\" href=\"#\">Book a call</a>",
-      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;background:#B04761;color:#fff;font:700 16px 'Albert Sans',system-ui,sans-serif;padding:15px 28px;border-radius:999px;text-decoration:none;box-shadow:0 10px 30px rgba(176,71,97,.25)}.ds-btn:hover{background:#C4526F}"
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:50px;padding:0 24px;background:#B04761;color:#fff;font:600 16px 'Schibsted Grotesk',system-ui,sans-serif;border-radius:999px;text-decoration:none;box-shadow:0 10px 24px -12px rgba(176,71,97,.6)}.ds-btn:hover{background:#9C3D55}"
     },
     {
-      "name": "Card on the Plan",
+      "name": "WhatsApp Button",
+      "kind": "button",
+      "refersTo": "home-button-whatsapp",
+      "description": "WhatsApp: teal, filled.",
+      "html": "<a class=\"ds-wa\" href=\"#\">WhatsApp</a>",
+      "css": ".ds-wa{display:inline-flex;align-items:center;min-height:50px;padding:0 24px;background:#0B3A40;color:#fff;font:600 16px 'Schibsted Grotesk',system-ui,sans-serif;border-radius:999px;text-decoration:none}.ds-wa:hover{background:#06252A}"
+    },
+    {
+      "name": "Survey Sheet",
+      "kind": "card",
+      "refersTo": "home-sheet",
+      "description": "The official plan as a drawing sheet, with a gold frame line and block pins.",
+      "html": "<figure class=\"ds-sheet\"><figcaption><b>Official FGEHA layout plan</b><span>Blocks A to H</span></figcaption><div class=\"ds-plan\"><button class=\"ds-pin\" aria-pressed=\"true\">B</button></div></figure>",
+      "css": ".ds-sheet{position:relative;margin:0;max-width:520px;background:#F3F5F5;border:1px solid #9DB5AF;padding:18px;box-shadow:0 24px 50px -30px rgba(6,37,42,.35);font:13px 'Schibsted Grotesk',system-ui,sans-serif;color:#4A6B6E}.ds-sheet::before{content:'';position:absolute;inset:6px;border:1px solid #D2A746;opacity:.7;pointer-events:none}.ds-sheet figcaption{display:flex;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid #C9D8D3}.ds-sheet b{font:400 18px 'Libre Caslon Display',Georgia,serif;color:#0B3A40}.ds-plan{position:relative;height:200px;background:#EAF1EE;margin-top:10px}.ds-pin{position:absolute;left:40%;top:50%;width:34px;height:34px;border-radius:50%;border:1.5px solid #B04761;background:#B04761;color:#fff;font:600 15px 'Schibsted Grotesk',sans-serif}"
+    },
+    {
+      "name": "Card on the Plan (3D page)",
       "kind": "card",
       "refersTo": "card-on-plan",
-      "description": "One chapter of the home page, over the 3D plan.",
+      "description": "One chapter of the 3D page, over the 3D plan.",
       "html": "<div class=\"ds-card\"><span class=\"ds-pill\">First block for possession</span><h2>Block A</h2><p>The first block for possession, target July 2027.</p></div>",
       "css": ".ds-card{max-width:470px;display:grid;gap:14px;background:#06252A;color:#EAF1EE;border:1px solid rgba(227,201,141,.22);border-radius:24px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.45);font:16px/1.55 'Albert Sans',system-ui,sans-serif}.ds-card h2{font:400 40px/1 Gloock,Georgia,serif;margin:0;color:#fff}.ds-card p{margin:0;color:#C5D1D2}.ds-pill{justify-self:start;padding:4px 11px;border-radius:999px;border:1px solid rgba(227,201,141,.55);color:#E3C98D;font:600 12.5px 'Albert Sans',sans-serif}"
     }
   ],
   "narrative": {
     "northStar": "Margalla Teal Estate",
-    "overview": "A calm, premium property brand at dusk. The official FGEHA master plan in 3D is the stage; dark teal cards carry the facts; gold is the warm accent; rose is the one colour that asks the visitor to act.",
-    "keyCharacteristics": ["Official plan as the hero", "Dark teal cards over a quiet plan", "Gold accents, rose for action", "Facts with dates and sources", "Plain English"],
-    "rules": [
-      { "name": "The One Rose Rule", "body": "Rose is only for the call to act and the block or plot in focus.", "section": "colors" },
-      { "name": "The Quiet Plan Rule", "body": "The 3D plan stays neutral; no colour wash over all blocks.", "section": "colors" },
-      { "name": "The No Kicker Rule", "body": "No small uppercase label above a heading.", "section": "typography" }
+    "overview": "Two worlds in one colour standard. The home page is 'Daylight Survey': the official FGEHA plan as a survey sheet on mist, teal ink, gold rule lines, rose only for the call to act and the block in focus. The 3D page (#3d) stays dark (dusk) with teal cards over the plan.",
+    "keyCharacteristics": [
+      "Official plan as a survey sheet on the first screen",
+      "Light home, dark 3D page",
+      "Caslon figures, Schibsted text",
+      "Gold lines, rose for action",
+      "Facts with dates and sources",
+      "Plain English"
     ],
-    "dos": ["Use the --wh-* tokens", "Date and source next to every figure", "Test on a 390px phone and a laptop, light and dark"],
-    "donts": ["Labels above headings", "A rose wash over the plan", "Monospace as decoration", "Blur over the 3D canvas", "Reviews, ratings or guaranteed returns"]
+    "rules": [
+      {
+        "name": "The One Rose Rule",
+        "body": "Rose is only for the call to act and the block or plot in focus. WhatsApp is teal, filled.",
+        "section": "colors"
+      },
+      {
+        "name": "The Honest Sheet Rule",
+        "body": "The plan is shown as FGEHA issued it: never recoloured or washed; marks sit on top as pins at the printed block labels.",
+        "section": "colors"
+      },
+      {
+        "name": "The Final Figure Rule",
+        "body": "Prices and outlook figures show their final values from the first paint; no count-up.",
+        "section": "motion"
+      },
+      {
+        "name": "The No Kicker Rule",
+        "body": "No small label above a heading.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Use the --wh-* tokens; scope home styles under .dsv",
+      "Date and source next to every figure",
+      "Test on a 390px phone and a laptop"
+    ],
+    "donts": [
+      "Labels above headings",
+      "Recolouring or washing the plan",
+      "Count-up figures",
+      "Monospace as decoration",
+      "Blur over the 3D canvas",
+      "Reviews, ratings or guaranteed returns"
+    ]
   }
 }

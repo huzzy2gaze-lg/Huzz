@@ -14,7 +14,27 @@ colors:
   call-rose: "#B04761"
   call-rose-hover: "#C4526F"
   white: "#FFFFFF"
+  sheet: "#F3F5F5"
+  rule-line: "#C9D8D3"
+  rule-line-strong: "#9DB5AF"
+  call-rose-deep: "#9C3D55"
 typography:
+  home-display:
+    fontFamily: "Libre Caslon Display, Iowan Old Style, Georgia, serif"
+    fontSize: "clamp(40px, 4.6vw, 70px)"
+    fontWeight: 400
+    lineHeight: 0.98
+    letterSpacing: "-0.005em"
+  home-price:
+    fontFamily: "Libre Caslon Display, Georgia, serif"
+    fontSize: "clamp(50px, 5.6vw, 86px)"
+    fontWeight: 400
+    lineHeight: 1
+  home-text:
+    fontFamily: "Schibsted Grotesk, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: 1.55
   display:
     fontFamily: "Gloock, Georgia, serif"
     fontSize: "clamp(46px, 8vw, 124px)"
@@ -59,6 +79,16 @@ spacing:
   xl: "55px"
   xxl: "89px"
 components:
+  home-button-whatsapp:
+    backgroundColor: "{colors.margalla-teal}"
+    textColor: "{colors.white}"
+    rounded: "{rounded.pill}"
+    padding: "0 24px"
+  home-sheet:
+    backgroundColor: "{colors.sheet}"
+    textColor: "{colors.margalla-teal}"
+    rounded: "0px"
+    padding: "18px"
   button-primary:
     backgroundColor: "{colors.call-rose}"
     textColor: "{colors.white}"
@@ -93,100 +123,111 @@ components:
 
 ## Overview
 
-A calm, premium property brand at dusk. The official FGEHA master plan, drawn in 3D, is the stage: deep teal sky around it, the plan itself quiet and neutral, and dark teal cards floating over it with the facts. Gold is the warm light of the brand (logo, key words, prices). Rose is the one colour that asks the visitor to act: the call buttons and the block in focus.
+Two worlds share one colour standard.
 
-The tone is trustworthy and exact rather than flashy. Every number has a date and a source, and the design gives those facts room. Motion is slow and guided (the camera flies over the plan as the visitor scrolls), never busy.
+**The home page is "Daylight Survey" (light).** The official FGEHA layout plan is shown as a survey sheet on mist: a pale sheet, a thin gold frame line, teal ink, ruled lines, a title block with the scheme facts. It is calm and exact, like a drawing that a buyer can trust. A buyer sees the plan, the price and the way to call on the first screen. The home page stays light also when the phone is in dark mode (its colours are explicit): it is a drawing sheet in daylight.
 
-**The colour standard lives in code.** `dha-orchard/app/web/src/brand/tokens.css` is the source of the Margalla Teal values (`--wh-*`). The same standard is used for the website, the sales system, ads and social media. Never type a new hex code by hand.
+**The 3D page (#3d) stays dark ("dusk").** The plan in 3D, deep teal sky, dark teal cards over the plan, gold accents. The numbered plot map (#plan) is the light official plan, the same on both.
+
+Gold is the warm line of the brand (logo, frame lines, the outlook bars, highlighted words). Rose is the one colour that asks the visitor to act: the call buttons and the block in focus.
+
+**The colour standard lives in code.** `dha-orchard/app/web/src/brand/tokens.css` is the source of the Margalla Teal values (`--wh-*`), including the sheet and rule colours of the home page (`--wh-sheet`, `--wh-line`, `--wh-line-strong`, `--wh-rose-deep`). The home page styles are in `src/home.css`, all scoped under `.dsv`. Never type a new hex code by hand.
 
 ## Colors
 
 ### Primary
-- **Margalla Teal** (#0B3A40): the dominant colour, about 62% of any composition. Headers, bands, footers, the brand surface.
-- **Abyss Teal** (#06252A) and **Night Teal** (#061414): the deep ground of the 3D page and the cards that sit on the plan; also the text colour on gold and on mist.
+- **Margalla Teal** (#0B3A40): the ink of the home page (headings, figures, lines), the booking band, the WhatsApp button; the dominant surface of the 3D page.
+- **Abyss Teal** (#06252A) and **Night Teal** (#061414): body text on the light page; the footer; the deep ground of the 3D page.
 
 ### Secondary
-- **Mist** (#EAF1EE): light surfaces (forms, static pages) and the main text on teal.
-- **Sage** (#A9C4C4) and **Slate** (#4A6B6E): secondary text, on teal and on mist.
+- **Mist** (#EAF1EE): the ground of the home page and of forms.
+- **Sheet** (#F3F5F5): the survey sheet, the title block and the chart panels.
+- **Rule lines** (#C9D8D3, #9DB5AF): ruled lines and borders on the sheet.
+- **Slate** (#4A6B6E): secondary text on mist (5:1). **Sage** (#A9C4C4) and teal-100: text on teal.
 
 ### Tertiary
-- **Orchard Gold** (#D2A746), **Gold Light** (#E3C98D) and **Gold Ink** (#7A5F22): accents only, about 15%: the logo, highlighted words in headings, prices and outlook bars, focus rings. Gold Ink is for gold text on mist, where plain gold is too light.
-- **Call Rose** (#B04761, hover #C4526F): calls to action and the plot or block in focus. Nothing else.
+- **Orchard Gold** (#D2A746), **Gold Light** (#E3C98D) and **Gold Ink** (#7A5F22): the sheet frame line, the survey line, the outlook bars, the "Today" marker, the logo. Gold Ink is for gold text on mist (headline words, step numbers) and the focus ring.
+- **Call Rose** (#B04761, hover #9C3D55 on light, #C4526F on dark): calls to action and the block or plot in focus. Nothing else.
 
 ### Named Rules
-**The One Rose Rule.** Rose means "act here" or "this is the one". It is on the call buttons (Book a call, Call, WhatsApp bar) and on the block or plot in focus. It is never a decoration, a background band or a text colour for reading.
+**The One Rose Rule.** Rose means "act here" or "this is the one". It is on the call buttons (Book a call, the phone bar) and on the block in focus (the pressed block button and pin, the block in focus in 3D). It is never a decoration, a background band or a text colour for reading. WhatsApp is teal, filled; moving on the plan ("See the plot numbers of Block B") is teal.
 
-**The Quiet Plan Rule.** The 3D plan stays neutral: a mist outline on every block, a very light fill. Rose appears only on the block the visitor looks at or taps. A pink wash over the whole plan is a regression.
+**The Honest Sheet Rule** (replaces the Quiet Plan Rule). The plan is shown as FGEHA issued it: never recoloured, redrawn or washed. Marks on it (block letters, the block in focus) sit on top as small pins at the printed block labels. In 3D the same holds: a mist outline on each block and rose only on the block the visitor looks at.
+
+**The Final Figure Rule.** Prices and outlook figures show their final values from the first paint. No count-up from zero; bars are drawn at their final length.
 
 ## Typography
 
-Gloock (display, headings) with Albert Sans (everything else). JetBrains Mono only for data: dates in the timeline, measurements.
+**Home page:** Libre Caslon Display (headings, prices, figures) with Schibsted Grotesk (everything else). Both load after the first picture (one Google Fonts link in `src/main.js`), with Georgia and system fallbacks.
+**3D page and sales system:** Gloock (display) with Albert Sans; JetBrains Mono only for data in the sales system.
 
-### Hierarchy
-- **Display** (Gloock, 46 to 124px, line height 0.95): the first-screen heading only. "DHA Margalla Orchard." is in Gold Light.
-- **Headline** (Gloock, 34 to 58px): the heading of each card or section, balanced lines.
-- **Title** (Albert Sans 700, 16 to 19px): small headings, button text.
-- **Body** (Albert Sans 400, 16px, line height 1.55, at most about 65 characters a line).
-- **Label** (Albert Sans 600, 12.5px): field names and small facts ("Phone", "Plots").
-- **Data** (JetBrains Mono 500, 12 to 13px): dates and figures where they line up.
+### Hierarchy (home)
+- **Display** (Caslon, 40 to 70px, line height 0.98): the first-screen heading. "DHA Margalla Orchard" in Gold Ink.
+- **Price** (Caslon, 50 to 86px): the 1 Kanal asking range on the first screen.
+- **Headline** (Caslon, 32 to 58px): one per section, balanced lines.
+- **Title** (Schibsted 600, 15 to 19px): small headings, buttons, block names.
+- **Body** (Schibsted 400, 16px, line height 1.55, at most about 60 characters a line).
+- **Label** (Schibsted 500 to 600, 13 to 14px, slate): field names and sources ("1 Kanal asking price, October 2026"). Sentence case, never uppercase tracking.
 
 ### Named Rules
-**The No Kicker Rule.** No small uppercase label above a heading. The heading says enough. One pill (for example "First block for possession") is allowed when it carries a fact the heading does not.
+**The No Kicker Rule.** No small label above a heading. The heading says enough. A label may sit beside a big block letter or above a figure when it names the figure.
 
-**The Plain English Rule.** Copy follows ASD-STE100: short sentences, simple words, active voice. Buttons name the action ("Book a call", "See the plots of Block B").
+**The Plain English Rule.** Copy follows ASD-STE100: short sentences, simple words, active voice. Buttons name the action ("Book a call", "See the plot numbers of Block B").
+
+**No tabular figures in Schibsted text.** Its tabular setting widens the comma and the point ("1 , 128"). Use tabular lining figures only in the Caslon figures.
 
 ## Layout
 
-- One long page that the visitor scrolls; each chapter is one card over the 3D plan. On a wide screen the card sits left and the plan on the right; on a phone the plan is at the top and the card below.
-- Spacing follows the Fibonacci scale in the tokens (8, 13, 21, 34, 55, 89px).
-- Phones (640px and below): a fixed bottom bar with Call, WhatsApp and Book a call; the first-screen buttons are hidden because the bar has the same actions; "Book a call" stays in the header.
-- Wide screens: a soft dark shade behind the first-screen text keeps it readable over the plan.
+- Home: one page, sections in this order: first screen (copy left, survey sheet right; block buttons A to H with plot counts under the plan), the scheme title block, Blocks A, B and C (ledger with price and outlook) and a table of D to H, next door, the dusk band ("First the plot. Then the home."), from plot to home, timeline with a "Today" marker, how you buy, questions, the booking band (teal), footer.
+- Width 1328px at most, side gutter clamp(16px, 4vw, 56px); section padding clamp(50px, 6.3vw, 90px).
+- The header menu is in-page: buttons scroll to the section (no hash routes). Routes: #home, #book (the same page, at the form), #plan (numbered map), #3d (3D page).
+- Phones (760px and below): one column; the fixed bottom bar with Call, WhatsApp and Book a call; the first-screen buttons are hidden because the bar has them; the header keeps a rose "Book a call" button.
 - Static pages (block pages, buying guide, privacy): one centred column, at most 820px, on mist.
 
 ## Elevation & Depth
 
-Depth comes from the 3D scene itself; the interface is layered, not lifted. Cards on the plan are solid dark teal (no blur over the canvas: blur caused flicker), with a fine gold border at 22% opacity and one deep, soft shadow (0 30px 80px, dark). Light surfaces (the booking form) use a single soft shadow (0 24px 60px at 10%). No hard offset shadows, no glows except the soft rose halo on the main call button.
+The home page is flat paper: ruled lines and thin borders carry the structure. The sheet has one soft shadow (0 24px 50px -30px), the form card on the teal band one deeper soft shadow. The block note over the plan: white, a rule border, a soft shadow. On the 3D page, cards are solid dark teal with a gold hairline and one deep soft shadow; no blur over the canvas. No hard offset shadows, no glows.
 
 ## Shapes
 
-- Pills (999px) for every button and chip.
-- Large, gentle cards (24px corners) on the plan; forms 22px; inputs 12px; small elements 6 to 8px.
-- Thin borders (1 to 1.5px). No thick coloured side stripes on the public website. The sales system may use a status stripe where it marks a state (overdue, pending).
+- Pills (999px) for buttons, chips and block buttons; round pins for block letters.
+- The sheet, the title block, the charts and the form card are square or nearly square (0 to 6px): drawing paper, not app cards.
+- Thin borders (1 to 1.5px). No thick coloured side stripes on the public website.
 
 ## Components
 
 ### Buttons
-- **Primary** (Call Rose, white text, pill, 15px 28px): the main action of each screen. Hover: Call Rose Hover.
-- **Ghost** (transparent, white text, white border at 40%): the second action next to a primary one.
-- **Bar buttons** (phones): Call (white button, teal text), WhatsApp (outlined), Book a call (rose).
+- **Book a call** (Call Rose, white text, pill): the main action. Hover: Rose Deep.
+- **WhatsApp** (Margalla Teal, filled, white text, WhatsApp mark).
+- **Call** (white, teal text, rule border): the quiet third choice.
+- **Line** (teal outline): "See the plot numbers of Block A".
+- **Phone bar:** Call (white), WhatsApp (teal), Book a call (rose).
 
-### Chips (if used)
-Pills with a gold border at 35% and mist text on teal (size, style and light choices in "From plot to home"); the selected chip fills.
+### The survey sheet (signature component)
+The official plan in a sheet with a gold frame line, a title row and a foot with a compass mark and "Find a plot number". Pins sit at the printed block labels. A tap on a pin or a block button shows the block note (plots, sizes, line, asking price) with "See the plot numbers of Block X", which opens the real numbered map (#plan) zoomed to that block. Motion: once per visit, a gold survey line crosses the sheet, the plan is drawn behind it, then the pins land (about 1.8 s); reduced motion shows it at once. The plan image is a light 760/1200px version (`plan-hero*.webp`, high fetch priority); the full plan loads only on #plan.
 
-### Cards / Containers
-**Card on the plan:** solid Abyss Teal, 24px corners, 28px padding, gold hairline border. One card per chapter; never cards inside cards.
+### Block ledger and table
+Blocks A to C: big Caslon letter, the line, plots and sizes, the 1 Kanal asking range, three outlook bars (Today, Jul 2027, Dec 2028 from `outlookFor`) with the badge "Up to +92% by Dec 2028" and "Outlook: our team's view, not a promise." beside it. Blocks D to H: a table (cards on phones).
 
-### Inputs / Fields
-White field on the form card, 12px corners, 1.5px border; on focus a gold border and a soft gold ring. Labels above the field in Label style. The caret is rose.
+### Inputs / Fields (booking form)
+White fields, 10px corners, rule border; focus: Gold Ink border and a soft gold ring; rose caret. Chips: white with a slate border (strong contrast), selected chips fill teal.
 
-### Navigation
-The header has only the logo and one primary button (plus "Sign in" on wide screens). No menu tabs on the home page. Static pages have a short text menu in Gold Light.
-
-### The Plot Map (signature component)
-The official FGEHA plan with every plot number. A tap on a block flies the 3D camera down to it and the numbered map fades in at the same place and scale. Plot numbers are dark ink (#06252A) with a thin mist outline, always, also in dark mode. Hover never hides the numbers.
+### The Plot Map
+The official FGEHA plan with every plot number. Plot numbers are dark ink (#06252A) with a thin mist outline, always. Hover never hides the numbers.
 
 ## Do's and Don'ts
 
 ### Do:
-- Do use the `--wh-*` tokens from `src/brand/tokens.css` for every colour.
-- Do keep rose for the call to act and the plot or block in focus (The One Rose Rule).
+- Do use the `--wh-*` tokens for every colour; scope home styles under `.dsv`.
+- Do keep rose for the call to act and the block in focus (The One Rose Rule).
 - Do put a date and a source next to every price or outlook figure.
-- Do test every change on a 390px phone and a laptop, in light and dark mode.
+- Do test every change on a 390px phone and a laptop.
 - Do keep the plan, its blocks and plot numbers exactly as FGEHA drew them, block order A to H.
 
 ### Don't:
 - Don't put a label above a heading (The No Kicker Rule).
-- Don't wash the plan in rose or any strong colour (The Quiet Plan Rule).
-- Don't use the monospace face for decoration; it is for data only.
+- Don't recolour or wash the plan (The Honest Sheet Rule).
+- Don't count figures up from zero (The Final Figure Rule).
+- Don't use a monospace face for decoration.
 - Don't add blur or glass over the 3D canvas.
 - Don't add reviews, ratings, awards or "guaranteed returns".

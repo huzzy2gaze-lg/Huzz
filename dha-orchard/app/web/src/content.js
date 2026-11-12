@@ -14,6 +14,13 @@ export const BLOCKS = {
   H: { plots: 167, sizes: "14 Marla · 1 Kanal", line: "A compact block with 14 Marla and 1 Kanal plots. Ask us about plots here.", price: null },
 };
 
+// the scheme in numbers (FGEHA, October 2026)
+export const SCHEME = { plots: 4781, kanals: 8432, blocks: 8, devDone: 50, devSource: "FGEHA progress report, October 2026", where: "Main Park Road, opposite COMSATS University, Islamabad" };
+
+// next door: DHA's published price for a 1 Kanal plot in DHA Margalla Enclave, and the average 1 Kanal asking price in
+// DHA Margalla Orchard (October 2026), in crore
+export const NEXT_DOOR = { enclave: [["2025-03-01", 4.41], ["2025-12-01", 5.6], ["2026-09-01", 7.29]], orchard: 3.8 };
+
 export const MILESTONES = [
   ["2025-09-26", "DHA Islamabad takes on the development", "The tripartite agreement is signed."],
   ["2026-02-18", "Margalla Orchards Walk commercial ballot", "The commercial area in Block A."],

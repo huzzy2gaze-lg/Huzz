@@ -1,6 +1,6 @@
-// Static pages for search engines and AI tools. The 3D home page is drawn by JavaScript, and many crawlers do not
+// Static pages for search engines and AI tools. The home page is drawn by JavaScript, and many crawlers do not
 // run JavaScript. At build time this plugin uses the same facts as the site (src/content.js) to make:
-//   - readable text inside index.html (replaced by the 3D page as soon as JavaScript runs)
+//   - readable text inside index.html (replaced by the home page as soon as JavaScript runs)
 //   - structured data (JSON-LD) in index.html: the company, the website, the scheme, the questions
 //   - /block-a, /block-b, /block-c, /buying-guide: plain pages with real facts and the ways to contact us
 //   - /404.html (a real "not found"), /llms.txt (a short guide for AI tools) and /sitemap.xml
@@ -75,7 +75,7 @@ a{color:var(--rose)}dt{font-weight:650;margin-top:12px}dd{margin:4px 0 0}.fine{f
 footer{background:var(--teal);color:#A9C4C4;font-size:14px;padding:22px 16px}footer a{color:#E3C98D}`;
 
 function page(site, path, title, description, body) {
-  const nav = [["/", "3D master plan"], ...PAGES_BLOCKS.map((b) => [`/block-${b.toLowerCase()}`, `Block ${b}`]), ["/buying-guide", "Buying guide"], ["/#book", "Book a call"]];
+  const nav = [["/", "Home"], ["/#3d", "Plan in 3D"], ...PAGES_BLOCKS.map((b) => [`/block-${b.toLowerCase()}`, `Block ${b}`]), ["/buying-guide", "Buying guide"], ["/#book", "Book a call"]];
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(description)}">
@@ -102,7 +102,7 @@ function blockPage(site, b) {
 <div class="facts"><div><b>about ${x.plots.toLocaleString("en-US")}</b><span>plots in Block ${b}</span></div><div><b>${esc(x.sizes)}</b><span>plot sizes</span></div>${x.price ? `<div><b>${ask(b)}</b><span>1 Kanal asking price, October 2026</span></div>` : ""}${possession ? `<div><b>${month(possession[0])}</b><span>FGEHA's target for Block A possession</span></div>` : ""}</div>
 <p>${esc(INTRO)}</p>
 <h2>See the plots of Block ${b}</h2>
-<p>Every plot in Block ${b} has a number on FGEHA's approved layout plan. Open the <a href="/">3D master plan</a> and tap Block ${b} to see its plots and their numbers.</p>
+<p>Every plot in Block ${b} has a number on FGEHA's approved layout plan. Open the <a href="/#plan">plot map</a> and tap Block ${b} to see its plots and their numbers. Or see the <a href="/#3d">plan in 3D</a>.</p>
 <h2>Plot sizes</h2><p>${esc(FAQ.find((f) => /sizes/i.test(f[0]))[1])}</p>
 <h2>How to buy a plot in Block ${b}</h2><ol>${STEPS.map(([t, d]) => `<li><b>${esc(t)}</b>: ${esc(d)}</li>`).join("")}</ol>
 <p>More in the <a href="/buying-guide">buying guide</a>. Other blocks: ${others}.</p>
@@ -123,7 +123,7 @@ function guidePage(site) {
 }
 
 function notFound(site) {
-  return page(site, "/404", "Page not found | WH Ventures", "This page does not exist.", `<h1>This page does not exist</h1><p>The address may be wrong, or the page has moved.</p><p><a href="/">Open the 3D master plan of DHA Margalla Orchard</a>, or see <a href="/block-a">Block A</a>, <a href="/block-b">Block B</a>, <a href="/block-c">Block C</a> and the <a href="/buying-guide">buying guide</a>.</p>`)
+  return page(site, "/404", "Page not found | WH Ventures", "This page does not exist.", `<h1>This page does not exist</h1><p>The address may be wrong, or the page has moved.</p><p><a href="/">Open the home page of WH Ventures</a>, the <a href="/#plan">plot map of DHA Margalla Orchard</a>, or see <a href="/block-a">Block A</a>, <a href="/block-b">Block B</a>, <a href="/block-c">Block C</a> and the <a href="/buying-guide">buying guide</a>.</p>`)
     .replace('<meta name="theme-color"', '<meta name="robots" content="noindex"><meta name="theme-color"');
 }
 
@@ -141,7 +141,9 @@ Key facts:
 - 1 Kanal asking prices in October 2026: ${KANAL_RANGE} (market asking prices; they change from plot to plot).
 
 ## Pages
-- [3D master plan of DHA Margalla Orchard](${site}/): every block and plot number on the official plan; book a call
+- [Home page: plots in DHA Margalla Orchard](${site}/): the official plan, blocks and prices, the outlook, how to buy; book a call
+- [Plot map](${site}/#plan): every block and plot number on the official plan
+- [The plan in 3D](${site}/#3d)
 ${PAGES_BLOCKS.map((b) => `- [Block ${b}](${site}/block-${b.toLowerCase()}): ${BLOCKS[b].line}`).join("\n")}
 - [Buying guide](${site}/buying-guide): token (Bayana), NDC, transfer, allotment letter; questions and answers
 - [Privacy policy](${site}/privacy)

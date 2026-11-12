@@ -1,4 +1,4 @@
-// The 3D home: tap a block -> the camera flies down to it -> the numbered map fades in, aligned -> a tap outside the
+// The 3D page (#3d): tap a block -> the camera flies down to it -> the numbered map fades in, aligned -> a tap outside the
 // block, Esc or "Master plan" -> the reverse. Records a video of each run. Needs "npx vite --port 5173" (dev build).
 const { chromium } = require('playwright');
 const OUT = '/tmp/claude-0/zrec';
@@ -7,7 +7,7 @@ const OUT = '/tmp/claude-0/zrec';
   const ctx = await b.newContext({ viewport: vp, hasTouch: touch, isMobile: touch, recordVideo: { dir: OUT + '/' + name, size: vp } });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
   const tap = async (x, y) => { if (touch) await p.touchscreen.tap(x, y); else { await p.mouse.move(x, y); await p.waitForTimeout(400); await p.mouse.click(x, y); } };
-  await p.goto('http://localhost:5173/?demo#home'); await p.waitForSelector('#x-A', { timeout: 60000 }); await p.waitForTimeout(12000);
+  await p.goto('http://localhost:5173/?demo#3d'); await p.waitForSelector('#x-A', { timeout: 60000 }); await p.waitForTimeout(12000);
   for (const blk of ['B', 'H']) {
     const pt = await p.evaluate((blk) => { const X = window.__X; const m = X.blocks[blk].mesh; m.geometry.computeBoundingBox(); const c = m.geometry.boundingBox.getCenter(new X.camera.position.constructor()); m.localToWorld(c); c.project(X.camera); return [(c.x + 1) / 2 * innerWidth, (1 - c.y) / 2 * innerHeight]; }, blk);
     await p.screenshot({ path: `${OUT}/${name}-${blk}-1-overview.png` });

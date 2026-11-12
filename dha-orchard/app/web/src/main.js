@@ -1,5 +1,6 @@
 // Orchard Sales: app start, data loading, live updates, screen drawing and user input.
 import "./styles.css";
+import "./home.css";
 import { S, G, hooks, $, esc, num, iso, isAdmin, can, toast, notice, totals, nameOf, dealsFor } from "./core.js";
 import { buildGeo } from "./geo.js";
 import { createApi, TABLES } from "./api/index.js";
@@ -14,8 +15,7 @@ import { logo } from "./brand/logo.js";
   document.head.append(l);
 })();
 import { heroJump } from "./showcase.js";
-import { stopExperience } from "./experience.js";
-import { sitePage, SITE_PAGES, sitePageFor, siteAfterRender, closeMap, renderLayer, leaveMap, adSource, updateOutlookDom } from "./site.js";
+import { sitePage, SITE_PAGES, sitePageFor, siteAfterRender, closeMap, renderLayer, leaveMap, adSource, updateOutlookDom, stopXP, homePatch } from "./site.js";
 import { startTour, stopTour, tourOn, resumeTour, updateBudgetDom, bookSummary } from "./site-extras.js";
 import { allView, blockView } from "./panels.js";
 import { salesPage, approvalsPage, teamPage, PERMS, investorsCsv } from "./pages.js";
@@ -216,7 +216,9 @@ function renderHeader() {
 
 function render() {
   const app = $("#app");
-  if (S.booting || !G.geo) {
+  // the home page does not need the plot data or the database: it shows at once, while they load (S.early, see boot)
+  const early = S.early && S.area === "site" && ["home", "book"].includes(S.sitePage);
+  if ((S.booting || !G.geo) && !early) {
     // the first screen has the same dark teal as the 3D home, so the opening is one smooth start
     app.innerHTML = `<div class="bootscreen"><div class="bootlogo">${logo()}</div><span>${S.bootErr ? esc(S.bootErr) : "DHA Margalla Orchard · Loading the official master plan"}</span></div>`;
     return;
@@ -230,8 +232,8 @@ function render() {
   const keepScroll = [...app.querySelectorAll(".scroll,.page")].map((e) => e.scrollTop);
   resetLift();
   // while the zoom view is open on the home page, only it changes: draw only it
-  if (S.area === "site" && S.mapOpen && ["home", "book"].includes(S.sitePage) && document.querySelector(".xmaplayer")) { renderLayer(); return; }
-  if (S.area === "site" || !S.me) app.innerHTML = sitePage();
+  if (S.area === "site" && S.mapOpen && S.sitePage === "3d" && document.querySelector(".xmaplayer")) { renderLayer(); return; }
+  if (S.area === "site" || !S.me) { if (!homePatch()) app.innerHTML = sitePage(); }
   else if (S.tab === "sales") app.innerHTML = salesPage();
   else if (S.tab === "calendar") app.innerHTML = calendarPage();
   else if (S.tab === "approvals" && isAdmin()) app.innerHTML = approvalsPage();
@@ -251,7 +253,7 @@ function render() {
     siteAfterRender();
     if (S._startTour && document.querySelector(".explore")) { S._startTour = false; document.querySelector(".explore").scrollIntoView({ block: "center" }); setTimeout(startTour, 400); }
     else resumeTour();
-  } else stopExperience();
+  } else stopXP();
   if (S._focusFind) { S._focusFind = false; const q = $("#q"); if (q) q.focus(); }
 }
 // photos of documents: the address of each file is asked once, then kept
@@ -513,6 +515,7 @@ document.addEventListener("submit", async (e) => {
       return;
     }
     case "bookForm": {
+      if (!S.api) return toast("One moment: the page is still loading. Then press the button again.", "err"); // the home page shows before the start is done
       const blocks = [...S.siteBlocks].sort();
       try {
         await S.api.rpc("book_call", { p_name: val("bk_name"), p_phone: val("bk_phone"), p_whatsapp: val("bk_wa"), p_email: val("bk_email"), p_blocks: blocks,
@@ -610,6 +613,15 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && S.
 
 // ---------------------------------------------------------------- start
 (async function boot() {
+  // a visitor on the home page sees it at once, before the plot data and the database are ready. Not for a signed-in
+  // person (team member or client: they get their own page after the start), the demo or the claude.ai test page.
+  try {
+    const q = new URLSearchParams(location.search), h = decodeURIComponent(location.hash.slice(1));
+    const signedIn = Object.keys(localStorage).some((k) => /^sb-.+-auth-token$/.test(k));
+    if (!signedIn && !q.has("demo") && import.meta.env.VITE_BACKEND !== "artifact" && (!h || ["home", "book", "blocks", "outlook", "contact"].includes(h))) {
+      S.early = true; S.area = "site"; S.sitePage = h ? sitePageFor(h) : "home";
+    }
+  } catch (e) { S.early = false; }
   render();
   try {
     const r = await fetch("plotdata.json");
