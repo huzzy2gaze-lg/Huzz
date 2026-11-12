@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-12T11:30:00Z",
+  "title": "Design System: Margalla Teal Estate",
+  "extensions": {
+    "colorMeta": {
+      "margalla-teal": { "role": "primary", "displayName": "Margalla Teal", "tonalRamp": ["#C5D1D2", "#A2B4B6", "#688589", "#0B3A40", "#09272A", "#071B1D", "#061414"] },
+      "orchard-gold": { "role": "tertiary", "displayName": "Orchard Gold", "tonalRamp": ["#F4EAD3", "#EEDDB8", "#E3C98D", "#D2A746", "#846A2E", "#53451F", "#352E16"] },
+      "call-rose": { "role": "tertiary", "displayName": "Call Rose" },
+      "mist": { "role": "secondary", "displayName": "Mist" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The first-screen heading only." },
+      "headline": { "displayName": "Headline", "purpose": "One heading per card or section." },
+      "data": { "displayName": "Data", "purpose": "Dates and figures only; never decoration." }
+    },
+    "shadows": [
+      { "name": "card-on-plan", "value": "0 30px 80px rgba(0,0,0,.45)", "purpose": "The dark card over the 3D plan." },
+      { "name": "form-card", "value": "0 24px 60px rgba(0,0,0,.1)", "purpose": "The light booking form card." }
+    ],
+    "motion": [
+      { "name": "camera-ease", "value": "1 - exp(-t * 2.6)", "purpose": "The 3D camera arrives at each chapter in about 1.5 s." },
+      { "name": "fly-in", "value": "cubic in-out, 1.05 s", "purpose": "The flight from the 3D plan into the numbered map." }
+    ],
+    "breakpoints": [
+      { "name": "phone", "value": "640px" },
+      { "name": "tablet", "value": "760px" },
+      { "name": "wide", "value": "900px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main action of a screen: Book a call.",
+      "html": "<a class=\"ds-btn\" href=\"#\">Book a call</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;background:#B04761;color:#fff;font:700 16px 'Albert Sans',system-ui,sans-serif;padding:15px 28px;border-radius:999px;text-decoration:none;box-shadow:0 10px 30px rgba(176,71,97,.25)}.ds-btn:hover{background:#C4526F}"
+    },
+    {
+      "name": "Card on the Plan",
+      "kind": "card",
+      "refersTo": "card-on-plan",
+      "description": "One chapter of the home page, over the 3D plan.",
+      "html": "<div class=\"ds-card\"><span class=\"ds-pill\">First block for possession</span><h2>Block A</h2><p>The first block for possession, target July 2027.</p></div>",
+      "css": ".ds-card{max-width:470px;display:grid;gap:14px;background:#06252A;color:#EAF1EE;border:1px solid rgba(227,201,141,.22);border-radius:24px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.45);font:16px/1.55 'Albert Sans',system-ui,sans-serif}.ds-card h2{font:400 40px/1 Gloock,Georgia,serif;margin:0;color:#fff}.ds-card p{margin:0;color:#C5D1D2}.ds-pill{justify-self:start;padding:4px 11px;border-radius:999px;border:1px solid rgba(227,201,141,.55);color:#E3C98D;font:600 12.5px 'Albert Sans',sans-serif}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Margalla Teal Estate",
+    "overview": "A calm, premium property brand at dusk. The official FGEHA master plan in 3D is the stage; dark teal cards carry the facts; gold is the warm accent; rose is the one colour that asks the visitor to act.",
+    "keyCharacteristics": ["Official plan as the hero", "Dark teal cards over a quiet plan", "Gold accents, rose for action", "Facts with dates and sources", "Plain English"],
+    "rules": [
+      { "name": "The One Rose Rule", "body": "Rose is only for the call to act and the block or plot in focus.", "section": "colors" },
+      { "name": "The Quiet Plan Rule", "body": "The 3D plan stays neutral; no colour wash over all blocks.", "section": "colors" },
+      { "name": "The No Kicker Rule", "body": "No small uppercase label above a heading.", "section": "typography" }
+    ],
+    "dos": ["Use the --wh-* tokens", "Date and source next to every figure", "Test on a 390px phone and a laptop, light and dark"],
+    "donts": ["Labels above headings", "A rose wash over the plan", "Monospace as decoration", "Blur over the 3D canvas", "Reviews, ratings or guaranteed returns"]
+  }
+}
