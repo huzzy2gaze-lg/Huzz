@@ -1,0 +1,38 @@
+import { defineConfig, loadEnv } from "vite";
+import { staticPages, TITLE } from "./tools/static-pages.js";
+
+// Link previews (WhatsApp, Facebook) need the full address of the image, so it is added only when
+// VITE_SITE_URL is set, for example VITE_SITE_URL=https://www.whventures.com.pk in .env.production.
+function ogImage(site) {
+  return {
+    name: "og-image",
+    transformIndexHtml(html) {
+      if (!site) return html;
+      const u = site.replace(/\/$/, "");
+      return html.replace("</head>", `<meta property="og:url" content="${u}/">\n<meta property="og:image" content="${u}/og-image.jpg">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<link rel="canonical" href="${u}/">\n</head>`);
+    },
+  };
+}
+
+// "npm run build" makes the real web app (dist/).
+// "npm run build:artifact" makes the claude.ai test page (dist-artifact/): one script, no service worker.
+export default defineConfig(({ mode }) => {
+  const artifact = mode === "artifact";
+  const env = loadEnv(mode, process.cwd(), "VITE_");
+  return {
+    // the static pages for search engines and AI tools (not on the claude.ai test page)
+    plugins: artifact ? [ogImage(env.VITE_SITE_URL)] : [ogImage(env.VITE_SITE_URL), staticPages(env.VITE_SITE_URL)],
+    define: { __SITE_TITLE__: JSON.stringify(TITLE) },
+    base: "./",
+    publicDir: artifact ? false : "public",
+    server: { fs: { allow: [".."] } },
+    optimizeDeps: { exclude: ["@electric-sql/pglite"] },
+    build: {
+      target: "es2022",
+      chunkSizeWarningLimit: 1500,
+      outDir: artifact ? "dist-artifact" : "dist",
+      modulePreload: !artifact,
+      rollupOptions: artifact ? { output: { codeSplitting: false } } : {},
+    },
+  };
+});

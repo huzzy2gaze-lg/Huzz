@@ -1,0 +1,50 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;600;800&display=swap">
+<style>
+/* WH Ventures ads with the photo-real renders. Margalla Teal: teal #0B3A40, mist #EAF1EE, gold #D2A746, rose #B04761 (call to action only) */
+*{box-sizing:border-box;margin:0}
+body{width:var(--w);height:var(--h);overflow:hidden;font-family:"Albert Sans",sans-serif;background:#06252A;color:#EAF1EE;position:relative}
+body{background:radial-gradient(120% 70% at 50% 0%,#0f4a52 0%,#0B3A40 45%,#06252A 100%)}
+.photo{position:absolute;left:0;right:0;top:var(--pt);height:var(--ph);overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover;object-position:var(--pos,50% 50%)}
+.photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0B3A40 0%,rgba(11,58,64,0) 18%,rgba(6,37,42,0) 78%,#06252A 100%)}
+.top{position:absolute;left:var(--pad);right:var(--pad);top:var(--pad);display:flex;align-items:center;gap:calc(var(--u)*1.2)}
+.top img{width:calc(var(--u)*5.2)}
+.top b{font:400 calc(var(--u)*2.6) Gloock,serif;letter-spacing:.02em}
+.top span{display:block;font-weight:600;font-size:calc(var(--u)*1.05);letter-spacing:.18em;color:#D2A746;text-transform:uppercase}
+.head{position:absolute;left:var(--pad);right:var(--pad);top:calc(var(--pad) + var(--u)*7.5)}
+h1{font:400 var(--h1)/1.02 Gloock,serif;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,.35)}
+h1 em{font-style:normal;color:#D2A746}
+.bottom{position:absolute;left:var(--pad);right:var(--pad);bottom:var(--pad);display:grid;gap:calc(var(--u)*1.4)}
+.facts{display:flex;flex-wrap:wrap;gap:calc(var(--u)*.8)}
+.facts span{border:2px solid rgba(210,167,70,.75);color:#EAF1EE;border-radius:999px;padding:calc(var(--u)*.55) calc(var(--u)*1.3);font-weight:600;font-size:calc(var(--u)*1.35);background:rgba(6,37,42,.45)}
+.cta{display:flex;align-items:center;gap:calc(var(--u)*1.6);flex-wrap:wrap}
+.btn{background:#B04761;color:#fff;font-weight:800;font-size:calc(var(--u)*1.9);padding:calc(var(--u)*1.1) calc(var(--u)*2.4);border-radius:999px;box-shadow:0 12px 40px rgba(176,71,97,.45)}
+.phone{font-weight:800;font-size:calc(var(--u)*1.8);color:#fff}
+.phone small{display:block;font-weight:600;font-size:calc(var(--u)*1.0);color:#A9C4C4;letter-spacing:.1em;text-transform:uppercase}
+.fine{font-size:calc(var(--u)*.95);color:#A9C4C4}
+</style></head><body>
+<div class="photo"><img alt=""></div>
+<div class="top"><img src="wh-emblem.svg" alt=""><div><b>WH Ventures</b><span>DHA Margalla Orchard · Islamabad</span></div></div>
+<div class="head"><h1></h1></div>
+<div class="bottom"><div class="facts"></div>
+<div class="cta"><span class="btn">Book a free call</span><span class="phone"><small>Call or WhatsApp</small>+92 331 5223726</span></div>
+<p class="fine">Rendered illustration of a home you could build on a 1 Kanal plot. Not a DHA design. Block A possession: FGEHA target, July 2027.</p></div>
+<script>
+const q=new URLSearchParams(location.search), A={
+  plot:{img:"dusk-cam_hero.webp",h1:"Your plot today.<br><em>Your home tomorrow.</em>",facts:["1 Kanal","14 Marla","10 Marla","Main Park Road"]},
+  build:{img:"dusk-cam_close.webp",h1:"Build your dream home in <em>DHA Margalla Orchard</em>",facts:["Developed by DHA Islamabad","Official FGEHA plan"]},
+  possession:{img:"day-cam_hero.webp",h1:"Block A:<br><em>first possession</em>, July 2027",facts:["FGEHA target date","50% of development done"]},
+}[q.get("ad")||"plot"];
+const [w,h]=(q.get("size")||"1080x1350").split("x").map(Number);
+const u=w/54; document.body.style.setProperty("--w",w+"px");document.body.style.setProperty("--h",h+"px");document.body.style.setProperty("--u",u+"px");
+document.body.style.setProperty("--pad",(u*3.2)+"px");document.body.style.setProperty("--h1",(h>w*1.5?u*6.0:h===w?u*4.4:u*5.0)+"px");
+// the photo: full width in the middle (posts and squares); taller and cropped in stories
+const story=h>w*1.5, square=h===w;
+const ph=story?h*0.5:w*9/16, pt=story?h*0.3:square?h*0.25:h*0.3;
+document.body.style.setProperty("--pt",pt+"px");document.body.style.setProperty("--ph",ph+"px");
+if(story) document.body.style.setProperty("--pos","50% 50%");
+document.querySelector(".photo img").src=A.img;
+document.querySelector("h1").innerHTML=A.h1; document.querySelector(".facts").innerHTML=A.facts.map(f=>`<span>${f}</span>`).join("");
+document.fonts.ready.then(()=>{const i=new Image();i.onload=()=>document.body.dataset.ready=1;i.src=A.img;});
+</script></body></html>

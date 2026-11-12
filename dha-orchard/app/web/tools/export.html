@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Export the home for Blender</title></head><body><script type="module">
+// Builds the finished home, its street and neighbours exactly as the website draws them, and exports one GLB file
+// for the offline renders (Blender Cycles). Used by tools/render.mjs; not part of the website.
+import * as THREE from "three";
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
+import { makeHouse } from "../src/house.js";
+import { makeContext } from "../src/studio.js";
+const q = new URLSearchParams(location.search);
+const size = q.get("size") || "1K", floors = Number(q.get("floors") || 2), style = q.get("style") || "white";
+// p: how far the build is (0 = empty plot, the end = finished); t: seconds, for the crane's movement (the build video)
+const mood = q.get("mood") || "dusk", T = Number(q.get("t") || 0);
+const scene = new THREE.Scene();
+const house = makeHouse({ size, floors, style });
+const P = q.has("p") ? Math.min(Number(q.get("p")), house.end) : house.end;
+house.setMood(mood); house.setProgress(P, T);
+scene.add(house.group);
+const ctx = makeContext(house, size, true);
+ctx.homes.forEach((h) => { h.setProgress(h.end); });
+scene.add(ctx.group);
+house.lights.forEach((p, i) => { const o = new THREE.Object3D(); o.name = "roomlight_" + i; o.position.copy(p); scene.add(o); });
+// cameras: the eye-level view from across the road (as on the website), a corner view, and a close view of the entrance
+const { w: W, d: D } = house.plot, eye = house.eye, front = eye.z - D * 0.27;
+function cam(name, pos, target, fov) { const c = new THREE.PerspectiveCamera(fov, 16 / 9, 0.1, 2000); c.name = name; c.position.set(...pos); c.lookAt(new THREE.Vector3(...target)); scene.add(c); }
+cam("cam_hero", [W * 0.16, 1.7, front + Math.max(17, W * 1.25)], [-W * 0.02, eye.h * 0.45, front - 3], 38);
+cam("cam_corner", [W * 0.95, 2.4, front + 13], [-W * 0.08, eye.h * 0.4, front - 4], 42);
+{ const t = new THREE.Object3D(); t.name = "aim_home"; t.position.set(-W * 0.02, eye.h * 0.42, front - 3); scene.add(t); }
+cam("cam_close", [-W * 0.05, 1.6, front + 7.5], [-W * 0.1, 2.6, front - 1], 50);
+scene.updateMatrixWorld(true);
+new GLTFExporter().parse(scene, (glb) => {
+  const b = new Uint8Array(glb); let s = ""; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000));
+  window.glb = btoa(s); document.body.dataset.ready = 1;
+}, (e) => { window.err = String(e); document.body.dataset.ready = 1; }, { binary: true, onlyVisible: true, maxTextureSize: 1024 });
+</script></body></html>

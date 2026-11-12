@@ -1,0 +1,2 @@
+file_id,block,plot_number,size,dimensions,category,letter_type,ratio_if_land_sharing,tark_i_qabza_done,online_verification_done,dues_status,development_charges_payer,corner_or_park_facing,road_width_ft,seller_name,seller_cnic_seen,purchase_price_pkr,asking_price_pkr,date_acquired,status,notes
+EXAMPLE-001,A,,1 Kanal,50x90,Land sharing,FGEHA file,1:3,Yes,Yes,Clear,To confirm,No,,,,,,,Available,Example row: delete before use
