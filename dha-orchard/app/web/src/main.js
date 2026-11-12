@@ -5,6 +5,14 @@ import { buildGeo } from "./geo.js";
 import { createApi, TABLES } from "./api/index.js";
 import { go, focusPlot, blinkPlot, fromHash, attachMap, resetLift, setHash, siteFocus, siteZoomBlock } from "./map.js";
 import { logo } from "./brand/logo.js";
+
+// the brand fonts load after the first picture (they used to block the page for about 0.9 s on a phone)
+(() => {
+  const l = document.createElement("link");
+  l.rel = "stylesheet";
+  l.href = "https://fonts.googleapis.com/css2?family=Gloock&family=Albert+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap";
+  document.head.append(l);
+})();
 import { heroJump } from "./showcase.js";
 import { stopExperience } from "./experience.js";
 import { sitePage, SITE_PAGES, sitePageFor, siteAfterRender, closeMap, renderLayer, leaveMap, adSource, updateOutlookDom } from "./site.js";
@@ -213,7 +221,7 @@ function render() {
     app.innerHTML = `<div class="bootscreen"><div class="bootlogo">${logo()}</div><span>${S.bootErr ? esc(S.bootErr) : "DHA Margalla Orchard · Loading the official master plan"}</span></div>`;
     return;
   }
-  document.title = S.area === "site" ? `${(S.site && S.site.company) || "WH Ventures"} · Plots in DHA Margalla Orchard, Islamabad` : "Orchard Sales";
+  document.title = S.area === "site" ? (typeof __SITE_TITLE__ === "string" ? __SITE_TITLE__ : "WH Ventures · Plots in DHA Margalla Orchard") : "Orchard Sales";
   renderHeader();
   document.body.dataset.tab = S.area === "site" ? "site" : S.tab;
   const ae = document.activeElement;

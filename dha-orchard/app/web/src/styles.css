@@ -739,7 +739,7 @@ body[data-tab="site"] #app{height:auto}
   .sitenav a{padding:8px 8px;font-size:15px}
   .sitenav a::after{left:8px;right:8px;bottom:3px}
   .siteright .sitebtn{padding:7px 12px;font-size:13px}
-  .siteright .sitebtn.solid{display:none}
+  .siteright .sitebtn.ghost{display:none} /* phones: "Book a call" stays in the header; "Sign in" is in the footer */
   .enqgrid{grid-template-columns:1fr}
   .steps5,.why{grid-template-columns:1fr}
   .barrow{grid-template-columns:1fr 64px;gap:4px 10px}
@@ -1070,8 +1070,9 @@ body.xnogl{background:linear-gradient(rgba(4,22,25,.82),rgba(4,22,25,.92)),url(p
 /* ================================================================ Margalla Teal: call-to-action buttons (rose clay, white text) */
 .sitebtn.solid,.fbook,.xbtn:not(.ghost),.stickycta .sitebtn.solid{background:var(--wh-rose);border-color:var(--wh-rose);color:#fff}
 .sitebtn.solid:hover,.fbook:hover,.xbtn:not(.ghost):hover{background:#C4526F;border-color:#C4526F;color:#fff}
-.sitehead .sitebtn.solid{background:var(--wh-gold);border-color:var(--wh-gold);color:var(--wh-abyss)}
-.sitehead .sitebtn.solid:hover{background:var(--wh-gold-300);border-color:var(--wh-gold-300)}
+/* every main call to action is rose (the brand rule); gold is for accents only */
+.sitehead .sitebtn.solid{background:var(--wh-rose);border-color:var(--wh-rose);color:#fff}
+.sitehead .sitebtn.solid:hover{filter:brightness(1.08)}
 .sitebtn.wa,.wafloat{background:var(--wh-teal);border:1.5px solid var(--wh-gold);color:#fff}
 .fdot{background:#fff}
 .xbtn:not(.ghost){box-shadow:0 10px 30px rgba(176,71,97,.3)}
@@ -1163,3 +1164,22 @@ body.mapmode .floatcta,body.mapmode .stickycta,body.mapmode .xprog,body.mapmode 
 .site svg .plan{filter:none}
 .site svg .pn,.site svg .pn.on{fill:#06252A;stroke:#EAF1EE;stroke-width:.45;paint-order:stroke;font-weight:600;font-variant-numeric:tabular-nums}
 .sitebtn.meet{white-space:normal;text-align:center;margin-top:10px}
+
+/* audit fixes, 12 Nov 2026 */
+.xbook .formcard{color:var(--ink)} /* the form card is light: its question was pale text on white */
+.xbook .sitesec.book .formcard p,.xbook .sitesec.book .formcard .fine,.xbook .sitesec.book .formcard label,.xbook .sitesec.book .formcard .lbl{color:var(--soft)}
+.xbook .sitesec.book .formcard h3,.xbook .sitesec.book .formcard b{color:var(--ink)}
+.xbtn.goldbtn{background:var(--wh-rose);border-color:var(--wh-rose);color:#fff}
+.xbtn.goldbtn:hover{background:var(--wh-rose);filter:brightness(1.08);color:#fff}
+.cdl dd a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.xfoot{background:#0B3A40;border-top:1px solid rgba(227,201,141,.2);max-width:none;margin:0}
+.xfoot a{color:#E3C98D}
+.callbar .sitebtn{flex:1;justify-content:center;text-align:center}
+.callbar .sitebtn.call{background:#fff;color:var(--wh-abyss);border-color:#fff}
+.page-experience .stickycta{display:none}
+@media (max-width:640px){
+  .page-experience .stickycta.callbar{display:flex}
+  .page-experience .xfoot{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+
+}
+.skipline{margin:10px 0 0;text-align:center}.skipline .linkbtn{font-size:14px}

@@ -7,7 +7,7 @@ import { S, G, esc } from "./core.js";
 import { ACTIVE } from "./geo.js";
 const TOUR = ["A", "B", "C"]; // the blocks the page flies to, in order
 import { outlookFor } from "./showcase.js";
-import { MILESTONES, FAQ } from "./site-extras.js";
+import { MILESTONES, FAQ, STEPS } from "./content.js";
 import { makeCommunity } from "./community.js";
 // the home on a plot is shown with videos and pictures made offline (Blender Cycles), not drawn live: smooth on every phone
 const SIZES = { "1K": "1 Kanal", "14M": "14 Marla", "10M": "10 Marla" };
@@ -42,17 +42,16 @@ function blockChapter(b, i) {
       <div class="xrow"><a href="#book" class="xbtn goldbtn" data-act="askPlot" data-block="${b}" data-magnet>Book a call about Block ${b}</a><button type="button" class="xbtn ghost" data-mapopen="${b}">See the plots of Block ${b}</button></div>
     </div></section>`;
 }
-const STEPS = [
-  ["A call with us", "We answer your questions and help you choose a block and a plot."],
-  ["Token (Bayana)", "Price, transfer time, token amount and mode of payment are agreed."],
-  ["NDC", "The No Demand Certificate goes to the authority for approval."],
-  ["Transfer", "You and the seller go to the authority with your CNICs for biometrics."],
-  ["Allotment letter", "The authority gives the receipt, then your allotment letter."],
-];
+// the first screen says what we sell and what it costs: the 1 Kanal asking prices are the same figures as on the block cards
+function heroFacts() {
+  const asks = TOUR.map(outlookFor).filter(Boolean).flatMap((o) => o.today);
+  const range = asks.length ? ` 1 Kanal asking prices: ${f2(Math.min(...asks))}–${f2(Math.max(...asks))} crore (October 2026).` : "";
+  return `1 Kanal, 14 Marla and 10 Marla plots on the official FGEHA master plan.${range}`;
+}
 export function experiencePage(c) {
   if (c) cfg = c;
   const now = Date.now();
-  const tl = MILESTONES.map(([d, t, s]) => `<li class="${Date.parse(d) <= now ? "done" : "next"}"><time>${new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</time><b>${esc(t)}</b><span>${esc(s)}</span></li>`).join("");
+  const tl = MILESTONES.map(([d, t, s]) => `<li class="${Date.parse(d) <= now ? "done" : "next"}"><time>${new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}</time><b>${esc(t)}</b><span>${esc(s)}</span></li>`).join("");
   const enc = [["Margalla Enclave, Mar 2025", 4.41], ["Margalla Enclave, Dec 2025", 5.6], ["Margalla Enclave, Sep 2026", 7.29], ["Margalla Orchard, today", 3.8]];
   const wa = cfg.waLink();
   return `<div class="xp">
@@ -62,14 +61,14 @@ export function experiencePage(c) {
     <section class="xch xhero" data-cam="hero">
       <div class="xkicker">DHA Margalla Orchard · Islamabad</div>
       <h1>${words("Your plot in")}<br>${words("DHA Margalla Orchard.", "gold")}</h1>
-      <p class="xlead">The official FGEHA master plan, in 3D. Scroll to fly over the blocks, then watch a home rise on a plot.</p>
+      <p class="xlead">${heroFacts()} We help you choose, buy and transfer your plot.</p>
       <div class="xrow"><a href="#book" class="xbtn" data-magnet>Book a call</a>${wa ? `<a href="${wa}" class="xbtn ghost" target="_blank" rel="noopener" data-magnet>WhatsApp</a>` : ""}</div>
       <div class="xscroll"><i></i>Scroll</div>
     </section>
     <section class="xch xnumbers" data-cam="overview"><div class="xcard wide">
       <div class="xkicker">The whole scheme</div>
       <h2>${words("4,781 plots. 8 blocks. One master plan.")}</h2>
-      <div class="xstats"><div><b data-count="4781">0</b><span>residential plots</span></div><div><b data-count="8432">0</b><span>kanals of land</span></div><div><b data-count="50">0</b><span>% of development done</span></div></div>
+      <div class="xstats"><div><b data-count="4781">4,781</b><span>residential plots</span></div><div><b data-count="8432">8,432</b><span>kanals of land</span></div><div><b data-count="50" data-suffix="%">50%</b><span>of development done</span></div></div>
       <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Tap a block on the plan to see its plots and their numbers.</p>
       <button type="button" class="xbtn ghost" data-mapopen="all">Find a plot number</button>
     </div></section>
@@ -90,7 +89,7 @@ export function experiencePage(c) {
       <div class="xkicker">Questions</div><h2>${words("What buyers ask us")}</h2>
       <div class="xfaq">${FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></div></section>
     <div class="xbook" data-cam="book" id="book">${cfg.bookSection()}</div>
-    <footer class="xfoot"><div><b>${esc(cfg.company())}</b><span>${cfg.contact ? cfg.contact() : ""}</span><span><a href="/privacy">Privacy policy</a></span></div>
+    <footer class="xfoot"><div><b>${esc(cfg.company())}</b><span>${cfg.contact ? cfg.contact() : ""}</span><span><a href="/privacy">Privacy policy</a>${cfg.signin ? ` · ${cfg.signin}` : ""}</span></div>
       <p class="xfine">Scheme facts: FGEHA, October 2026. Prices: asking prices in October 2026 and DHA's published Margalla Enclave prices. The outlook is our team's view, not a promise: prices can go up or down. The map is the official FGEHA layout plan.</p></footer>
   </div>`;
 }
@@ -546,7 +545,7 @@ function counters(root) {
   root.querySelectorAll("[data-count]:not([data-done])").forEach((el) => {
     el.dataset.done = 1;
     const to = Number(el.dataset.count), t0 = performance.now();
-    const step = (n) => { const k = Math.min(1, (n - t0) / 1400), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e).toLocaleString("en-US"); if (k < 1) requestAnimationFrame(step); };
+    const step = (n) => { const k = Math.min(1, (n - t0) / 1400), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e).toLocaleString("en-US") + (el.dataset.suffix || ""); if (k < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
   });
   root.querySelectorAll(".xgrow b[data-to]").forEach((el, k) => {

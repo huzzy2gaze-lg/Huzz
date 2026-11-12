@@ -4,6 +4,8 @@
 import { S, G, esc } from "./core.js";
 import { SIZES, ACTIVE } from "./geo.js";
 import { BLOCKS, blockCard } from "./site.js";
+import { MILESTONES, FAQ } from "./content.js";
+export { MILESTONES, FAQ };
 
 const ymd = (d) => d.toISOString().slice(0, 10);
 
@@ -145,12 +147,6 @@ export function updateBudgetDom() {
 }
 
 // ---------------------------------------------------------------- development timeline
-export const MILESTONES = [
-  ["2025-09-26", "DHA Islamabad takes on the development", "The tripartite agreement is signed."],
-  ["2026-02-18", "Margalla Orchards Walk commercial ballot", "The commercial area in Block A."],
-  ["2026-10-01", "50% of the development done", "FGEHA's progress report, October 2026."],
-  ["2027-07-01", "Block A possession", "FGEHA's target date for the first block."],
-];
 export function timelineSection() {
   const now = new Date(), t0 = Date.parse(MILESTONES[0][0]), t1 = Date.parse(MILESTONES[MILESTONES.length - 1][0]);
   const pos = (d) => Math.max(0, Math.min(100, ((Date.parse(d) - t0) / (t1 - t0)) * 100));
@@ -159,7 +155,7 @@ export function timelineSection() {
   return `<section class="sitesec" id="progress"><div class="sitewrap">
     <div class="sechead"><div class="eyebrow">Progress</div><h2>From development to possession</h2></div>
     <div class="tline"><div class="trail"><i class="tfill grow" style="--w:${today}%"></i><span class="tnow" style="left:${today}%">Today</span></div>
-      ${MILESTONES.map(([d, t, s], i) => `<div class="tm ${Date.parse(d) <= now ? "done" : ""}" style="left:${pos(d)}%"><i></i><b>${new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</b><span>${t}</span><small>${s}</small></div>`).join("")}</div>
+      ${MILESTONES.map(([d, t, s], i) => `<div class="tm ${Date.parse(d) <= now ? "done" : ""}" style="left:${pos(d)}%"><i></i><b>${new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}</b><span>${t}</span><small>${s}</small></div>`).join("")}</div>
     <div class="cdown"><b class="countup" data-to="${days}">${days}</b><span>days to the Block A possession target</span></div>
     <p class="fine">Source: FGEHA and DHA Islamabad announcements. Dates are targets set by the authority.</p></div></section>`;
 }
@@ -174,14 +170,6 @@ export function nearbySection() {
 }
 
 // ---------------------------------------------------------------- questions and answers
-export const FAQ = [
-  ["Who develops DHA Margalla Orchard?", "FGEHA (the Federal Government Employees Housing Authority) owns the scheme. DHA Islamabad carries out the development under the agreement of September 2025."],
-  ["Which plot sizes are there?", "1 Kanal (50 × 90 ft, 500 sq yd), 14 Marla (40 × 80 ft, 356 sq yd) and 10 Marla (32 × 70 ft, 249 sq yd)."],
-  ["When can I get possession?", "Block A is the first block for possession. FGEHA's target is July 2027. The other blocks follow."],
-  ["How does buying a plot work?", "We agree the price, the token (Bayana), the time for the transfer and the mode of payment. Then the NDC goes to the authority. On the transfer date, the buyer and the seller give their biometrics at the authority. The buyer gets a receipt, then the allotment letter."],
-  ["What do I need for the transfer?", "Your original CNIC and the payment (pay order, bank transfer or another mode that the authority accepts). We tell you the exact list for your plot before the date."],
-  ["Can I see a plot before I buy?", "Yes. Book a call, and an agent arranges a visit to the site and shows you the plot on the official plan."],
-];
 export function faqSection() {
   return `<section class="sitesec alt" id="faq"><div class="sitewrap narrow2">
     <div class="sechead"><div class="eyebrow">Questions</div><h2>What buyers ask us</h2></div>

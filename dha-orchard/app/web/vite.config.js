@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from "vite";
+import { staticPages, TITLE } from "./tools/static-pages.js";
 
 // Link previews (WhatsApp, Facebook) need the full address of the image, so it is added only when
 // VITE_SITE_URL is set, for example VITE_SITE_URL=https://www.whventures.com.pk in .env.production.
@@ -19,7 +20,9 @@ export default defineConfig(({ mode }) => {
   const artifact = mode === "artifact";
   const env = loadEnv(mode, process.cwd(), "VITE_");
   return {
-    plugins: [ogImage(env.VITE_SITE_URL)],
+    // the static pages for search engines and AI tools (not on the claude.ai test page)
+    plugins: artifact ? [ogImage(env.VITE_SITE_URL)] : [ogImage(env.VITE_SITE_URL), staticPages(env.VITE_SITE_URL)],
+    define: { __SITE_TITLE__: JSON.stringify(TITLE) },
     base: "./",
     publicDir: artifact ? false : "public",
     server: { fs: { allow: [".."] } },

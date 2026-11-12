@@ -3,6 +3,8 @@
 // Market figures: asking prices of late October 2026 and DHA's own Margalla Enclave prices, as in the
 // client offer. The outlook is the team's view, shown with a clear note that it is not a promise.
 import { S, G, esc, hooks } from "./core.js";
+import { SITE_DEFAULTS, BLOCKS } from "./content.js";
+export { SITE_DEFAULTS, BLOCKS };
 import { SIZES, ACTIVE } from "./geo.js";
 import { mapSVG, blockVB, plotsVB, attachMap } from "./map.js";
 import { logo } from "./brand/logo.js";
@@ -13,7 +15,6 @@ import { sizesSection, budgetSection, timelineSection, nearbySection, faqSection
 
 export const SITE_PAGES = ["home", "plan", "contact", "account", "signin", "book", "blocks", "outlook", "experience"];
 // Used until an admin writes other details on the Team page.
-export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", email: "info@whventures.com.pk", address: "Islamabad, Pakistan", meet_link: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3fJrpSQrbjtCjWar9-Euh_bRuAiqhFrJla9YK5Il5KtPk8GtRNPnyUEXdUvjzdnYFPcoqnH6rM" };
 // one home page (the 3D master plan); the old page names still work, so old links and ads keep working
 export const sitePageFor = (h) => (["experience", "blocks", "outlook"].includes(h) ? "home" : h === "contact" ? "book" : h);
 const set = (k) => ((S.site[k] || "").trim() || SITE_DEFAULTS[k] || "");
@@ -21,16 +22,6 @@ const company = () => set("company") || "WH Ventures";
 const ptsStr = (pts) => pts.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
 
 // what we say about each block: only facts from FGEHA, the plan and the market, written to help a buyer choose
-export const BLOCKS = {
-  A: { plots: 906, sizes: "1 Kanal · 14 Marla", line: "The first block for possession, target July 2027. Next to the Margalla Orchards Walk commercial area, near the main entrance.", price: [3.65, 4.0], size: "1 Kanal" },
-  B: { plots: 737, sizes: "1 Kanal · 14 Marla", line: "Numbered 1 Kanal and 14 Marla plots in the core of the scheme.", price: [3.75, 4.55], size: "1 Kanal" },
-  C: { plots: 467, sizes: "1 Kanal", line: "The premium 1 Kanal block, with wide roads and firm natural ground.", price: [3.85, 4.5], size: "1 Kanal" },
-  D: { plots: 373, sizes: "14 Marla · 1 Kanal", line: "At the centre of the scheme, with 14 Marla and 1 Kanal plots.", price: null },
-  E: { plots: 1128, sizes: "10 Marla", line: "The largest block. 10 Marla plots (32 × 70 ft): the most affordable way into DHA Margalla Orchard.", price: [2.6, 2.8], size: "10 Marla" },
-  F: { plots: 228, sizes: "As on the plan", line: "A smaller block on the official master plan. Ask us about plots here.", price: null },
-  G: { plots: 538, sizes: "1 Kanal", line: "A 1 Kanal block on higher ground with Margalla views. The best-value 1 Kanal in the scheme today.", price: [3.3, 3.3], size: "1 Kanal" },
-  H: { plots: 167, sizes: "14 Marla · 1 Kanal", line: "A compact block with 14 Marla and 1 Kanal plots. Ask us about plots here.", price: null },
-};
 // the team's outlook (client offer, Nov 2026): 1 Kanal asks about 3.8 Cr today; DHA sells the same size in
 // Margalla Enclave for 7.29 Cr. Outlook: about 85% of that by July 2027 (6.2), level by the end of 2028 (7.3).
 // Careful case: about 9% a year, as in the last 12 months.
@@ -52,8 +43,10 @@ function header() {
     <div class="siteright">${right}<a href="#book" class="sitebtn solid">Book a call</a></div></div></header>`;
 }
 
+// tap-to-call: "+92 331 5223726" -> "tel:+923315223726" (a local 03.. number becomes +92 3..)
+function telHref(v) { const d = String(v || "").replace(/[^0-9+]/g, ""); return "tel:" + (d.startsWith("+") ? d : d.startsWith("00") ? "+" + d.slice(2) : d.startsWith("0") ? "+92" + d.slice(1) : "+" + d); }
 function contactLine() {
-  return [set("phone") && `Phone ${esc(set("phone"))}`, set("whatsapp") && `WhatsApp ${esc(set("whatsapp"))}`, set("email") && `<a href="mailto:${esc(set("email"))}">${esc(set("email"))}</a>`, set("address") && esc(set("address"))].filter(Boolean).join(" · ");
+  return [set("phone") && `Phone <a href="${telHref(set("phone"))}">${esc(set("phone"))}</a>`, set("whatsapp") && `WhatsApp <a href="${waLink()}" target="_blank" rel="noopener">${esc(set("whatsapp"))}</a>`, set("email") && `<a href="mailto:${esc(set("email"))}">${esc(set("email"))}</a>`, set("address") && esc(set("address"))].filter(Boolean).join(" · ");
 }
 function footer() {
   const bits = [set("phone") && `Phone ${esc(set("phone"))}`, set("whatsapp") && `WhatsApp ${esc(set("whatsapp"))}`, set("email") && esc(set("email")), set("address") && esc(set("address"))].filter(Boolean);
@@ -210,7 +203,9 @@ function bookForm() {
       <button class="sitebtn ghost" data-act="siteAgain">Book another call</button></div>`;
     return `<div class="sent"><h3>Thank you${s.name ? ", " + esc(s.name.split(" ")[0]) : ""}. We will call you.</h3>
       <p>A member of our team will call you on <b>${esc(s.phone)}</b>${s.time ? ` in the ${esc(s.time)}` : ""}${s.blocks && s.blocks.length ? ` about Block ${esc(s.blocks.join(", "))}` : ""}.</p>
-      ${!S.user ? `<p>Create a free account to follow your request and to get news about new plots.</p><a href="#signin" class="sitebtn">Create an account</a>` : ""}
+      ${waLink() ? `<p>Do you want to talk now? Send us a WhatsApp message.</p><a class="sitebtn wa" href="${waLink("I booked a call on your website. My name is " + (s.name || "") + ".")}" target="_blank" rel="noopener">Chat on WhatsApp now</a>` : ""}
+      ${set("meet_link") ? meetBtn("sitebtn ghost") : ""}
+      ${!S.user ? `<p class="fine">Create a free account to follow your request and to get news about new plots. <a href="#signin">Create an account</a></p>` : ""}
       <button class="sitebtn ghost" data-act="siteAgain">Book another call</button></div>`;
   }
   if (S.api && S.api.canSubmit === false) return `<div class="sent"><h3>Book a call</h3><p>On the test page, you need Contributor access to book a call. On the real website, everyone can book one.</p></div>`;
@@ -219,7 +214,8 @@ function bookForm() {
   const step = S.bookStep || 1, ans = S.bookAns || {};
   const bar = `<div class="stepbar"><span>Step ${step} of 4</span><i><i style="width:${step * 25}%"></i></i></div>`;
   const chips = (key, list) => `<div class="chiprow">${list.map(([k, l]) => `<button type="button" class="chip2${(ans[key] || "") === k && (k || ans[key] === "") ? " on" : ""}" data-bookans="${key}:${k}">${l}</button>`).join("")}</div>`;
-  const nav = (back, next, label) => `<div class="stepnav">${back ? `<button type="button" class="sitebtn ghost" data-bookstep="${back}">Back</button>` : "<span></span>"}<button type="button" class="sitebtn solid" data-bookstep="${next}">${label || "Next"}</button></div>`;
+  const nav = (back, next, label) => `<div class="stepnav">${back ? `<button type="button" class="sitebtn ghost" data-bookstep="${back}">Back</button>` : "<span></span>"}<button type="button" class="sitebtn solid" data-bookstep="${next}">${label || "Next"}</button></div>
+    <p class="skipline"><button type="button" class="linkbtn" data-bookstep="4">Skip the questions: leave my number</button></p>`;
   if (step === 1) return `<div class="enq">${bar}<h3 class="steph">What is the plot for?</h3>${chips("goal", GOALS)}${nav(0, 2)}</div>`;
   if (step === 2) return `<div class="enq">${bar}<h3 class="steph">Your budget for one plot</h3>${chips("budget", BUDGETS)}<div class="lbl">Plot size</div>${chips("size", WANT_SIZES)}${nav(1, 3)}</div>`;
   if (step === 3) return `<div class="enq">${bar}<h3 class="steph">Which blocks do you like?</h3><p class="fine">Choose one or more, or go on: our agent can advise you.</p>
@@ -227,7 +223,7 @@ function bookForm() {
   return `<form class="enq" id="bookForm" novalidate>${bar}<h3 class="steph">Where can we call you?</h3>
     ${bookSummary() || chosen.size ? `<p class="fine">${esc([bookSummary(), chosen.size ? "Blocks: " + [...chosen].sort().join(", ") : ""].filter(Boolean).join(" · "))} <button type="button" class="linkbtn" data-bookstep="1">Change</button></p>` : ""}
     <label><span>Your name *</span><input id="bk_name" autocomplete="name" required value="${esc(acc.full_name || "")}"></label>
-    <label><span>Phone number * <small>We call this number</small></span><input id="bk_phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="03xx xxxxxxx" value="${esc(acc.phone || "")}"></label>
+    <label><span>Phone number * <small>Pakistan or abroad. From abroad, add your country code.</small></span><input id="bk_phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="0331 1234567 or +44 7700 123456" value="${esc(acc.phone || "")}"></label>
     <div class="enqgrid"><label><span>WhatsApp (optional)</span><input id="bk_wa" type="tel" inputmode="tel" value="${esc(acc.whatsapp || "")}"></label>
     <label><span>E-mail (optional)</span><input id="bk_email" type="email" autocomplete="email" value="${esc(acc.email || "")}"></label></div>
     <label class="check"><input type="checkbox" id="bk_same"> My WhatsApp number is the same as my phone number</label>
@@ -257,7 +253,14 @@ function meetBtn(cls = "sitebtn") {
 }
 function contactBlock() {
   const rows = [["Phone", set("phone")], ["WhatsApp", set("whatsapp")], ["E-mail", set("email")], ["Office", set("address")], ["Hours", set("hours")]].filter((r) => r[1]);
-  return rows.length ? `<dl class="cdl">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : "";
+  const link = (k, v) => k === "Phone" ? `<a href="${telHref(v)}">${esc(v)}</a>` : k === "WhatsApp" ? `<a href="${waLink()}" target="_blank" rel="noopener">${esc(v)}</a>` : k === "E-mail" ? `<a href="mailto:${esc(v)}">${esc(v)}</a>` : esc(v);
+  return rows.length ? `<dl class="cdl">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${link(k, v)}</dd></div>`).join("")}</dl>` : "";
+}
+
+// phones: a fixed bar at the bottom with the three ways to reach us
+function callBar() {
+  const wa = waLink(), ph = set("phone");
+  return `<div class="stickycta callbar">${ph ? `<a href="${telHref(ph)}" class="sitebtn call">Call</a>` : ""}${wa ? `<a href="${wa}" class="sitebtn wa" target="_blank" rel="noopener">WhatsApp</a>` : ""}<a href="#book" class="sitebtn solid">Book a call</a></div>`;
 }
 
 // ---------------------------------------------------------------- pages
@@ -453,7 +456,7 @@ function account() {
 export function sitePage() {
   let body;
   // the home page is the 3D master plan; "Book a call" is its last chapter
-  if (S.sitePage === "home" || S.sitePage === "book") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine, openMap })}</main>${floatCta(waLink())}${S.mapOpen ? mapLayer() : ""}</div>`;
+  if (S.sitePage === "home" || S.sitePage === "book") return `<div class="site page-experience">${header()}<main>${experiencePage({ BLOCKS, bookSection, waLink, company, logo, contact: contactLine, openMap, signin: S.mode === "public" || S.user ? "" : `<a href="#signin">Sign in</a>` })}</main>${floatCta(waLink())}${callBar()}${S.mapOpen ? mapLayer() : ""}</div>`;
   if (S.sitePage === "plan") body = plan();
   else if (S.sitePage === "account") body = account();
   else if (S.sitePage === "signin") body = signin();
