@@ -83,7 +83,7 @@ export function experiencePage(c) {
     </div></section>
     <section class="xch" data-cam="how"><div class="xcard wide">
       <h2>${words("From a call to your allotment letter")}</h2>
-      <ol class="xsteps">${STEPS.map(([t, d], i) => `<li><span>${i + 1}</span><b>${t}</b><small>${d}</small></li>`).join("")}</ol></div></section>
+      <ol class="xsteps">${STEPS.map(([t, d], i) => `<li style="--d:${(i * 0.7).toFixed(1)}s"><div class="xsa" aria-hidden="true">${STEP_ART[i] || ""}</div><span>${i + 1}</span><b>${t}</b><small>${d}</small></li>`).join("")}</ol></div></section>
     <section class="xch" data-cam="faq"><div class="xcard wide">
       <h2>${words("What buyers ask us")}</h2>
       <div class="xfaq">${FAQ.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}</div></div></section>
@@ -93,8 +93,35 @@ export function experiencePage(c) {
   </div>`;
 }
 
+
+// "From a call to your allotment letter": one small picture per step. Each plays its own short animation,
+// one step after the other, when the card comes into view (CSS in styles.css, .xsa). Without motion they show the end state.
+const STEP_ART = [
+  // 1. a call: the phone rings, the sound waves go out, a reply bubble comes up
+  `<svg viewBox="0 0 120 72"><g class="sa-phone"><path d="M40 20c-4 1-7 5-6 9 3 14 14 25 28 28 4 1 8-2 9-6l1-5-10-5-5 5c-6-3-10-7-13-13l5-5-5-10z" fill="none" stroke="#E3C98D" stroke-width="2.4" stroke-linejoin="round"/></g>
+    <path class="sa-wave w1" d="M70 22a12 12 0 0 1 6 10" fill="none" stroke="#E3C98D" stroke-width="2.2" stroke-linecap="round"/><path class="sa-wave w2" d="M73 13a22 22 0 0 1 12 19" fill="none" stroke="#E3C98D" stroke-width="2.2" stroke-linecap="round"/>
+    <g class="sa-bubble"><rect x="84" y="40" width="28" height="18" rx="9" fill="#EAF1EE"/><circle cx="92" cy="49" r="2" fill="#06252A"/><circle cx="98" cy="49" r="2" fill="#06252A"/><circle cx="104" cy="49" r="2" fill="#06252A"/></g></svg>`,
+  // 2. token (Bayana): a coin drops onto the stack
+  `<svg viewBox="0 0 120 72"><ellipse cx="60" cy="62" rx="24" ry="4" fill="rgba(0,0,0,.25)"/>
+    <g fill="#D2A746" stroke="#7A5F22" stroke-width="1.2"><rect x="42" y="50" width="36" height="8" rx="4"/><rect x="44" y="43" width="36" height="8" rx="4"/></g>
+    <g class="sa-coin"><ellipse cx="61" cy="34" rx="18" ry="6" fill="#E3C98D" stroke="#7A5F22" stroke-width="1.2"/><text x="61" y="37" text-anchor="middle" font-size="8" font-weight="700" fill="#7A5F22">Rs</text></g>
+    <path class="sa-shine" d="M86 26l3-6M90 32l6-2M84 20l-1-6" stroke="#E3C98D" stroke-width="2" stroke-linecap="round"/></svg>`,
+  // 3. NDC: the stamp comes down and leaves APPROVED on the paper
+  `<svg viewBox="0 0 120 72"><rect x="30" y="8" width="54" height="60" rx="4" fill="#EAF1EE"/><g stroke="#A9C4C4" stroke-width="2.2" stroke-linecap="round"><path d="M38 18h30M38 25h38M38 32h24"/></g>
+    <g class="sa-mark"><rect x="40" y="40" width="40" height="15" rx="3" fill="none" stroke="#B8902F" stroke-width="2" transform="rotate(-8 60 47)"/><text x="60" y="51" text-anchor="middle" font-size="8.5" font-weight="800" letter-spacing=".6" fill="#B8902F" transform="rotate(-8 60 47)">APPROVED</text></g>
+    <g class="sa-stamp"><rect x="80" y="20" width="9" height="16" rx="4" fill="#4A6B6E"/><rect x="74" y="35" width="21" height="7" rx="2" fill="#D2A746"/></g></svg>`,
+  // 4. transfer: biometrics at the authority, the fingerprint is scanned, then a tick
+  `<svg viewBox="0 0 120 72"><rect x="38" y="6" width="44" height="60" rx="10" fill="rgba(234,241,238,.06)" stroke="rgba(227,201,141,.4)" stroke-width="1.5"/>
+    <g fill="none" stroke="#A9C4C4" stroke-width="2" stroke-linecap="round"><path d="M50 44c0-8 4-15 10-15s10 7 10 15"/><path d="M54 48c0-9 2-14 6-14s6 5 6 14"/><path d="M60 40v14"/><path d="M46 38c2-10 8-15 14-15s12 5 14 15"/><path d="M48 28c3-5 7-8 12-8s9 3 12 8"/></g>
+    <rect class="sa-scan" x="42" y="14" width="36" height="3" rx="1.5" fill="#E3C98D"/>
+    <g class="sa-ok"><circle cx="82" cy="58" r="9" fill="#D2A746"/><path d="M78 58l3 3 5-6" fill="none" stroke="#06252A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
+  // 5. allotment letter: the letter comes out of the envelope with a gold seal
+  `<svg viewBox="0 0 120 72"><g class="sa-letter"><rect x="40" y="14" width="40" height="42" rx="3" fill="#EAF1EE"/><g stroke="#A9C4C4" stroke-width="2" stroke-linecap="round"><path d="M46 22h22M46 28h28M46 34h18"/></g>
+      <g class="sa-seal"><circle cx="70" cy="44" r="7" fill="#D2A746" stroke="#7A5F22" stroke-width="1"/><path d="M67 44l2 2 4-4" fill="none" stroke="#06252A" stroke-width="1.8" stroke-linecap="round"/></g></g>
+    <path d="M34 40h52v26H34z" fill="#0B3A40" stroke="#E3C98D" stroke-width="1.6" stroke-linejoin="round"/><path d="M34 40l26 15 26-15" fill="none" stroke="#E3C98D" stroke-width="1.6" stroke-linejoin="round"/></svg>`,
+];
 // ---------------------------------------------------------------- from plot to home: videos and photo-real renders (Blender Cycles)
-// The video: the 1 Kanal home is built on its plot by day, then the finished home at dusk (it loops).
+// The video: the finished 1 Kanal home at dusk, a slow cinematic camera (it loops).
 // The pictures: every plot size and style, by day, at dusk and at night.
 const RMOODS = [["dusk", "Dusk"], ["day", "Day"], ["night", "Night"]];
 const rs = { size: "1K", style: "white", mood: "dusk", video: true };
@@ -104,12 +131,12 @@ function rsrc() {
 }
 function rcaption() {
   const c = studioChoice();
-  return rs.video ? `Rendered film: a 1 Kanal home is built on its plot, then the finished home at dusk. Not a DHA or FGEHA design; a real design must follow the building bylaws.`
+  return rs.video ? `Rendered film: a finished 1 Kanal home at dusk. Not a DHA or FGEHA design; a real design must follow the building bylaws.`
     : `Rendered illustration: ${c.label}, 2 floors, ${c.styleLabel.toLowerCase()}. Not a DHA or FGEHA design; a real design must follow the building bylaws.`;
 }
 const fallback = `onerror="this.onerror=null;this.src='renders/dusk-cam_hero.webp'"`;
 function rmedia() {
-  if (rs.video) return `<video class="xr-build" src="renders/home-build.mp4" poster="renders/build-poster.webp" muted playsinline preload="none" aria-label="Rendered film of a home being built"></video>`;
+  if (rs.video) return `<video class="xr-build" src="renders/home-dusk.mp4" poster="renders/dusk-cam_hero.webp" muted loop playsinline preload="none" aria-label="Rendered film of a finished home at dusk"></video>`;
   return `<img src="${rsrc()}" alt="Rendered illustration of a home in DHA Margalla Orchard" loading="lazy" decoding="async" ${fallback}>`;
 }
 function renderSection() {
@@ -117,10 +144,10 @@ function renderSection() {
   const c = studioChoice();
   return `<section class="xch xrender" data-cam="render" id="x-render"><div class="xr-wrap">
     <h2>${words("Your plot today.")} ${words("Your home tomorrow.", "gold")}</h2>
-    <p class="xlead xr-lead">Watch a home rise on a 1 Kanal plot. Then choose a plot size, a style and the time of day.</p>
+    <p class="xlead xr-lead">See a finished home on a 1 Kanal plot at dusk. Then choose a plot size, a style and the time of day.</p>
     <button type="button" class="xr-frame" data-render="zoom:1" aria-label="Open full screen">${rmedia()}</button>
     <div class="xr-ctrls">
-      <div class="xs-row">${chip("play", "1", "▶ Watch it built", rs.video)}</div>
+      <div class="xs-row">${chip("play", "1", "▶ Dusk film", rs.video)}</div>
       <div class="xs-row">${Object.entries(SIZES).map(([v, l]) => chip("size", v, l, !rs.video && rs.size === v)).join("")}</div>
       <div class="xs-row">${Object.entries(STYLES).map(([v, l]) => chip("style", v, l, !rs.video && rs.style === v)).join("")}</div>
       <div class="xs-row">${RMOODS.map(([v, l]) => chip("mood", v, l, !rs.video && rs.mood === v)).join("")}</div></div>
@@ -128,13 +155,11 @@ function renderSection() {
     <a href="#book" class="xbtn" data-magnet>Book a call about a ${esc(c.label)} plot</a>
   </div></section>`;
 }
-// the build film plays when it comes into view; at its end, the finished home at dusk loops
+// the dusk film plays (and loops) while it is in view
 function wireVideo() {
   const v = document.querySelector(".xr-build");
   if (!v || v.dataset.wired) return;
   v.dataset.wired = 1;
-  v.addEventListener("error", () => { if (v.dataset.stage) return; v.dataset.stage = "dusk"; v.src = "renders/home-dusk.mp4"; v.loop = true; v.play().catch(() => {}); });
-  v.addEventListener("ended", () => { if (v.dataset.stage === "dusk") return; v.dataset.stage = "dusk"; v.poster = "renders/dusk-cam_hero.webp"; v.src = "renders/home-dusk.mp4"; v.loop = true; v.play().catch(() => {}); });
   const vio = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.35 });
   vio.observe(v);
 }
@@ -153,7 +178,7 @@ function renderClick(target) {
   if (k === "zoom") {
     const o = document.createElement("div"); o.className = "xr-full";
     const cur = document.querySelector(".xr-build");
-    o.innerHTML = rs.video ? `<video src="${cur ? cur.currentSrc || cur.src : "renders/home-build.mp4"}" autoplay muted loop playsinline controls></video><button type="button" aria-label="Close">×</button>` : `<img src="${rsrc()}" alt="" ${fallback}><button type="button" aria-label="Close">×</button>`;
+    o.innerHTML = rs.video ? `<video src="${cur ? cur.currentSrc || cur.src : "renders/home-dusk.mp4"}" autoplay muted loop playsinline controls></video><button type="button" aria-label="Close">×</button>` : `<img src="${rsrc()}" alt="" ${fallback}><button type="button" aria-label="Close">×</button>`;
     o.addEventListener("click", (e) => { if (e.target.tagName !== "VIDEO") o.remove(); }); document.body.append(o); return true;
   }
   if (k === "play") { rs.video = true; refreshRender(); document.querySelector(".xr-build")?.play().catch(() => {}); return true; }
