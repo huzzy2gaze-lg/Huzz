@@ -1,12 +1,15 @@
 // The facts of the website in one place: contact details, the blocks, the timeline, the steps of a purchase and the
 // questions. The 3D home page uses them, and the build (vite.config.js) uses the same facts for the static pages that
 // search engines and AI tools read (block pages, buying guide, structured data, llms.txt). No browser code here.
-export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", email: "info@whventures.com.pk", address: "Islamabad, Pakistan", hours: "9 am to 9 pm (Pakistan time)", meet_link: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3fJrpSQrbjtCjWar9-Euh_bRuAiqhFrJla9YK5Il5KtPk8GtRNPnyUEXdUvjzdnYFPcoqnH6rM" };
+export const SITE_DEFAULTS = { phone: "+92 331 5223726", whatsapp: "+92 331 5223726", phone2: "+92 333 8563838", email: "info@whventures.com.pk", address: "Islamabad, Pakistan", hours: "9 am to 9 pm (Pakistan time)", meet_link: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3fJrpSQrbjtCjWar9-Euh_bRuAiqhFrJla9YK5Il5KtPk8GtRNPnyUEXdUvjzdnYFPcoqnH6rM" };
 
+// price: market asking price for one plot (crore), on the date asOf (Oct 2026 if not given).
+// outlookFrom: when the price moves, the outlook targets stay where the team set them (from the October 2026 price),
+// so a rise uses up part of the gap. It never raises the 2027 and 2028 targets by itself.
 export const BLOCKS = {
-  A: { plots: 906, sizes: "1 Kanal · 14 Marla", line: "The first block for possession, target July 2027. Next to the Margalla Orchards Walk commercial area, near the main entrance.", price: [3.65, 4.0], size: "1 Kanal" },
+  A: { plots: 906, sizes: "1 Kanal · 14 Marla", line: "The first block for possession, target July 2027. Next to the Margalla Orchards Walk commercial area, near the main entrance.", price: [4.3, 4.3], asOf: "Nov 2026", outlookFrom: 3.825, size: "1 Kanal" },
   B: { plots: 737, sizes: "1 Kanal · 14 Marla", line: "Numbered 1 Kanal and 14 Marla plots in the core of the scheme.", price: [3.75, 4.55], size: "1 Kanal" },
-  C: { plots: 467, sizes: "1 Kanal", line: "The premium 1 Kanal block, with wide roads and firm natural ground.", price: [3.85, 4.5], size: "1 Kanal" },
+  C: { plots: 467, sizes: "1 Kanal", line: "The premium 1 Kanal block, with wide roads and firm natural ground.", price: [4.3, 4.3], asOf: "Nov 2026", outlookFrom: 4.175, size: "1 Kanal" },
   D: { plots: 373, sizes: "14 Marla · 1 Kanal", line: "At the centre of the scheme, with 14 Marla and 1 Kanal plots.", price: null },
   E: { plots: 1128, sizes: "10 Marla", line: "The largest block. 10 Marla plots (32 × 70 ft): the most affordable way into DHA Margalla Orchard.", price: [2.6, 2.8], size: "10 Marla" },
   F: { plots: 228, sizes: "As on the plan", line: "A smaller block on the official master plan. Ask us about plots here.", price: null },

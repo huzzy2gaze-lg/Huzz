@@ -32,7 +32,7 @@ function blockChapter(b, i) {
     const max = o.y28 * 1.04, gain = Math.round(((o.y28 - o.mid) / o.mid) * 100);
     const row = (l, v, cls) => `<div class="xg ${cls}"><span>${l}</span><div class="xgt"><i style="--w:${((v / max) * 100).toFixed(1)}%"></i></div><b data-to="${v.toFixed(2)}">${f2(v)}</b><small>Cr</small></div>`;
     money = `<div class="xgrow">${row("Today", o.mid, "now")}${row("Jul 2027", o.y27, "mid")}${row("Dec 2028", o.y28, "end")}</div>
-      <p class="xfine"><span class="xbadge">Up to +${gain}% by Dec 2028</span> One ${esc(info.size)} plot. Today: market asks ${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr (Oct 2026). July 2027: Block A possession target. Outlook: our team's view, not a promise.</p>`;
+      <p class="xfine"><span class="xbadge">Up to +${gain}% by Dec 2028</span> One ${esc(info.size)} plot. Today: market asks ${o.today[1] > o.today[0] ? `${f2(o.today[0])}–${f2(o.today[1])}` : f2(o.today[0])} Cr (${o.asOf}). July 2027: Block A possession target. Outlook: our team's view, not a promise.</p>`;
   }
   return `<section class="xch xblock" data-cam="${b}" id="x-${b}"><div class="xcard">
       ${b === "A" ? `<span class="xpill">First block for possession</span>` : ""}
@@ -46,7 +46,7 @@ function blockChapter(b, i) {
 // the first screen says what we sell and what it costs: the 1 Kanal asking prices are the same figures as on the block cards
 function heroFacts() {
   const asks = TOUR.map(outlookFor).filter(Boolean).flatMap((o) => o.today);
-  const range = asks.length ? ` 1 Kanal asking prices: ${f2(Math.min(...asks))}–${f2(Math.max(...asks))} crore (October 2026).` : "";
+  const range = asks.length ? ` 1 Kanal asking prices: ${f2(Math.min(...asks))}–${f2(Math.max(...asks))} crore (October and November 2026).` : "";
   return `1 Kanal, 14 Marla and 10 Marla plots on the official FGEHA master plan.${range}`;
 }
 export function experiencePage(c) {
@@ -601,7 +601,7 @@ export function experienceAfterRender() {
     if (!X) return;
     X.loaded = true;
     const l = document.querySelector(".xloader"); if (l) { l.classList.add("done"); setTimeout(() => l.remove(), 900); }
-    document.querySelector(".xhero")?.classList.add("in");
+    document.querySelector(".xhero")?.classList.add("in"); if (!document.body.dataset.xactive) document.body.dataset.xactive = X ? X.active : "hero";
   });
   onScroll();
   X.raf = requestAnimationFrame(frame);

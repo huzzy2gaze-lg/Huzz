@@ -12,8 +12,8 @@ const LEGAL = "WH Ventures (Private) Limited";
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const cr = (v) => v.toFixed(2);
 const digits = (v) => String(v).replace(/[^0-9]/g, "");
-const tel = () => "tel:+" + digits(SITE_DEFAULTS.phone);
-const wa = (msg) => `https://wa.me/${digits(SITE_DEFAULTS.whatsapp)}?text=${encodeURIComponent("Hello WH Ventures, " + msg)}`;
+const tel = (v = SITE_DEFAULTS.phone) => "tel:+" + digits(v);
+const wa = (msg, v = SITE_DEFAULTS.whatsapp) => `https://wa.me/${digits(v)}?text=${encodeURIComponent("Hello WH Ventures, " + msg)}`;
 const month = (d) => new Date(d).toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
 const ask = (b) => (BLOCKS[b].price ? (BLOCKS[b].price[0] === BLOCKS[b].price[1] ? `${cr(BLOCKS[b].price[0])} crore` : `${cr(BLOCKS[b].price[0])}–${cr(BLOCKS[b].price[1])} crore`) : "");
 const KANAL = PAGES_BLOCKS.filter((b) => BLOCKS[b].price).flatMap((b) => BLOCKS[b].price);
@@ -49,7 +49,7 @@ function homeText() {
   const blocks = PAGES_BLOCKS.map((b) => `<li><a href="/block-${b.toLowerCase()}">Block ${b}</a>: ${esc(BLOCKS[b].line)} About ${BLOCKS[b].plots.toLocaleString("en-US")} plots (${esc(BLOCKS[b].sizes)}).${BLOCKS[b].price ? ` 1 Kanal asking price, October 2026: ${ask(b)}.` : ""}</li>`).join("");
   return `<div class="ssr">
 <h1>Plots in DHA Margalla Orchard, Islamabad</h1>
-<p>1 Kanal, 14 Marla and 10 Marla plots on the official FGEHA master plan. 1 Kanal asking prices: ${KANAL_RANGE} (October 2026). We help you choose, buy and transfer your plot.</p>
+<p>1 Kanal, 14 Marla and 10 Marla plots on the official FGEHA master plan. 1 Kanal asking prices: ${KANAL_RANGE} (October and November 2026). We help you choose, buy and transfer your plot.</p>
 <p>${esc(INTRO)}</p>
 <p>The scheme has 4,781 residential plots on 8,432 kanals of land, in 8 blocks (A to H). ${possession ? `FGEHA's target for ${esc(possession[1])}: ${month(possession[0])}.` : ""}</p>
 <h2>Blocks</h2><ul>${blocks}</ul>
@@ -57,7 +57,7 @@ function homeText() {
 <p><a href="/buying-guide">The buying guide</a></p>
 <h2>Questions</h2><dl>${FAQ.map(([q, a]) => `<dt>${esc(q)}</dt><dd>${esc(a)}</dd>`).join("")}</dl>
 <h2>Contact WH Ventures</h2>
-<p>Phone: <a href="${tel()}">${esc(SITE_DEFAULTS.phone)}</a> · WhatsApp: <a href="${wa("I want to know about plots in DHA Margalla Orchard.")}">${esc(SITE_DEFAULTS.whatsapp)}</a> · E-mail: <a href="mailto:${esc(SITE_DEFAULTS.email)}">${esc(SITE_DEFAULTS.email)}</a> · ${esc(SITE_DEFAULTS.address)} · Hours: ${esc(SITE_DEFAULTS.hours)}</p>
+<p>Phone: <a href="${tel()}">${esc(SITE_DEFAULTS.phone)}</a> or <a href="${tel(SITE_DEFAULTS.phone2)}">${esc(SITE_DEFAULTS.phone2)}</a> · WhatsApp: <a href="${wa("I want to know about plots in DHA Margalla Orchard.")}">${esc(SITE_DEFAULTS.whatsapp)}</a> or <a href="${wa("I want to know about plots in DHA Margalla Orchard.", SITE_DEFAULTS.phone2)}">${esc(SITE_DEFAULTS.phone2)}</a> · E-mail: <a href="mailto:${esc(SITE_DEFAULTS.email)}">${esc(SITE_DEFAULTS.email)}</a> · ${esc(SITE_DEFAULTS.address)} · Hours: ${esc(SITE_DEFAULTS.hours)}</p>
 <p><a href="/privacy">Privacy policy</a></p>
 </div>`;
 }
@@ -107,7 +107,7 @@ function blockPage(site, b) {
 <h2>How to buy a plot in Block ${b}</h2><ol>${STEPS.map(([t, d]) => `<li><b>${esc(t)}</b>: ${esc(d)}</li>`).join("")}</ol>
 <p>More in the <a href="/buying-guide">buying guide</a>. Other blocks: ${others}.</p>
 <p class="fine">Prices change from plot to plot. Ask us for today's price of a plot.</p>`;
-  const desc = `Block ${b} of DHA Margalla Orchard, Islamabad: about ${x.plots} plots, ${x.sizes.replace(" · ", " and ")}.${x.price ? ` 1 Kanal asking price ${ask(b)} (Oct 2026).` : ""} See the plot numbers and book a call.`;
+  const desc = `Block ${b} of DHA Margalla Orchard, Islamabad: about ${x.plots} plots, ${x.sizes.replace(" · ", " and ")}.${x.price ? ` 1 Kanal asking price ${ask(b)} (${x.asOf || "Oct 2026"}).` : ""} See the plot numbers and book a call.`;
   return page(site, `/block-${b.toLowerCase()}`, `Block ${b}, DHA Margalla Orchard: plots and prices | WH Ventures`, desc, body);
 }
 
@@ -138,7 +138,7 @@ Key facts:
 - Plot sizes: ${FAQ.find((f) => /sizes/i.test(f[0]))[1]}
 - The scheme: 4,781 residential plots, 8,432 kanals, 8 blocks (A to H), on the official FGEHA layout plan.
 - ${possession ? `FGEHA's target for ${possession[1]}: ${month(possession[0])}.` : ""}
-- 1 Kanal asking prices in October 2026: ${KANAL_RANGE} (market asking prices; they change from plot to plot).
+- 1 Kanal asking prices in October and November 2026: ${KANAL_RANGE} (market asking prices; they change from plot to plot).
 
 ## Pages
 - [3D master plan of DHA Margalla Orchard](${site}/): every block and plot number on the official plan; book a call

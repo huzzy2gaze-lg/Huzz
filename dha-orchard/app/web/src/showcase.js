@@ -14,7 +14,8 @@ const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mid = (b) => { const p = cfg.BLOCKS[b].price; return p ? (p[0] + p[1]) / 2 : null; };
 export function outlookFor(b) {
   const m = mid(b);
-  return m ? { today: cfg.BLOCKS[b].price, y27: m * cfg.OUT_2027, y28: m * cfg.OUT_2028, mid: m } : null;
+  const base = cfg.BLOCKS[b].outlookFrom || m;
+  return m ? { today: cfg.BLOCKS[b].price, y27: base * cfg.OUT_2027, y28: base * cfg.OUT_2028, mid: m, asOf: cfg.BLOCKS[b].asOf || "Oct 2026" } : null;
 }
 // round half up (3.825 shows 3.83 everywhere)
 const f2 = (v) => (Math.round(v * 100 + 1e-6) / 100).toFixed(2), f1 = (v) => v.toFixed(1);

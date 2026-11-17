@@ -46,17 +46,17 @@ function header() {
 // tap-to-call: "+92 331 5223726" -> "tel:+923315223726" (a local 03.. number becomes +92 3..)
 function telHref(v) { const d = String(v || "").replace(/[^0-9+]/g, ""); return "tel:" + (d.startsWith("+") ? d : d.startsWith("00") ? "+" + d.slice(2) : d.startsWith("0") ? "+92" + d.slice(1) : "+" + d); }
 function contactLine() {
-  return [set("phone") && `Phone <a href="${telHref(set("phone"))}">${esc(set("phone"))}</a>`, set("whatsapp") && `WhatsApp <a href="${waLink()}" target="_blank" rel="noopener">${esc(set("whatsapp"))}</a>`, set("email") && `<a href="mailto:${esc(set("email"))}">${esc(set("email"))}</a>`, set("address") && esc(set("address"))].filter(Boolean).join(" · ");
+  return [set("phone") && `Phone <a href="${telHref(set("phone"))}">${esc(set("phone"))}</a>`, set("phone2") && `<a href="${telHref(set("phone2"))}">${esc(set("phone2"))}</a>`, set("whatsapp") && `WhatsApp <a href="${waLink()}" target="_blank" rel="noopener">${esc(set("whatsapp"))}</a>`, set("email") && `<a href="mailto:${esc(set("email"))}">${esc(set("email"))}</a>`, set("address") && esc(set("address"))].filter(Boolean).join(" · ");
 }
 function footer() {
-  const bits = [set("phone") && `Phone ${esc(set("phone"))}`, set("whatsapp") && `WhatsApp ${esc(set("whatsapp"))}`, set("email") && esc(set("email")), set("address") && esc(set("address"))].filter(Boolean);
+  const bits = [set("phone") && `Phone ${esc(set("phone"))}`, set("phone2") && esc(set("phone2")), set("whatsapp") && `WhatsApp ${esc(set("whatsapp"))}`, set("email") && esc(set("email")), set("address") && esc(set("address"))].filter(Boolean);
   return `<footer class="sitefoot"><div class="sitewrap"><div><b class="footbrand">${logo()}<span class="wordmark sm">${esc(company())}</span></b><p>${bits.length ? bits.join(" · ") : "Plots in DHA Margalla Orchard, Islamabad."}</p>
     <p><a href="#home">Home</a> · <a href="#book">Book a call</a>${S.mode === "public" ? "" : ` · <a href="#signin">Join our investor list</a>`} · <a href="/privacy">Privacy policy</a></p></div>
     <p class="fine">Scheme facts: FGEHA, October 2026. Prices: asking prices in October 2026 and DHA's published Margalla Enclave prices. The outlook is our team's view, not a promise: prices can go up or down. The map is the official FGEHA layout plan.</p></div></footer>`;
 }
 
-function waLink(msg) {
-  const n = set("whatsapp").replace(/[^0-9]/g, "");
+function waLink(msg, num) {
+  const n = (num || set("whatsapp")).replace(/[^0-9]/g, "");
   if (!n) return "";
   const intl = n.startsWith("0") ? "92" + n.slice(1) : n;
   return `https://wa.me/${intl}?text=${encodeURIComponent("Hello " + company() + ", " + (msg || "I want to know about plots in DHA Margalla Orchard."))}`;
@@ -84,7 +84,7 @@ export function blockCard() {
   return `<div class="bcardx" aria-live="polite"><div class="eyebrow">Block ${b}</div><h3>Block ${b}</h3>
     <p>${esc(info.line)}</p>
     <dl class="bfacts"><div><dt>Plots</dt><dd>about ${info.plots.toLocaleString("en-IN")}</dd></div><div><dt>Sizes</dt><dd>${esc(info.sizes)}</dd></div>
-    ${info.price ? `<div><dt>Market asks</dt><dd>${info.price[0].toFixed(2)}–${info.price[1].toFixed(2)} Cr <small>${esc(info.size)}, Oct 2026</small></dd></div>` : ""}</dl>
+    ${info.price ? `<div><dt>Market asks</dt><dd>${info.price[0].toFixed(2)}–${info.price[1].toFixed(2)} Cr <small>${esc(info.size)}, ${esc(info.asOf || "Oct 2026")}</small></dd></div>` : ""}</dl>
     <div class="row"><button class="sitebtn ${on ? "" : "solid"}" data-togglesblock="${b}">${on ? "✓ Added to my call" : "Add Block " + b + " to my call"}</button>${info.price ? `<button class="sitebtn" data-outlookblock="${b}">See the outlook</button>` : ""}${waLink() ? `<a class="sitebtn wa" target="_blank" rel="noopener" href="${waLink("I want to know about plots in Block " + b + " of DHA Margalla Orchard.")}">WhatsApp</a>` : ""}</div></div>`;
 }
 
@@ -99,7 +99,8 @@ function outlookData() {
   const entry = S.inv.price || +((b.price[0] + b.price[1]) / 2).toFixed(2);
   const n = S.inv.n;
   const t = [0, 8 / 12, 25 / 12]; // Nov 2026, Jul 2027, Dec 2028
-  const outlook = [entry, entry * OUT_2027, entry * OUT_2028].map((v) => v * n);
+  const k = b.outlookFrom ? b.outlookFrom / ((b.price[0] + b.price[1]) / 2) : 1; // targets stay where the team set them
+  const outlook = [entry, entry * k * OUT_2027, entry * k * OUT_2028].map((v) => v * n);
   const careful = t.map((y) => entry * Math.pow(1 + CAREFUL, y) * n);
   return { b, entry, n, t, outlook, careful, total: entry * n };
 }
@@ -241,7 +242,7 @@ function bookSection() {
     <div><h2>Talk to our team. It takes one minute.</h2>
       <p>Choose the blocks you like and leave your number. An agent calls you, answers your questions and helps you choose a plot.</p>
       <ul class="ticks"><li>No cost and no commitment</li><li>Advice on blocks, sizes and prices</li><li>Help with the token, NDC and transfer</li></ul>
-      ${wa ? `<a class="sitebtn wa" href="${wa}" target="_blank" rel="noopener">Message us on WhatsApp</a>` : ""}
+      <div class="wabtns">${wa ? `<a class="sitebtn wa" href="${wa}" target="_blank" rel="noopener">WhatsApp ${esc(set("whatsapp"))}</a>` : ""}${set("phone2") ? `<a class="sitebtn wa" href="${waLink("", set("phone2"))}" target="_blank" rel="noopener">WhatsApp ${esc(set("phone2"))}</a>` : ""}</div>
       ${meetBtn()}
       ${contactBlock()}</div>
     <div class="formcard">${bookForm()}</div></div></section>`;
@@ -252,8 +253,10 @@ function meetBtn(cls = "sitebtn") {
   return u ? `<a class="${cls} meet" href="${esc(u)}" target="_blank" rel="noopener">Pick a time for a video call (Google Meet)</a>` : "";
 }
 function contactBlock() {
-  const rows = [["Phone", set("phone")], ["WhatsApp", set("whatsapp")], ["E-mail", set("email")], ["Office", set("address")], ["Hours", set("hours")]].filter((r) => r[1]);
-  const link = (k, v) => k === "Phone" ? `<a href="${telHref(v)}">${esc(v)}</a>` : k === "WhatsApp" ? `<a href="${waLink()}" target="_blank" rel="noopener">${esc(v)}</a>` : k === "E-mail" ? `<a href="mailto:${esc(v)}">${esc(v)}</a>` : esc(v);
+  const nums = [set("phone"), set("phone2")].filter(Boolean);
+  const rows = [["Phone", nums], ["WhatsApp", nums], ["E-mail", set("email")], ["Office", set("address")], ["Hours", set("hours")]].filter((r) => r[1] && r[1].length);
+  const one = (k, v) => k === "Phone" ? `<a href="${telHref(v)}">${esc(v)}</a>` : k === "WhatsApp" ? `<a href="${waLink("", v)}" target="_blank" rel="noopener">${esc(v)}</a>` : k === "E-mail" ? `<a href="mailto:${esc(v)}">${esc(v)}</a>` : esc(v);
+  const link = (k, v) => Array.isArray(v) ? v.map((x) => one(k, x)).join("<br>") : one(k, v);
   return rows.length ? `<dl class="cdl">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${link(k, v)}</dd></div>`).join("")}</dl>` : "";
 }
 
