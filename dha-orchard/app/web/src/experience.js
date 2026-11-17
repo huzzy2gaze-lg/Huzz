@@ -18,7 +18,7 @@ let cfg = null; // { BLOCKS, bookSection, waLink, company, logo } from site.js
 export function setExperience(c) { cfg = c; }
 
 const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-// round half up, the same as the home page (3.825 shows 3.83 everywhere)
+// round half up (3.825 shows 3.83 everywhere)
 const f2 = (v) => (Math.round(v * 100 + 1e-6) / 100).toFixed(2), f1 = (v) => v.toFixed(1);
 
 // ---------------------------------------------------------------- the page (HTML over the 3D scene)
@@ -239,7 +239,26 @@ function build() {
   renderer.setSize(innerWidth, innerHeight);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x061414, 14, 30);
+  // Margalla dusk (colour standard): a deep teal sky with a low gold-and-rose glow on the horizon, the brand's
+  // warm accents set against its cool base. The haze takes the horizon colour, so the far edge of the plan fades
+  // into dusk light instead of a black void. A dome around the camera keeps the horizon right from every view.
+  scene.fog = new THREE.Fog(SKY.haze, 14, 30);
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(45, 32, 16), new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false, fog: false,
+    uniforms: { uTop: { value: new THREE.Color(SKY.top) }, uMid: { value: new THREE.Color(SKY.mid) }, uGold: { value: new THREE.Color(SKY.gold) }, uRose: { value: new THREE.Color(SKY.rose) }, uNight: { value: 0 } },
+    vertexShader: "varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `uniform vec3 uTop, uMid, uGold, uRose; uniform float uNight; varying vec3 vDir;
+      void main(){
+        float h = vDir.y;                                   // -1 below .. 0 horizon .. 1 overhead
+        vec3 c = mix(uMid, uTop, smoothstep(0.02, 0.55, h)); // teal to deep teal overhead
+        float glow = exp(-abs(h - 0.015) * 14.0) * (1.0 - 0.75 * uNight); // a thin warm band on the horizon
+        float side = 0.5 + 0.5 * vDir.x;                    // gold toward the sunset side, rose away from it
+        c += mix(uRose, uGold, side) * glow * 0.55;
+        c = mix(c, uMid * 0.6, smoothstep(0.0, -0.4, h));   // below the horizon: the dark valley
+        gl_FragColor = vec4(c * (1.0 - 0.35 * uNight), 1.0);
+      }`,
+  }));
+  sky.renderOrder = -1; sky.frustumCulled = false; scene.add(sky);
   const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.15, 60); // a nearer start gives finer depth, so small homes do not flicker
   const hemi = new THREE.HemisphereLight(0xfff3d6, 0x0b3a40, 1.4); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffe2a8, 2.2); sun.position.set(-6, 10, 6); scene.add(sun);
@@ -252,9 +271,9 @@ function build() {
   // a dark ground with a soft grid of dots around the plan
   const dots = []; for (let x = -16; x <= 16; x += 0.5) for (let z = -12; z <= 12; z += 0.5) { if (Math.abs(x) < pw / 2 + 0.3 && Math.abs(z) < ph / 2 + 0.3) continue; dots.push(x, -0.01, z); }
   const dg = new THREE.BufferGeometry(); dg.setAttribute("position", new THREE.Float32BufferAttribute(dots, 3));
-  scene.add(new THREE.Points(dg, new THREE.PointsMaterial({ color: 0x2e5f65, size: 0.035, sizeAttenuation: true })));
+  scene.add(new THREE.Points(dg, new THREE.PointsMaterial({ color: 0x3f6a68, size: 0.03, sizeAttenuation: true, transparent: true, opacity: 0.55 })));
   // fireflies: gold specks that rise slowly over the orchard
-  const N = innerWidth < 760 ? 140 : 320, fp = new Float32Array(N * 3), fs = new Float32Array(N);
+  const N = innerWidth < 760 ? 60 : 140, fp = new Float32Array(N * 3), fs = new Float32Array(N);
   for (let i = 0; i < N; i++) { fp[i * 3] = (Math.random() - 0.5) * pw * 1.4; fp[i * 3 + 1] = Math.random() * 3; fp[i * 3 + 2] = (Math.random() - 0.5) * ph * 1.4; fs[i] = 0.2 + Math.random() * 0.6; }
   const fg = new THREE.BufferGeometry(); fg.setAttribute("position", new THREE.BufferAttribute(fp, 3));
   const flies = new THREE.Points(fg, new THREE.PointsMaterial({ color: 0xe3c98d, size: 0.05, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending }));
@@ -295,7 +314,7 @@ function build() {
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 12), new THREE.MeshBasicMaterial({ color: 0xf4ead3 }));
   scene.add(head);
   const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(-9, -9);
-  const st = { renderer, scene, camera, plan, planMat, hemi, sun, comm, route, routeGeo, head, visited: new Set(), routeP: 0, night: 0, flies, fp, fs, blocks, ray, mouse, pointer: [0, 0], cam: camFor("hero"), cur: null, active: "hero", hover: null, loaded: false, t0: performance.now(), raf: 0, alive: true };
+  const st = { sky, renderer, scene, camera, plan, planMat, hemi, sun, comm, route, routeGeo, head, visited: new Set(), routeP: 0, night: 0, flies, fp, fs, blocks, ray, mouse, pointer: [0, 0], cam: camFor("hero"), cur: null, active: "hero", hover: null, loaded: false, t0: performance.now(), raf: 0, alive: true };
   st.cur = { pos: new THREE.Vector3(...st.cam.pos).add(new THREE.Vector3(0, 6, 6)), look: new THREE.Vector3(...st.cam.look) };
   camera.position.copy(st.cur.pos); camera.lookAt(st.cur.look);
   return st;
@@ -321,6 +340,7 @@ function frame(now) {
     if (ft >= 1) { X.fly = null; X.camera.up.copy(f.tu); f.res(); }
   }
   X.camera.position.copy(X.cur.pos); X.camera.lookAt(X.cur.look);
+  X.sky.position.copy(X.camera.position);
   // the haze starts behind what the camera looks at: on a narrow phone screen the camera is further away,
   // and a fixed haze covered the whole plan (it looked black)
   const dist = X.cur.pos.distanceTo(X.cur.look);
@@ -359,8 +379,10 @@ function frame(now) {
   const nightT = Math.max(0, Math.min(1, (scrollY / scrollMax - 0.6) / 0.22));
   X.night += (nightT - X.night) * (rm ? 1 : 0.05);
   X.hemi.intensity = 1.4 - X.night * 1.05; X.sun.intensity = 2.2 - X.night * 1.9;
+  X.sky.material.uniforms.uNight.value = X.night;
   X.dim = (X.dim || 1) + (((ACTIVE.includes(X.active) || X.active === "overview" || X.active === "timeline" || X.active === "enclave") ? 0.88 : 1) - (X.dim || 1)) * 0.06;
-  X.planMat.color.setRGB((0.78 - X.night * 0.4) * X.dim, (0.83 - X.night * 0.41) * X.dim, (0.82 - X.night * 0.38) * X.dim);
+  // the plan as paper in dusk light: a soft warm grey (was a cold grey), darker toward night
+  X.planMat.color.setRGB((0.85 - X.night * 0.42) * X.dim, (0.84 - X.night * 0.41) * X.dim, (0.79 - X.night * 0.35) * X.dim);
   X.comm.setNight(X.night > 0.5);
   // the gold route line grows with the block chapters
   const idx = TOUR.indexOf(X.active);
@@ -406,6 +428,8 @@ function openBlockMap(b, pt) { if (cfg && cfg.openMap) cfg.openMap(b, pt || null
 // The 3D plan and the numbered map use the same plan coordinates. With the camera straight above the plan, a map
 // view (an SVG viewBox in plan pixels, the shape of the screen) matches the 3D picture exactly, so the numbered
 // map can fade in over it as one continuous zoom.
+// dusk sky colours, from the Margalla Teal standard: abyss and teal for the sky, gold and rose for the horizon glow
+const SKY = { top: 0x04161a, mid: 0x0d3b40, gold: 0xd2a746, rose: 0xb04761, haze: 0x173f41 };
 const EDGE_ON = new THREE.Color(0xf2b8c6), EDGE_OFF = new THREE.Color(0xd5e3e0);
 const _font = {};
 function blockFont(b) { // the usual height of a plot number in plan pixels
@@ -543,17 +567,9 @@ function onTouch(e) { // a short tap on a block flies there; a swipe (a scroll) 
 }
 
 function counters(root) {
-  root.querySelectorAll("[data-count]:not([data-done])").forEach((el) => {
-    el.dataset.done = 1;
-    const to = Number(el.dataset.count), t0 = performance.now();
-    const step = (n) => { const k = Math.min(1, (n - t0) / 1400), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e).toLocaleString("en-US") + (el.dataset.suffix || ""); if (k < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
-  });
-  root.querySelectorAll(".xgrow b[data-to]").forEach((el, k) => {
-    const to = parseFloat(el.dataset.to), t0 = performance.now() + 300 + (k % 3) * 400;
-    const step = (n) => { const q = Math.max(0, Math.min(1, (n - t0) / 1000)), e = 1 - Math.pow(1 - q, 3); el.textContent = f2(to * e); if (q < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
-  });
+  // the figures are written with their final values; nothing counts up from 0 (a count-up could show, for a moment,
+  // a Dec 2028 value lower than Jul 2027, or 4,780 plots)
+  root.querySelectorAll("[data-count]:not([data-done])").forEach((el) => { el.dataset.done = 1; });
 }
 
 export function experienceAfterRender() {

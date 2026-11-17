@@ -16,7 +16,7 @@ export function outlookFor(b) {
   const m = mid(b);
   return m ? { today: cfg.BLOCKS[b].price, y27: m * cfg.OUT_2027, y28: m * cfg.OUT_2028, mid: m } : null;
 }
-// round half up, the same as the home page (3.825 shows 3.83 everywhere)
+// round half up (3.825 shows 3.83 everywhere)
 const f2 = (v) => (Math.round(v * 100 + 1e-6) / 100).toFixed(2), f1 = (v) => v.toFixed(1);
 
 // ---------------------------------------------------------------- the hero tour
