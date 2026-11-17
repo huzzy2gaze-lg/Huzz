@@ -52,7 +52,9 @@ function heroFacts() {
 export function experiencePage(c) {
   if (c) cfg = c;
   const now = Date.now();
-  const tl = MILESTONES.map(([d, t, s]) => `<li class="${Date.parse(d) <= now ? "done" : "next"}"><time>${new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}</time><b>${esc(t)}</b><span>${esc(s)}</span></li>`).join("");
+  const nDone = MILESTONES.filter(([d]) => Date.parse(d) <= now).length;
+  const rail = MILESTONES.length > 1 ? Math.min(100, ((Math.max(nDone, 1) - 0.4) / (MILESTONES.length - 1)) * 100) : 100;
+  const tl = MILESTONES.map(([d, t, s], i) => `<li class="${Date.parse(d) <= now ? "done" : "next"}" style="--d:${(i * 0.9).toFixed(1)}s"><div class="xtl-t"><time>${new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" })}</time><b>${esc(t)}</b><span>${esc(s)}</span></div><div class="xsa xtl-a" aria-hidden="true">${TL_ART[i] || ""}</div></li>`).join("");
   const enc = [["Margalla Enclave, Mar 2025", 4.41], ["Margalla Enclave, Dec 2025", 5.6], ["Margalla Enclave, Sep 2026", 7.29], ["Margalla Orchard, today", 3.8]];
   const wa = cfg.waLink();
   return `<div class="xp">
@@ -75,7 +77,7 @@ export function experiencePage(c) {
     ${renderSection()}
     <section class="xch" data-cam="timeline"><div class="xcard wide">
       <h2>${words("From development to possession")}</h2>
-      <ol class="xtl">${tl}</ol></div></section>
+      <ol class="xtl" style="--rail:${rail.toFixed(0)}%;--n:${MILESTONES.length}">${tl}</ol></div></section>
     <section class="xch" data-cam="enclave"><div class="xcard wide">
       <h2>${words("DHA's price for 1 Kanal next door rose 65% in 18 months")}</h2>
       <div class="xbars">${enc.map(([l, v], i) => `<div class="${i === 3 ? "orc" : ""}"><span>${l}</span><div class="xgt"><i style="--w:${((v / 7.29) * 100).toFixed(1)}%"></i></div><b>${v.toFixed(2)} Cr</b></div>`).join("")}</div>
@@ -93,6 +95,25 @@ export function experiencePage(c) {
   </div>`;
 }
 
+
+// "From development to possession": one small picture per milestone, played in turn as the gold line reaches it
+const TL_ART = [
+  // DHA takes on the development: a pen signs the agreement
+  `<svg viewBox="0 0 80 64"><rect x="14" y="6" width="40" height="52" rx="3" fill="#EAF1EE"/><g stroke="#A9C4C4" stroke-width="2" stroke-linecap="round"><path d="M20 15h26M20 21h20M20 27h24"/></g>
+    <path class="sa-sign" d="M20 46c4-8 6 4 9-2s4-6 6 0 4 2 8-3" fill="none" stroke="#0B3A40" stroke-width="2" stroke-linecap="round" pathLength="1"/>
+    <g class="sa-pen"><path d="M44 41l14-18 4 3-14 18-5 2z" fill="#D2A746" stroke="#7A5F22" stroke-width="1"/></g></svg>`,
+  // the commercial ballot: a card drops into the ballot box
+  `<svg viewBox="0 0 80 64"><g class="sa-card"><rect x="30" y="4" width="20" height="26" rx="2" fill="#EAF1EE"/><path d="M35 12h10M35 17h7" stroke="#A9C4C4" stroke-width="2" stroke-linecap="round"/></g>
+    <rect x="16" y="28" width="48" height="32" rx="4" fill="#0B3A40" stroke="#E3C98D" stroke-width="1.6"/><rect x="28" y="27" width="24" height="4" rx="2" fill="#061414"/>
+    <text x="40" y="50" text-anchor="middle" font-size="8" font-weight="700" letter-spacing=".5" fill="#E3C98D">BALLOT</text></svg>`,
+  // 50% of the development done: the ring fills to half
+  `<svg viewBox="0 0 80 64"><circle cx="40" cy="32" r="22" fill="none" stroke="rgba(227,201,141,.2)" stroke-width="6"/>
+    <g transform="rotate(-90 40 32)"><circle class="sa-ring" cx="40" cy="32" r="22" fill="none" stroke="#D2A746" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="50 100"/></g>
+    <text x="40" y="36" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">50%</text></svg>`,
+  // Block A possession (the target): a key turns in front of a home
+  `<svg viewBox="0 0 80 64"><path d="M14 34l20-17 20 17v24H14z" fill="rgba(234,241,238,.08)" stroke="#A9C4C4" stroke-width="1.8" stroke-linejoin="round"/><rect x="28" y="42" width="12" height="16" rx="1.5" fill="none" stroke="#A9C4C4" stroke-width="1.6"/>
+    <g class="sa-key"><circle cx="58" cy="40" r="7" fill="none" stroke="#D2A746" stroke-width="3"/><path d="M58 47v12M58 53h5M58 58h4" stroke="#D2A746" stroke-width="3" stroke-linecap="round"/></g></svg>`,
+];
 
 // "From a call to your allotment letter": one small picture per step. Each plays its own short animation,
 // one step after the other, when the card comes into view (CSS in styles.css, .xsa). Without motion they show the end state.
