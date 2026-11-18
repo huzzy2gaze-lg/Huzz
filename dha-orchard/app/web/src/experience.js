@@ -75,8 +75,8 @@ export function experiencePage(c) {
     </div></section>
     <section class="xch xsite" data-cam="overview" id="x-site"><div class="xcard wide">
       <h2>${words("Live from the site")}</h2>
-      <p class="xlead">Filmed by our team in November 2026: the main gate and the new roads. Real footage, not a render. The work is still in progress.</p>
-      <div class="xsite-film"><video class="xsite-v" src="site/gate-film.mp4" poster="site/gate-poster.webp" muted loop playsinline preload="none" aria-label="Film from the site: a car drives to the main gate of Margalla Orchards, the drive under the gate, and a new road inside"></video></div>
+      <p class="xlead">Filmed by our team in November 2026: the main gate, the earthwork and the new roads. Real footage, not a render. The work is still in progress.</p>
+      <div class="xsite-film"><video class="xsite-v" src="site/gate-film.mp4" poster="site/gate-poster.webp" muted loop playsinline preload="none" aria-label="Film from the site: a car drives to the main gate of Margalla Orchards, excavators and earthwork inside the scheme, and a new road"></video></div>
       <div class="xsite-pics">
         <figure><img src="site/road.webp" alt="New road and kerb on the way to the Margalla Orchards main gate" loading="lazy" decoding="async" width="960" height="720"><figcaption>New road to the main gate</figcaption></figure>
         <figure><img src="site/gate.webp" alt="The Margalla Orchards main gate, under construction" loading="lazy" decoding="async" width="960" height="720"><figcaption>The main gate, under construction</figcaption></figure>
