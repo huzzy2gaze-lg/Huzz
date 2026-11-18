@@ -74,6 +74,14 @@ main{padding:28px 16px 48px}h1{font:400 34px/1.2 Georgia,serif;color:var(--teal)
 a{color:var(--rose)}dt{font-weight:650;margin-top:12px}dd{margin:4px 0 0}.fine{font-size:13px;color:var(--soft)}
 footer{background:var(--teal);color:#A9C4C4;font-size:14px;padding:22px 16px}footer a{color:#E3C98D}`;
 
+// "Home > Block A" for search results (BreadcrumbList). Not on the 404 page.
+function crumbs(site, path, title) {
+  if (path === "/404") return "";
+  const name = title.split(" | ")[0].split(":")[0].replace(/, DHA Margalla Orchard$/, "");
+  const list = [{ "@type": "ListItem", position: 1, name: "WH Ventures", item: site + "/" }, { "@type": "ListItem", position: 2, name, item: site + path }];
+  return `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: list })}</script>`;
+}
+
 function page(site, path, title, description, body) {
   const nav = [["/", "3D master plan"], ...PAGES_BLOCKS.map((b) => [`/block-${b.toLowerCase()}`, `Block ${b}`]), ["/buying-guide", "Buying guide"], ["/#book", "Book a call"]];
   return `<!doctype html>
@@ -82,11 +90,11 @@ function page(site, path, title, description, body) {
 <link rel="canonical" href="${site}${path}"><link rel="icon" href="/favicon-64.png" type="image/png">
 <meta property="og:type" content="website"><meta property="og:site_name" content="WH Ventures"><meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${site}${path}"><meta property="og:image" content="${site}/og-image.jpg">
-<meta name="theme-color" content="#0B3A40"><style>${CSS}</style></head>
+<meta name="theme-color" content="#0B3A40">${crumbs(site, path, title)}<style>${CSS}</style></head>
 <body><header><div class="in"><a class="brand" href="/">WH Ventures</a><nav aria-label="Pages">${nav.map(([h, l]) => `<a href="${h}">${l}</a>`).join("")}</nav></div></header>
 <main>${body}
 <section class="cta"><h2>Talk to our team</h2><p>We answer your questions, help you choose a plot and go with you to the transfer. No cost and no commitment.</p>
-<div class="row"><a class="btn rose" href="/#book">Book a call</a><a class="btn light" href="${tel()}">Call ${esc(SITE_DEFAULTS.phone)}</a><a class="btn line" href="${wa("I want to know about plots in DHA Margalla Orchard.")}">WhatsApp</a></div></section>
+<div class="row"><a class="btn rose" href="/#book">Book a call</a><a class="btn light" href="${tel()}">Call ${esc(SITE_DEFAULTS.phone)}</a><a class="btn line" href="${wa("I want to know about plots in DHA Margalla Orchard.")}">WhatsApp</a>${SITE_DEFAULTS.meet_link ? `<a class="btn line" href="${esc(SITE_DEFAULTS.meet_link)}" target="_blank" rel="noopener">Book a video call</a>` : ""}</div></section>
 </main>
 <footer><div class="in">${LEGAL} · ${esc(SITE_DEFAULTS.address)} · <a href="${tel()}">${esc(SITE_DEFAULTS.phone)}</a> · <a href="mailto:${esc(SITE_DEFAULTS.email)}">${esc(SITE_DEFAULTS.email)}</a> · <a href="/privacy">Privacy policy</a><br>
 <span class="fine">Scheme facts: FGEHA and DHA Islamabad announcements. Prices: market asking prices in October 2026; they change from plot to plot. The map is the official FGEHA layout plan.</span></div></footer>
@@ -107,7 +115,7 @@ function blockPage(site, b) {
 <h2>How to buy a plot in Block ${b}</h2><ol>${STEPS.map(([t, d]) => `<li><b>${esc(t)}</b>: ${esc(d)}</li>`).join("")}</ol>
 <p>More in the <a href="/buying-guide">buying guide</a>. Other blocks: ${others}.</p>
 <p class="fine">Prices change from plot to plot. Ask us for today's price of a plot.</p>`;
-  const desc = `Block ${b} of DHA Margalla Orchard, Islamabad: about ${x.plots} plots, ${x.sizes.replace(" · ", " and ")}.${x.price ? ` 1 Kanal asking price ${ask(b)} (${x.asOf || "Oct 2026"}).` : ""} See the plot numbers and book a call.`;
+  const desc = `Block ${b} of DHA Margalla Orchard, Islamabad: about ${x.plots} plots, ${x.sizes.replace(" · ", " and ")}.${x.price ? ` 1 Kanal asking price ${ask(b)} (${x.asOf || "Oct 2026"}).` : ""} Book a call.`;
   return page(site, `/block-${b.toLowerCase()}`, `Block ${b}, DHA Margalla Orchard: plots and prices | WH Ventures`, desc, body);
 }
 
@@ -124,7 +132,8 @@ function guidePage(site) {
 
 function notFound(site) {
   return page(site, "/404", "Page not found | WH Ventures", "This page does not exist.", `<h1>This page does not exist</h1><p>The address may be wrong, or the page has moved.</p><p><a href="/">Open the 3D master plan of DHA Margalla Orchard</a>, or see <a href="/block-a">Block A</a>, <a href="/block-b">Block B</a>, <a href="/block-c">Block C</a> and the <a href="/buying-guide">buying guide</a>.</p>`)
-    .replace('<meta name="theme-color"', '<meta name="robots" content="noindex"><meta name="theme-color"');
+    .replace('<meta name="theme-color"', '<meta name="robots" content="noindex"><meta name="theme-color"')
+    .replace(/<link rel="canonical"[^>]*>/, "");
 }
 
 function llms(site) {
