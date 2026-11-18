@@ -96,7 +96,7 @@ function page(site, path, title, description, body) {
 <section class="cta"><h2>Talk to our team</h2><p>We answer your questions, help you choose a plot and go with you to the transfer. No cost and no commitment.</p>
 <div class="row"><a class="btn rose" href="/#book">Book a call</a><a class="btn light" href="${tel()}">Call ${esc(SITE_DEFAULTS.phone)}</a><a class="btn line" href="${wa("I want to know about plots in DHA Margalla Orchard.")}">WhatsApp</a>${SITE_DEFAULTS.meet_link ? `<a class="btn line" href="${esc(SITE_DEFAULTS.meet_link)}" target="_blank" rel="noopener">Book a video call</a>` : ""}</div></section>
 </main>
-<footer><div class="in">${LEGAL} · ${esc(SITE_DEFAULTS.address)} · <a href="${tel()}">${esc(SITE_DEFAULTS.phone)}</a> · <a href="mailto:${esc(SITE_DEFAULTS.email)}">${esc(SITE_DEFAULTS.email)}</a> · <a href="/privacy">Privacy policy</a><br>
+<footer><div class="in">${LEGAL} · ${esc(SITE_DEFAULTS.address)} · <a href="${tel()}">${esc(SITE_DEFAULTS.phone)}</a> · <a href="${tel(SITE_DEFAULTS.phone2)}">${esc(SITE_DEFAULTS.phone2)}</a> · <a href="mailto:${esc(SITE_DEFAULTS.email)}">${esc(SITE_DEFAULTS.email)}</a> · <a href="/privacy">Privacy policy</a><br>
 <span class="fine">Scheme facts: FGEHA and DHA Islamabad announcements. Prices: market asking prices in October 2026; they change from plot to plot. The map is the official FGEHA layout plan.</span></div></footer>
 </body></html>
 `;
@@ -156,7 +156,7 @@ ${PAGES_BLOCKS.map((b) => `- [Block ${b}](${site}/block-${b.toLowerCase()}): ${B
 - [Privacy policy](${site}/privacy)
 
 ## Contact
-- Phone and WhatsApp: ${SITE_DEFAULTS.phone}
+- Phone and WhatsApp: ${SITE_DEFAULTS.phone} and ${SITE_DEFAULTS.phone2}
 - E-mail: ${SITE_DEFAULTS.email}
 - Office: ${SITE_DEFAULTS.address}
 - Hours: ${SITE_DEFAULTS.hours}
