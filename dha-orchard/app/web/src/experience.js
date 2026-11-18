@@ -76,7 +76,7 @@ export function experiencePage(c) {
     <section class="xch xsite" data-cam="overview" id="x-site"><div class="xcard wide">
       <h2>${words("Live from the site")}</h2>
       <p class="xlead">Filmed by our team in November 2026: the main gate, the earthwork and the new roads. Real footage, not a render. The work is still in progress.</p>
-      <div class="xsite-film"><video class="xsite-v" src="site/gate-film.mp4" poster="site/gate-poster.webp" muted loop playsinline preload="none" aria-label="Film from the site: a car drives to the main gate of Margalla Orchards, excavators and earthwork inside the scheme, and a new road"></video></div>
+      <div class="xsite-film"><video class="xsite-v" src="${siteFilmSrc()}" poster="site/film-poster.webp" muted loop playsinline preload="none" aria-label="Film from the site: a car drives to the main gate of Margalla Orchards, excavators and earthwork inside the scheme, and a new road"></video></div>
       <div class="xsite-pics">
         <figure><img src="site/road.webp" alt="New road and kerb on the way to the Margalla Orchards main gate" loading="lazy" decoding="async" width="960" height="720"><figcaption>New road to the main gate</figcaption></figure>
         <figure><img src="site/gate.webp" alt="The Margalla Orchards main gate, under construction" loading="lazy" decoding="async" width="960" height="720"><figcaption>The main gate, under construction</figcaption></figure>
@@ -187,6 +187,11 @@ function renderSection() {
   </div></section>`;
 }
 // the dusk film plays (and loops) while it is in view
+// the site film: 1920x1080 for big, sharp screens; 1280x720 for phones and slow or data-saving connections
+function siteFilmSrc() {
+  const px = innerWidth * (devicePixelRatio || 1), c = navigator.connection || {};
+  return innerWidth >= 760 && px >= 1100 && !c.saveData && !/(^|-)2g$/.test(c.effectiveType || "") ? "site/film-1080.mp4" : "site/film-720.mp4";
+}
 const filmsOn = new Set();
 // while a film is on screen the 3D plan fades out (body.xfilm) and stops drawing: some Windows laptops show
 // dark flickering rectangles when Chrome has to mix a playing video with the full-screen 3D canvas
