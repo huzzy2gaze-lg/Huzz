@@ -469,7 +469,13 @@ function frame(now) {
     const hb = hit ? hit.object.userData.block : null;
     if (hb !== X.hover) { X.hover = hb; showTip(hb); }
   }
-  if (X.videoOn && !X.fly && X.fr % 2) return; // a film plays on screen: the plan behind it draws at half rate, so the film stays smooth
+  // a film plays on screen: once the camera has arrived, the plan behind it stops drawing (it looks the same),
+  // so the graphics card only has the film to draw. This stops the dark flicker some Windows laptops show.
+  if (X.videoOn && !X.fly && !X.mapMode) {
+    const still = X.cur.pos.distanceTo(tp) < 0.003 && X.cur.look.distanceTo(tl) < 0.003;
+    X.stillN = still ? (X.stillN || 0) + 1 : 0;
+    if (X.stillN > 2) return;
+  } else X.stillN = 0;
   X.renderer.render(X.scene, X.camera);
 }
 
