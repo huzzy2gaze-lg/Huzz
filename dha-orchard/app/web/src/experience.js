@@ -187,20 +187,22 @@ function renderSection() {
   </div></section>`;
 }
 // the dusk film plays (and loops) while it is in view
+const filmsOn = new Set();
+function filmOn(v, on) { on ? filmsOn.add(v) : filmsOn.delete(v); filmsOn.forEach((x) => { if (!x.isConnected) filmsOn.delete(x); }); if (X) X.videoOn = filmsOn.size > 0; }
 // the site film plays (muted, looped) only while it is on screen; it loads nothing until then
 function wireSiteFilm() {
   const v = document.querySelector(".xsite-v");
   if (!v || v.dataset.wired) return;
   v.dataset.wired = 1;
   if (reduce()) { v.controls = true; return; }
-  new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.3 }).observe(v);
+  new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause(); filmOn(v, en.isIntersecting); }), { threshold: 0.3 }).observe(v);
 }
 function wireVideo() {
   wireSiteFilm();
   const v = document.querySelector(".xr-build");
   if (!v || v.dataset.wired) return;
   v.dataset.wired = 1;
-  const vio = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause(); }), { threshold: 0.35 });
+  const vio = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause(); filmOn(v, en.isIntersecting); }), { threshold: 0.35 });
   vio.observe(v);
 }
 export function refreshRender() {
@@ -467,6 +469,7 @@ function frame(now) {
     const hb = hit ? hit.object.userData.block : null;
     if (hb !== X.hover) { X.hover = hb; showTip(hb); }
   }
+  if (X.videoOn && !X.fly && X.fr % 2) return; // a film plays on screen: the plan behind it draws at half rate, so the film stays smooth
   X.renderer.render(X.scene, X.camera);
 }
 
@@ -583,6 +586,8 @@ function showTip(b) {
 let bound = false, io = null;
 function onScroll() {
   if (!X) return;
+  if (X.hover || X.mouse.x !== -9) { X.mouse.set(-9, -9); if (X.hover) { X.hover = null; showTip(null); } }
+  document.querySelectorAll("[data-magnet]").forEach((m) => { if (m.style.transform) m.style.transform = ""; });
   const secs = document.querySelectorAll(".xp [data-cam]");
   let best = null, bd = 1e9;
   const mid = innerHeight * 0.5;
@@ -596,9 +601,11 @@ function onResize() { if (!X) return; X.renderer.setSize(innerWidth, innerHeight
 function onMove(e) {
   if (!X) return;
   if (e.pointerType && e.pointerType !== "mouse") { X.mouse.set(-9, -9); if (X.hover) { X.hover = null; showTip(null); } return; }
-  X.pointer = [(e.clientX / innerWidth - 0.5) * 2, -(e.clientY / innerHeight - 0.5) * 2];
-  const over = e.target.closest && e.target.closest(".xcard,.xbook,a,button,input,textarea,header,.floatcta");
-  X.mouse.set(over ? -9 : X.pointer[0], over ? -9 : X.pointer[1]);
+  const p = [(e.clientX / innerWidth - 0.5) * 2, -(e.clientY / innerHeight - 0.5) * 2];
+  const over = e.target.closest && e.target.closest(".xcard,.xbook,.xr-wrap,video,a,button,input,textarea,header,.floatcta");
+  // over a card or a video the plan stays still (no parallax) and does not react, so nothing moves behind the card
+  if (!over) X.pointer = p;
+  X.mouse.set(over ? -9 : p[0], over ? -9 : p[1]);
   const cur = document.querySelector(".xcursor");
   if (cur) { cur.style.transform = `translate(${e.clientX}px,${e.clientY}px)`; cur.classList.toggle("link", !!(e.target.closest && e.target.closest("a,button"))); }
   const tip = document.querySelector(".xtip");
