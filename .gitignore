@@ -1,0 +1,3 @@
+# Impeccable: per-developer settings and runtime caches stay local
+.impeccable/config.local.json
+.impeccable/hook.cache.json

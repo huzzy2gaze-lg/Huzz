@@ -1,0 +1,29 @@
+/* WH Ventures colour standard: "Margalla Teal" (split-complementary, golden-ratio shares).
+   Use these in the website, the sales system, ads and social media. Never type a hex code by hand elsewhere. */
+:root {
+  /* Core: 61.8% / 23.6% / 14.6% */
+  --wh-teal:      #0B3A40;  /* dominant (61.8%): backgrounds, hero, headers */
+  --wh-mist:      #EAF1EE;  /* secondary (23.6%): light surfaces, text on teal */
+  --wh-gold:      #D2A746;  /* accent (14.6%): highlights, prices, logo, key words on teal */
+  /* Supporting */
+  --wh-abyss:     #06252A;  /* deepest teal: footers, shadows, text on gold */
+  --wh-rose:      #B04761;  /* call to action ONLY: "Book a call" / WhatsApp buttons, with white text */
+  --wh-sage:      #A9C4C4;  /* body text on teal */
+  --wh-slate:     #4A6B6E;  /* body text on mist */
+  --wh-gold-ink:  #7A5F22;  /* gold-coloured text on mist (plain gold is too light there) */
+  --wh-white:     #FFFFFF;
+
+  /* Golden-ratio tints and shades (each step closes 0.618 of the gap to white / black) */
+  --wh-teal-100: #C5D1D2; --wh-teal-200: #A2B4B6; --wh-teal-300: #688589;
+  --wh-teal-700: #09272A; --wh-teal-800: #071B1D; --wh-teal-900: #061414;
+  --wh-gold-100: #F4EAD3; --wh-gold-200: #EEDDB8; --wh-gold-300: #E3C98D;
+  --wh-gold-700: #846A2E; --wh-gold-800: #53451F; --wh-gold-900: #352E16;
+
+  /* Type: Gloock (headlines) + Albert Sans (text). Sizes step by 1.618 */
+  --wh-font-display: "Gloock", Georgia, serif;
+  --wh-font-text: "Albert Sans", system-ui, sans-serif;
+  --wh-size-1: 13px; --wh-size-2: 21px; --wh-size-3: 34px; --wh-size-4: 55px; --wh-size-5: 89px;
+  /* Spacing (Fibonacci) */
+  --wh-space-1: 8px; --wh-space-2: 13px; --wh-space-3: 21px; --wh-space-4: 34px; --wh-space-5: 55px; --wh-space-6: 89px;
+  --wh-radius: 13px;
+}

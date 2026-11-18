@@ -1,0 +1,530 @@
+<title>Margalla Orchard Playbook</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a field-file manual. Sticky module index on top, single reading column, wide tables scroll in place. */
+:root{
+  --bg:#F4F6F1; --surface:#FFFFFF; --ink:#17231C; --muted:#5B685F; --line:#D6DDD5;
+  --pine:#2D6A4C; --pine-soft:#E2EEE6; --mustard:#A86F0E; --mustard-soft:#F7ECD4; --red:#B23A2E; --red-soft:#F6E1DE;
+  --display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1612; --surface:#17211B; --ink:#E3EBE5; --muted:#9AA89F; --line:#2B3830;
+  --pine:#73B892; --pine-soft:#1C3227; --mustard:#E2AA45; --mustard-soft:#33280F; --red:#EE8A7E; --red-soft:#3A1E1A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0F1612; --surface:#17211B; --ink:#E3EBE5; --muted:#9AA89F; --line:#2B3830;
+  --pine:#73B892; --pine-soft:#1C3227; --mustard:#E2AA45; --mustard-soft:#33280F; --red:#EE8A7E; --red-soft:#3A1E1A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--pine)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+
+header.top{padding-block:40px 24px}
+.eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font:800 clamp(34px,7vw,56px)/1.02 var(--display);font-stretch:80%;margin:.3em 0 .35em;text-wrap:balance;letter-spacing:-.01em}
+h2{font:750 clamp(24px,4.4vw,32px)/1.1 var(--display);font-stretch:85%;margin:0 0 .5em;text-wrap:balance}
+h3{font:700 19px/1.25 var(--display);font-stretch:90%;margin:1.4em 0 .4em}
+p{margin:0 0 .9em;max-width:68ch}
+.lede{font-size:18px;color:var(--muted);max-width:60ch}
+.focus-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{display:inline-flex;align-items:center;gap:6px;font:500 13px/1 var(--mono);padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);white-space:nowrap}
+.chip b{font-weight:600}
+.chip.core{background:var(--pine);color:var(--bg);border-color:var(--pine)}
+.chip.sec{background:var(--pine-soft);color:var(--ink);border-color:transparent}
+.chip.no{color:var(--muted)}
+
+nav.idx{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-block:1px solid var(--line)}
+nav.idx .wrap{display:flex;gap:4px;overflow-x:auto;padding-block:8px;scrollbar-width:thin}
+nav.idx a{flex:none;font:500 13px/1 var(--body);color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:6px}
+nav.idx a:hover{color:var(--ink);background:var(--pine-soft)}
+
+section{padding-block:44px;border-bottom:1px solid var(--line)}
+.mod{font:500 12px/1 var(--mono);color:var(--pine);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:18px 0}
+.facts div{background:var(--surface);padding:14px 16px;min-width:0}
+.facts dt{font:500 12px/1.3 var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.facts dd{margin:6px 0 0;font:700 22px/1.15 var(--display);font-stretch:85%;font-variant-numeric:tabular-nums}
+.facts dd small{display:block;font:400 13px/1.4 var(--body);color:var(--muted);margin-top:3px}
+
+.note{border-left:3px solid var(--mustard);background:var(--mustard-soft);padding:12px 14px;border-radius:0 8px 8px 0;margin:16px 0;max-width:68ch}
+.note.warn{border-color:var(--red);background:var(--red-soft)}
+.note b:first-child{font-family:var(--mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:2px}
+.confirm{font:600 11px/1 var(--mono);letter-spacing:.06em;color:var(--mustard);border:1px solid var(--mustard);border-radius:4px;padding:2px 5px;vertical-align:2px;white-space:nowrap}
+
+.tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:600 12px/1.3 var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--bg)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.mono{font-family:var(--mono);white-space:nowrap}
+tr.total td{font-weight:600}
+.blk{font:800 20px/1 var(--display);font-stretch:80%}
+
+.bars{display:grid;gap:8px;margin:18px 0}
+.bar{display:grid;grid-template-columns:110px 1fr 54px;align-items:center;gap:10px;font-size:14px}
+.bar .lab{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .track{height:14px;background:var(--pine-soft);border-radius:3px;overflow:hidden}
+.bar .fill{height:100%;background:var(--muted);border-radius:3px}
+.bar.core .fill{background:var(--pine)}
+.bar.sec .fill{background:color-mix(in srgb,var(--pine) 50%,var(--bg))}
+.bar .v{text-align:right;font:500 13px var(--mono);font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+figure{margin:22px 0}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+.plots svg{width:100%;max-width:520px;height:auto;display:block}
+.plots .r1{fill:var(--pine)} .plots .r2{fill:color-mix(in srgb,var(--pine) 55%,var(--bg))} .plots .r3{fill:var(--mustard)}
+.plots text{fill:var(--ink);font-family:var(--mono);font-size:11px}
+.plots text.big{font-family:var(--display);font-weight:700;font-size:14px}
+.plots .ground{stroke:var(--line);stroke-width:1}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+.card.ours{border:2px solid var(--pine)}
+.card h3{margin-top:0}
+.card ul{margin:0;padding-left:18px}
+.card li{margin:4px 0}
+.tag{font:500 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--pine)}
+
+ol.steps,ul.plain{padding-left:20px;max-width:68ch}
+ol.steps li,ul.plain li{margin:6px 0}
+
+.check{list-style:none;padding:0;margin:16px 0;display:grid;gap:2px;max-width:70ch}
+.check label{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:8px;cursor:pointer}
+.check label:hover{background:var(--pine-soft)}
+.check input{margin-top:4px;accent-color:var(--pine);width:16px;height:16px;flex:none}
+.check input:checked + span{color:var(--muted);text-decoration:line-through}
+.btn{font:600 14px/1 var(--body);padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--pine)}
+.btn.primary{background:var(--pine);color:var(--bg);border-color:var(--pine)}
+
+.qa{display:grid;gap:14px;margin:18px 0}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px}
+.q p{font-weight:600;margin-bottom:10px}
+.opts{display:grid;gap:6px}
+.opts button{text-align:left;font:400 15px/1.4 var(--body);padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.opts button:hover:not(:disabled){border-color:var(--pine)}
+.opts button:disabled{cursor:default}
+.opts button.right{background:var(--pine-soft);border-color:var(--pine);font-weight:600}
+.opts button.wrong{background:var(--red-soft);border-color:var(--red)}
+.why{font-size:14px;color:var(--muted);margin:10px 0 0}
+.score{font:700 20px var(--display);font-stretch:85%}
+.qbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+.gloss{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.gloss dt,.gloss dd{margin:0;padding:10px 12px;border-bottom:1px solid var(--line)}
+.gloss dt{font-weight:600;background:var(--bg)}
+.gloss dt:nth-last-of-type(1),.gloss dd:last-child{border-bottom:0}
+@media (max-width:520px){.gloss{grid-template-columns:1fr}.gloss dt{border-bottom:0;padding-bottom:2px}.bar{grid-template-columns:84px 1fr 46px}}
+
+footer{padding-block:36px 56px;color:var(--muted);font-size:14px}
+footer ul{padding-left:18px}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Sales training · FGEHA Phase X · Park Road, Islamabad · Researched 4 Nov 2026</div>
+    <h1>Margalla Orchard Playbook</h1>
+    <p class="lede">Everything a seller needs about DHA Margalla Orchard, sourced from FGEHA records, Dawn and The News, and the traced layout map. Items marked <span class="confirm">CONFIRM</span> are not settled by public sources. Check them with Mr. Nadeem or at the FGEHA office.</p>
+    <div class="focus-row" aria-label="Our block focus">
+      <span class="chip core"><b>A · B · C</b> main inventory</span>
+      <span class="chip sec"><b>D · E · G</b> also dealing</span>
+      <span class="chip no">F · H not dealing</span>
+      <span class="chip core">Product: land-sharing plots</span>
+    </div>
+    <dl class="facts" aria-label="Our stock">
+      <div><dt>Our stock, Block B</dt><dd>About 30<small>Land sharing, plot numbers assigned, selling now</small></dd></div>
+      <div><dt>Our stock, Block C</dt><dd>About 30<small>Land sharing, plot numbers assigned, selling now</small></dd></div>
+      <div><dt>Our stock, Block A</dt><dd>Coming<small>Plots to come against land; count to confirm</small></dd></div>
+      <div><dt>Buyer receives</dt><dd>Allotment letter<small>Purchaser-side transfer cost about PKR 352,000</small></dd></div>
+    </dl>
+    <p style="font-size:13px;color:var(--muted)">Stock figures from Mr. Nadeem, 4 Nov 2026.</p>
+  </div>
+</header>
+
+<nav class="idx" aria-label="Modules">
+  <div class="wrap">
+    <a href="#basics">Basics</a><a href="#blocks">Blocks</a><a href="#sizes">Sizes</a><a href="#allotment">3 allotment types</a><a href="#landsharing">Land sharing</a><a href="#prices">Prices</a><a href="#transfer">Transfer</a><a href="#checklist">Checklist</a><a href="#pitch">Pitch &amp; FAQ</a><a href="#nadeem">Nadeem's answers</a><a href="#quiz">Quiz</a><a href="#glossary">Glossary</a>
+  </div>
+</nav>
+
+<main>
+<section id="basics"><div class="wrap">
+  <div class="mod">Module 1</div>
+  <h2>The project in five facts</h2>
+  <dl class="facts">
+    <div><dt>Official name</dt><dd>Margalla Orchard<small>Formerly Park Road Housing Scheme. FGEHA calls it Phase X.</small></dd></div>
+    <div><dt>Area</dt><dd>8,432 kanals<small>FGEHA, Oct 2026. Older material says 8,380.</small></dd></div>
+    <div><dt>Residential plots</dt><dd>4,781<small>FGEHA layout. A Feb 2026 briefing said 4,611.</small></dd></div>
+    <div><dt>Progress</dt><dd>50% built<small>FGEHA, September 2026</small></dd></div>
+    <div><dt>First possession</dt><dd>Block A · Jul 2027<small>FGEHA target. New payment schedule from 1 Nov 2026.</small></dd></div>
+  </dl>
+  <p><b>Location.</b> Main Park Road, CDA Zone 4, Chak Shahzad, opposite COMSATS University. The land lies in three villages (mauzas): <b>Tamma</b>, <b>Mohriyan</b> (also spelled Mariyan or Moriyan) and <b>Chak Farash</b>.</p>
+  <p><b>Three partners.</b> <b>FGEHA</b> (Federal Government Employees Housing Authority) owns the scheme and the land. <b>SCBA</b> (Supreme Court Bar Association) is the land partner for lawyers. <b>DHA Islamabad</b> has done the development work since the tripartite agreement of 26 September 2025.</p>
+  <div class="note"><b>Don't mix it up</b>Margalla <i>Enclave</i> is a different scheme: CDA and DHA, on Jinnah Avenue, with 125/250/500 sq yd plots allotted by public ballot.</div>
+  <h3>Maps</h3>
+  <ul class="plain">
+    <li><a href="https://www.fgeha.gov.pk/wp-content/uploads/2022/09/LOP-PR.pdf" target="_blank" rel="noopener">Official FGEHA layout plan (PDF)</a>: the authority's own map</li>
+    <li><a href="https://emap.pk/margalla-orchard-islamabad-map" target="_blank" rel="noopener">emap.pk interactive map</a></li>
+    <li><a href="https://jaidadfinder.com/society/dha-margalla-orchards/map" target="_blank" rel="noopener">Jaidad Finder</a>: every plot by block and number on satellite imagery</li>
+  </ul>
+  <p>The layout was revised after DHA joined. Sell against the current approved layout, never a brochure map.</p>
+</div></section>
+
+<section id="blocks"><div class="wrap">
+  <div class="mod">Module 2</div>
+  <h2>The blocks</h2>
+  <p>Plots per block come from Jaidad Finder's trace of the layout plan (updated 29 Sep 2026; 4,792 plots including commercial). Sizes and terrain for each block come from dealer sites unless a source says otherwise.</p>
+  <div class="bars" role="img" aria-label="Plots per block: E 1128, A 906, B 737, G 538, C 467, D 373, Commercial 248, F 228, H 167">
+    <div class="bar sec"><span class="lab">Block E</span><span class="track"><span class="fill" style="width:100%;display:block"></span></span><span class="v">1,128</span></div>
+    <div class="bar core"><span class="lab">Block A</span><span class="track"><span class="fill" style="width:80.3%;display:block"></span></span><span class="v">906</span></div>
+    <div class="bar core"><span class="lab">Block B</span><span class="track"><span class="fill" style="width:65.3%;display:block"></span></span><span class="v">737</span></div>
+    <div class="bar sec"><span class="lab">Block G</span><span class="track"><span class="fill" style="width:47.7%;display:block"></span></span><span class="v">538</span></div>
+    <div class="bar core"><span class="lab">Block C</span><span class="track"><span class="fill" style="width:41.4%;display:block"></span></span><span class="v">467</span></div>
+    <div class="bar sec"><span class="lab">Block D</span><span class="track"><span class="fill" style="width:33.1%;display:block"></span></span><span class="v">373</span></div>
+    <div class="bar"><span class="lab">Commercial</span><span class="track"><span class="fill" style="width:22%;display:block"></span></span><span class="v">248</span></div>
+    <div class="bar"><span class="lab">Block F</span><span class="track"><span class="fill" style="width:20.2%;display:block"></span></span><span class="v">228</span></div>
+    <div class="bar"><span class="lab">Block H</span><span class="track"><span class="fill" style="width:14.8%;display:block"></span></span><span class="v">167</span></div>
+  </div>
+  <div class="legend"><span><i style="background:var(--pine)"></i>Main inventory</span><span><i style="background:color-mix(in srgb,var(--pine) 50%,var(--bg))"></i>Also dealing</span><span><i style="background:var(--muted)"></i>Not dealing</span></div>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Block</th><th>Sizes</th><th>What to know</th><th>Ground</th></tr></thead>
+    <tbody>
+      <tr><td class="blk">A</td><td>1 Kanal, 14 Marla</td><td><b>First possession, July 2027.</b> The Margalla Orchards Walk commercial area is in Block A. Spans Tamma and Mohriyan. <b>FGEHA's land-sharing files come from Blocks A and G</b> (FGEHA board document, via Dawn). Reported as higher ground near the entrance.</td><td>33% likely filled or old nala</td></tr>
+      <tr><td class="blk">B</td><td>1 Kanal, 14 Marla</td><td>Dealer sites say development charges are already paid <span class="confirm">CONFIRM</span>. One site says 5–10 Marla, which contradicts the others. Has the highest 1 Kanal asking prices.</td><td>29% likely filled</td></tr>
+      <tr><td class="blk">C</td><td>1 Kanal</td><td>Premium 1 Kanal with wider roads; reported as the innermost block. Development charges said to be paid <span class="confirm">CONFIRM</span>.</td><td><b>97% natural or cut</b>, the firmest ground</td></tr>
+      <tr><td class="blk">D</td><td>14 Marla, 1 Kanal</td><td>Reported as the centre of the scheme. Development charges said to be paid.</td><td>35% likely filled, the highest</td></tr>
+      <tr><td class="blk">E</td><td>10 Marla</td><td>Largest block. Holds the SCBA 10 Marla quota. Cheapest, most liquid entry.</td><td>—</td></tr>
+      <tr><td class="blk">G</td><td>1 Kanal</td><td>Entirely in Mauza Mohriyan. A land-sharing source block alongside A. Reported as elevated. Lowest 1 Kanal asking price.</td><td>86% natural or cut</td></tr>
+      <tr><td class="blk">F</td><td>—</td><td>Not dealing.</td><td>94% natural or cut</td></tr>
+      <tr><td class="blk">H</td><td>14 Marla, 1 Kanal</td><td>Not dealing.</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:14px;color:var(--muted)">The ground figures are satellite estimates from Jaidad Finder, not a survey. A buyer planning a basement should get a soil test.</p>
+</div></section>
+
+<section id="sizes"><div class="wrap">
+  <div class="mod">Module 3</div>
+  <h2>Plot sizes and who holds them</h2>
+  <figure class="plots">
+    <svg viewBox="0 0 420 250" role="img" aria-label="The three residential plot sizes drawn to the same scale: 50 by 90, 40 by 80 and 32 by 70 feet">
+      <line class="ground" x1="10" y1="200" x2="410" y2="200"/>
+      <rect class="r1" x="30" y="20" width="100" height="180" rx="2"/>
+      <rect class="r2" x="170" y="40" width="80" height="160" rx="2"/>
+      <rect class="r3" x="290" y="60" width="64" height="140" rx="2"/>
+      <text class="big" x="80" y="222" text-anchor="middle">1 Kanal</text>
+      <text x="80" y="238" text-anchor="middle">50×90 · 500 yd²</text>
+      <text class="big" x="210" y="222" text-anchor="middle">14 Marla</text>
+      <text x="210" y="238" text-anchor="middle">40×80 · 356 yd²</text>
+      <text class="big" x="322" y="222" text-anchor="middle">10 Marla</text>
+      <text x="322" y="238" text-anchor="middle">32×70 · 249 yd²</text>
+    </svg>
+    <figcaption>The three residential sizes, drawn to the same scale (1 ft = 2 units). Dimensions from FGEHA.</figcaption>
+  </figure>
+  <div class="tbl"><table>
+    <thead><tr><th>Size</th><th>Feet</th><th class="num">Sq ft</th><th class="num">FGEHA</th><th class="num">SCBA</th><th class="num">Total</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 Kanal</b></td><td class="mono">50×90</td><td class="num">4,500</td><td class="num">1,188</td><td class="num">1,916</td><td class="num">3,104 · 65%</td></tr>
+      <tr><td><b>14 Marla</b></td><td class="mono">40×80</td><td class="num">3,200</td><td class="num">900</td><td class="num">—</td><td class="num">900 · 19%</td></tr>
+      <tr><td><b>10 Marla</b></td><td class="mono">32×70</td><td class="num">2,240</td><td class="num">—</td><td class="num">777</td><td class="num">777 · 16%</td></tr>
+      <tr class="total"><td>Total</td><td></td><td></td><td class="num">2,088</td><td class="num">2,693</td><td class="num">4,781</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="plain">
+    <li><b>14 Marla is FGEHA only. 10 Marla is SCBA only.</b> A "14 Marla SCBA file" or a "10 Marla FGEHA file" needs questions.</li>
+    <li>DHA counts 1 marla as 225 sq ft. Under the old 272 sq ft marla the same plots come to 16.5, 11.8 and 8.2 marla. Talk in feet and square yards.</li>
+    <li>The 10 Marla is 32×70 in FGEHA's table but 35×70 on the traced map. Check the allotment letter.</li>
+    <li>Commercial plots (Margalla Orchards Walk, a DHA project): 30×40 (about 5 Marla, 133 sq yd) and 40×45 (8 Marla, 200 sq yd).</li>
+  </ul>
+</div></section>
+
+<section id="allotment"><div class="wrap">
+  <div class="mod">Module 4</div>
+  <h2>The three allotment types</h2>
+  <p>These are the three categories Mr. Nadeem described, matched to the official records.</p>
+  <div class="cols">
+    <div class="card">
+      <div class="tag">Federal employees</div>
+      <h3>FGEHA</h3>
+      <ul>
+        <li><b>2,088 plots</b>: 1 Kanal and 14 Marla</li>
+        <li>Allotted by age-wise seniority; balloted 14 Sep 2022</li>
+        <li>Paper: Provisional Offer Letter (POL)</li>
+        <li>Dues show on efms.fgeha.online</li>
+        <li>Transfer at the FGEHA Facilitation Centre, G-10/4</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="tag">Lawyers</div>
+      <h3>SCBA</h3>
+      <ul>
+        <li><b>2,693 plots</b>: 1 Kanal and 10 Marla</li>
+        <li>Allotted on SCBAP's recommendation</li>
+        <li>Paper: Provisional Offer Letter</li>
+        <li>Transfer office <span class="confirm">CONFIRM</span></li>
+      </ul>
+    </div>
+    <div class="card ours">
+      <div class="tag">Our product</div>
+      <h3>Land sharing</h3>
+      <ul>
+        <li>A developed plot given to a landowner <b>in exchange for raw land</b>, instead of cash</li>
+        <li>Reported as 1 Kanal (500 sq yd)</li>
+        <li>Comes through the land provider, Extol Estate and Builders</li>
+        <li>Not a separate published count</li>
+      </ul>
+    </div>
+  </div>
+  <div class="note"><b>The 50/50 claim</b>Dealer sites say the split is 50/50. The 2015 Supreme Court order did call for parity, but FGEHA's layout gives 2,088 FGEHA and 2,693 SCBA (44% and 56%). Quote FGEHA's numbers.</div>
+</div></section>
+
+<section id="landsharing"><div class="wrap">
+  <div class="mod">Module 5</div>
+  <h2>Land sharing in depth</h2>
+  <p>There are <b>two separate land-sharing deals</b> in this scheme. Before selling a file, know which one it comes from.</p>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>SCBA land sharing</th><th>FGEHA land sharing</th></tr></thead>
+    <tbody>
+      <tr><td><b>Village</b></td><td>Mauza Mohriyan</td><td>Mauza Tamma</td></tr>
+      <tr><td><b>Land covered</b></td><td>2,000 of SCBA's 4,100 kanals. The other 2,100 were paid in cash.</td><td>FGEHA's Tamma land: 2,024 kanals in total</td></tr>
+      <tr><td><b>Ratio</b></td><td><b>1 developed 500 sq yd plot per revenue kanal</b> of raw land</td><td>Was 1:4. <b>Now 1:3</b> (1 developed kanal per 3 kanals), approved 21 Apr 2025</td></tr>
+      <tr><td><b>Valuation</b></td><td>—</td><td>Uniform Rs 8.3 million per kanal</td></tr>
+      <tr><td><b>Development charges</b></td><td><b>Landowner pays</b> for their plot</td><td><span class="confirm">CONFIRM</span></td></tr>
+      <tr><td><b>Where the plots are</b></td><td>SCBA's share <span class="confirm">CONFIRM BLOCKS</span></td><td>Non-balloted residential plots in <b>Blocks A and G</b></td></tr>
+      <tr><td><b>Decided</b></td><td>FGEHA board, July 2021</td><td>FGEHA board, Mar–Apr 2025, after a Law Ministry opinion</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:14px;color:var(--muted)">Sources: The News, 13 Jul 2021 (FGEHA 13th board minutes); Dawn, 22 Mar 2025 and 22 Apr 2025.</p>
+
+  <h3>Land acquired, by village</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Mauza</th><th class="num">Kanals</th><th class="num">FGEHA owned</th><th class="num">Award rate per kanal</th></tr></thead>
+    <tbody>
+      <tr><td>Tamma</td><td class="num">2,024</td><td class="num">all</td><td class="num">Rs 8.3m</td></tr>
+      <tr><td>Mohriyan</td><td class="num">6,315</td><td class="num">2,145</td><td class="num">Rs 3.4m</td></tr>
+      <tr><td>Chak Farash</td><td class="num">92</td><td class="num">46</td><td class="num">Rs 3.4m</td></tr>
+      <tr class="total"><td>Total</td><td class="num">8,431</td><td></td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>How a land-sharing file is created</h3>
+  <ol class="steps">
+    <li>The landowner records a <b>Tark-i-Qabza</b> statement (surrender of possession) on the acquaintance roll, before witnesses.</li>
+    <li>The landowner completes <b>online verification</b>.</li>
+    <li>Only then are files issued to the land provider (Extol Estate and Builders), at the board-approved ratio.</li>
+    <li>The file is sold on, so the title chain runs <b>landowner → land provider → buyer</b>.</li>
+  </ol>
+
+  <h3>What to check when you sell one</h3>
+  <ul class="plain">
+    <li>Which deal: SCBA in Mohriyan, or FGEHA in Tamma? That decides the size, the blocks, and who owes development charges.</li>
+    <li>Does it have a plot number and block, or is it still an unnumbered file? Many current A, B and C listings say "no plot number".</li>
+    <li>Public sources tie FGEHA land-sharing files only to Blocks A and G. Ask Mr. Nadeem how our land-sharing plots in B and C were created.</li>
+  </ul>
+  <div class="note warn"><b>Fraud warning, 5 Oct 2026</b>FGEHA disowned an "affidavit/undertaking" between its Director (Land) and two private individuals about land and allotment. No FGEHA officer can bind the authority without an Executive Board decision. Never sell a file that rests only on a side affidavit. Only pay against the FGEHA portals or official letters.</div>
+</div></section>
+
+<section id="prices"><div class="wrap">
+  <div class="mod">Module 6</div>
+  <h2>Prices</h2>
+  <p>These are asking prices on live listings in late October 2026 (Jaidad Finder, 10 listings). They are not valuations. Residential plots sell for <b>cash only</b>; there are no instalments.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Block</th><th>Size</th><th>Asking (PKR crore)</th></tr></thead>
+    <tbody>
+      <tr><td class="blk">A</td><td>1 Kanal</td><td class="mono">3.65 · 4.00</td></tr>
+      <tr><td class="blk">B</td><td>1 Kanal</td><td class="mono">3.75 · 3.85 · 4.30 · 4.55</td></tr>
+      <tr><td class="blk">C</td><td>1 Kanal</td><td class="mono">3.85 · 4.50</td></tr>
+      <tr><td class="blk">G</td><td>1 Kanal</td><td class="mono">3.30</td></tr>
+      <tr><td class="blk">E</td><td>10 Marla</td><td class="mono">2.80</td></tr>
+    </tbody>
+  </table></div>
+  <p>Earlier 2026 dealer ranges were lower: 10 Marla 1.98–2.50 Cr, 14 Marla 2.25–2.75 Cr, 1 Kanal 3.10–3.75 Cr. Today's 1 Kanal asks run 3.30–4.55 Cr. <b>B and C ask the most; G asks the least.</b> Corner, park-facing and boulevard plots carry a premium.</p>
+  <p><b>Price rule (Mr. Nadeem):</b> land-sharing, FGEHA and SCBA files in the same block sell at the same base price. The only difference is the development charges still owed.</p>
+  <p>Keep a price book: add every deal you hear about to <code>data/listings_sample_oct2026.csv</code> in the repository.</p>
+</div></section>
+
+<section id="transfer"><div class="wrap">
+  <div class="mod">Module 7</div>
+  <h2>Transfer and possession</h2>
+  <p><b>Where:</b> FGEHA Facilitation Centre (one window), G-10/4, Islamabad. Working days, 9 am to 4 pm. Helpline 051-111-134342.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>FGEHA fee (PKR)</th><th class="num">50×90</th><th class="num">40×80</th><th class="num">35×70</th></tr></thead>
+    <tbody>
+      <tr><td>Transfer fee</td><td class="num">125,000</td><td class="num">89,000</td><td class="num">68,000</td></tr>
+      <tr><td>Urgent fee</td><td class="num">42,000</td><td class="num">35,000</td><td class="num">30,000</td></tr>
+      <tr><td>Gift transfer</td><td class="num">4,500</td><td class="num">4,500</td><td class="num">4,500</td></tr>
+    </tbody>
+  </table></div>
+  <p>FGEHA's table is written for its older sectors and does not list Park Road <span class="confirm">CONFIRM</span>. <b>Field quote (Mr. Nadeem, Nov 2026):</b> about PKR 300,000–400,000 in total; the <b>purchaser pays about PKR 352,000</b>. Dealer websites quote up to PKR 584,000 for a 1 Kanal, including purchaser tax and urgent fee. FBR withholding taxes apply on top: section 236C for the seller and 236K for the buyer. Filer status changes the amount.</p>
+  <ul class="plain">
+    <li>The buyer must check that all dues are paid before filing.</li>
+    <li>The buyer's certificate and declaration are attested by a gazetted officer of BPS-17 or above.</li>
+    <li>Once filed, an application cannot be withdrawn without both parties' written consent.</li>
+    <li><b>Possession:</b> online verification, then a dues clearance from Accounts and a no-litigation check from the Law Section. The surveyor then hands over the plot.</li>
+  </ul>
+</div></section>
+
+<section id="checklist"><div class="wrap">
+  <div class="mod">Module 8</div>
+  <h2>Due-diligence checklist</h2>
+  <p>Run this on every file. Ticks are saved in this browser only.</p>
+  <ul class="check" id="checklist-items">
+    <li><label><input type="checkbox" id="c1"><span>Category known: FGEHA, SCBA, or land sharing (and which deal)</span></label></li>
+    <li><label><input type="checkbox" id="c2"><span>Block and plot number match the current layout</span></label></li>
+    <li><label><input type="checkbox" id="c3"><span>Size fits the quota rule (14 Marla is FGEHA only; 10 Marla is SCBA only)</span></label></li>
+    <li><label><input type="checkbox" id="c4"><span>Original letter seen; seller's CNIC matches</span></label></li>
+    <li><label><input type="checkbox" id="c5"><span>Land sharing: Tark-i-Qabza recorded, online verification done, ratio known</span></label></li>
+    <li><label><input type="checkbox" id="c6"><span>Dues checked on efms.fgeha.online or billing.fgeha.online</span></label></li>
+    <li><label><input type="checkbox" id="c7"><span>Development charges still owed: amount, and who pays (the only price difference between categories)</span></label></li>
+    <li><label><input type="checkbox" id="c8"><span>1 Nov 2026 payment schedule understood (Block A has its own)</span></label></li>
+    <li><label><input type="checkbox" id="c9"><span>No litigation, and not based on the disowned affidavit</span></label></li>
+    <li><label><input type="checkbox" id="c10"><span>Transfer fee for Park Road confirmed at G-10/4</span></label></li>
+    <li><label><input type="checkbox" id="c11"><span>Ground checked on the traced map (A, B and D carry more filled land)</span></label></li>
+    <li><label><input type="checkbox" id="c12"><span>File logged in the inventory sheet</span></label></li>
+  </ul>
+  <button class="btn" id="clear-checks" type="button">Clear all ticks</button>
+</div></section>
+
+<section id="pitch"><div class="wrap">
+  <div class="mod">Module 9</div>
+  <h2>Pitch and buyer questions</h2>
+  <div class="note" style="border-color:var(--pine);background:var(--pine-soft)"><b>30-second pitch</b>Margalla Orchard is FGEHA's Park Road scheme, now being developed by DHA, opposite COMSATS. It has three government-linked partners and a layout approved in 2022. It is 50% built, and Block A is due for possession by July 2027. Nearly two-thirds of the plots are 1 Kanal. We have numbered land-sharing plots in Blocks B and C, with more coming in A. You receive an allotment letter on transfer.</div>
+  <h3>Is it DHA?</h3><p>DHA is the developer under a September 2025 agreement. FGEHA and SCBA own the scheme and its allotments. Building rules for the scheme had not been published as of September 2026.</p>
+  <h3>Is it approved?</h3><p>Yes. FGEHA approved the layout plan on 4 August 2022.</p>
+  <h3>When is possession?</h3><p>Block A by July 2027 (FGEHA's target). The other blocks follow the payment schedule that starts on 1 November 2026.</p>
+  <h3>Is there an instalment plan?</h3><p>No. Residential plots sell for cash only.</p>
+  <h3>Is a land-sharing plot safe?</h3><p>It is a plot the authority gives a landowner against land, under formulas the FGEHA board approved (1:3 for Tamma, April 2025). Its safety depends on the paperwork: the Tark-i-Qabza statement, verification and an official letter. We check each one.</p>
+  <h3>Can overseas Pakistanis buy?</h3><p>Yes, with a NICOP, through the standard transfer process.</p>
+  <h3>Risks to mention up front</h3>
+  <ul class="plain"><li>Delays and court cases in 2018–19.</li><li>An embezzlement case in 2024, referred to the FIA.</li><li>A layout revision that changed the total from 4,781 to 4,611.</li><li>Building rules not yet published.</li></ul>
+  <p>Raising these early builds trust.</p>
+</div></section>
+
+<section id="nadeem"><div class="wrap">
+  <div class="mod">Module 10</div>
+  <h2>Answers from Mr. Nadeem</h2>
+  <p>Recorded on 4 Nov 2026. Items marked <span class="confirm">CONFIRM</span> still need an answer.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>Which deal are our land-sharing plots from?</td><td><b>Mostly Housing (FGEHA)</b>, not mainly Tamma. <span class="confirm">CONFIRM</span> which mauza and which ratio. Public records only describe FGEHA land sharing in Tamma.</td></tr>
+      <tr><td>What does the buyer receive?</td><td><b>An allotment letter.</b></td></tr>
+      <tr><td>Development charges: who pays, and how much?</td><td>Development charges apply. <span class="confirm">CONFIRM</span> the amount per size and who pays.</td></tr>
+      <tr><td>Do our files have plot numbers?</td><td><b>Yes, already assigned.</b></td></tr>
+      <tr><td>How many plots do we hold?</td><td><b>About 60: about 30 in B and 30 in C</b>, already selling. Block A plots are coming against land. <span class="confirm">CONFIRM</span> the size split and the A count.</td></tr>
+      <tr><td>Transfer fee at G-10/4 for Park Road?</td><td>About PKR 300,000–400,000. <b>The purchaser pays about PKR 352,000</b>; the seller handles their own side. <span class="confirm">CONFIRM</span> which size this is for.</td></tr>
+      <tr><td>Do categories sell at different prices in the same block?</td><td><b>Yes, but only because of development charges.</b> Otherwise the price is the same.</td></tr>
+      <tr><td>Are B, C, D and H "development charges paid"?</td><td>Not confirmed. Development charges are still due on SCBA and land-sharing plots. <span class="confirm">CONFIRM</span> in writing.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note" style="border-color:var(--pine);background:var(--pine-soft)"><b>Price rule</b>A land-sharing plot is priced like any other plot in its block, minus the development charges still owed on it. Know that amount before you quote. Don't repeat dealer claims that B and C are "development charges paid".</div>
+</div></section>
+
+<section id="quiz"><div class="wrap">
+  <div class="mod">Module 11</div>
+  <h2>Self-test</h2>
+  <div class="qbar"><span class="score" id="score">0 / 10</span><button class="btn" id="reset-quiz" type="button">Start again</button></div>
+  <div class="qa" id="qa"></div>
+</div></section>
+
+<section id="glossary"><div class="wrap">
+  <div class="mod">Reference</div>
+  <h2>Glossary</h2>
+  <dl class="gloss">
+    <dt>FGEHA</dt><dd>Federal Government Employees Housing Authority. It owns Phase X.</dd>
+    <dt>SCBA / SCBAP</dt><dd>Supreme Court Bar Association of Pakistan</dd>
+    <dt>Phase X</dt><dd>FGEHA's internal name for the Park Road scheme</dd>
+    <dt>POL</dt><dd>Provisional Offer Letter, the allottee's main document</dd>
+    <dt>LOP</dt><dd>Layout plan</dd>
+    <dt>Mauza</dt><dd>Revenue estate (village): Tamma, Mohriyan, Chak Farash</dd>
+    <dt>Land sharing</dt><dd>A developed plot given in exchange for raw land</dd>
+    <dt>Tark-i-Qabza</dt><dd>The landowner's statement surrendering possession of the land</dd>
+    <dt>Land provider</dt><dd>A firm that assembles land from owners. Here: Extol Estate and Builders.</dd>
+    <dt>Non-balloted plots</dt><dd>Plots left out of the 2022 ballot. FGEHA uses those in A and G for land sharing.</dd>
+    <dt>Award</dt><dd>The government's cash price for acquired land: Rs 8.3m per kanal in Tamma, Rs 3.4m in Mohriyan and Chak Farash</dd>
+    <dt>236C / 236K</dt><dd>FBR withholding tax sections on a property sale (seller) and purchase (buyer)</dd>
+  </dl>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <b>Sources</b>
+  <ul>
+    <li><a href="https://www.fgeha.gov.pk/phase-x-park-road-housing-scheme/" target="_blank" rel="noopener">FGEHA: Phase X (Park Road) page</a></li>
+    <li><a href="https://www.fgeha.gov.pk/margalla-orchards-housing-schema-park-road-development-update/" target="_blank" rel="noopener">FGEHA: Development update, Oct 2026</a></li>
+    <li><a href="https://www.fgeha.gov.pk/procedure-for-transfer/" target="_blank" rel="noopener">FGEHA: Procedure for transfer</a></li>
+    <li><a href="https://www.dawn.com/news/1905719" target="_blank" rel="noopener">Dawn, 22 Apr 2025: 1:3 formula approved</a></li>
+    <li><a href="https://www.dawn.com/news/1899450" target="_blank" rel="noopener">Dawn, 22 Mar 2025: land by mauza; files from A and G</a></li>
+    <li><a href="https://www.dawn.com/news/1816383" target="_blank" rel="noopener">Dawn, 23 Feb 2024: embezzlement case</a></li>
+    <li><a href="https://www.thenews.com.pk/print/863458-special-efforts-afoot-to-deliver-scba-housing-scheme-at-park-road-islamabad" target="_blank" rel="noopener">The News, 13 Jul 2021: SCBA land-sharing formula</a></li>
+    <li><a href="https://jaidadfinder.com/society/dha-margalla-orchards/map" target="_blank" rel="noopener">Jaidad Finder traced map and listings</a></li>
+    <li><a href="https://pakera.pk/check-fgeha-margalla-orchards-park-road-status-block-a-possession-july-2027/" target="_blank" rel="noopener">Pakera: FGEHA notices explained</a></li>
+    <li><a href="https://avenirdevelopments.com/dha-islamabad/margalla-orchard/" target="_blank" rel="noopener">Avenir Developments: scheme facts</a></li>
+  </ul>
+  <p>Block sizes, terrain and "development charges paid" claims come from dealer sites (margallaorchards.com, margallaorchard.com, Milkiyat, Kashmir Marketing) and are not confirmed by FGEHA.</p>
+</div></footer>
+
+<script>
+(function(){
+  // Checklist ticks persist per viewer
+  var KEY='mo-checklist';
+  var boxes=[].slice.call(document.querySelectorAll('#checklist-items input'));
+  var saved={};
+  try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+  boxes.forEach(function(b){
+    if(saved[b.id]) b.checked=true;
+    b.addEventListener('change',function(){saved[b.id]=b.checked;try{localStorage.setItem(KEY,JSON.stringify(saved))}catch(e){}});
+  });
+  document.getElementById('clear-checks').addEventListener('click',function(){
+    boxes.forEach(function(b){b.checked=false});saved={};try{localStorage.removeItem(KEY)}catch(e){}
+  });
+
+  // Quiz
+  var Q=[
+    ['How many residential plots are in FGEHA\'s layout?',['4,781','4,611','4,792','8,380'],0,'4,781 on FGEHA\'s published layout: 2,088 FGEHA and 2,693 SCBA. 4,611 came from a Feb 2026 briefing on the revised layout.'],
+    ['Which size belongs only to the FGEHA (federal employees) quota?',['10 Marla (32×70)','14 Marla (40×80)','1 Kanal (50×90)','5 Marla'],1,'14 Marla is FGEHA only (900 plots). 10 Marla is SCBA only (777).'],
+    ['What is FGEHA\'s current land-sharing ratio for Mauza Tamma?',['1:1','1:4','1:3','1:2'],2,'1 developed kanal for every 3 kanals of land, approved on 21 April 2025. It was 1:4 before.'],
+    ['Under the SCBA land-sharing deal in Mohriyan, who pays the development cost of the plot?',['FGEHA','DHA','The landowner','SCBA'],2,'FGEHA\'s 2021 board minutes say the landowners are liable for the development cost of their plots.'],
+    ['FGEHA\'s land-sharing files come from non-balloted plots in which blocks?',['A and G','B and C','D and E','F and H'],0,'Blocks A and G, according to the FGEHA board document reported by Dawn (22 Mar 2025).'],
+    ['Which block is due for possession first, and when?',['Block C, Dec 2026','Block A, July 2027','Block E, June 2028','Block B, July 2027'],1,'Block A, by July 2027, per FGEHA\'s development update of 15 Oct 2026.'],
+    ['Which block has the firmest ground (most natural or cut)?',['Block D','Block A','Block C','Block B'],2,'Block C: 97% natural or cut ground. D (35%), A (33%) and B (29%) have the most likely-filled land.'],
+    ['Where are FGEHA plot transfers filed?',['DHA Phase II office','CDA Zero Point','FGEHA Facilitation Centre, G-10/4','SCBA office, Supreme Court'],2,'At the one-window Facilitation Centre in G-10/4, Islamabad.'],
+    ['A seller shows an "undertaking" signed by FGEHA\'s Director (Land). What do you do?',['Accept it; a director can bind FGEHA','Refuse to rely on it; only a board decision binds FGEHA','Ask DHA to stamp it','Ask for a second copy'],1,'On 5 Oct 2026 FGEHA disowned exactly this kind of document. No officer can bind FGEHA without an Executive Board decision.'],
+    ['How many square yards is a 50×90 plot?',['356','249','500','450'],2,'50×90 = 4,500 sq ft = 500 sq yd. 40×80 is 356 sq yd and 32×70 is 249 sq yd.']
+  ];
+  var qa=document.getElementById('qa'),scoreEl=document.getElementById('score'),score=0;
+  function render(){
+    qa.innerHTML='';score=0;scoreEl.textContent='0 / '+Q.length;
+    Q.forEach(function(q,i){
+      var d=document.createElement('div');d.className='q';
+      var p=document.createElement('p');p.textContent=(i+1)+'. '+q[0];d.appendChild(p);
+      var o=document.createElement('div');o.className='opts';
+      var why=document.createElement('div');why.className='why';why.hidden=true;why.textContent=q[3];
+      q[1].forEach(function(t,j){
+        var b=document.createElement('button');b.type='button';b.id='q'+i+'o'+j;b.textContent=t;
+        b.addEventListener('click',function(){
+          [].forEach.call(o.children,function(x,k){x.disabled=true;if(k===q[2])x.classList.add('right')});
+          if(j===q[2]){score++;}else{b.classList.add('wrong')}
+          why.hidden=false;scoreEl.textContent=score+' / '+Q.length;
+        });
+        o.appendChild(b);
+      });
+      d.appendChild(o);d.appendChild(why);qa.appendChild(d);
+    });
+  }
+  document.getElementById('reset-quiz').addEventListener('click',render);
+  render();
+})();
+</script>
