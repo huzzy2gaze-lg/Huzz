@@ -188,7 +188,16 @@ function renderSection() {
 }
 // the dusk film plays (and loops) while it is in view
 const filmsOn = new Set();
-function filmOn(v, on) { on ? filmsOn.add(v) : filmsOn.delete(v); filmsOn.forEach((x) => { if (!x.isConnected) filmsOn.delete(x); }); if (X) X.videoOn = filmsOn.size > 0; }
+// while a film is on screen the 3D plan fades out (body.xfilm) and stops drawing: some Windows laptops show
+// dark flickering rectangles when Chrome has to mix a playing video with the full-screen 3D canvas
+function filmOn(v, on) {
+  on ? filmsOn.add(v) : filmsOn.delete(v);
+  filmsOn.forEach((x) => { if (!x.isConnected) filmsOn.delete(x); });
+  const any = filmsOn.size > 0;
+  if (X) X.videoOn = any;
+  document.body.classList.toggle("xfilm", any);
+  if (any && X && X.hover) { X.hover = null; showTip(null); }
+}
 // the site film plays (muted, looped) only while it is on screen; it loads nothing until then
 function wireSiteFilm() {
   const v = document.querySelector(".xsite-v");
@@ -471,11 +480,8 @@ function frame(now) {
   }
   // a film plays on screen: once the camera has arrived, the plan behind it stops drawing (it looks the same),
   // so the graphics card only has the film to draw. This stops the dark flicker some Windows laptops show.
-  if (X.videoOn && !X.fly && !X.mapMode) {
-    const still = X.cur.pos.distanceTo(tp) < 0.003 && X.cur.look.distanceTo(tl) < 0.003;
-    X.stillN = still ? (X.stillN || 0) + 1 : 0;
-    if (X.stillN > 2) return;
-  } else X.stillN = 0;
+  if (X.videoOn && !X.fly && !X.mapMode) { X.stillN = (X.stillN || 0) + 1; if (X.stillN > 40) return; } // the plan has faded out (0.6 s): stop drawing
+  else X.stillN = 0;
   X.renderer.render(X.scene, X.camera);
 }
 
@@ -686,6 +692,7 @@ export function experienceAfterRender() {
 }
 
 export function stopExperience() {
+  document.body.classList.remove("xfilm");
   document.body.classList.remove("xmode", "xnogl");
   document.body.style.cursor = "";
   document.querySelector(".xprog")?.remove();

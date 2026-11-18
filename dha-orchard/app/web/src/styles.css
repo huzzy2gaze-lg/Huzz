@@ -1277,3 +1277,8 @@ html{scrollbar-color:#2F5A60 #071B1E}
 .xsite-pics figcaption{font-size:12.5px;color:#A9C4C4}
 .xsite .xbtn{justify-self:start}
 @media (max-width:640px){.xsite-pics{gap:8px}.xsite-pics figcaption{font-size:11.5px}}
+
+/* a film on screen: the 3D plan fades out, so Chrome does not mix the video with the 3D canvas (flicker on some laptops) */
+.xcanvas{transition:opacity .6s ease,visibility 0s linear 0s}
+body.xfilm .xcanvas{opacity:0;visibility:hidden;transition:opacity .6s ease,visibility 0s linear .6s}
+body.xfilm .xtip{opacity:0!important}
