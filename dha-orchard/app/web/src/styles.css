@@ -1268,15 +1268,19 @@ html{scrollbar-color:#2F5A60 #071B1E}
 @media (max-width:640px){.xtl-a{height:46px}}
 @media (prefers-reduced-motion:reduce){.in .xtl li,.in .xtl::before,.in .xtl li.done::before,.xtl-a *{animation:none!important}}
 
-/* "Live from the site": real footage from our team */
-.xsite-film{border-radius:16px;overflow:hidden;background:#061414;aspect-ratio:832/464;border:1px solid rgba(227,201,141,.22)}
+/* "Live from the site": real footage from our team. A wide card in the middle (the plan is hidden while the film plays):
+   the film on top, as big as the screen height allows, and a row of three photos below */
+.xch.xsite{justify-content:center}
+.xsite .xcard{--fw:min(100%,max(560px,calc((100vh - 560px) * 16 / 9)));max-width:min(1060px,100%);width:100%;justify-items:center;text-align:center;gap:12px;padding-top:22px;padding-bottom:22px}
+.xsite .xcard h2{font-size:clamp(30px,3.4vw,46px)}
+.xsite .xlead{max-width:62ch}
+.xsite-film{width:var(--fw);border-radius:16px;overflow:hidden;background:#061414;aspect-ratio:16/9;border:1px solid rgba(227,201,141,.22)}
 .xsite-film video{width:100%;height:100%;object-fit:cover;display:block}
-.xsite-pics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.xsite-pics{width:var(--fw);display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .xsite-pics figure{margin:0;display:grid;gap:6px}
-.xsite-pics img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;border:1px solid rgba(227,201,141,.15)}
+.xsite-pics img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:12px;display:block;border:1px solid rgba(227,201,141,.15)}
 .xsite-pics figcaption{font-size:12.5px;color:#A9C4C4}
-.xsite .xbtn{justify-self:start}
-@media (max-width:640px){.xsite-pics{gap:8px}.xsite-pics figcaption{font-size:11.5px}}
+@media (max-width:640px){.xsite .xcard{text-align:left;justify-items:start}.xsite .xcard{--fw:100%}.xsite-pics{gap:8px}.xsite-pics figcaption{font-size:11.5px}}
 
 /* a film on screen: the 3D plan fades out, so Chrome does not mix the video with the 3D canvas (flicker on some laptops) */
 .xcanvas{transition:opacity .6s ease,visibility 0s linear 0s}
