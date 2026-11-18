@@ -67,12 +67,6 @@ export function experiencePage(c) {
       <div class="xrow"><a href="#book" class="xbtn" data-magnet>Book a call</a>${wa ? `<a href="${wa}" class="xbtn ghost" target="_blank" rel="noopener" data-magnet>WhatsApp</a>` : ""}</div>
       <div class="xscroll"><i></i>Scroll</div>
     </section>
-    <section class="xch xnumbers" data-cam="overview"><div class="xcard wide">
-      <h2>${words("4,781 plots. 8 blocks. One master plan.")}</h2>
-      <div class="xstats"><div><b data-count="4781">4,781</b><span>residential plots</span></div><div><b data-count="8432">8,432</b><span>kanals of land</span></div><div><b data-count="50" data-suffix="%">50%</b><span>of development done</span></div></div>
-      <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Tap a block on the plan to see its plots and their numbers.</p>
-      <button type="button" class="xbtn ghost" data-mapopen="all">Find a plot number</button>
-    </div></section>
     <section class="xch xsite" data-cam="overview" id="x-site"><div class="xcard wide">
       <h2>${words("Live from the site")}</h2>
       <p class="xlead">Filmed by our team in November 2026: the main gate, the earthwork and the new roads. Real footage, not a render. The work is still in progress.</p>
@@ -83,6 +77,12 @@ export function experiencePage(c) {
         <figure><img src="site/photo-earthwork.webp" alt="Earthwork in progress inside the scheme" loading="lazy" decoding="async" width="960" height="540"><figcaption>Earthwork in progress</figcaption></figure>
       </div>
       <a href="#book" class="xbtn" data-magnet>Book a call and a site visit</a>
+    </div></section>
+    <section class="xch xnumbers" data-cam="overview"><div class="xcard wide">
+      <h2>${words("4,781 plots. 8 blocks. One master plan.")}</h2>
+      <div class="xstats"><div><b data-count="4781">4,781</b><span>residential plots</span></div><div><b data-count="8432">8,432</b><span>kanals of land</span></div><div><b data-count="50" data-suffix="%">50%</b><span>of development done</span></div></div>
+      <p class="xmuted">Developed by DHA Islamabad on Main Park Road, opposite COMSATS University. Every plot has a number on FGEHA's approved layout plan. Tap a block on the plan to see its plots and their numbers.</p>
+      <button type="button" class="xbtn ghost" data-mapopen="all">Find a plot number</button>
     </div></section>
     ${TOUR.map(blockChapter).join("")}
     ${renderSection()}

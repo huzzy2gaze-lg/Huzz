@@ -1280,7 +1280,7 @@ html{scrollbar-color:#2F5A60 #071B1E}
 .xsite-pics figure{margin:0;display:grid;gap:6px}
 .xsite-pics img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:12px;display:block;border:1px solid rgba(227,201,141,.15)}
 .xsite-pics figcaption{font-size:12.5px;color:#A9C4C4}
-@media (max-width:640px){.xsite .xcard{text-align:left;justify-items:start}.xsite .xcard{--fw:100%}.xsite-pics{gap:8px}.xsite-pics figcaption{font-size:11.5px}}
+@media (max-width:640px){.xch.xsite{align-items:center;padding-top:80px;padding-bottom:90px}.xsite .xcard{text-align:left;justify-items:start}.xsite .xcard{--fw:100%}.xsite-pics{gap:8px}.xsite-pics figcaption{font-size:11.5px}}
 
 /* a film on screen: the 3D plan fades out, so Chrome does not mix the video with the 3D canvas (flicker on some laptops) */
 .xcanvas{transition:opacity .6s ease,visibility 0s linear 0s}
