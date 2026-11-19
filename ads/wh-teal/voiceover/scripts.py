@@ -165,3 +165,77 @@ VOICES = {  # name: (ElevenLabs voice id, stability, similarity, style)
 EN_VOICE = {"sun": "asad", "loc": "huda", "dbl": "asad", "rsn": "huda", "home": "huda",
             "size": "asad", "checks": "asad", "steps": "huda", "abroad": "asad"}
 assert all(len(EN[k]) == len(UR[k]) for k in EN), "Urdu and English scripts must have the same number of lines"
+
+# ---- Ad set 4: real site footage (Live From the Site · Drive In With Us · Real Site, Real Plots · Watch From Abroad) ----
+CALL_WA_EN = "Call or WhatsApp W.H. Ventures: zero three three one... five two two... three seven two six."
+CALL_WA_UR = "ڈبلیو ایچ وینچرز کو کال یا واٹس ایپ کریں: صفر تین تین ایک... پانچ دو دو... تین سات دو چھ۔"
+EN.update({
+ "live": [
+  "[calm] This is D.H.A. Margalla Orchards... today.",
+  "[warm] The main gate is going up, on Main Park Road, right opposite Comsats.",
+  "[confident] Excavators are levelling the blocks...",
+  "[calm] ...and new roads are being laid.",
+  "[warm] F.G.E.H.A.'s latest update says about half of the development work is done.",
+  f"[confident] See it for yourself. {CALL_WA_EN}",
+ ],
+ "drive": [
+  "[friendly] Come with us. We're driving into D.H.A. Margalla Orchards.",
+  "[calm] It's right on Main Park Road, just ten minutes from Faizabad.",
+  "[warm] And here's the main gate.",
+  "[confident] Behind it, wide new roads, and the blocks taking shape.",
+  "[warm] Want to see it? We'll take you there, or show you live on a video call.",
+  f"[confident] {CALL_EN}",
+ ],
+ "real": [
+  "[serious] Fake files. Plots that don't exist. We've all heard the stories.",
+  "[calm] So here's the real site, filmed by our own team.",
+  "[calm] Every plot we sell is on the official master plan.",
+  "[calm] We check the file, the dues, and the seller's I.D. card, with you.",
+  "[warm] And you can come and see it, any day.",
+  f"[confident] {CALL_EN}",
+ ],
+ "overseas": [
+  "[warm] Living in Dubai, Riyadh, or London?",
+  "[calm] This is D.H.A. Margalla Orchards, filmed right at the site.",
+  "[friendly] We'll show you around on a live video call.",
+  "[calm] Every document on WhatsApp. Payments only through the bank.",
+  "[warm] Buy at home... from abroad.",
+  "[confident] Call or WhatsApp W.H. Ventures: plus nine two... three three one... five two two... three seven two six.",
+ ],
+})
+UR.update({
+ "live": [
+  f"یہ ہے {DHA_UR}... آج کے دن۔",
+  "مین گیٹ تعمیر ہو رہا ہے، مین پارک روڈ پر، کامسیٹس کے بالکل سامنے۔",
+  "ایکسکیویٹر بلاکس کی زمین ہموار کر رہے ہیں...",
+  "...اور نئی سڑکیں بچھائی جا رہی ہیں۔",
+  "ایف جی ای ایچ اے کی تازہ رپورٹ کے مطابق، ترقیاتی کام تقریباً آدھا مکمل ہو چکا ہے۔",
+  f"خود آ کر دیکھیں۔ {CALL_WA_UR}",
+ ],
+ "drive": [
+  f"آئیے ہمارے ساتھ۔ ہم {DHA_UR} جا رہے ہیں۔",
+  "یہ مین پارک روڈ پر ہے، فیض آباد سے صرف دس منٹ۔",
+  "اور یہ رہا مین گیٹ۔",
+  "اس کے پیچھے، کھلی نئی سڑکیں، اور بلاکس تیار ہو رہے ہیں۔",
+  "دیکھنا چاہتے ہیں؟ ہم آپ کو ساتھ لے جائیں گے، یا ویڈیو کال پر لائیو دکھائیں گے۔",
+  CALL_UR,
+ ],
+ "real": [
+  "جعلی فائلیں۔ ایسے پلاٹ جو موجود ہی نہیں۔ یہ کہانیاں ہم سب نے سنی ہیں۔",
+  "اس لیے یہ دیکھیں اصل سائٹ، جو ہماری اپنی ٹیم نے فلمائی ہے۔",
+  "ہم جو بھی پلاٹ بیچتے ہیں، وہ سرکاری ماسٹر پلان پر ہے۔",
+  "فائل، واجبات، اور بیچنے والے کا شناختی کارڈ، ہم آپ کے ساتھ چیک کرتے ہیں۔",
+  "اور آپ کسی بھی دن آ کر خود دیکھ سکتے ہیں۔",
+  CALL_UR,
+ ],
+ "overseas": [
+  "دبئی، ریاض یا لندن میں رہتے ہیں؟",
+  f"یہ ہے {DHA_UR}، سیدھا سائٹ سے فلمایا گیا۔",
+  "ہم آپ کو لائیو ویڈیو کال پر سائٹ دکھائیں گے۔",
+  "ہر دستاویز واٹس ایپ پر۔ ادائیگی صرف بینک کے ذریعے۔",
+  "اپنے وطن میں گھر... باہر رہتے ہوئے بھی۔",
+  "ڈبلیو ایچ وینچرز کو کال یا واٹس ایپ کریں: پلس نائن ٹو... تین تین ایک... پانچ دو دو... تین سات دو چھ۔",
+ ],
+})
+EN_VOICE.update({"live": "huda", "drive": "asad", "real": "asad", "overseas": "huda"})
+assert all(len(EN[k]) == len(UR[k]) for k in EN), "Urdu and English scripts must have the same number of lines"
