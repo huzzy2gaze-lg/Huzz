@@ -81,6 +81,70 @@ WhatsApp: +92 331 5223726
 #OverseasPakistanis #InvestInPakistan #DHAMargallaOrchard #IslamabadRealEstate #WHVentures
 ```
 
+## Set 4: real footage from the site (19 Nov 2026)
+Made from the owner's own iPhone videos and photos, shot at the site in November 2026 (main gate, excavators,
+earthwork with the Margalla hills behind, a roller, new roads). Real footage builds the most trust, so these are the
+ads to boost first for overseas buyers.
+
+| Folder | Ad | Angle | English voice |
+|---|---|---|---|
+| `9-Live-From-The-Site/` | This is the site, today | Progress proof: gate going up → blocks levelled → new roads → "about half the work is done" (FGEHA, Oct 2026) | Huda |
+| `10-Drive-In-With-Us/` | Drive in with us | Location and a site visit: 10 minutes from Faizabad, the gate, roads taking shape, "site visit or video call" | Asad |
+| `11-Real-Site-Real-Plots/` | Fake files. Fake plots. | Trust: "here's the real site, filmed by our team"; master plan; file, dues and ID checked | Asad |
+| `12-Watch-From-Abroad/` | Living abroad? | Overseas Pakistanis: video-call tours, documents on WhatsApp, bank payments only | Huda |
+
+Each has an English and an Urdu (`_UR_`, Reva) 9:16 video, about 29–38 s. Sources: footage list `../set4/shots.json`
+(the 4K originals are in the owner's Google Drive folder), captions `../set4/overlay.html`, build
+`../voiceover/build4.py <ad> <voice_dir> <shots.json> <out.mp4>`.
+
+**What was kept out on purpose:** the car's number plate (the gate clip stops before it is readable), the other
+housing projects' tower blocks on the horizon (that road clip is not used), and the workers at the site.
+
+**Check before posting:** "about half the work is done" is FGEHA's October 2026 progress report, and July 2027 is
+FGEHA's *target* for Block A possession, not a promise. The gate is shown honestly as "going up" (it still has scaffolding).
+
+### Captions (set 4)
+**9 · Live from the site**
+```
+This is DHA Margalla Orchards, today. 🏗️
+Main gate going up on Main Park Road, blocks being levelled, new roads laid.
+FGEHA's October update: about half of the development work is done.
+See it for yourself: we'll take you on a free site visit.
+📞 Call / WhatsApp 0331-5223726 · link in bio
+#DHAMargallaOrchard #MargallaOrchard #SiteUpdate #IslamabadRealEstate #WHVentures
+```
+Urdu: `یہ ہے ڈی ایچ اے مارگلہ آرچرڈز، آج کے دن۔ مین گیٹ تعمیر ہو رہا ہے، بلاکس ہموار ہو رہے ہیں، نئی سڑکیں بچھ رہی ہیں۔ خود آ کر دیکھیں۔ 📞 0331-5223726`
+
+**10 · Drive in with us**
+```
+Come with us to DHA Margalla Orchards 🚗
+Main Park Road, 10 minutes from Faizabad. The gate, the new roads, the blocks taking shape.
+Book a free site visit, or a live video call from the site.
+📞 0331-5223726 · link in bio
+#DHAMargallaOrchard #ParkRoad #Islamabad #PlotsForSale #WHVentures
+```
+Urdu: `آئیے ہمارے ساتھ ڈی ایچ اے مارگلہ آرچرڈز۔ فیض آباد سے صرف دس منٹ۔ مفت سائٹ وزٹ یا لائیو ویڈیو کال بک کریں۔ 📞 0331-5223726`
+
+**11 · Real site, real plots**
+```
+Fake files. Plots that don't exist. We've all heard the stories.
+So here is the real site, filmed by our own team. ✅
+Every plot we sell is on the official master plan, and we check the file, the dues and the seller's ID with you.
+Come and see it, any day. 📞 0331-5223726
+#PropertyTips #AvoidFraud #DHAMargallaOrchard #IslamabadRealEstate #WHVentures
+```
+Urdu: `جعلی فائلیں، نقلی پلاٹ؟ یہ ہے اصل سائٹ، ہماری ٹیم کی فلمائی ہوئی۔ ہر فائل، واجبات اور شناختی کارڈ آپ کے ساتھ چیک کرتے ہیں۔ 📞 0331-5223726`
+
+**12 · Watch from abroad**
+```
+Living in Dubai, Riyadh or London? 🌍
+This is DHA Margalla Orchards, filmed at the site. We'll show you around on a live video call.
+Every document on WhatsApp. Payments only through the bank.
+Buy at home, from abroad. WhatsApp: +92 331 5223726
+#OverseasPakistanis #InvestInPakistan #DHAMargallaOrchard #IslamabadRealEstate #WHVentures
+```
+Urdu: `دبئی، ریاض یا لندن میں رہتے ہیں؟ لائیو ویڈیو کال پر سائٹ دیکھیں۔ ہر دستاویز واٹس ایپ پر، ادائیگی صرف بینک کے ذریعے۔ واٹس ایپ: +92 331 5223726`
+
 ## Voices (10 Nov 2026)
 Chosen from the voice audition (`../voice-audition/`). All on ElevenLabs Eleven v4, mastered with `master_pro.py`.
 - **English:** Asad Raza (Pakistani English, Lahore; male) and Huda (Pakistani English; female).
