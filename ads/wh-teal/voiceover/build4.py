@@ -1,6 +1,6 @@
 # Build a voiced, mastered 9:16 ad from real site footage (ad set 4).
 # usage: python3 build4.py <ad> <voice_dir> <shots.json> <out.mp4>     (expects <voice_dir>/<ad>_0..N.wav)
-# shots.json: {"<ad>": [[[file, t_in, t_out, crop_x 0..1], ...], ...]}: one shot (a list of segments) per voice line;
+# shots.json: {"<ad>": [[[file, t_in, t_out, crop_x 0..1 (, zoom, crop_y 0..1)], ...], ...]}: one shot (a list of segments) per voice line;
 # the last one is under the end card. Files are relative to the folder of shots.json. Each shot is cropped to 9:16 from the landscape footage, with a slow push-in and a light grade;
 # the transparent caption layer (set4/overlay.html) goes on top, then the voice and music are mixed by master_pro.py.
 import sys, os, json, glob, shutil, subprocess, tempfile, numpy as np, wave
@@ -21,9 +21,10 @@ tmp = tempfile.mkdtemp(prefix=f"b4-{ad}-")
 # shorter than the line, they play slower (up to 1.6x), then the last frame holds.
 FOOT = os.path.dirname(os.path.abspath(shots_json))
 cuts = [0.0] + [s - 0.15 for s in S[1:]] + [END]
-def piece(src, t_in, length, cx, speed, p):
+def piece(src, t_in, length, cx, speed, p, z=1.0, cy=0.5):
+    # crop a 9:16 window: z > 1 zooms in (a smaller window), cy places it vertically (0 top, 1 bottom)
     zoom = "(1+0.06*t/%.3f)" % max(length, 0.5)
-    crop = (f"crop=w=ih*9/16:h=ih:x=(iw-ih*9/16)*{cx}:y=0,scale=1080:1920:flags=lanczos,"
+    crop = (f"crop=w=ih*9/16/{z}:h=ih/{z}:x=(iw-ih*9/16/{z})*{cx}:y=(ih-ih/{z})*{cy},scale=1080:1920:flags=lanczos,"
             f"scale=w='trunc(1080*{zoom}/2)*2':h='trunc(1920*{zoom}/2)*2':eval=frame:flags=bicubic,crop=1080:1920,"
             "eq=contrast=1.05:saturation=1.08,fps=30,format=yuv420p")
     if src.lower().endswith(".jpg"):
@@ -40,11 +41,11 @@ for i, segs in enumerate(shots):
     # photos share whatever time the clips leave, at least 2.5 s each
     left = max(0.0, d - avail * speed); per_photo = max(2.5, left / photos) if photos else 0
     remaining = d
-    for j, (src, t_in, t_out, cx) in enumerate(segs):
+    for j, (src, t_in, t_out, cx, *zc) in enumerate(segs):
         if remaining <= 0.05: break
         last = j == len(segs) - 1
         length = remaining if last else min(remaining, per_photo if src.lower().endswith(".jpg") else (t_out - t_in) * speed)
-        p = f"{tmp}/s{i}_{j}.mp4"; piece(os.path.join(FOOT, src), t_in, length, cx, speed, p); parts.append(p); remaining -= length
+        p = f"{tmp}/s{i}_{j}.mp4"; piece(os.path.join(FOOT, src), t_in, length, cx, speed, p, *zc); parts.append(p); remaining -= length
 with open(f"{tmp}/list.txt", "w") as f: f.writelines(f"file '{p}'\n" for p in parts)
 bg = f"{tmp}/bg.mp4"
 subprocess.run(["ffmpeg","-v","error","-y","-f","concat","-safe","0","-i",f"{tmp}/list.txt","-t",str(END),"-c:v","libx264","-crf","16","-preset","fast","-pix_fmt","yuv420p",bg], check=True)
