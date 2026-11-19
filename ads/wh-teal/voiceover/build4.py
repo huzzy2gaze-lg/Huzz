@@ -1,7 +1,7 @@
 # Build a voiced, mastered 9:16 ad from real site footage (ad set 4).
 # usage: python3 build4.py <ad> <voice_dir> <shots.json> <out.mp4>     (expects <voice_dir>/<ad>_0..N.wav)
-# shots.json: {"<ad>": [[source_file, in_seconds, crop_x 0..1], ...]}, one shot per voice line (the last one is
-# under the end card). Each shot is cropped to 9:16 from the landscape footage, with a slow push-in and a light grade;
+# shots.json: {"<ad>": [[[file, t_in, t_out, crop_x 0..1], ...], ...]}: one shot (a list of segments) per voice line;
+# the last one is under the end card. Files are relative to the folder of shots.json. Each shot is cropped to 9:16 from the landscape footage, with a slow push-in and a light grade;
 # the transparent caption layer (set4/overlay.html) goes on top, then the voice and music are mixed by master_pro.py.
 import sys, os, json, glob, shutil, subprocess, tempfile, numpy as np, wave
 ad, vdir, shots_json, out = sys.argv[1:5]
@@ -16,17 +16,35 @@ shots = json.load(open(shots_json))[ad]
 assert len(shots) == len(S), f"{ad}: {len(shots)} shots for {len(S)} voice lines"
 print(ad, "starts", [round(x, 2) for x in S], "end", END, flush=True)
 tmp = tempfile.mkdtemp(prefix=f"b4-{ad}-")
-# cut points: each shot starts 0.15 s before its voice line (the first at 0), the last runs to the end
+# cut points: each shot starts 0.15 s before its voice line (the first at 0), the last runs to the end.
+# A shot is a list of segments [file, t_in, t_out, crop_x]; photos (.jpg) last as long as needed. If the clips are
+# shorter than the line, they play slower (up to 1.6x), then the last frame holds.
+FOOT = os.path.dirname(os.path.abspath(shots_json))
 cuts = [0.0] + [s - 0.15 for s in S[1:]] + [END]
+def piece(src, t_in, length, cx, speed, p):
+    zoom = "(1+0.06*t/%.3f)" % max(length, 0.5)
+    crop = (f"crop=w=ih*9/16:h=ih:x=(iw-ih*9/16)*{cx}:y=0,scale=1080:1920:flags=lanczos,"
+            f"scale=w='trunc(1080*{zoom}/2)*2':h='trunc(1920*{zoom}/2)*2':eval=frame:flags=bicubic,crop=1080:1920,"
+            "eq=contrast=1.05:saturation=1.08,fps=30,format=yuv420p")
+    if src.lower().endswith(".jpg"):
+        cmd = ["ffmpeg","-v","error","-y","-loop","1","-framerate","30","-t",f"{length:.3f}","-i",src,"-vf",crop]
+    else:
+        cmd = ["ffmpeg","-v","error","-y","-ss",f"{t_in:.3f}","-i",src,"-vf",f"setpts={speed:.4f}*PTS,tpad=stop_mode=clone:stop_duration=20,{crop}","-t",f"{length:.3f}"]
+    subprocess.run(cmd + ["-an","-c:v","libx264","-crf","15","-preset","fast",p], check=True)
 parts = []
-for i, (src, t_in, cx) in enumerate(shots):
-    d = round(cuts[i + 1] - cuts[i], 3); p = f"{tmp}/s{i}.mp4"
-    zoom = "(1+0.07*t/%.3f)" % d          # slow push-in over the shot
-    vf = (f"crop=w=ih*9/16:h=ih:x=(iw-ih*9/16)*{cx}:y=0,scale=1080:1920:flags=lanczos,"
-          f"scale=w='trunc(1080*{zoom}/2)*2':h='trunc(1920*{zoom}/2)*2':eval=frame:flags=bicubic,crop=1080:1920,"
-          "eq=contrast=1.06:saturation=1.1:gamma=0.98,colorbalance=rs=.02:bs=-.03:rh=.02,fps=30,format=yuv420p")
-    subprocess.run(["ffmpeg","-v","error","-y","-ss",str(t_in),"-t",str(d),"-i",src,"-vf",vf,"-an","-c:v","libx264","-crf","16","-preset","fast",p], check=True)
-    parts.append(p)
+for i, segs in enumerate(shots):
+    d = cuts[i + 1] - cuts[i]
+    vids = [g for g in segs if not g[0].lower().endswith(".jpg")]
+    avail = sum(g[2] - g[1] for g in vids); photos = len(segs) - len(vids)
+    speed = 1.0 if photos or avail >= d else min(1.6, d / avail)
+    # photos share whatever time the clips leave, at least 2.5 s each
+    left = max(0.0, d - avail * speed); per_photo = max(2.5, left / photos) if photos else 0
+    remaining = d
+    for j, (src, t_in, t_out, cx) in enumerate(segs):
+        if remaining <= 0.05: break
+        last = j == len(segs) - 1
+        length = remaining if last else min(remaining, per_photo if src.lower().endswith(".jpg") else (t_out - t_in) * speed)
+        p = f"{tmp}/s{i}_{j}.mp4"; piece(os.path.join(FOOT, src), t_in, length, cx, speed, p); parts.append(p); remaining -= length
 with open(f"{tmp}/list.txt", "w") as f: f.writelines(f"file '{p}'\n" for p in parts)
 bg = f"{tmp}/bg.mp4"
 subprocess.run(["ffmpeg","-v","error","-y","-f","concat","-safe","0","-i",f"{tmp}/list.txt","-t",str(END),"-c:v","libx264","-crf","16","-preset","fast","-pix_fmt","yuv420p",bg], check=True)
