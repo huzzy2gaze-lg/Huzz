@@ -1,0 +1,11 @@
+{
+  "model_type": "ltx2_22B_distilled_gguf_q4_k_m",
+  "prompt": "Static tripod shot, locked-off camera, no pan, no zoom. A construction site transforms into a finished entrance gate: the scaffolding dissolves away, smooth beige stone cladding sweeps up the central pillar, grass and young palms grow along the median, daylight fades into a warm dusk and the downlights and uplights switch on one by one. Sound: soft wind, distant construction noise fading out, a low warm cinematic swell.",
+  "image_prompt_type": "SE",
+  "image_start": "E:/AI/tests/wh_gate/gate_real_768x1344.jpg",
+  "image_end": "E:/AI/tests/wh_gate/flux_finished_seed303.png",
+  "resolution": "544x960",
+  "video_length": 121,
+  "num_inference_steps": 8,
+  "seed": 11
+}
