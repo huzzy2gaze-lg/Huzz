@@ -29,6 +29,20 @@ Prompt:
 - WanGP's LTX-2 handler supports start and end image (`image_prompt_type: "SE"`).
 - Job: `ltx_flf.json` — ltx2_22B_distilled_gguf_q4_k_m, 544x960, 121 frames (~5 s), 8 steps, seed 11, start = real frame, end = FLUX seed 303.
 
-STATUS: see the section below.
+- Run: WanGP `--profile 5` (Very low RAM, models sent to the GPU part by part). Free RAM was only ~5 GB (Chrome open), so profile 4 + the 7 GB rule blocked it. Profile 5 ran fine: GPU 99%, ~2 GB VRAM used, free RAM fell to ~250 MB but nothing crashed.
+- Time: 4 min 16 s generation, 5 min 27 s total with model load. 8 steps at ~17 s each.
+- Output: `ltx23_flf_512x896.mp4` — WanGP rounded 544x960 down to **512x896**, 24 fps, 5.04 s, with audio.
+- Tiles: `ltx23_flf_tile.jpg` (3x2, one frame per second), `ltx23_flf_tile_dense.jpg` (5x2, every 0.5 s).
 
-**Waiting for RAM (14:48 PKT).** LTX needs 7 GB free RAM; the PC had only 4.6–4.9 GB free for 25 min (Chrome uses ~3 GB). A watcher on the PC starts the render as soon as 7 GB is free. Video, tiles and verdict will be added here.
+## Step 3 — check
+
+- Camera: **stays locked.** No pan, no zoom, beam and pillar stay in the same place for all 5 s. (Real photo plates hold much better than 2D doodle art did.)
+- Letters: **readable in every frame**, no warping.
+- Real look: good. Reads as a real photo. Small cars and specks appear and vanish near the gate in the middle.
+- Timing (main weak point): the build is **front-loaded** — scaffolding is gone and the stone pillar is there by ~1 s. Then ~3 s of near-static daylight. Then the dusk light, hills and pillar uplights **pop in during the last ~0.5 s**. It does not "sweep up" or switch lights on one by one.
+- Sound: wind and ambience present (not checked in detail).
+- No VRAM errors.
+
+## Verdict
+
+Local LTX-2.3 first+last frame **works** for this shot: locked camera, clean letters, real look, ~5 min per try, free. It is weaker than a good cloud result on **pacing**: the change is fast at the start and the dusk snaps at the end. Fix ideas: (1) retime in edit — slow the first 1.5 s with minterpolate and cut the static middle; (2) add a middle keyframe (finished pillar in daylight) at frame ~60 so the dusk change spreads over the second half; (3) try 2-3 more seeds. Usable as a draft or B-roll; for the hero shot compare against the Higgsfield and Blender versions.
